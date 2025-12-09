@@ -20,7 +20,7 @@ namespace FishUI.Controls
 		{
 			base.Init(UI);
 
-			ImgNormal = new NPatch(UI, "data/panel_normal.png", 2, 2, 2, 2);
+			ImgNormal = new NPatch(UI, "data/panel2_normal.png", 2, 2, 2, 2);
 			ImgHover = new NPatch(UI, "data/panel_hover.png", 2, 2, 2, 2);
 			ImgDisabled = new NPatch(UI, "data/panel_disabled.png", 2, 2, 2, 2);
 			ImgPressed = new NPatch(UI, "data/panel_pressed.png", 2, 2, 2, 2);

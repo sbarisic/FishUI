@@ -14,7 +14,11 @@ namespace FishUI.Controls
 		public virtual Vector2 Size { get; set; }
 		public virtual int ZDepth { get; set; }
 
-		public virtual bool Disabled { get; set; }
+		public virtual bool Disabled { get; set; } = false;
+
+		public virtual bool Visible { get; set; } = true;
+
+		public virtual bool RightClickDragSelect { get; set; } = false;
 
 		public virtual FishColor Color { get; set; } = new FishColor(255, 255, 255, 255);
 
@@ -85,8 +89,11 @@ namespace FishUI.Controls
 			Control[] Ch = GetAllChildren();
 			foreach (var Child in Ch)
 			{
-				Child.InternalInit(UI);
-				Child.Draw(UI, Dt, Time);
+				if (Child.Visible)
+				{
+					Child.InternalInit(UI);
+					Child.Draw(UI, Dt, Time);
+				}
 			}
 			UI.Graphics.PopScissor();
 		}

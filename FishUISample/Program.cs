@@ -30,7 +30,7 @@ namespace FishUISample
 
 
 			Label Lbl = new Label(18, "The quick brown fox jumps over the lazy dog");
-			Lbl.Position = new Vector2(100, 300);
+			Lbl.Position = new Vector2(100, 400);
 			Lbl.Size = Lbl.MeasureText(FUI);
 			Lbl.ZDepth = 1;
 			FUI.Controls.Add(Lbl);
@@ -38,6 +38,8 @@ namespace FishUISample
 			Panel Pnl = new Panel();
 			Pnl.Position = new Vector2(10, 10);
 			Pnl.Size = new Vector2(400, 350);
+			Pnl.ZDepth = 2;
+			Pnl.RightClickDragSelect = true;
 			FUI.Controls.Add(Pnl);
 
 			Button Btn = new Button();
@@ -46,12 +48,12 @@ namespace FishUISample
 			Pnl.AddChild(Btn);
 
 			CheckBox CBox = new CheckBox();
-			CBox.Position = new Vector2(0, 0);
+			CBox.Position = new Vector2(5, 5);
 			CBox.Size = new Vector2(15, 15);
 			Pnl.AddChild(CBox);
 
 			RadioButton RBut = new RadioButton();
-			RBut.Position = new Vector2(0, 15);
+			RBut.Position = new Vector2(5, 25);
 			RBut.Size = new Vector2(15, 15);
 			Pnl.AddChild(RBut);
 

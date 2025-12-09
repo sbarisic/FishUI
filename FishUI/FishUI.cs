@@ -1,4 +1,5 @@
 ﻿using FishUI.Controls;
+using System.ComponentModel.Design;
 using System.Numerics;
 
 namespace FishUI
@@ -14,6 +15,10 @@ namespace FishUI
 
 		public Control PressedControl;
 		public Control HeldControl;
+		public Control PressedRightControl;
+		public Control HeldRightControl;
+
+		SelectionBox SelBox;
 
 		public FishUI(IFishUIGfx Graphics, IFishUIInput Input, int Width, int Height)
 		{
@@ -21,6 +26,10 @@ namespace FishUI
 
 			this.Graphics = Graphics;
 			this.Input = Input;
+
+			SelBox = new SelectionBox();
+			SelBox.ZDepth = -100;
+			Controls.Add(SelBox);
 		}
 
 		internal ImageRef Skin;
@@ -43,6 +52,9 @@ namespace FishUI
 
 			foreach (Control C in Cs)
 			{
+				if (!C.Visible)
+					continue;
+
 				if (Utils.IsInside(C.Position, C.Size, Pos))
 				{
 					Control Picked = C.GetChildAt(Pos);
@@ -83,45 +95,67 @@ namespace FishUI
 				HeldControl = PressedControl;
 			}
 
+			if (InState.MouseRightPressed)
+			{
+				PressedRightControl = GetControlAt(MousePos);
+				MouseRightClickPos = MousePos;
+				HeldRightControl = PressedRightControl;
+			}
+
 			if (InState.MouseLeftReleased)
 			{
 				MouseLeftClickPos = null;
 				HeldControl = null;
 			}
 
+			if (InState.MouseRightReleased)
+			{
+				MouseRightClickPos = null;
+				HeldRightControl = null;
+			}
+
+			if (HeldRightControl != null && MouseRightClickPos != null)
+			{
+				Vector2 Sz = MousePos - MouseRightClickPos.Value;
+
+				if (Sz.X < 0 && Sz.Y < 0)
+				{
+					// TODO
+				}
+				else if (Sz.X < 0)
+				{
+					// TODO
+				}
+				else if (Sz.Y < 0)
+				{
+					// TODO
+				}
+				else
+				{
+					SelBox.Position = MouseRightClickPos.Value;
+					SelBox.Size = Sz;
+				}
+
+				SelBox.Visible = true;
+			}
+			else
+			{
+				SelBox.Visible = false;
+			}
+
 			if (HeldControl != null && InState.MouseDelta != Vector2.Zero)
 			{
-				HeldControl.HandleDrag(this, MouseLeftClickPos ?? Vector2.Zero, MousePos, InState);
+				if (HeldControl.Visible)
+					HeldControl.HandleDrag(this, MouseLeftClickPos ?? Vector2.Zero, MousePos, InState);
 			}
 
 			foreach (Control Ctlr in GetOrderedControls())
 			{
+				if (!Ctlr.Visible)
+					continue;
+
 				Ctlr.InternalHandleInput(this, InState, out bool Handled, out Control HandledControl);
 				Control Ctl = Ctlr;
-				//Ctl = HandledControl;
-
-				/*bool NewIsInside = Utils.IsInside(Ctl.GlobalPosition, Ctl.Size, MousePos);
-				if (NewIsInside)
-					Ctl = Ctl.GetChildAt(MousePos);
-
-				if (NewIsInside && !Ctl.IsMouseInside)
-				{
-					Ctl.HandleMouseEnter(this, InState);
-				}
-				else if (!NewIsInside && Ctl.IsMouseInside)
-				{
-					Ctl.HandleMouseLeave(this, InState);
-				}
-
-
-				Ctl.IsMouseInside = NewIsInside;
-
-				// Drawing flag IsMousePressed
-				if (Ctl.IsMouseInside && InState.MouseLeft)
-					Ctl.IsMousePressed = true;
-				else
-					Ctl.IsMousePressed = false;*/
-
 
 				if (Ctl.IsMouseInside && !Handled)
 				{
@@ -137,10 +171,13 @@ namespace FishUI
 			}
 
 			Graphics.BeginDrawing(Dt);
-			foreach (Control Ctl in Controls)
+			foreach (Control Ctl in GetOrderedControls().Reverse())
 			{
-				Ctl.InternalInit(this);
-				Ctl.Draw(this, Dt, Time);
+				if (Ctl.Visible)
+				{
+					Ctl.InternalInit(this);
+					Ctl.Draw(this, Dt, Time);
+				}
 			}
 			Graphics.EndDrawing();
 
