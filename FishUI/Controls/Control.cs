@@ -14,6 +14,8 @@ namespace FishUI.Controls
 		public virtual Vector2 Size { get; set; }
 		public virtual int ZDepth { get; set; }
 
+		public virtual bool Disabled { get; set; }
+
 		public virtual FishColor Color { get; set; } = new FishColor(255, 255, 255, 255);
 
 		public virtual Vector2 GlobalPosition
@@ -27,7 +29,22 @@ namespace FishUI.Controls
 			}
 		}
 
+		public virtual void Init(FishUI UI)
+		{
+		}
+
+		bool HasInit = false;
+		public void InternalInit(FishUI UI)
+		{
+			if (HasInit)
+				return;
+
+			HasInit = true;
+			Init(UI);
+		}
+
 		public bool IsMouseInside;
+		public bool IsMousePressed;
 
 		public void AddChild(Control Child)
 		{
@@ -62,9 +79,22 @@ namespace FishUI.Controls
 			return this;
 		}
 
+		public virtual void DrawChildren(FishUI UI, float Dt, float Time)
+		{
+			UI.Graphics.PushScissor(GlobalPosition, Size);
+			Control[] Ch = GetAllChildren();
+			foreach (var Child in Ch)
+			{
+				Child.Draw(UI, Dt, Time);
+			}
+			UI.Graphics.PopScissor();
+		}
+
 		public virtual void Draw(FishUI UI, float Dt, float Time)
 		{
 			UI.Graphics.DrawRectangle(Position, Size, Color);
+
+			//UI.Graphics.DrawImage(UI.Skin, Position, Size, 0, 1, new FishColor(255, 255, 255, 255));
 
 			if (IsMouseInside)
 			{
@@ -75,13 +105,7 @@ namespace FishUI.Controls
 				UI.Graphics.DrawRectangleOutline(Position, Size, new FishColor(100, 100, 100));
 			}
 
-			UI.Graphics.PushScissor(GlobalPosition, Size);
-			Control[] Ch = GetAllChildren();
-			foreach (var Child in Ch)
-			{
-				Child.Draw(UI, Dt, Time);
-			}
-			UI.Graphics.PopScissor();
+			DrawChildren(UI, Dt, Time);
 		}
 
 		bool LeftClickedOn = false;

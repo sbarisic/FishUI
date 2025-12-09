@@ -23,9 +23,13 @@ namespace FishUI
 			this.Input = Input;
 		}
 
+		internal ImageRef Skin;
+
 		public void Init()
 		{
 			Graphics.Init();
+
+			Skin = Graphics.LoadImage("data/gwen.png");
 		}
 
 		Control GetControlAt(Vector2 Pos)
@@ -98,7 +102,15 @@ namespace FishUI
 					Ctl.HandleMouseLeave(this, InState);
 				}
 
+
 				Ctl.IsMouseInside = NewIsInside;
+
+				// Drawing flag IsMousePressed
+				if (Ctl.IsMouseInside && InState.MouseLeft)
+					Ctl.IsMousePressed = true;
+				else
+					Ctl.IsMousePressed = false;
+
 				Ctl.InternalHandleInput(this, InState, out bool Handled, out Control HandledControl);
 
 				if (Handled)
@@ -108,6 +120,7 @@ namespace FishUI
 			Graphics.BeginDrawing(Dt);
 			foreach (Control Ctl in Controls)
 			{
+				Ctl.InternalInit(this);
 				Ctl.Draw(this, Dt, Time);
 			}
 			Graphics.EndDrawing();

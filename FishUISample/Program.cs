@@ -15,7 +15,9 @@ namespace FishUISample
 
 			Raylib.SetTraceLogLevel(TraceLogLevel.None);
 			Raylib.InitWindow(W, H, "Fishmachine");
-			Raylib.SetTargetFPS(60);
+			int TargetFPS = Raylib.GetMonitorRefreshRate(0);
+			Raylib.SetTargetFPS(TargetFPS);
+
 
 			FishUI.FishUI FUI = new FishUI.FishUI(new RaylibGfx(), new RaylibInput(), W, H);
 			FUI.Init();
@@ -23,7 +25,7 @@ namespace FishUISample
 
 			Button Btn = new Button();
 			Btn.Position = new Vector2(100, 100);
-			Btn.Size = new Vector2(100, 60);
+			Btn.Size = new Vector2(150, 50);
 			FUI.Controls.Add(Btn);
 
 			Stopwatch SWatch = Stopwatch.StartNew();

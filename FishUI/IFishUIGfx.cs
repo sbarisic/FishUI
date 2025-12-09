@@ -21,8 +21,26 @@ namespace FishUI
 
 		public void EndScissor();
 
+		// Loading
+
+		public ImageRef LoadImage(string FileName);
+
+		public ImageRef LoadImage(string FileName, int X, int Y, int W, int H);
+
+		public ImageRef LoadImage(ImageRef Orig, int X, int Y, int W, int H);
+
+		public FishColor GetImageColor(ImageRef Img, Vector2 Pos);
+
+		// Drawing
+
 		public void DrawRectangle(Vector2 Position, Vector2 Size, FishColor Color);
 
 		public void DrawRectangleOutline(Vector2 Position, Vector2 Size, FishColor Color);
+
+		public void DrawImage(ImageRef Img, Vector2 Pos, float Rot, float Scale, FishColor Color);
+
+		public void DrawImage(ImageRef Img, Vector2 Pos, Vector2 Size, float Rot, float Scale, FishColor Color);
+
+		public void DrawNPatch(NPatch NP, Vector2 Pos, Vector2 Size, FishColor Color);
 	}
 }
