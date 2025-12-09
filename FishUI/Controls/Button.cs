@@ -18,5 +18,9 @@ namespace FishUI.Controls
 			get => base.Size;
 			set => base.Size = value;
 		}
+
+		public override void HandleInput(FishUI UI, FishInputState InState)
+		{
+		}
 	}
 }

@@ -18,5 +18,10 @@ namespace FishUI
 			this.B = B;
 			this.A = A;
 		}
+
+		public bool IsEmpty()
+		{
+			return R == 0 && G == 0 && B == 0 && A == 0;
+		}
 	}
 }

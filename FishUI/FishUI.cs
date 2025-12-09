@@ -12,6 +12,9 @@ namespace FishUI
 		public int Width;
 		public int Height;
 
+		public Control PressedControl;
+		public Control HeldControl;
+
 		public FishUI(IFishUIGfx Graphics, IFishUIInput Input, int Width, int Height)
 		{
 			Controls = new List<Control>();
@@ -25,9 +28,28 @@ namespace FishUI
 			Graphics.Init();
 		}
 
+		Control GetControlAt(Vector2 Pos)
+		{
+			Control[] Cs = Controls.OrderBy(C => C.ZDepth).ToArray();
+
+			foreach (Control C in Cs)
+			{
+				if (Utils.IsInside(C.Position, C.Size, Pos))
+				{
+					Control Picked = C.GetChildAt(Pos);
+					return Picked;
+				}
+			}
+
+			return null;
+		}
+
 		Vector2 LastMousePos;
 		bool LastMouseLeft;
 		bool LastMouseRight;
+
+		Vector2? MouseLeftClickPos;
+		Vector2? MouseRightClickPos;
 
 		public void Tick(float Dt, float Time)
 		{
@@ -43,12 +65,44 @@ namespace FishUI
 			InState.MouseLeftReleased = !MouseLeft && LastMouseLeft;
 			InState.MouseRightPressed = MouseRight && !LastMouseRight;
 			InState.MouseRightReleased = !MouseRight && LastMouseRight;
-			InState.MouseDelta = LastMousePos - MousePos;
+			InState.MouseDelta = MousePos - LastMousePos;
+
+			if (InState.MouseLeftPressed)
+			{
+				PressedControl = GetControlAt(MousePos);
+				MouseLeftClickPos = MousePos;
+				HeldControl = PressedControl;
+			}
+
+			if (InState.MouseLeftReleased)
+			{
+				MouseLeftClickPos = null;
+				HeldControl = null;
+			}
+
+			if (HeldControl != null && InState.MouseDelta != Vector2.Zero)
+			{
+				HeldControl.HandleDrag(this, MouseLeftClickPos ?? Vector2.Zero, MousePos, InState);
+			}
 
 			foreach (Control Ctl in Controls)
 			{
-				Ctl.IsMouseInside = Utils.IsInside(Ctl.Position, Ctl.Size, MousePos);
-				Ctl.Update(this, InState);
+				bool NewIsInside = Utils.IsInside(Ctl.Position, Ctl.Size, MousePos);
+
+				if (NewIsInside && !Ctl.IsMouseInside)
+				{
+					Ctl.HandleMouseEnter(this, InState);
+				}
+				else if (!NewIsInside && Ctl.IsMouseInside)
+				{
+					Ctl.HandleMouseLeave(this, InState);
+				}
+
+				Ctl.IsMouseInside = NewIsInside;
+				Ctl.InternalHandleInput(this, InState, out bool Handled, out Control HandledControl);
+
+				if (Handled)
+					break;
 			}
 
 			Graphics.BeginDrawing(Dt);
