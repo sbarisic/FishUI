@@ -47,11 +47,27 @@ namespace FishUI.Controls
 			Init(UI);
 		}
 
+		public Vector2 ToLocal(Vector2 GlobalPt)
+		{
+			return GlobalPt - GlobalPosition;
+		}
+
 		public bool IsMouseInside;
 		public bool IsMousePressed;
 
+		public void Unparent()
+		{
+			if (Parent != null)
+			{
+				Parent.RemoveChild(this);
+			}
+		}
+
 		public void AddChild(Control Child)
 		{
+			if (Children.Contains(Child))
+				return;
+
 			Child.Parent = this;
 			Children.Add(Child);
 		}
@@ -86,7 +102,7 @@ namespace FishUI.Controls
 		public virtual void DrawChildren(FishUI UI, float Dt, float Time)
 		{
 			UI.Graphics.PushScissor(GlobalPosition, Size);
-			Control[] Ch = GetAllChildren();
+			Control[] Ch = GetAllChildren().Reverse().ToArray();
 			foreach (var Child in Ch)
 			{
 				if (Child.Visible)

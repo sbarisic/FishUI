@@ -29,7 +29,7 @@ namespace FishUI
 
 			SelBox = new SelectionBox();
 			SelBox.ZDepth = -100;
-			Controls.Add(SelBox);
+			//Controls.Add(SelBox);
 		}
 
 		internal ImageRef Skin;
@@ -117,30 +117,34 @@ namespace FishUI
 			if (HeldRightControl != null && MouseRightClickPos != null)
 			{
 				Vector2 Sz = MousePos - MouseRightClickPos.Value;
+				SelBox.Visible = true;
+				HeldRightControl.AddChild(SelBox);
 
 				if (Sz.X < 0 && Sz.Y < 0)
 				{
-					// TODO
+					SelBox.Position = HeldRightControl.ToLocal(MousePos.Round());
+					SelBox.Size = new Vector2(-Sz.X, -Sz.Y).Round();
 				}
 				else if (Sz.X < 0)
 				{
-					// TODO
+					SelBox.Position = HeldRightControl.ToLocal(new Vector2(MousePos.X, MouseRightClickPos.Value.Y).Round());
+					SelBox.Size = new Vector2(-Sz.X, Sz.Y).Round();
 				}
 				else if (Sz.Y < 0)
 				{
-					// TODO
+					SelBox.Position = HeldRightControl.ToLocal(new Vector2(MouseRightClickPos.Value.X, MousePos.Y).Round());
+					SelBox.Size = new Vector2(Sz.X, -Sz.Y).Round();
 				}
 				else
 				{
-					SelBox.Position = MouseRightClickPos.Value;
-					SelBox.Size = Sz;
+					SelBox.Position = HeldRightControl.ToLocal(MouseRightClickPos.Value.Round());
+					SelBox.Size = Sz.Round();
 				}
-
-				SelBox.Visible = true;
 			}
 			else
 			{
 				SelBox.Visible = false;
+				SelBox.Unparent();
 			}
 
 			if (HeldControl != null && InState.MouseDelta != Vector2.Zero)
