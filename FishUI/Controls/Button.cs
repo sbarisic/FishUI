@@ -12,6 +12,8 @@ namespace FishUI.Controls
 		NPatch ImgDisabled;
 		NPatch ImgPressed;
 
+		FontRef TxtFnt;
+
 		public Button()
 		{
 		}
@@ -24,6 +26,8 @@ namespace FishUI.Controls
 			ImgHover = new NPatch(UI, "data/button_hover.png", 2, 2, 2, 2);
 			ImgDisabled = new NPatch(UI, "data/button_disabled.png", 2, 2, 2, 2);
 			ImgPressed = new NPatch(UI, "data/button_pressed.png", 2, 2, 2, 2);
+
+			TxtFnt = UI.Graphics.LoadFont("data/fonts/ubuntu_mono.ttf", 18, 0, FishColor.Black);
 		}
 
 		public override void Draw(FishUI UI, float Dt, float Time)
@@ -40,6 +44,10 @@ namespace FishUI.Controls
 				Cur = ImgHover;
 
 			UI.Graphics.DrawNPatch(Cur, GlobalPosition, Size, Color);
+
+			string Txt = "Hello Button";
+			Vector2 TxtSz = UI.Graphics.MeasureText(TxtFnt, Txt);
+			UI.Graphics.DrawText(TxtFnt, Txt, (GlobalPosition + Size / 2) - TxtSz / 2);
 
 			DrawChildren(UI, Dt, Time);
 		}

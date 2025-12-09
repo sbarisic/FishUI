@@ -72,7 +72,7 @@ namespace FishUI.Controls
 
 			foreach (Control C in Cs)
 			{
-				if (Utils.IsInside(C.Position, C.Size, Pos))
+				if (Utils.IsInside(C.GlobalPosition, C.Size, Pos))
 					return C.GetChildAt(Pos);
 			}
 
@@ -85,6 +85,7 @@ namespace FishUI.Controls
 			Control[] Ch = GetAllChildren();
 			foreach (var Child in Ch)
 			{
+				Child.InternalInit(UI);
 				Child.Draw(UI, Dt, Time);
 			}
 			UI.Graphics.PopScissor();
@@ -155,31 +156,55 @@ namespace FishUI.Controls
 					HandledControl = this;
 				}
 			}
+
+			Control Ctl = this;
+			bool NewIsInside = Utils.IsInside(GlobalPosition, Size, InState.MousePos);
+			if (NewIsInside)
+				Ctl = Ctl.GetChildAt(InState.MousePos);
+
+			if (NewIsInside && !Ctl.IsMouseInside)
+			{
+				Ctl.HandleMouseEnter(UI, InState);
+			}
+			else if (!NewIsInside && Ctl.IsMouseInside)
+			{
+				Ctl.HandleMouseLeave(UI, InState);
+			}
+
+
+			Ctl.IsMouseInside = NewIsInside;
+
+			// Drawing flag IsMousePressed
+			if (Ctl.IsMouseInside && InState.MouseLeft)
+				Ctl.IsMousePressed = true;
+			else
+				Ctl.IsMousePressed = false;
 		}
 
 		public virtual void HandleDrag(FishUI UI, Vector2 StartPos, Vector2 EndPos, FishInputState InState)
 		{
-			Position += InState.MouseDelta;
+			//Position += InState.MouseDelta;
+			Console.WriteLine($"{GetType().Name} - Drag");
 		}
 
 		public virtual void HandleMouseEnter(FishUI UI, FishInputState InState)
 		{
-			Console.WriteLine("Mouse Enter");
+			Console.WriteLine($"{GetType().Name} - Mouse Enter");
 		}
 
 		public virtual void HandleMouseLeave(FishUI UI, FishInputState InState)
 		{
-			Console.WriteLine("Mouse Leave");
+			Console.WriteLine($"{GetType().Name} - Mouse Leave");
 		}
 
 		public virtual void HandleMouseLeftClick(FishUI UI, FishInputState InState, Vector2 Pos)
 		{
-			Console.WriteLine("Mouse Left Click");
+			Console.WriteLine($"{GetType().Name} - Mouse Left Click");
 		}
 
 		public virtual void HandleMouseRightClick(FishUI UI, FishInputState InState, Vector2 Pos)
 		{
-			Console.WriteLine("Mouse Right Click");
+			Console.WriteLine($"{GetType().Name} - Mouse Right Click");
 		}
 
 		public virtual void HandleInput(FishUI UI, FishInputState InState)

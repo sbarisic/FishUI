@@ -29,6 +29,8 @@ namespace FishUISample
 		{
 			Raylib.BeginDrawing();
 			Raylib.ClearBackground(new Color(240, 240, 240));
+
+			Raylib.BeginBlendMode(BlendMode.Alpha);
 		}
 
 		public void EndDrawing()
@@ -116,6 +118,19 @@ namespace FishUISample
 			return IRef;
 		}
 
+		public FontRef LoadFont(string FileName, float Size, float Spacing, FishColor Color)
+		{
+			Font F = Raylib.LoadFontEx(FileName, (int)Size, null, 250);
+
+			FontRef FRef = new FontRef();
+			FRef.Path = FileName;
+			FRef.Userdata = F;
+			FRef.Spacing = Spacing;
+			FRef.Size = Size;
+			FRef.Color = Color;
+			return FRef;
+		}
+
 		public ImageRef LoadImage(string FileName)
 		{
 			Texture2D Img = Raylib.LoadTexture(FileName);
@@ -177,6 +192,18 @@ namespace FishUISample
 			Info.Source = new Rectangle(NP.ImagePos, NP.ImageSize);
 
 			Raylib.DrawTextureNPatch(Tex, Info, new Rectangle(Pos, Size), Vector2.Zero, 0, C);
+		}
+
+		public void DrawText(FontRef Fn, string Text, Vector2 Pos)
+		{
+			Font F = (Font)Fn.Userdata;
+			Raylib.DrawTextEx(F, Text, new Vector2((int)Pos.X, (int)Pos.Y), Fn.Size, Fn.Spacing, new Color(Fn.Color.R, Fn.Color.G, Fn.Color.B, Fn.Color.A));
+		}
+
+		public Vector2 MeasureText(FontRef Fn, string Text)
+		{
+			Font F = (Font)Fn.Userdata;
+			return Raylib.MeasureTextEx(F, Text, Fn.Size, Fn.Spacing);
 		}
 	}
 }

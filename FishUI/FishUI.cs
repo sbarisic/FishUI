@@ -32,6 +32,11 @@ namespace FishUI
 			Skin = Graphics.LoadImage("data/gwen.png");
 		}
 
+		Control[] GetOrderedControls()
+		{
+			return Controls.OrderBy(C => C.ZDepth).ToArray();
+		}
+
 		Control GetControlAt(Vector2 Pos)
 		{
 			Control[] Cs = Controls.OrderBy(C => C.ZDepth).ToArray();
@@ -89,9 +94,15 @@ namespace FishUI
 				HeldControl.HandleDrag(this, MouseLeftClickPos ?? Vector2.Zero, MousePos, InState);
 			}
 
-			foreach (Control Ctl in Controls)
+			foreach (Control Ctlr in GetOrderedControls())
 			{
-				bool NewIsInside = Utils.IsInside(Ctl.Position, Ctl.Size, MousePos);
+				Ctlr.InternalHandleInput(this, InState, out bool Handled, out Control HandledControl);
+				Control Ctl = Ctlr;
+				//Ctl = HandledControl;
+
+				/*bool NewIsInside = Utils.IsInside(Ctl.GlobalPosition, Ctl.Size, MousePos);
+				if (NewIsInside)
+					Ctl = Ctl.GetChildAt(MousePos);
 
 				if (NewIsInside && !Ctl.IsMouseInside)
 				{
@@ -109,9 +120,17 @@ namespace FishUI
 				if (Ctl.IsMouseInside && InState.MouseLeft)
 					Ctl.IsMousePressed = true;
 				else
-					Ctl.IsMousePressed = false;
+					Ctl.IsMousePressed = false;*/
 
-				Ctl.InternalHandleInput(this, InState, out bool Handled, out Control HandledControl);
+
+				if (Ctl.IsMouseInside && !Handled)
+				{
+					Control Ctl2 = Ctl.GetChildAt(InState.MousePos);
+					Ctl2.InternalHandleInput(this, InState, out bool Handled2, out Control HandledControl2);
+
+					if (Handled2)
+						Handled = true;
+				}
 
 				if (Handled)
 					break;
