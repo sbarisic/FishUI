@@ -18,6 +18,8 @@ namespace FishUI
 		public Control PressedRightControl;
 		public Control HeldRightControl;
 
+		public Control InputActiveControl;
+
 		SelectionBox SelBox;
 
 		public FishUI(IFishUIGfx Graphics, IFishUIInput Input, int Width, int Height)
@@ -151,6 +153,11 @@ namespace FishUI
 			{
 				if (HeldControl.Visible)
 					HeldControl.HandleDrag(this, MouseLeftClickPos ?? Vector2.Zero, MousePos, InState);
+			}
+
+			if (InputActiveControl != null)
+			{
+				InputActiveControl.InternalHandle(this, InState, true);
 			}
 
 			foreach (Control Ctlr in GetOrderedControls())

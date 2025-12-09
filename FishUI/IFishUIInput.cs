@@ -8,7 +8,9 @@ namespace FishUI
 	public interface IFishUIInput
     {
         public FishKey GetKeyPressed();
-        public bool IsKeyDown(FishKey Key);
+        public int GetCharPressed();
+
+		public bool IsKeyDown(FishKey Key);
         public bool IsKeyUp(FishKey Key);
         public bool IsKeyPressed(FishKey Key);
         public bool IsKeyReleased(FishKey Key);

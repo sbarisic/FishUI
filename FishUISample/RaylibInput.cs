@@ -18,6 +18,11 @@ namespace FishUISample
 			return (FishKey)K;
 		}
 
+		public int GetCharPressed()
+		{
+			return Raylib.GetCharPressed();
+		}
+
         public Vector2 GetMousePosition()
         {
 			return Raylib.GetMousePosition();

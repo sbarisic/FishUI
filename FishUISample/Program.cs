@@ -29,9 +29,9 @@ namespace FishUISample
 
 
 
-			Label Lbl = new Label(18, "The quick brown fox jumps over the lazy dog");
+			Textbox Lbl = new Textbox(18, "The quick");
 			Lbl.Position = new Vector2(100, 400);
-			Lbl.Size = Lbl.MeasureText(FUI);
+			Lbl.Size = new Vector2(200, 30); //Lbl.MeasureText(FUI);
 			Lbl.ZDepth = 1;
 			FUI.Controls.Add(Lbl);
 

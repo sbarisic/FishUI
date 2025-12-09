@@ -38,6 +38,11 @@ namespace FishUISample
 			Raylib.EndDrawing();
 		}
 
+		public void DrawLine(Vector2 Pos1, Vector2 Pos2, float Thick, FishColor Clr)
+		{
+			Raylib.DrawLineEx(Pos1, Pos2, Thick, new Color(Clr.R, Clr.G, Clr.B, Clr.A));
+		}
+
 		public void DrawRectangle(Vector2 Position, Vector2 Size, FishColor Color)
 		{
 			Raylib.DrawRectangleV(Position, Size, new Color(Color.R, Color.G, Color.B, Color.A));

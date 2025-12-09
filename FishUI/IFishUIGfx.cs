@@ -37,6 +37,8 @@ namespace FishUI
 
 		// Drawing
 
+		public void DrawLine(Vector2 Pos1, Vector2 Pos2, float Thick, FishColor Clr);
+
 		public void DrawRectangle(Vector2 Position, Vector2 Size, FishColor Color);
 
 		public void DrawRectangleOutline(Vector2 Position, Vector2 Size, FishColor Color);

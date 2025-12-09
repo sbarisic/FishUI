@@ -135,6 +135,36 @@ namespace FishUI.Controls
 		bool LeftClickedOn = false;
 		bool RightClickedOn = false;
 
+		public void InternalHandle(FishUI UI, FishInputState InState, bool InputOnly = false)
+		{
+			if (InputOnly)
+			{
+				HandleInput(UI, InState);
+				return;
+			}
+
+			if (InState.MouseLeftPressed)
+				LeftClickedOn = true;
+			if (InState.MouseRightPressed)
+				RightClickedOn = true;
+
+			if (InState.MouseLeftReleased && LeftClickedOn)
+			{
+				LeftClickedOn = false;
+				HandleMouseLeftClick(UI, InState, InState.MousePos);
+				UI.InputActiveControl = this;
+			}
+
+			if (InState.MouseRightReleased && RightClickedOn)
+			{
+				RightClickedOn = false;
+				HandleMouseRightClick(UI, InState, InState.MousePos);
+			}
+
+			// Handle input for this control here
+			HandleInput(UI, InState);
+		}
+
 		public void InternalHandleInput(FishUI UI, FishInputState InState, out bool Handled, out Control HandledControl)
 		{
 			Handled = false;
@@ -156,25 +186,7 @@ namespace FishUI.Controls
 
 				if (!Handled)
 				{
-					if (InState.MouseLeftPressed)
-						LeftClickedOn = true;
-					if (InState.MouseRightPressed)
-						RightClickedOn = true;
-
-					if (InState.MouseLeftReleased && LeftClickedOn)
-					{
-						LeftClickedOn = false;
-						HandleMouseLeftClick(UI, InState, InState.MousePos);
-					}
-
-					if (InState.MouseRightReleased && RightClickedOn)
-					{
-						RightClickedOn = false;
-						HandleMouseRightClick(UI, InState, InState.MousePos);
-					}
-
-					// Handle input for this control here
-					HandleInput(UI, InState);
+					InternalHandle(UI, InState);
 					Handled = true;
 					HandledControl = this;
 				}
@@ -206,8 +218,8 @@ namespace FishUI.Controls
 
 		public virtual void HandleDrag(FishUI UI, Vector2 StartPos, Vector2 EndPos, FishInputState InState)
 		{
-			//Position += InState.MouseDelta;
-			Console.WriteLine($"{GetType().Name} - Drag");
+			Position += InState.MouseDelta;
+			//Console.WriteLine($"{GetType().Name} - Drag");
 		}
 
 		public virtual void HandleMouseEnter(FishUI UI, FishInputState InState)

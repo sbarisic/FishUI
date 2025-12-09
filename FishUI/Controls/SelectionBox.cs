@@ -17,7 +17,7 @@ namespace FishUI.Controls
 		{
 			base.Init(UI);
 
-			ImgNormal = new NPatch(UI, "data/selectionbox_normal.png", 1, 1, 1, 1);
+			ImgNormal = new NPatch(UI, "data/selectionbox_normal.png", 2, 2, 2, 2);
 		}
 
 		public override void Draw(FishUI UI, float Dt, float Time)
