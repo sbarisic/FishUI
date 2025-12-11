@@ -24,20 +24,6 @@ namespace FishUI.Controls
 
 		public virtual FishColor Color { get; set; } = new FishColor(255, 255, 255, 255);
 
-		public virtual void Init(FishUI UI)
-		{
-		}
-
-		bool HasInit = false;
-		public void InternalInit(FishUI UI)
-		{
-			if (HasInit)
-				return;
-
-			HasInit = true;
-			Init(UI);
-		}
-
 		public Vector2 GetAbsolutePosition()
 		{
 			if (Position.Mode == PositionMode.Absolute)
@@ -106,6 +92,11 @@ namespace FishUI.Controls
 			Children.Remove(Child);
 		}
 
+		// Called once at first draw - for loading resources...
+		public virtual void Init(FishUI UI)
+		{
+		}
+
 		public virtual void DrawChildren(FishUI UI, float Dt, float Time)
 		{
 			UI.Graphics.PushScissor(GetAbsolutePosition(), GetAbsoluteSize());
@@ -114,8 +105,7 @@ namespace FishUI.Controls
 			{
 				if (Child.Visible)
 				{
-					Child.InternalInit(UI);
-					Child.Draw(UI, Dt, Time);
+					Child.DrawControlAndChildren(UI, Dt, Time);
 				}
 			}
 			UI.Graphics.PopScissor();
@@ -136,6 +126,21 @@ namespace FishUI.Controls
 				UI.Graphics.DrawRectangleOutline(GetAbsolutePosition(), GetAbsoluteSize(), new FishColor(100, 100, 100));
 			}
 
+			DrawChildren(UI, Dt, Time);
+		}
+
+
+		bool DrawHasInit = false;
+
+		public void DrawControlAndChildren(FishUI UI, float Dt, float Time)
+		{
+			if (!DrawHasInit)
+			{
+				DrawHasInit = true;
+				Init(UI);
+			}
+
+			Draw(UI, Dt, Time);
 			DrawChildren(UI, Dt, Time);
 		}
 
@@ -171,8 +176,8 @@ namespace FishUI.Controls
 			Console.WriteLine($"{GetType().Name} - Mouse Click {Btn}");
 		}
 
-		public virtual void HandleInput(FishUI UI, FishInputState InState)
+		/*public virtual void HandleInput(FishUI UI, FishInputState InState)
 		{
-		}
+		}*/
 	}
 }

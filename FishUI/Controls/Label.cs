@@ -26,12 +26,6 @@ namespace FishUI.Controls
 			TxtFnt = UI.Graphics.LoadFont("data/fonts/ubuntu_mono.ttf", FontSize, 0, FishColor.Black);
 		}
 
-		public Vector2 MeasureText(FishUI UI)
-		{
-			InternalInit(UI);
-			return UI.Graphics.MeasureText(TxtFnt, Text);
-		}
-
 		public override void Draw(FishUI UI, float Dt, float Time)
 		{
 			//base.Draw(UI, Dt, Time);
@@ -41,10 +35,6 @@ namespace FishUI.Controls
 			UI.Graphics.DrawText(TxtFnt, Txt, (GetAbsolutePosition() + GetAbsoluteSize() / 2) - TxtSz / 2);
 
 			DrawChildren(UI, Dt, Time);
-		}
-
-		public override void HandleInput(FishUI UI, FishInputState InState)
-		{
 		}
 	}
 }

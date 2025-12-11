@@ -51,9 +51,5 @@ namespace FishUI.Controls
 
 			DrawChildren(UI, Dt, Time);
 		}
-
-		public override void HandleInput(FishUI UI, FishInputState InState)
-		{
-		}
 	}
 }

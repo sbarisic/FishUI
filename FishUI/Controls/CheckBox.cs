@@ -54,10 +54,6 @@ namespace FishUI.Controls
 			DrawChildren(UI, Dt, Time);
 		}
 
-		public override void HandleInput(FishUI UI, FishInputState InState)
-		{
-		}
-
 		public override void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
 		{
 			base.HandleMouseClick(UI, InState, Btn, Pos);

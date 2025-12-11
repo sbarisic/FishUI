@@ -21,13 +21,6 @@ namespace FishUI
 
 		public Control InputActiveControl;
 
-		//================= State variables =================//
-		//Vector2 LastMousePos;
-		//bool LastMouseLeft;
-		//bool LastMouseRight;
-
-		//Vector2? MouseLeftClickPos;
-		//Vector2? MouseRightClickPos;
 
 		public FishUI(IFishUIGfx Graphics, IFishUIInput Input, int Width, int Height)
 		{
@@ -35,18 +28,11 @@ namespace FishUI
 
 			this.Graphics = Graphics;
 			this.Input = Input;
-
-			//SelBox = new SelectionBox();
-			//SelBox.ZDepth = -100;
 		}
-
-		internal ImageRef Skin;
 
 		public void Init()
 		{
 			Graphics.Init();
-
-			Skin = Graphics.LoadImage("data/gwen.png");
 		}
 
 		Control[] GetOrderedControls()
@@ -86,7 +72,12 @@ namespace FishUI
 			if (!Ctl.Visible)
 				return;
 
-			Ctl.IsMouseInside = Ctl.IsPointInside(InState.MousePos);
+			Ctl.IsMousePressed = LeftClickedControl == Ctl;
+			Ctl.IsMouseInside = HoveredControl == Ctl;
+
+			Control[] Children = Ctl.GetAllChildren();
+			foreach (Control C in Children)
+				UpdateSingleControl(C, InState, InLast);
 		}
 
 		Control HoveredControl;
@@ -160,8 +151,7 @@ namespace FishUI
 			{
 				if (Ctl.Visible)
 				{
-					Ctl.InternalInit(this);
-					Ctl.Draw(this, Dt, Time);
+					Ctl.DrawControlAndChildren(this, Dt, Time);
 				}
 			}
 			Graphics.EndDrawing();
