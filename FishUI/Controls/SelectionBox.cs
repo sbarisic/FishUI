@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
+using YamlDotNet.Serialization;
 
 namespace FishUI.Controls
 {
 	public class SelectionBox : Control
 	{
+		[YamlIgnore]
 		NPatch ImgNormal;
 
 		public SelectionBox()
@@ -20,14 +22,14 @@ namespace FishUI.Controls
 			ImgNormal = new NPatch(UI, "data/selectionbox_normal.png", 2, 2, 2, 2);
 		}
 
-		public override void Draw(FishUI UI, float Dt, float Time)
+		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
 			//base.Draw(UI, Dt, Time);
 
 			NPatch Cur = ImgNormal;
 			UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), Color);
 
-			DrawChildren(UI, Dt, Time);
+			//DrawChildren(UI, Dt, Time);
 		}
 	}
 }

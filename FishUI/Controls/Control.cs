@@ -2,19 +2,30 @@
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
+using YamlDotNet.Serialization;
 
 namespace FishUI.Controls
 {
 	public abstract class Control
 	{
-		Control Parent;
-		List<Control> Children = new List<Control>();
+		const bool DebugPrint = false;
 
+		protected Control Parent;
 
+		[YamlMember]
+		public List<Control> Children = new List<Control>();
 
+		[YamlMember]
 		public FishUIPosition Position;
+
+		[YamlMember]
 		public Padding Padding;
+
+		[YamlMember]
 		public Vector2 Size;
+
+		[YamlMember]
+		public string ID;
 
 		public virtual int ZDepth { get; set; }
 
@@ -58,7 +69,10 @@ namespace FishUI.Controls
 			return Utils.IsInside(AbsPos, AbsSize, GlobalPt);
 		}
 
+		[YamlIgnore]
 		public bool IsMouseInside;
+
+		[YamlIgnore]
 		public bool IsMousePressed;
 
 		public void Unparent()
@@ -71,11 +85,24 @@ namespace FishUI.Controls
 
 		public void AddChild(Control Child)
 		{
+			Child.Parent = this;
+
+			// If Children contains Child, skip. It means this function was used to re-parent an existing child on deserialization
 			if (Children.Contains(Child))
 				return;
 
-			Child.Parent = this;
 			Children.Add(Child);
+		}
+
+		public T FindChildByType<T>() where T : Control
+		{
+			foreach (Control Ch in GetAllChildren())
+			{
+				if (Ch is T Ret)
+					return Ret;
+			}
+
+			return null;
 		}
 
 		public Control[] GetAllChildren(bool Order = true)
@@ -97,21 +124,25 @@ namespace FishUI.Controls
 		{
 		}
 
-		public virtual void DrawChildren(FishUI UI, float Dt, float Time)
+		public virtual void DrawChildren(FishUI UI, float Dt, float Time, bool UseScissors = true)
 		{
-			UI.Graphics.PushScissor(GetAbsolutePosition(), GetAbsoluteSize());
+			if (UseScissors)
+				UI.Graphics.PushScissor(GetAbsolutePosition(), GetAbsoluteSize());
+
 			Control[] Ch = GetAllChildren().Reverse().ToArray();
 			foreach (var Child in Ch)
 			{
-				if (Child.Visible)
-				{
-					Child.DrawControlAndChildren(UI, Dt, Time);
-				}
+				if (!Child.Visible)
+					continue;
+
+				Child.DrawControlAndChildren(UI, Dt, Time);
 			}
-			UI.Graphics.PopScissor();
+
+			if (UseScissors)
+				UI.Graphics.PopScissor();
 		}
 
-		public virtual void Draw(FishUI UI, float Dt, float Time)
+		public virtual void DrawControl(FishUI UI, float Dt, float Time)
 		{
 			UI.Graphics.DrawRectangle(GetAbsolutePosition(), GetAbsoluteSize(), Color);
 
@@ -126,10 +157,10 @@ namespace FishUI.Controls
 				UI.Graphics.DrawRectangleOutline(GetAbsolutePosition(), GetAbsoluteSize(), new FishColor(100, 100, 100));
 			}
 
-			DrawChildren(UI, Dt, Time);
+			//DrawChildren(UI, Dt, Time);
 		}
 
-
+		[YamlIgnore]
 		bool DrawHasInit = false;
 
 		public void DrawControlAndChildren(FishUI UI, float Dt, float Time)
@@ -140,7 +171,7 @@ namespace FishUI.Controls
 				Init(UI);
 			}
 
-			Draw(UI, Dt, Time);
+			DrawControl(UI, Dt, Time);
 			DrawChildren(UI, Dt, Time);
 		}
 
@@ -152,28 +183,35 @@ namespace FishUI.Controls
 
 		public virtual void HandleMouseEnter(FishUI UI, FishInputState InState)
 		{
-			Console.WriteLine($"{GetType().Name} - Mouse Enter");
+			if (DebugPrint)
+				Console.WriteLine($"{GetType().Name}({ID ?? "null"}) - Mouse Enter");
 		}
 
 		public virtual void HandleMouseLeave(FishUI UI, FishInputState InState)
 		{
-			Console.WriteLine($"{GetType().Name} - Mouse Leave");
+			if (DebugPrint)
+				Console.WriteLine($"{GetType().Name}({ID ?? "null"}) - Mouse Leave");
 		}
 
 
 		public virtual void HandleMousePress(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
 		{
-			Console.WriteLine($"{GetType().Name} - Mouse Press {Btn}");
+			if (DebugPrint)
+				Console.WriteLine($"{GetType().Name}({ID ?? "null"}) - Mouse Press {Btn}");
 		}
 
 		public virtual void HandleMouseRelease(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
 		{
-			Console.WriteLine($"{GetType().Name} - Mouse Release {Btn}");
+			if (DebugPrint)
+				Console.WriteLine($"{GetType().Name}({ID ?? "null"}) - Mouse Release {Btn}");
 		}
 
 		public virtual void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
 		{
-			Console.WriteLine($"{GetType().Name} - Mouse Click {Btn}");
+			if (DebugPrint)
+				Console.WriteLine($"{GetType().Name}({ID ?? "null"}) - Mouse Click {Btn}");
+
+			UI.Events.Broadcast(UI, this, "mouse_click", null);
 		}
 
 		public virtual void HandleFocus()

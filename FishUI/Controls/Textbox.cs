@@ -2,21 +2,31 @@
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
+using YamlDotNet.Serialization;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace FishUI.Controls
 {
 	public class Textbox : Control
 	{
+		[YamlIgnore]
 		FontRef TxtFnt;
 
+		[YamlIgnore]
 		NPatch ImgNormal;
+
+		[YamlIgnore]
 		NPatch ImgActive;
+
+		[YamlIgnore]
 		NPatch ImgDisabled;
 
 		public string Text;
-		int FontSize;
+		public int FontSize;
 
+		public Textbox()
+		{
+		}
 
 		public Textbox(int FontSize, string Text)
 		{
@@ -36,7 +46,7 @@ namespace FishUI.Controls
 			TxtFnt = UI.Graphics.LoadFont("data/fonts/ubuntu_mono.ttf", FontSize, 0, FishColor.Black);
 		}
 
-		public override void Draw(FishUI UI, float Dt, float Time)
+		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
 			//base.Draw(UI, Dt, Time);
 
@@ -68,7 +78,7 @@ namespace FishUI.Controls
 				UI.Graphics.DrawLine(LineStart, LineStart + new Vector2(8, 0), 2, FishColor.Black);
 			}
 
-			DrawChildren(UI, Dt, Time);
+			//DrawChildren(UI, Dt, Time);
 		}
 
 		public override void HandleTextInput(FishUI UI, FishInputState InState, char Chr)

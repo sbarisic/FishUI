@@ -44,6 +44,10 @@ namespace FishUI
         public float Right;
         public float Bottom;
 
+        public FishUIPosition()
+        {
+        }
+
         public FishUIPosition(PositionMode Mode, Vector2 Pos)
         {
             this.Mode = Mode;

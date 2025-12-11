@@ -2,20 +2,35 @@
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
+using YamlDotNet.Serialization;
 
 namespace FishUI.Controls
 {
 	public class CheckBox : Control
 	{
+		[YamlIgnore]
 		NPatch ImgChecked;
+
+		[YamlIgnore]
 		NPatch ImgUnchecked;
+
+		[YamlIgnore]
 		NPatch ImgDisabledChecked;
+
+		[YamlIgnore]
 		NPatch ImgDisabledUnchecked;
 
 		public bool Checked;
 
 		public CheckBox()
 		{
+		}
+
+		public CheckBox(string LabelText)
+		{
+			Label Lbl = new Label();
+			Lbl.InitForCheckbox(LabelText);
+			AddChild(Lbl);
 		}
 
 		public override void Init(FishUI UI)
@@ -28,7 +43,7 @@ namespace FishUI.Controls
 			ImgDisabledUnchecked = new NPatch(UI, "data/checkbox_disabled_unchecked.png", 2, 2, 2, 2);
 		}
 
-		public override void Draw(FishUI UI, float Dt, float Time)
+		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
 			//base.Draw(UI, Dt, Time);
 
@@ -49,9 +64,13 @@ namespace FishUI.Controls
 					Cur = ImgUnchecked;
 			}
 
-			UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), Color);
+			Vector2 Pos = GetAbsolutePosition();
+			Vector2 Sz = GetAbsoluteSize();
 
-			DrawChildren(UI, Dt, Time);
+			//FindChildByType<Label>().Position = new Vector2(Sz.X + 5, 0);
+			UI.Graphics.DrawNPatch(Cur, Pos, Sz, Color);
+
+			//DrawChildren(UI, Dt, Time, false);
 		}
 
 		public override void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)

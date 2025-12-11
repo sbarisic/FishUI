@@ -2,14 +2,22 @@
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
+using YamlDotNet.Serialization;
 
 namespace FishUI.Controls
 {
 	public class RadioButton : Control
 	{
+		[YamlIgnore]
 		NPatch ImgChecked;
+
+		[YamlIgnore]
 		NPatch ImgUnchecked;
+
+		[YamlIgnore]
 		NPatch ImgDisabledChecked;
+
+		[YamlIgnore]
 		NPatch ImgDisabledUnchecked;
 
 		public bool Checked;
@@ -18,6 +26,13 @@ namespace FishUI.Controls
 		{
 		}
 
+		public RadioButton(string LabelText)
+		{
+			Label Lbl = new Label(16, LabelText); 
+			Lbl.InitForCheckbox(LabelText);
+			AddChild(Lbl);
+
+		}
 		public override void Init(FishUI UI)
 		{
 			base.Init(UI);
@@ -28,7 +43,7 @@ namespace FishUI.Controls
 			ImgDisabledUnchecked = new NPatch(UI, "data/radiobutton_disabled_unchecked.png", 2, 2, 2, 2);
 		}
 
-		public override void Draw(FishUI UI, float Dt, float Time)
+		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
 			//base.Draw(UI, Dt, Time);
 
@@ -51,7 +66,7 @@ namespace FishUI.Controls
 
 			UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), Color);
 
-			DrawChildren(UI, Dt, Time);
+			//DrawChildren(UI, Dt, Time);
 		}
 
 		public override void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)

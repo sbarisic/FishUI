@@ -2,17 +2,28 @@
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
+using YamlDotNet.Serialization;
 
 namespace FishUI.Controls
 {
 	public class Button : Control
 	{
+		[YamlIgnore]
 		NPatch ImgNormal;
+
+		[YamlIgnore]
 		NPatch ImgHover;
+
+		[YamlIgnore]
 		NPatch ImgDisabled;
+
+		[YamlIgnore]
 		NPatch ImgPressed;
 
+		[YamlIgnore]
 		FontRef TxtFnt;
+
+		public string Text;
 
 		public Button()
 		{
@@ -30,7 +41,7 @@ namespace FishUI.Controls
 			TxtFnt = UI.Graphics.LoadFont("data/fonts/ubuntu_mono.ttf", 18, 0, FishColor.Black);
 		}
 
-		public override void Draw(FishUI UI, float Dt, float Time)
+		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
 			//base.Draw(UI, Dt, Time);
 
@@ -45,11 +56,15 @@ namespace FishUI.Controls
 
 			UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), Color);
 
-			string Txt = "Hello Button";
-			Vector2 TxtSz = UI.Graphics.MeasureText(TxtFnt, Txt);
-			UI.Graphics.DrawText(TxtFnt, Txt, (GetAbsolutePosition() + GetAbsoluteSize() / 2) - TxtSz / 2);
+			string Txt = Text;
 
-			DrawChildren(UI, Dt, Time);
+			if (!string.IsNullOrEmpty(Txt))
+			{
+				Vector2 TxtSz = UI.Graphics.MeasureText(TxtFnt, Txt);
+				UI.Graphics.DrawText(TxtFnt, Txt, (GetAbsolutePosition() + GetAbsoluteSize() / 2) - TxtSz / 2);
+			}
+
+			//DrawChildren(UI, Dt, Time);
 		}
 	}
 }

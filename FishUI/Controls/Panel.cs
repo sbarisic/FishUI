@@ -2,14 +2,22 @@
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
+using YamlDotNet.Serialization;
 
 namespace FishUI.Controls
 {
 	public class Panel : Control
 	{
+		[YamlIgnore]
 		NPatch ImgNormal;
+
+		[YamlIgnore]
 		NPatch ImgHover;
+
+		[YamlIgnore]
 		NPatch ImgDisabled;
+
+		[YamlIgnore]
 		NPatch ImgPressed;
 
 		public Panel()
@@ -26,7 +34,7 @@ namespace FishUI.Controls
 			ImgPressed = new NPatch(UI, "data/panel_pressed.png", 2, 2, 2, 2);
 		}
 
-		public override void Draw(FishUI UI, float Dt, float Time)
+		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
 			//base.Draw(UI, Dt, Time);
 
@@ -41,7 +49,7 @@ namespace FishUI.Controls
 
 			UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), Color);
 
-			DrawChildren(UI, Dt, Time);
+			//DrawChildren(UI, Dt, Time);
 		}
 	}
 }

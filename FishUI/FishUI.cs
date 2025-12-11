@@ -9,6 +9,7 @@ namespace FishUI
 	{
 		public IFishUIGfx Graphics;
 		public IFishUIInput Input;
+		public IFishUIEvents Events;
 
 		public List<Control> Controls;
 		public int Width;
@@ -23,12 +24,13 @@ namespace FishUI
 		public Control InputActiveControl;
 
 
-		public FishUI(IFishUIGfx Graphics, IFishUIInput Input)
+		public FishUI(IFishUIGfx Graphics, IFishUIInput Input, IFishUIEvents Events)
 		{
 			Controls = new List<Control>();
 
 			this.Graphics = Graphics;
 			this.Input = Input;
+			this.Events = Events;
 		}
 
 		public void Init()
@@ -66,6 +68,26 @@ namespace FishUI
 		public Control PickControl(Vector2 GlobalPos)
 		{
 			return PickControl(GetOrderedControls(), GlobalPos);
+		}
+
+		Control FindControlByIDEx(Control[] Ctrls, string ID)
+		{
+			foreach (Control C in Ctrls)
+			{
+				if (C.ID == ID)
+					return C;
+
+				Control Ret = FindControlByIDEx(C.GetAllChildren(), ID);
+				if (Ret != null)
+					return Ret;
+			}
+
+			return null;
+		}
+
+		public Control FindControlByID(string ID)
+		{
+			return FindControlByIDEx(Controls.ToArray(), ID);
 		}
 
 		void UpdateSingleControl(Control Ctl, FishInputState InState, FishInputState InLast)
