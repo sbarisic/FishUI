@@ -39,7 +39,6 @@ namespace FishUISample
 			Pnl.Position = new Vector2(10, 10);
 			Pnl.Size = new Vector2(400, 350);
 			Pnl.ZDepth = 2;
-			Pnl.RightClickDragSelect = true;
 			FUI.Controls.Add(Pnl);
 
 			Button Btn = new Button();

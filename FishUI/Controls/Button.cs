@@ -43,11 +43,11 @@ namespace FishUI.Controls
 			else if (IsMouseInside)
 				Cur = ImgHover;
 
-			UI.Graphics.DrawNPatch(Cur, GlobalPosition, Size, Color);
+			UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), Color);
 
 			string Txt = "Hello Button";
 			Vector2 TxtSz = UI.Graphics.MeasureText(TxtFnt, Txt);
-			UI.Graphics.DrawText(TxtFnt, Txt, (GlobalPosition + Size / 2) - TxtSz / 2);
+			UI.Graphics.DrawText(TxtFnt, Txt, (GetAbsolutePosition() + GetAbsoluteSize() / 2) - TxtSz / 2);
 
 			DrawChildren(UI, Dt, Time);
 		}

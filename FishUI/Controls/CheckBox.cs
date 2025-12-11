@@ -49,7 +49,7 @@ namespace FishUI.Controls
 					Cur = ImgUnchecked;
 			}
 
-			UI.Graphics.DrawNPatch(Cur, GlobalPosition, Size, Color);
+			UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), Color);
 
 			DrawChildren(UI, Dt, Time);
 		}
@@ -58,10 +58,12 @@ namespace FishUI.Controls
 		{
 		}
 
-        public override void HandleMouseLeftClick(FishUI UI, FishInputState InState, Vector2 Pos)
-        {
-			Checked = !Checked;
-            //base.HandleMouseLeftClick(UI, InState, Pos);
-        }
+		public override void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
+		{
+			base.HandleMouseClick(UI, InState, Btn, Pos);
+
+			if (Btn == FishMouseButton.Left)
+				Checked = !Checked;
+		}
 	}
 }

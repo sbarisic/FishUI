@@ -39,7 +39,7 @@ namespace FishUI.Controls
 			else if (IsMouseInside)
 				Cur = ImgHover;**/
 
-			UI.Graphics.DrawNPatch(Cur, GlobalPosition, Size, Color);
+			UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), Color);
 
 			DrawChildren(UI, Dt, Time);
 		}

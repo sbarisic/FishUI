@@ -25,7 +25,7 @@ namespace FishUI.Controls
 			//base.Draw(UI, Dt, Time);
 
 			NPatch Cur = ImgNormal;
-			UI.Graphics.DrawNPatch(Cur, GlobalPosition, Size, Color);
+			UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), Color);
 
 			DrawChildren(UI, Dt, Time);
 		}

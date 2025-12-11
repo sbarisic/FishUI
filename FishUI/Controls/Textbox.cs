@@ -53,13 +53,13 @@ namespace FishUI.Controls
 			else if (UI.InputActiveControl == this)
 				Cur = ImgActive;
 
-			UI.Graphics.DrawNPatch(Cur, GlobalPosition, Size, Color);
+			UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), Color);
 
-			UI.Graphics.PushScissor(GlobalPosition, Size);
+			UI.Graphics.PushScissor(GetAbsolutePosition(), GetAbsoluteSize());
 			string Txt = Text;
 			Vector2 TxtSz = UI.Graphics.MeasureText(TxtFnt, Txt);
 
-			Vector2 TxtPos = (GlobalPosition + new Vector2(Cur.Left + 4, Size.Y / 2)) - new Vector2(0, TxtSz.Y / 2);
+			Vector2 TxtPos = (GetAbsolutePosition() + new Vector2(Cur.Left + 4, Size.Y / 2)) - new Vector2(0, TxtSz.Y / 2);
 			UI.Graphics.DrawText(TxtFnt, Txt, TxtPos);
 			UI.Graphics.PopScissor();
 

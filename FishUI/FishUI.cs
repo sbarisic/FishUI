@@ -1,6 +1,7 @@
 ﻿using FishUI.Controls;
 using System.ComponentModel.Design;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace FishUI
 {
@@ -20,7 +21,13 @@ namespace FishUI
 
 		public Control InputActiveControl;
 
-		SelectionBox SelBox;
+		//================= State variables =================//
+		//Vector2 LastMousePos;
+		//bool LastMouseLeft;
+		//bool LastMouseRight;
+
+		//Vector2? MouseLeftClickPos;
+		//Vector2? MouseRightClickPos;
 
 		public FishUI(IFishUIGfx Graphics, IFishUIInput Input, int Width, int Height)
 		{
@@ -29,9 +36,8 @@ namespace FishUI
 			this.Graphics = Graphics;
 			this.Input = Input;
 
-			SelBox = new SelectionBox();
-			SelBox.ZDepth = -100;
-			//Controls.Add(SelBox);
+			//SelBox = new SelectionBox();
+			//SelBox.ZDepth = -100;
 		}
 
 		internal ImageRef Skin;
@@ -48,31 +54,120 @@ namespace FishUI
 			return Controls.OrderBy(C => C.ZDepth).ToArray();
 		}
 
-		Control GetControlAt(Vector2 Pos)
+		// Top-down control picking, for mouse events etc
+		Control PickControl(Control[] Controls, Vector2 GlobalPos)
 		{
-			Control[] Cs = Controls.OrderBy(C => C.ZDepth).ToArray();
-
-			foreach (Control C in Cs)
+			foreach (Control C in Controls)
 			{
 				if (!C.Visible)
 					continue;
 
-				if (Utils.IsInside(C.Position, C.Size, Pos))
+				if (C.IsPointInside(GlobalPos))
 				{
-					Control Picked = C.GetChildAt(Pos);
-					return Picked;
+					Control CPicked = PickControl(C.GetAllChildren(), GlobalPos);
+
+					if (CPicked != null)
+						return CPicked;
+
+					return C;
 				}
 			}
 
 			return null;
 		}
 
-		Vector2 LastMousePos;
-		bool LastMouseLeft;
-		bool LastMouseRight;
+		public Control PickControl(Vector2 GlobalPos)
+		{
+			return PickControl(GetOrderedControls(), GlobalPos);
+		}
 
-		Vector2? MouseLeftClickPos;
-		Vector2? MouseRightClickPos;
+		void UpdateSingleControl(Control Ctl, FishInputState InState, FishInputState InLast)
+		{
+			if (!Ctl.Visible)
+				return;
+
+			Ctl.IsMouseInside = Ctl.IsPointInside(InState.MousePos);
+		}
+
+		Control HoveredControl;
+		Control LeftClickedControl;
+		Control RightClickedControl;
+
+		// Check for mouse press
+		// Mouse press gets triggered for the first control under the mouse
+		void CheckMousePress(Control ControlUnderMouse, FishInputState InState, bool BtnPressed, FishMouseButton MBtn, ref Control ClickedControl)
+		{
+			if (BtnPressed)
+			{
+				if (ControlUnderMouse != null)
+				{
+					ControlUnderMouse.HandleMousePress(this, InState, MBtn, InState.MousePos);
+					ClickedControl = ControlUnderMouse;
+				}
+			}
+		}
+
+		// Check for mouse release and clicks
+		// Mouse release gets triggered for the first control under the mouse
+		// Mouse click gets triggered only after release if the control under the mouse is the same as the one that was pressed
+		void CheckMouseRelease(Control ControlUnderMouse, FishInputState InState, bool BtnPressed, FishMouseButton MBtn, ref Control ClickedControl)
+		{
+			if (BtnPressed)
+			{
+				if (ControlUnderMouse != null)
+					ControlUnderMouse.HandleMouseRelease(this, InState, MBtn, InState.MousePos);
+
+				if (ClickedControl != null && ControlUnderMouse == ClickedControl)
+					ClickedControl.HandleMouseClick(this, InState, MBtn, InState.MousePos);
+
+				ClickedControl = null;
+			}
+		}
+
+		void Update(Control[] Controls, FishInputState InState, FishInputState InLast)
+		{
+			Control ControlUnderMouse = PickControl(InState.MousePos);
+
+			// Mouse enter/leave handling
+			if (HoveredControl != ControlUnderMouse)
+			{
+				if (HoveredControl != null)
+					HoveredControl.HandleMouseLeave(this, InState);
+
+				if (ControlUnderMouse != null)
+					ControlUnderMouse.HandleMouseEnter(this, InState);
+				HoveredControl = ControlUnderMouse;
+			}
+
+
+			CheckMousePress(ControlUnderMouse, InState, InState.MouseLeftPressed, FishMouseButton.Left, ref LeftClickedControl);
+			CheckMouseRelease(ControlUnderMouse, InState, InState.MouseLeftReleased, FishMouseButton.Left, ref LeftClickedControl);
+
+			CheckMousePress(ControlUnderMouse, InState, InState.MouseRightPressed, FishMouseButton.Right, ref RightClickedControl);
+			CheckMouseRelease(ControlUnderMouse, InState, InState.MouseRightReleased, FishMouseButton.Right, ref RightClickedControl);
+
+
+			foreach (Control Ctl in Controls)
+				UpdateSingleControl(Ctl, InState, InLast);
+
+			InLast = InState;
+		}
+
+		void Draw(Control[] Controls, float Dt, float Time)
+		{
+			Graphics.BeginDrawing(Dt);
+			foreach (Control Ctl in Controls.Reverse())
+			{
+				if (Ctl.Visible)
+				{
+					Ctl.InternalInit(this);
+					Ctl.Draw(this, Dt, Time);
+				}
+			}
+			Graphics.EndDrawing();
+		}
+
+		FishInputState InLast;
 
 		public void Tick(float Dt, float Time)
 		{
@@ -84,117 +179,17 @@ namespace FishUI
 			InState.MousePos = MousePos;
 			InState.MouseLeft = MouseLeft;
 			InState.MouseRight = MouseRight;
-			InState.MouseLeftPressed = MouseLeft && !LastMouseLeft;
-			InState.MouseLeftReleased = !MouseLeft && LastMouseLeft;
-			InState.MouseRightPressed = MouseRight && !LastMouseRight;
-			InState.MouseRightReleased = !MouseRight && LastMouseRight;
-			InState.MouseDelta = MousePos - LastMousePos;
+			InState.MouseLeftPressed = Input.IsMousePressed(FishMouseButton.Left);
+			InState.MouseLeftReleased = Input.IsMouseReleased(FishMouseButton.Left);
+			InState.MouseRightPressed = Input.IsMousePressed(FishMouseButton.Right);
+			InState.MouseRightReleased = Input.IsMouseReleased(FishMouseButton.Right);
+			InState.MouseDelta = MousePos - InLast.MousePos;
 
-			if (InState.MouseLeftPressed)
-			{
-				PressedControl = GetControlAt(MousePos);
-				MouseLeftClickPos = MousePos;
-				HeldControl = PressedControl;
-			}
+			Control[] OrderedControls = GetOrderedControls();
 
-			if (InState.MouseRightPressed)
-			{
-				PressedRightControl = GetControlAt(MousePos);
-				MouseRightClickPos = MousePos;
-				HeldRightControl = PressedRightControl;
-			}
-
-			if (InState.MouseLeftReleased)
-			{
-				MouseLeftClickPos = null;
-				HeldControl = null;
-			}
-
-			if (InState.MouseRightReleased)
-			{
-				MouseRightClickPos = null;
-				HeldRightControl = null;
-			}
-
-			if (HeldRightControl != null && MouseRightClickPos != null)
-			{
-				Vector2 Sz = MousePos - MouseRightClickPos.Value;
-				SelBox.Visible = true;
-				HeldRightControl.AddChild(SelBox);
-
-				if (Sz.X < 0 && Sz.Y < 0)
-				{
-					SelBox.Position = HeldRightControl.ToLocal(MousePos.Round());
-					SelBox.Size = new Vector2(-Sz.X, -Sz.Y).Round();
-				}
-				else if (Sz.X < 0)
-				{
-					SelBox.Position = HeldRightControl.ToLocal(new Vector2(MousePos.X, MouseRightClickPos.Value.Y).Round());
-					SelBox.Size = new Vector2(-Sz.X, Sz.Y).Round();
-				}
-				else if (Sz.Y < 0)
-				{
-					SelBox.Position = HeldRightControl.ToLocal(new Vector2(MouseRightClickPos.Value.X, MousePos.Y).Round());
-					SelBox.Size = new Vector2(Sz.X, -Sz.Y).Round();
-				}
-				else
-				{
-					SelBox.Position = HeldRightControl.ToLocal(MouseRightClickPos.Value.Round());
-					SelBox.Size = Sz.Round();
-				}
-			}
-			else
-			{
-				SelBox.Visible = false;
-				SelBox.Unparent();
-			}
-
-			if (HeldControl != null && InState.MouseDelta != Vector2.Zero)
-			{
-				if (HeldControl.Visible)
-					HeldControl.HandleDrag(this, MouseLeftClickPos ?? Vector2.Zero, MousePos, InState);
-			}
-
-			if (InputActiveControl != null)
-			{
-				InputActiveControl.InternalHandle(this, InState, true);
-			}
-
-			foreach (Control Ctlr in GetOrderedControls())
-			{
-				if (!Ctlr.Visible)
-					continue;
-
-				Ctlr.InternalHandleInput(this, InState, out bool Handled, out Control HandledControl);
-				Control Ctl = Ctlr;
-
-				if (Ctl.IsMouseInside && !Handled)
-				{
-					Control Ctl2 = Ctl.GetChildAt(InState.MousePos);
-					Ctl2.InternalHandleInput(this, InState, out bool Handled2, out Control HandledControl2);
-
-					if (Handled2)
-						Handled = true;
-				}
-
-				if (Handled)
-					break;
-			}
-
-			Graphics.BeginDrawing(Dt);
-			foreach (Control Ctl in GetOrderedControls().Reverse())
-			{
-				if (Ctl.Visible)
-				{
-					Ctl.InternalInit(this);
-					Ctl.Draw(this, Dt, Time);
-				}
-			}
-			Graphics.EndDrawing();
-
-			LastMouseLeft = MouseLeft;
-			LastMouseRight = MouseRight;
-			LastMousePos = MousePos;
+			Update(OrderedControls, InState, InLast);
+			Draw(OrderedControls, Dt, Time);
+			InLast = InState;
 		}
 	}
 }
