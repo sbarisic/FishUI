@@ -23,7 +23,7 @@ namespace FishUI
 		public Control InputActiveControl;
 
 
-		public FishUI(IFishUIGfx Graphics, IFishUIInput Input, int Width, int Height)
+		public FishUI(IFishUIGfx Graphics, IFishUIInput Input)
 		{
 			Controls = new List<Control>();
 
@@ -209,6 +209,11 @@ namespace FishUI
 			Update(OrderedControls, InState, InLast);
 			Draw(OrderedControls, Dt, Time);
 			InLast = InState;
+		}
+
+		public void Resized()
+		{
+			// On resized logic goes here
 		}
 	}
 }

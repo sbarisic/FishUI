@@ -21,6 +21,10 @@ namespace FishUI
 
 		public void EndScissor();
 
+		public int GetWindowWidth();
+
+		public int GetWindowHeight();
+
 		// Loading
 
 		public FontRef LoadFont(string FileName, float Size, float Spacing, FishColor Color);

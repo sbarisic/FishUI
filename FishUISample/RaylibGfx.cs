@@ -123,6 +123,18 @@ namespace FishUISample
 			return IRef;
 		}
 
+		public int GetWindowWidth()
+		{
+			return Raylib.GetScreenWidth();
+		}
+
+		public int GetWindowHeight()
+		{
+			return Raylib.GetScreenHeight();
+		}
+
+		// Loading
+
 		public FontRef LoadFont(string FileName, float Size, float Spacing, FishColor Color)
 		{
 			Font F = Raylib.LoadFontEx(FileName, (int)Size, null, 250);
@@ -166,6 +178,8 @@ namespace FishUISample
 			Color C = Raylib.GetImageColor((Image)Img.Userdata2, (int)Pos.X, (int)Pos.Y);
 			return new FishColor(C.R, C.G, C.B, C.A);
 		}
+
+		// Drawing
 
 		public void DrawImage(ImageRef Img, Vector2 Pos, float Rot, float Scale, FishColor Color)
 		{

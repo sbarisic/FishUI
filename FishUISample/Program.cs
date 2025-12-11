@@ -19,13 +19,14 @@ namespace FishUISample
 
 			Raylib.SetWindowState(ConfigFlags.HighDpiWindow);
 			Raylib.SetWindowState(ConfigFlags.Msaa4xHint);
+			Raylib.SetWindowState(ConfigFlags.ResizableWindow);
+			//Raylib.SetWindowState(ConfigFlags.UndecoratedWindow);
 
 			Raylib.InitWindow(W, H, "Fishmachine");
 			int TargetFPS = Raylib.GetMonitorRefreshRate(0);
 			Raylib.SetTargetFPS(TargetFPS);
 
-
-			FUI = new FishUI.FishUI(new RaylibGfx(), new RaylibInput(), W, H);
+			FUI = new FishUI.FishUI(new RaylibGfx(), new RaylibInput());
 			FUI.Init();
 
 			MakeGUISample();
@@ -37,6 +38,11 @@ namespace FishUISample
 			{
 				float Dt = SWatch.ElapsedMilliseconds / 1000.0f;
 				SWatch.Restart();
+
+				if (Raylib.IsWindowResized())
+				{
+					FUI.Resized();
+				}
 
 				FUI.Tick(Dt, (float)RuntimeWatch.Elapsed.TotalSeconds);
 			}
