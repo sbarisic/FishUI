@@ -176,6 +176,15 @@ namespace FishUI.Controls
 			Console.WriteLine($"{GetType().Name} - Mouse Click {Btn}");
 		}
 
+		public virtual void HandleFocus()
+		{
+		}
+
+		public virtual void HandleTextInput(FishUI UI, FishInputState InState, char Chr)
+		{
+
+		}
+
 		/*public virtual void HandleInput(FishUI UI, FishInputState InState)
 		{
 		}*/

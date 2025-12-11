@@ -71,26 +71,20 @@ namespace FishUI.Controls
 			DrawChildren(UI, Dt, Time);
 		}
 
-		/*public override void HandleInput(FishUI UI, FishInputState InState)
+		public override void HandleTextInput(FishUI UI, FishInputState InState, char Chr)
 		{
 			if (UI.InputActiveControl != this)
 				return;
 
-			if (UI.Input.IsKeyPressed(FishKey.Backspace))
+			if (Chr == '\b')
 			{
 				if (Text.Length > 0)
 					Text = Text.Substring(0, Text.Length - 1);
 			}
 			else
 			{
-				int Cr = UI.Input.GetCharPressed();
-				if (Cr != 0)
-				{
-					char Char = (char)Cr;
-
-					Text += Char;
-				}
+				Text += Chr;
 			}
-		}*/
+		}
 	}
 }

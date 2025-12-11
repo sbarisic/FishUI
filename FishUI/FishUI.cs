@@ -16,6 +16,7 @@ namespace FishUI
 
 		public Control PressedControl;
 		public Control HeldControl;
+
 		public Control PressedRightControl;
 		public Control HeldRightControl;
 
@@ -76,6 +77,7 @@ namespace FishUI
 			Ctl.IsMouseInside = HoveredControl == Ctl;
 
 			Control[] Children = Ctl.GetAllChildren();
+
 			foreach (Control C in Children)
 				UpdateSingleControl(C, InState, InLast);
 		}
@@ -94,6 +96,7 @@ namespace FishUI
 				{
 					ControlUnderMouse.HandleMousePress(this, InState, MBtn, InState.MousePos);
 					ClickedControl = ControlUnderMouse;
+					FocusControl(ControlUnderMouse);
 				}
 			}
 		}
@@ -112,6 +115,25 @@ namespace FishUI
 					ClickedControl.HandleMouseClick(this, InState, MBtn, InState.MousePos);
 
 				ClickedControl = null;
+			}
+		}
+
+		void CheckTextInput(FishInputState InState)
+		{
+			if (InputActiveControl != null)
+			{
+				if (Input.IsKeyPressed(FishKey.Backspace))
+					InputActiveControl.HandleTextInput(this, InState, '\b');
+
+				if (Input.IsKeyPressed(FishKey.Enter) || Input.IsKeyPressed(FishKey.KpEnter))
+					InputActiveControl.HandleTextInput(this, InState, '\n');
+
+				int InChr = 0;
+
+				while ((InChr = Input.GetCharPressed()) != 0)
+				{
+					InputActiveControl.HandleTextInput(this, InState, (char)InChr);
+				}
 			}
 		}
 
@@ -141,6 +163,7 @@ namespace FishUI
 			foreach (Control Ctl in Controls)
 				UpdateSingleControl(Ctl, InState, InLast);
 
+			CheckTextInput(InState);
 			InLast = InState;
 		}
 
@@ -155,6 +178,12 @@ namespace FishUI
 				}
 			}
 			Graphics.EndDrawing();
+		}
+
+		public void FocusControl(Control Ctrl)
+		{
+			InputActiveControl = Ctrl;
+			Ctrl.HandleFocus();
 		}
 
 		FishInputState InLast;
