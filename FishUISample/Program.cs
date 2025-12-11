@@ -8,6 +8,8 @@ namespace FishUISample
 {
 	internal class Program
 	{
+		static FishUI.FishUI FUI;
+
 		static void Main(string[] args)
 		{
 			int W = 800;
@@ -23,12 +25,27 @@ namespace FishUISample
 			Raylib.SetTargetFPS(TargetFPS);
 
 
-			FishUI.FishUI FUI = new FishUI.FishUI(new RaylibGfx(), new RaylibInput(), W, H);
+			FUI = new FishUI.FishUI(new RaylibGfx(), new RaylibInput(), W, H);
 			FUI.Init();
 
+			MakeGUISample();
 
+			Stopwatch SWatch = Stopwatch.StartNew();
+			Stopwatch RuntimeWatch = Stopwatch.StartNew();
 
+			while (!Raylib.WindowShouldClose())
+			{
+				float Dt = SWatch.ElapsedMilliseconds / 1000.0f;
+				SWatch.Restart();
 
+				FUI.Tick(Dt, (float)RuntimeWatch.Elapsed.TotalSeconds);
+			}
+
+			Raylib.CloseWindow();
+		}
+
+		static void MakeGUISample()
+		{
 			Textbox Lbl = new Textbox(18, "The quick");
 			Lbl.Position = new Vector2(100, 400);
 			Lbl.Size = new Vector2(200, 30); //Lbl.MeasureText(FUI);
@@ -55,19 +72,6 @@ namespace FishUISample
 			RBut.Position = new Vector2(5, 25);
 			RBut.Size = new Vector2(15, 15);
 			Pnl.AddChild(RBut);
-
-			Stopwatch SWatch = Stopwatch.StartNew();
-			Stopwatch RuntimeWatch = Stopwatch.StartNew();
-
-			while (!Raylib.WindowShouldClose())
-			{
-				float Dt = SWatch.ElapsedMilliseconds / 1000.0f;
-				SWatch.Restart();
-
-				FUI.Tick(Dt, (float)RuntimeWatch.Elapsed.TotalSeconds);
-			}
-
-			Raylib.CloseWindow();
 		}
 	}
 }
