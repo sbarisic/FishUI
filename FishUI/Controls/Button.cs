@@ -8,7 +8,7 @@ namespace FishUI.Controls
 {
 	public class Button : Control
 	{
-		[YamlIgnore]
+		/*[YamlIgnore]
 		NPatch ImgNormal;
 
 		[YamlIgnore]
@@ -21,7 +21,7 @@ namespace FishUI.Controls
 		NPatch ImgPressed;
 
 		[YamlIgnore]
-		FontRef TxtFnt;
+		FontRef TxtFnt;*/
 
 		public string Text;
 
@@ -29,30 +29,18 @@ namespace FishUI.Controls
 		{
 		}
 
-		public override void Init(FishUI UI)
-		{
-			base.Init(UI);
-
-			ImgNormal = new NPatch(UI, "data/button_normal.png", 2, 2, 2, 2);
-			ImgHover = new NPatch(UI, "data/button_hover.png", 2, 2, 2, 2);
-			ImgDisabled = new NPatch(UI, "data/button_disabled.png", 2, 2, 2, 2);
-			ImgPressed = new NPatch(UI, "data/button_pressed.png", 2, 2, 2, 2);
-
-			TxtFnt = UI.Graphics.LoadFont("data/fonts/ubuntu_mono.ttf", 18, 0, FishColor.Black);
-		}
-
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
 			//base.Draw(UI, Dt, Time);
 
-			NPatch Cur = ImgNormal;
+			NPatch Cur = UI.Settings.ImgButtonNormal;
 
 			if (Disabled)
-				Cur = ImgDisabled;
+				Cur = UI.Settings.ImgButtonDisabled;
 			else if (IsMousePressed)
-				Cur = ImgPressed;
+				Cur = UI.Settings.ImgButtonPressed;
 			else if (IsMouseInside)
-				Cur = ImgHover;
+				Cur = UI.Settings.ImgButtonHover;
 
 			UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), Color);
 
@@ -60,8 +48,8 @@ namespace FishUI.Controls
 
 			if (!string.IsNullOrEmpty(Txt))
 			{
-				Vector2 TxtSz = UI.Graphics.MeasureText(TxtFnt, Txt);
-				UI.Graphics.DrawText(TxtFnt, Txt, (GetAbsolutePosition() + GetAbsoluteSize() / 2) - TxtSz / 2);
+				Vector2 TxtSz = UI.Graphics.MeasureText(UI.Settings.FontDefault, Txt);
+				UI.Graphics.DrawText(UI.Settings.FontDefault, Txt, (GetAbsolutePosition() + GetAbsoluteSize() / 2) - TxtSz / 2);
 			}
 
 			//DrawChildren(UI, Dt, Time);

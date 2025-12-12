@@ -8,18 +8,6 @@ namespace FishUI.Controls
 {
 	public class CheckBox : Control
 	{
-		[YamlIgnore]
-		NPatch ImgChecked;
-
-		[YamlIgnore]
-		NPatch ImgUnchecked;
-
-		[YamlIgnore]
-		NPatch ImgDisabledChecked;
-
-		[YamlIgnore]
-		NPatch ImgDisabledUnchecked;
-
 		public bool Checked;
 
 		public CheckBox()
@@ -28,40 +16,30 @@ namespace FishUI.Controls
 
 		public CheckBox(string LabelText)
 		{
-			Label Lbl = new Label();
-			Lbl.InitForCheckbox(LabelText);
+			Label Lbl = new Label(LabelText);
+			Lbl.Alignment = Align.Left;
 			AddChild(Lbl);
-		}
-
-		public override void Init(FishUI UI)
-		{
-			base.Init(UI);
-
-			ImgChecked = new NPatch(UI, "data/checkbox_checked.png", 2, 2, 2, 2);
-			ImgUnchecked = new NPatch(UI, "data/checkbox_unchecked.png", 2, 2, 2, 2);
-			ImgDisabledChecked = new NPatch(UI, "data/checkbox_disabled_checked.png", 2, 2, 2, 2);
-			ImgDisabledUnchecked = new NPatch(UI, "data/checkbox_disabled_unchecked.png", 2, 2, 2, 2);
 		}
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
 			//base.Draw(UI, Dt, Time);
 
-			NPatch Cur = ImgUnchecked;
+			NPatch Cur = UI.Settings.ImgCheckboxUnchecked;
 
 			if (Disabled)
 			{
 				if (Checked)
-					Cur = ImgDisabledChecked;
+					Cur = UI.Settings.ImgCheckboxDisabledChecked;
 				else
-					Cur = ImgDisabledUnchecked;
+					Cur = UI.Settings.ImgCheckboxDisabledUnchecked;
 			}
 			else
 			{
 				if (Checked)
-					Cur = ImgChecked;
+					Cur = IsMouseInside ? UI.Settings.ImgCheckboxCheckedHover : UI.Settings.ImgCheckboxChecked;
 				else
-					Cur = ImgUnchecked;
+					Cur = IsMouseInside ? UI.Settings.ImgCheckboxUncheckedHover : UI.Settings.ImgCheckboxUnchecked;
 			}
 
 			Vector2 Pos = GetAbsolutePosition();

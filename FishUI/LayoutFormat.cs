@@ -16,6 +16,18 @@ namespace FishUI
 
 		}
 
+		public static void SerializeToFile(FishUI UI, string FilePath)
+		{
+			string Data = Serialize(UI);
+			File.WriteAllText(FilePath, Data);
+		}
+
+		public static void DeserializeFromFile(FishUI UI, string FilePath)
+		{
+			string Data = File.ReadAllText(FilePath);
+			Deserialize(UI, Data);
+		}
+
 		static Dictionary<string, Type> TypeMapping = new Dictionary<string, Type>()
 		{
 			{ "!Button", typeof(Button) },
@@ -72,5 +84,6 @@ namespace FishUI
 
 			UI.Controls = new List<Control>(Ctrls);
 		}
+	
 	}
 }

@@ -17,6 +17,5 @@ namespace FishUI
 		public bool MouseRight;
 		public bool MouseRightPressed;
 		public bool MouseRightReleased;
-
 	}
 }

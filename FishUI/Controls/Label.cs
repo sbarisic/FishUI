@@ -14,11 +14,7 @@ namespace FishUI.Controls
 
 	public class Label : Control
 	{
-		[YamlIgnore]
-		FontRef TxtFnt;
-
 		public string Text;
-		public int FontSize;
 
 		public Align Alignment = Align.Center;
 
@@ -26,28 +22,11 @@ namespace FishUI.Controls
 		{
 		}
 
-		public Label(int FontSize, string Text)
+		public Label(string Text)
 		{
 			this.Text = Text;
-			this.FontSize = FontSize;
-
-			Size = new Vector2(200, FontSize);
-		}
-
-		public void InitForCheckbox(string Text)
-		{
-			this.Text = Text;
-			FontSize = 16;
-			Alignment = Align.Left;
 			Position = new Vector2(18, 0);
-			Size = new Vector2(200, FontSize);
-		}
-
-		public override void Init(FishUI UI)
-		{
-			base.Init(UI);
-
-			TxtFnt = UI.Graphics.LoadFont("data/fonts/ubuntu_mono.ttf", FontSize, 0, FishColor.Black);
+			Size = new Vector2(200, 16);
 		}
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
@@ -60,11 +39,11 @@ namespace FishUI.Controls
 				if (Parent is CheckBox || Parent is RadioButton)
 				{
 					Position.X = Parent.Size.X + 4;
-					Position.Y = Parent.Size.Y / 2 - FontSize / 2;
+					Position.Y = Parent.Size.Y / 2 - UI.Settings.FontLabel.Size / 2;
 				}
 				
 
-				Vector2 TxtSz = UI.Graphics.MeasureText(TxtFnt, Txt);
+				Vector2 TxtSz = UI.Graphics.MeasureText(UI.Settings.FontLabel, Txt);
 				if (float.IsNaN(TxtSz.X)) 
 					TxtSz.X = 0;
 
@@ -88,7 +67,7 @@ namespace FishUI.Controls
 				else
 					throw new NotImplementedException();
 
-				UI.Graphics.DrawText(TxtFnt, Txt, Pos);
+				UI.Graphics.DrawText(UI.Settings.FontLabel, Txt, Pos);
 			}
 
 			//DrawChildren(UI, Dt, Time);

@@ -8,40 +8,18 @@ namespace FishUI.Controls
 {
 	public class Panel : Control
 	{
-		[YamlIgnore]
-		NPatch ImgNormal;
-
-		[YamlIgnore]
-		NPatch ImgHover;
-
-		[YamlIgnore]
-		NPatch ImgDisabled;
-
-		[YamlIgnore]
-		NPatch ImgPressed;
-
 		public Panel()
 		{
-		}
-
-		public override void Init(FishUI UI)
-		{
-			base.Init(UI);
-
-			ImgNormal = new NPatch(UI, "data/panel2_normal.png", 2, 2, 2, 2);
-			ImgHover = new NPatch(UI, "data/panel_hover.png", 2, 2, 2, 2);
-			ImgDisabled = new NPatch(UI, "data/panel_disabled.png", 2, 2, 2, 2);
-			ImgPressed = new NPatch(UI, "data/panel_pressed.png", 2, 2, 2, 2);
 		}
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
 			//base.Draw(UI, Dt, Time);
 
-			NPatch Cur = ImgNormal;
+			NPatch Cur = UI.Settings.ImgPanel;
 
 			if (Disabled)
-				Cur = ImgDisabled;
+				Cur = UI.Settings.ImgPanelDisabled;
 			/**else if (IsMousePressed)
 				Cur = ImgPressed;
 			else if (IsMouseInside)

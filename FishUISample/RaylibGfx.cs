@@ -21,8 +21,29 @@ namespace FishUISample
 			}
 		}
 
+		int W;
+		int H;
+		string Title;
+
+		public RaylibGfx(int W, int H, string Title)
+		{
+			this.W = W;
+			this.H = H;
+			this.Title = Title;
+		}
+
 		public void Init()
 		{
+			Raylib.SetTraceLogLevel(TraceLogLevel.None);
+
+			Raylib.SetWindowState(ConfigFlags.HighDpiWindow);
+			Raylib.SetWindowState(ConfigFlags.Msaa4xHint);
+			Raylib.SetWindowState(ConfigFlags.ResizableWindow);
+			//Raylib.SetWindowState(ConfigFlags.UndecoratedWindow);
+
+			Raylib.InitWindow(W, H, "Fishmachine");
+			int TargetFPS = Raylib.GetMonitorRefreshRate(0);
+			Raylib.SetTargetFPS(TargetFPS);
 		}
 
 		public void BeginDrawing(float Dt)

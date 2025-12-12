@@ -9,18 +9,6 @@ namespace FishUI.Controls
 {
 	public class Textbox : Control
 	{
-		[YamlIgnore]
-		FontRef TxtFnt;
-
-		[YamlIgnore]
-		NPatch ImgNormal;
-
-		[YamlIgnore]
-		NPatch ImgActive;
-
-		[YamlIgnore]
-		NPatch ImgDisabled;
-
 		public string Text;
 		public int FontSize;
 
@@ -34,37 +22,25 @@ namespace FishUI.Controls
 			this.FontSize = FontSize;
 		}
 
-		public override void Init(FishUI UI)
-		{
-			base.Init(UI);
-
-			ImgNormal = new NPatch(UI, "data/textbox_normal.png", 1, 1, 1, 1);
-			ImgActive = new NPatch(UI, "data/textbox_active.png", 1, 1, 1, 1);
-			ImgDisabled = new NPatch(UI, "data/textbox_disabled.png", 1, 1, 1, 1);
-
-
-			TxtFnt = UI.Graphics.LoadFont("data/fonts/ubuntu_mono.ttf", FontSize, 0, FishColor.Black);
-		}
-
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
 			//base.Draw(UI, Dt, Time);
 
-			NPatch Cur = ImgNormal;
+			NPatch Cur = UI.Settings.ImgTextboxNormal;
 
 			if (Disabled)
-				Cur = ImgDisabled;
+				Cur = UI.Settings.ImgTextboxDisabled;
 			else if (UI.InputActiveControl == this)
-				Cur = ImgActive;
+				Cur = UI.Settings.ImgTextboxActive;
 
 			UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), Color);
 
 			UI.Graphics.PushScissor(GetAbsolutePosition(), GetAbsoluteSize());
 			string Txt = Text;
-			Vector2 TxtSz = UI.Graphics.MeasureText(TxtFnt, Txt);
+			Vector2 TxtSz = UI.Graphics.MeasureText(UI.Settings.FontTextboxDefault, Txt);
 
 			Vector2 TxtPos = (GetAbsolutePosition() + new Vector2(Cur.Left + 4, Size.Y / 2)) - new Vector2(0, TxtSz.Y / 2);
-			UI.Graphics.DrawText(TxtFnt, Txt, TxtPos);
+			UI.Graphics.DrawText(UI.Settings.FontTextboxDefault, Txt, TxtPos);
 			UI.Graphics.PopScissor();
 
 			bool DrawCursor = false;

@@ -8,7 +8,7 @@ namespace FishUI.Controls
 {
 	public abstract class Control
 	{
-		const bool DebugPrint = false;
+		const bool DebugPrint = true;
 
 		protected Control Parent;
 
@@ -34,6 +34,9 @@ namespace FishUI.Controls
 		public virtual bool Visible { get; set; } = true;
 
 		public virtual FishColor Color { get; set; } = new FishColor(255, 255, 255, 255);
+
+		// If true, this control can be dragged and repositioned with the mouse, handled in the HandleDrag implementation
+		public virtual bool Draggable { get; set; } = false;
 
 		public Vector2 GetAbsolutePosition()
 		{
@@ -177,14 +180,23 @@ namespace FishUI.Controls
 
 		public virtual void HandleDrag(FishUI UI, Vector2 StartPos, Vector2 EndPos, FishInputState InState)
 		{
-			//Position += InState.MouseDelta;
-			//Console.WriteLine($"{GetType().Name} - Drag");
+			if (Draggable)
+				Position += InState.MouseDelta;
+
+			if (DebugPrint)
+				Console.WriteLine($"{GetType().Name}({ID ?? "null"}) - Drag Control");
 		}
 
 		public virtual void HandleMouseEnter(FishUI UI, FishInputState InState)
 		{
 			if (DebugPrint)
 				Console.WriteLine($"{GetType().Name}({ID ?? "null"}) - Mouse Enter");
+		}
+
+		public virtual void HandleMouseMove(FishUI UI, FishInputState InState, Vector2 Pos)
+		{
+			if (DebugPrint)
+				Console.WriteLine($"{GetType().Name}({ID ?? "null"}) - Mouse Move");
 		}
 
 		public virtual void HandleMouseLeave(FishUI UI, FishInputState InState)

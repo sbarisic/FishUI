@@ -7,6 +7,7 @@ namespace FishUI
 {
 	public class FishUI
 	{
+		public FishUISettings Settings;
 		public IFishUIGfx Graphics;
 		public IFishUIInput Input;
 		public IFishUIEvents Events;
@@ -15,19 +16,25 @@ namespace FishUI
 		public int Width;
 		public int Height;
 
-		public Control PressedControl;
-		public Control HeldControl;
+		//public Control PressedLeftControl;
+		//public Control HeldLeftControl;
 
-		public Control PressedRightControl;
-		public Control HeldRightControl;
+		//public Control PressedRightControl;
+		//public Control HeldRightControl;
 
 		public Control InputActiveControl;
 
+		//
+		Control HoveredControl;
+		Control LeftClickedControl;
+		Control RightClickedControl;
 
-		public FishUI(IFishUIGfx Graphics, IFishUIInput Input, IFishUIEvents Events)
+
+		public FishUI(FishUISettings Settings, IFishUIGfx Graphics, IFishUIInput Input, IFishUIEvents Events)
 		{
 			Controls = new List<Control>();
 
+			this.Settings = Settings;
 			this.Graphics = Graphics;
 			this.Input = Input;
 			this.Events = Events;
@@ -36,6 +43,7 @@ namespace FishUI
 		public void Init()
 		{
 			Graphics.Init();
+			Settings.Init(this);
 		}
 
 		Control[] GetOrderedControls()
@@ -104,10 +112,6 @@ namespace FishUI
 				UpdateSingleControl(C, InState, InLast);
 		}
 
-		Control HoveredControl;
-		Control LeftClickedControl;
-		Control RightClickedControl;
-
 		// Check for mouse press
 		// Mouse press gets triggered for the first control under the mouse
 		void CheckMousePress(Control ControlUnderMouse, FishInputState InState, bool BtnPressed, FishMouseButton MBtn, ref Control ClickedControl)
@@ -162,6 +166,24 @@ namespace FishUI
 		void Update(Control[] Controls, FishInputState InState, FishInputState InLast)
 		{
 			Control ControlUnderMouse = PickControl(InState.MousePos);
+
+			/*if (LeftClickedControl != null && InState.MouseLeft)
+			{
+				HeldControl = LeftClickedControl;
+				HeldControl.HandleDrag(this, InLast.MousePos, InState.MousePos, InState);
+			}*/
+
+			// Mouse drag
+			if (LeftClickedControl != null && InState.MouseLeft && InState.MouseDelta != Vector2.Zero)
+			{
+				LeftClickedControl.HandleDrag(this, InLast.MousePos, InState.MousePos, InState);
+			}
+
+			// Mouse move
+			if (HoveredControl == ControlUnderMouse && ControlUnderMouse != null && InState.MouseDelta != Vector2.Zero)
+			{
+				ControlUnderMouse.HandleMouseMove(this, InState, InState.MousePos);
+			}
 
 			// Mouse enter/leave handling
 			if (HoveredControl != ControlUnderMouse)

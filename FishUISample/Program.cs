@@ -12,37 +12,22 @@ namespace FishUISample
 
 		static void Main(string[] args)
 		{
-			int W = 800;
-			int H = 600;
+			FishUISettings UISettings = new FishUISettings();
+			IFishUIGfx Gfx = new RaylibGfx(800, 600, "FishUI");
+			IFishUIInput Input = new RaylibInput();
+			IFishUIEvents Events = new EvtHandler();
 
-			Raylib.SetTraceLogLevel(TraceLogLevel.None);
-
-			Raylib.SetWindowState(ConfigFlags.HighDpiWindow);
-			Raylib.SetWindowState(ConfigFlags.Msaa4xHint);
-			Raylib.SetWindowState(ConfigFlags.ResizableWindow);
-			//Raylib.SetWindowState(ConfigFlags.UndecoratedWindow);
-
-			Raylib.InitWindow(W, H, "Fishmachine");
-			int TargetFPS = Raylib.GetMonitorRefreshRate(0);
-			Raylib.SetTargetFPS(TargetFPS);
-
-
-			FUI = new FishUI.FishUI(new RaylibGfx(), new RaylibInput(), new EvtHandler());
+			FUI = new FishUI.FishUI(UISettings, Gfx, Input, Events);
 			FUI.Init();
 
 			bool LoadLayout = !true;
 
 			if (File.Exists("layout.yaml") && LoadLayout)
-			{
-				LayoutFormat.Deserialize(FUI, File.ReadAllText("layout.yaml"));
-			}
+				LayoutFormat.DeserializeFromFile(FUI, "layout.yaml");
 			else
 			{
 				MakeGUISample();
-
-				string Dat = LayoutFormat.Serialize(FUI);
-				File.WriteAllText("layout.yaml", Dat);
-				Console.WriteLine("Wrote to: {0}", Path.GetFullPath("layout.yaml"));
+				LayoutFormat.SerializeToFile(FUI, "layout.yaml");
 			}
 
 			Stopwatch SWatch = Stopwatch.StartNew();
@@ -77,6 +62,7 @@ namespace FishUISample
 			Pnl.Position = new Vector2(10, 10);
 			Pnl.Size = new Vector2(400, 350);
 			Pnl.ZDepth = 2;
+			Pnl.Draggable = true;
 			FUI.Controls.Add(Pnl);
 
 			Button Btn0 = new Button();
