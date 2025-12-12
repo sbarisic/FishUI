@@ -55,8 +55,10 @@ namespace FishUISample
 
 			for (int i = 0; i < 10; i++)
 			{
-				Lb.Items.Add("Item " + i);
+				Lb.AddItem("Item " + i);
 			}
+
+			//Lb.AutoResizeHeight();
 
 			ScrollBarV Sbv = new ScrollBarV();
 			Sbv.Position = new Vector2(480, 340);

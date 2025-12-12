@@ -40,7 +40,7 @@ namespace FishUI.Controls
 
 	public class ListBox : Control
 	{
-		public List<ListBoxItem> Items = new List<ListBoxItem>();
+		List<ListBoxItem> Items = new List<ListBoxItem>();
 
 		[YamlIgnore]
 		Vector2 StartOffset = new Vector2(0, 2);
@@ -67,6 +67,11 @@ namespace FishUI.Controls
 		public ListBox()
 		{
 			Size = new Vector2(140, 120);
+		}
+
+		public void AddItem(ListBoxItem Itm)
+		{
+			Items.Add(Itm);
 		}
 
 		public void SelectIndex(int Idx)
@@ -147,6 +152,16 @@ namespace FishUI.Controls
 			AddChild(ScrollBar);
 		}
 
+		public void AutoResizeHeight()
+		{
+			if (ListItemHeight == 0)
+			{
+				Size.Y = 0;
+				return;
+			}
+			Size = new Vector2(Size.X, Items.Count * ListItemHeight + 4);
+		}
+
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
 			if (ShowScrollBar)
@@ -157,13 +172,16 @@ namespace FishUI.Controls
 				ScrollBar = null;
 			}
 
+			float ItemHeight = UI.Settings.FontDefault.Size + 4;
+			ListItemHeight = ItemHeight;
 
+			if (Size.Y == 0)
+				AutoResizeHeight();
 
 			NPatch Cur = UI.Settings.ImgListBoxNormal;
 			UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), Color);
 
-			float ItemHeight = UI.Settings.FontDefault.Size + 4;
-			ListItemHeight = ItemHeight;
+
 
 			bool ShowSBar = false;
 
@@ -173,9 +191,9 @@ namespace FishUI.Controls
 				bool IsSelected = (i == SelectedIndex);
 				bool IsHovered = (i == HoveredIndex);
 
-				float Y = Position.Y + 2 + i * ItemHeight;
+				float Y = Position.Y + 2 + i * ListItemHeight;
 
-				if ((Y + ItemHeight > Position.Y + GetAbsoluteSize().Y) && !ShowSBar)
+				if ((Y + ListItemHeight > Position.Y + GetAbsoluteSize().Y) && !ShowSBar)
 					ShowSBar = true;
 
 				Cur = null;
@@ -197,7 +215,13 @@ namespace FishUI.Controls
 				}
 
 				if (Cur != null)
-					UI.Graphics.DrawNPatch(Cur, new Vector2(Position.X + 2, Y) + ScrollOffset, new Vector2(GetAbsoluteSize().X - 4 - (ScrollBar?.GetAbsoluteSize().X ?? 0), ItemHeight), Color);
+				{
+					float ScrollBarW = ScrollBar?.GetAbsoluteSize().X ?? 0;
+					if (!ScrollBar?.Visible ?? true)
+						ScrollBarW = 0;
+
+					UI.Graphics.DrawNPatch(Cur, new Vector2(Position.X + 2, Y) + ScrollOffset, new Vector2(GetAbsoluteSize().X - 4 - (ScrollBarW), ListItemHeight), Color);
+				}
 
 				UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Items[i].Text, new Vector2(Position.X + 4, Y) + ScrollOffset + StartOffset, TxtColor);
 
