@@ -6,9 +6,11 @@ using YamlDotNet.Serialization;
 
 namespace FishUI.Controls
 {
+	public delegate void ButtonPressFunc(Button Sender, FishMouseButton Btn, Vector2 Pos);
+
 	public class Button : Control
 	{
-		/*[YamlIgnore]
+		[YamlIgnore]
 		NPatch ImgNormal;
 
 		[YamlIgnore]
@@ -20,27 +22,47 @@ namespace FishUI.Controls
 		[YamlIgnore]
 		NPatch ImgPressed;
 
-		[YamlIgnore]
-		FontRef TxtFnt;*/
-
 		public string Text;
+
+		public event ButtonPressFunc OnButtonPressed;
 
 		public Button()
 		{
+		}
+
+		public Button(NPatch Normal, NPatch Disabled, NPatch Pressed, NPatch Hovered)
+		{
+			ImgNormal = Normal;
+			ImgDisabled = Disabled;
+			ImgPressed = Pressed;
+			ImgHover = Hovered;
+		}
+
+		public override void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
+		{
+			base.HandleMouseClick(UI, InState, Btn, Pos);
+
+			if (OnButtonPressed != null)
+				OnButtonPressed(this, Btn, Pos);
 		}
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
 			//base.Draw(UI, Dt, Time);
 
-			NPatch Cur = UI.Settings.ImgButtonNormal;
+			NPatch NNormal = ImgNormal ?? UI.Settings.ImgButtonNormal;
+			NPatch NDisabled = ImgDisabled ?? UI.Settings.ImgButtonDisabled;
+			NPatch NPressed = ImgPressed ?? UI.Settings.ImgButtonPressed;
+			NPatch NHover = ImgHover ?? UI.Settings.ImgButtonHover;
+
+			NPatch Cur = NNormal;
 
 			if (Disabled)
-				Cur = UI.Settings.ImgButtonDisabled;
+				Cur = NDisabled;
 			else if (IsMousePressed)
-				Cur = UI.Settings.ImgButtonPressed;
+				Cur = NPressed;
 			else if (IsMouseInside)
-				Cur = UI.Settings.ImgButtonHover;
+				Cur = NHover;
 
 			UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), Color);
 

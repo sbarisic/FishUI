@@ -6,6 +6,8 @@ using YamlDotNet.Serialization;
 
 namespace FishUI.Controls
 {
+	public delegate void OnControlDraggedFunc(Control Sender, Vector2 MouseDelta);
+
 	public abstract class Control
 	{
 		const bool DebugPrint = true;
@@ -37,6 +39,8 @@ namespace FishUI.Controls
 
 		// If true, this control can be dragged and repositioned with the mouse, handled in the HandleDrag implementation
 		public virtual bool Draggable { get; set; } = false;
+
+		public event OnControlDraggedFunc OnDragged;
 
 		public Vector2 GetAbsolutePosition()
 		{
@@ -181,7 +185,10 @@ namespace FishUI.Controls
 		public virtual void HandleDrag(FishUI UI, Vector2 StartPos, Vector2 EndPos, FishInputState InState)
 		{
 			if (Draggable)
+			{
+				OnDragged?.Invoke(this, InState.MouseDelta);
 				Position += InState.MouseDelta;
+			}
 
 			//if (DebugPrint)
 			//	Console.WriteLine($"{GetType().Name}({ID ?? "null"}) - Drag Control");

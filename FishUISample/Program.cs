@@ -68,6 +68,16 @@ namespace FishUISample
 				Lb.Items.Add("Item " + i);
 			}
 
+			ScrollBarV Sbv = new ScrollBarV();
+			Sbv.Position = new Vector2(480, 340);
+			Sbv.Size = new Vector2(15, 170);
+			Sbv.ZDepth = 2;
+			Sbv.OnScrollChanged += (_, Scroll, Delta) =>
+			{
+				Console.WriteLine($"Scroll position: {Scroll}, Delta: {Delta}");
+			};
+			FUI.Controls.Add(Sbv);
+
 			Button Btn0 = new Button();
 			Btn0.ID = "visible";
 			Btn0.Text = "Make Visible";

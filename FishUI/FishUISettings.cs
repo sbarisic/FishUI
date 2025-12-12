@@ -56,6 +56,40 @@ namespace FishUI
 
 		// ListBox
 		public NPatch ImgListBoxNormal { get; set; }
+		public NPatch ImgListBoxItmSelected { get; set; }
+		public NPatch ImgListBoxItmSelectedHovered { get; set; }
+		public NPatch ImgListBoxItmHovered { get; set; }
+
+		// Scroll bar vertical
+		public NPatch ImgSBVBarNormal { get; set; }
+		public NPatch ImgSBVBarPressed { get; set; }
+		public NPatch ImgSBVBarHover { get; set; }
+		public NPatch ImgSBVBarDisabled { get; set; }
+		public NPatch ImgSBVBarBackground { get; set; }
+		public NPatch ImgSBVBtnDownNormal { get; set; }
+		public NPatch ImgSBVBtnDownPressed { get; set; }
+		public NPatch ImgSBVBtnDownHover { get; set; }
+		public NPatch ImgSBVBtnDownDisabled { get; set; }
+		public NPatch ImgSBVBtnUpNormal { get; set; }
+		public NPatch ImgSBVBtnUpPressed { get; set; }
+		public NPatch ImgSBVBtnUpHover { get; set; }
+		public NPatch ImgSBVBtnUpDisabled { get; set; }
+
+		// Scroll bar horizontal
+		public NPatch ImgSBHBarNormal { get; set; }
+		public NPatch ImgSBHBarPressed { get; set; }
+		public NPatch ImgSBHBarHover { get; set; }
+		public NPatch ImgSBHBarDisabled { get; set; }
+		public NPatch ImgSBHBarBackground { get; set; }
+		public NPatch ImgSBHBtnLeftNormal { get; set; }
+		public NPatch ImgSBHBtnLeftPressed { get; set; }
+		public NPatch ImgSBHBtnLeftHover { get; set; }
+		public NPatch ImgSBHBtnLeftDisabled { get; set; }
+		public NPatch ImgSBHBtnRightNormal { get; set; }
+		public NPatch ImgSBHBtnRightPressed { get; set; }
+		public NPatch ImgSBHBtnRightHover { get; set; }
+		public NPatch ImgSBHBtnRightDisabled { get; set; }
+
 
 		public FishUISettings()
 		{
@@ -65,6 +99,7 @@ namespace FishUI
 		{
 			string DataFolder = "data/";
 			string FontFolder = "data/fonts/";
+			string SBFolder = "data/sb/";
 
 			// Fonts
 			FontDefault = UI.Graphics.LoadFont(FontFolder + "ubuntu_mono.ttf", FontSize, FontSpacing, FishColor.Black);
@@ -110,6 +145,45 @@ namespace FishUI
 
 			// ListBox
 			ImgListBoxNormal = new NPatch(UI, DataFolder + "listbox_normal.png", 2, 2, 2, 2);
+			ImgListBoxItmSelected = new NPatch(UI, DataFolder + "listbox_itm_selected.png", 2, 2, 2, 2);
+			ImgListBoxItmSelectedHovered = new NPatch(UI, DataFolder + "listbox_itm_selected_hovered.png", 2, 2, 2, 2);
+			ImgListBoxItmHovered = new NPatch(UI, DataFolder + "listbox_itm_hovered.png", 2, 2, 2, 2);
+
+
+			// Scroll bar vertical
+			ImgSBVBarNormal = new NPatch(UI, SBFolder + "v_bar_normal.png", 2, 2, 2, 2);
+			ImgSBVBarPressed = new NPatch(UI, SBFolder + "v_bar_pressed.png", 2, 2, 2, 2);
+			ImgSBVBarHover = new NPatch(UI, SBFolder + "v_bar_hover.png", 2, 2, 2, 2);
+			ImgSBVBarDisabled = new NPatch(UI, SBFolder + "v_bar_disabled.png", 2, 2, 2, 2);
+			ImgSBVBarBackground = new NPatch(UI, SBFolder + "v_bar_background.png", 2, 2, 2, 2);
+
+			ImgSBVBtnDownNormal = new NPatch(UI, SBFolder + "v_down_normal.png", 2, 2, 2, 2);
+			ImgSBVBtnDownPressed = new NPatch(UI, SBFolder + "v_down_pressed.png", 2, 2, 2, 2);
+			ImgSBVBtnDownHover = new NPatch(UI, SBFolder + "v_down_hover.png", 2, 2, 2, 2);
+			ImgSBVBtnDownDisabled = new NPatch(UI, SBFolder + "v_down_disabled.png", 2, 2, 2, 2);
+
+			ImgSBVBtnUpNormal = new NPatch(UI, SBFolder + "v_up_normal.png", 2, 2, 2, 2);
+			ImgSBVBtnUpPressed = new NPatch(UI, SBFolder + "v_up_pressed.png", 2, 2, 2, 2);
+			ImgSBVBtnUpHover = new NPatch(UI, SBFolder + "v_up_hover.png", 2, 2, 2, 2);
+			ImgSBVBtnUpDisabled = new NPatch(UI, SBFolder + "v_up_disabled.png", 2, 2, 2, 2);
+
+			// Scroll bar horizontal
+			ImgSBHBarNormal = new NPatch(UI, SBFolder + "h_bar_normal.png", 2, 2, 2, 2);
+			ImgSBHBarPressed = new NPatch(UI, SBFolder + "h_bar_pressed.png", 2, 2, 2, 2);
+			ImgSBHBarHover = new NPatch(UI, SBFolder + "h_bar_hover.png", 2, 2, 2, 2);
+			ImgSBHBarDisabled = new NPatch(UI, SBFolder + "h_bar_disabled.png", 2, 2, 2, 2);
+			ImgSBHBarBackground = new NPatch(UI, SBFolder + "h_bar_background.png", 2, 2, 2, 2);
+
+			ImgSBHBtnLeftNormal = new NPatch(UI, SBFolder + "h_left_normal.png", 2, 2, 2, 2);
+			ImgSBHBtnLeftPressed = new NPatch(UI, SBFolder + "h_left_pressed.png", 2, 2, 2, 2);
+			ImgSBHBtnLeftHover = new NPatch(UI, SBFolder + "h_left_hover.png", 2, 2, 2, 2);
+			ImgSBHBtnLeftDisabled = new NPatch(UI, SBFolder + "h_left_disabled.png", 2, 2, 2, 2);
+
+			ImgSBHBtnRightNormal = new NPatch(UI, SBFolder + "h_right_normal.png", 2, 2, 2, 2);
+			ImgSBHBtnRightPressed = new NPatch(UI, SBFolder + "h_right_pressed.png", 2, 2, 2, 2);
+			ImgSBHBtnRightHover = new NPatch(UI, SBFolder + "h_right_hover.png", 2, 2, 2, 2);
+			ImgSBHBtnRightDisabled = new NPatch(UI, SBFolder + "h_right_disabled.png", 2, 2, 2, 2);
+
 		}
 	}
 }

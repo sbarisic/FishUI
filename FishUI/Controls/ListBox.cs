@@ -5,6 +5,7 @@ using System.Numerics;
 using System.Runtime.ConstrainedExecution;
 using System.Text;
 using System.Threading.Tasks;
+using YamlDotNet.Serialization;
 
 namespace FishUI.Controls
 {
@@ -36,8 +37,15 @@ namespace FishUI.Controls
 		Vector2 StartOffset = new Vector2(0, 2);
 
 		Vector2 ScrollOffset = new Vector2(0, 0);
+
 		int SelectedIndex = -1;
 		int HoveredIndex = -1;
+
+		[YamlIgnore]
+		ScrollBarV ScrollBar;
+
+		[YamlIgnore]
+		float ListItemHeight;
 
 		int PickIndexFromPosition(FishUI UI, Vector2 LocalPos, float ItemHeight)
 		{
@@ -86,12 +94,46 @@ namespace FishUI.Controls
 			}
 		}
 
+		void CreateScrollBar(FishUI UI)
+		{
+			if (ScrollBar != null)
+				return;
+
+			ScrollBar = new ScrollBarV();
+			ScrollBar.Position = new Vector2(Size.X - 16, 0);
+			ScrollBar.Size = new Vector2(16, Size.Y);
+			ScrollBar.ThumbHeight = 0.5f;
+			ScrollBar.OnScrollChanged += (_, Scroll, Delta) =>
+			{
+				// Scroll is in range 0..1
+
+				float ContentHeight = Items.Count * ListItemHeight;
+
+				ScrollOffset = new Vector2(0, -Scroll * ContentHeight);
+			};
+
+			/*ScrollBar.OnThumbPositionChanged += (s, pos) =>
+			{
+				float ContentHeight = Items.Count * (UI.Settings.FontDefault.Size + 4) + 4;
+				float ViewHeight = Size.Y;
+				float MaxScroll = MathF.Max(0, ContentHeight - ViewHeight);
+				ScrollOffset.Y = MaxScroll * pos;
+			};*/
+
+			AddChild(ScrollBar);
+		}
+
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
+			CreateScrollBar(UI);
+
 			NPatch Cur = UI.Settings.ImgListBoxNormal;
 			UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), Color);
 
 			float ItemHeight = UI.Settings.FontDefault.Size + 4;
+			ListItemHeight = ItemHeight;
+
+			bool ShowScrollBar = false;
 
 			UI.Graphics.PushScissor(GetAbsolutePosition() + new Vector2(2, 2), GetAbsoluteSize() - new Vector2(4, 4));
 			for (int i = 0; i < Items.Count; i++)
@@ -101,19 +143,35 @@ namespace FishUI.Controls
 
 				float Y = Position.Y + 2 + i * ItemHeight;
 
-				//if (Y + ItemHeight > Position.Y + Size.Y)
-				//	break;
+				if ((Y + ItemHeight > Position.Y + Size.Y) && !ShowScrollBar)
+					ShowScrollBar = true;
 
-				if (IsHovered)
+				Cur = null;
+				FishColor TxtColor = FishColor.Black;
+
+				if (IsHovered && IsSelected)
 				{
-					UI.Graphics.DrawRectangle(new Vector2(Position.X + 2, Y) + ScrollOffset, new Vector2(Size.X - 4, ItemHeight), FishColor.Red);
+					Cur = UI.Settings.ImgListBoxItmSelectedHovered;
+					TxtColor = FishColor.White;
+				}
+				else if (IsHovered)
+				{
+					//UI.Graphics.DrawRectangle(new Vector2(Position.X + 2, Y) + ScrollOffset, new Vector2(Size.X - 4, ItemHeight), FishColor.Red);
+					Cur = UI.Settings.ImgListBoxItmHovered;
 				}
 				else if (IsSelected)
 				{
-					UI.Graphics.DrawRectangle(new Vector2(Position.X + 2, Y) + ScrollOffset, new Vector2(Size.X - 4, ItemHeight), FishColor.Cyan);
+					//UI.Graphics.DrawRectangle(new Vector2(Position.X + 2, Y) + ScrollOffset, new Vector2(Size.X - 4, ItemHeight), FishColor.Cyan);
+					Cur = UI.Settings.ImgListBoxItmSelected;
+					TxtColor = FishColor.White;
 				}
 
-				UI.Graphics.DrawText(UI.Settings.FontDefault, Items[i].Text, new Vector2(Position.X + 4, Y) + ScrollOffset + StartOffset);
+				if (Cur != null)
+					UI.Graphics.DrawNPatch(Cur, new Vector2(Position.X + 2, Y) + ScrollOffset, new Vector2(Size.X - 4, ItemHeight), Color);
+
+				UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Items[i].Text, new Vector2(Position.X + 4, Y) + ScrollOffset + StartOffset, TxtColor);
+
+				ScrollBar.Visible = ShowScrollBar;
 			}
 			UI.Graphics.PopScissor();
 		}

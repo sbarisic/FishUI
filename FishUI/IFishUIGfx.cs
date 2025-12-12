@@ -55,5 +55,7 @@ namespace FishUI
 
 		public void DrawText(FontRef Fn, string Text, Vector2 Pos);
 
+		public void DrawTextColor(FontRef Fn, string Text, Vector2 Pos, FishColor Color);
+
 	}
 }

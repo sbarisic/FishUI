@@ -240,6 +240,12 @@ namespace FishUISample
 			Raylib.DrawTextEx(F, Text, new Vector2((int)Pos.X, (int)Pos.Y), Fn.Size, Fn.Spacing, new Color(Fn.Color.R, Fn.Color.G, Fn.Color.B, Fn.Color.A));
 		}
 
+		public void DrawTextColor(FontRef Fn, string Text, Vector2 Pos, FishColor Color)
+		{
+			Font F = (Font)Fn.Userdata;
+			Raylib.DrawTextEx(F, Text, new Vector2((int)Pos.X, (int)Pos.Y), Fn.Size, Fn.Spacing, new Color(Color.R, Color.G, Color.B, Color.A));
+		}
+
 		public Vector2 MeasureText(FontRef Fn, string Text)
 		{
 			Font F = (Font)Fn.Userdata;
