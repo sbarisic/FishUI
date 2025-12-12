@@ -39,7 +39,7 @@ namespace FishUI.Controls
 			string Txt = Text;
 			Vector2 TxtSz = UI.Graphics.MeasureText(UI.Settings.FontTextboxDefault, Txt);
 
-			Vector2 TxtPos = (GetAbsolutePosition() + new Vector2(Cur.Left + 4, Size.Y / 2)) - new Vector2(0, TxtSz.Y / 2);
+			Vector2 TxtPos = (GetAbsolutePosition() + new Vector2(Cur.Left + 4, GetAbsoluteSize().Y / 2)) - new Vector2(0, TxtSz.Y / 2);
 			UI.Graphics.DrawText(UI.Settings.FontTextboxDefault, Txt, TxtPos);
 			UI.Graphics.PopScissor();
 

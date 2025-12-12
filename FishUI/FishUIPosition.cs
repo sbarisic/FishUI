@@ -20,8 +20,22 @@ namespace FishUI
 
 	public enum PositionMode
 	{
-		Absolute,
 		Relative,
+		Absolute,
+		Docked,
+	}
+
+	[Flags]
+	public enum DockMode
+	{
+		Left,
+		Top,
+		Right,
+		Bottom,
+
+		Horizontal = Left | Right,
+		Vertical = Top | Bottom,
+		Fill = Left | Top | Right | Bottom,
 	}
 
 	public struct Padding
@@ -35,6 +49,7 @@ namespace FishUI
 	public struct FishUIPosition
 	{
 		public PositionMode Mode;
+		public DockMode Dock;
 
 		public float X;
 		public float Y;
@@ -55,9 +70,27 @@ namespace FishUI
 			this.Y = Pos.Y;
 		}
 
+		public FishUIPosition(PositionMode Mode, DockMode DMode, Vector4 Dock, Vector2 XY)
+		{
+			this.Dock = DMode;
+			this.Mode = Mode;
+			this.Left = Dock.X;
+			this.Top = Dock.Y;
+			this.Right = Dock.Z;
+			this.Bottom = Dock.W;
+			this.X = XY.X;
+			this.Y = XY.Y;
+		}
+
 		public static implicit operator FishUIPosition(Vector2 Pos)
 		{
 			return new FishUIPosition(PositionMode.Relative, Pos);
+		}
+
+		public static implicit operator FishUIPosition(Vector4 Dock)
+		{
+			FishUIPosition P = new FishUIPosition(PositionMode.Docked, DockMode.Fill, Dock, Vector2.Zero);
+			return P;
 		}
 
 		public static FishUIPosition operator +(FishUIPosition Pos, Vector2 Mv)
@@ -65,6 +98,16 @@ namespace FishUI
 			FishUIPosition NewPos = Pos;
 			NewPos.X += Mv.X;
 			NewPos.Y += Mv.Y;
+			return NewPos;
+		}
+
+		public static FishUIPosition operator +(FishUIPosition Pos, Vector4 Mv)
+		{
+			FishUIPosition NewPos = Pos;
+			NewPos.Left += Mv.X;
+			NewPos.Top += Mv.Y;
+			NewPos.Right += Mv.Z;
+			NewPos.Bottom += Mv.W;
 			return NewPos;
 		}
 	}

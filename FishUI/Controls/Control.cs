@@ -35,8 +35,8 @@ namespace FishUI.Controls
 		[YamlMember]
 		public FishUIPosition Position;
 
-		[YamlMember]
-		public Padding Padding;
+		//[YamlMember]
+		//public Padding Padding;
 
 		[YamlMember]
 		public Vector2 Size;
@@ -63,7 +63,7 @@ namespace FishUI.Controls
 			{
 				return new Vector2(Position.X, Position.Y);
 			}
-			else
+			else if (Position.Mode == PositionMode.Relative)
 			{
 				Vector2 ParentPos = Vector2.Zero;
 
@@ -72,6 +72,33 @@ namespace FishUI.Controls
 
 				return ParentPos + new Vector2(Position.X, Position.Y);
 			}
+			else if (Position.Mode == PositionMode.Docked)
+			{
+				if (Parent != null)
+				{
+					Vector2 ParentPos = Parent.GetAbsolutePosition();
+					Vector2 DockedPos = ParentPos + new Vector2(Position.X, Position.Y);
+
+					if (Position.Dock.HasFlag(DockMode.Left))
+					{
+						DockedPos.X = ParentPos.X + Position.Left;
+					}
+
+					if (Position.Dock.HasFlag(DockMode.Top))
+					{
+						DockedPos.Y = ParentPos.Y + Position.Top;
+					}
+
+					return DockedPos;
+				}
+				else
+				{
+					// No parent, treat as absolute
+					return new Vector2(Position.X, Position.Y);
+				}
+			}
+			else
+				throw new NotImplementedException();
 		}
 
 		public Vector2 GetLocalRelative(Vector2 GlobalPt)
@@ -81,6 +108,32 @@ namespace FishUI.Controls
 
 		public Vector2 GetAbsoluteSize()
 		{
+			if (Position.Mode == PositionMode.Docked && Parent != null)
+			{
+				Vector2 ParentPos = Parent.GetAbsolutePosition();
+				Vector2 ParentSize = Parent.GetAbsoluteSize();
+
+				Vector2 MyPos = GetAbsolutePosition();
+				Vector2 MyNewSize = Size;
+
+				float SubX = MyPos.X - ParentPos.X;
+				float SubY = MyPos.Y - ParentPos.Y;
+
+				if (Position.Dock.HasFlag(DockMode.Right))
+				{
+					float FullChildWidth = ParentSize.X - SubX;
+					MyNewSize.X = FullChildWidth - Position.Right;
+				}
+
+				if (Position.Dock.HasFlag(DockMode.Bottom))
+				{
+					float FullChildHeight = ParentSize.Y - SubY;
+					MyNewSize.Y = FullChildHeight - Position.Bottom;
+				}
+
+				return MyNewSize;
+			}
+
 			return Size;
 		}
 

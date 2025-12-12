@@ -71,7 +71,7 @@ namespace FishUI.Controls
 
 		bool IsInsideBtnDown(FishUI UI, Vector2 Pos)
 		{
-			Vector2 BtnPos = GetAbsolutePosition() + new Vector2(0, Size.Y - ButtonSize.Y);
+			Vector2 BtnPos = GetAbsolutePosition() + new Vector2(0, GetAbsoluteSize().Y - ButtonSize.Y);
 
 			if (Utils.IsInside(BtnPos, ButtonSize, Pos))
 				return true;
@@ -122,7 +122,7 @@ namespace FishUI.Controls
 
 			BtnUp = new Button(UI.Settings.ImgSBVBtnDownNormal, UI.Settings.ImgSBVBtnDownDisabled, UI.Settings.ImgSBVBtnDownPressed, UI.Settings.ImgSBVBtnDownHover);
 			BtnUp.Size = ButtonSize;
-			BtnUp.Position = new Vector2(0, Size.Y - ButtonSize.Y);
+			BtnUp.Position = new Vector2(0, GetAbsoluteSize().Y - ButtonSize.Y);
 			BtnUp.OnButtonPressed += (sender, btn, pos) =>
 			{
 				ScrollDown();

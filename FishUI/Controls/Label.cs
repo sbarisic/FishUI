@@ -41,8 +41,8 @@ namespace FishUI.Controls
 			{
 				if (Parent is CheckBox || Parent is RadioButton)
 				{
-					Position.X = Parent.Size.X + 4;
-					Position.Y = Parent.Size.Y / 2 - UI.Settings.FontLabel.Size / 2;
+					Position.X = Parent.GetAbsoluteSize().X + 4;
+					Position.Y = Parent.GetAbsoluteSize().Y / 2 - UI.Settings.FontLabel.Size / 2;
 				}
 
 

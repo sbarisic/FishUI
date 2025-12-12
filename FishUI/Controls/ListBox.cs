@@ -135,8 +135,8 @@ namespace FishUI.Controls
 			RemoveAllChildren();
 
 			ScrollBar = new ScrollBarV();
-			ScrollBar.Position = new Vector2(Size.X - 16, 0);
-			ScrollBar.Size = new Vector2(16, Size.Y);
+			ScrollBar.Position = new Vector2(GetAbsoluteSize().X - 16, 0);
+			ScrollBar.Size = new Vector2(16, GetAbsoluteSize().Y);
 			ScrollBar.ThumbHeight = 0.5f;
 			ScrollBar.OnScrollChanged += (_, Scroll, Delta) =>
 			{
@@ -175,7 +175,7 @@ namespace FishUI.Controls
 
 				float Y = Position.Y + 2 + i * ItemHeight;
 
-				if ((Y + ItemHeight > Position.Y + Size.Y) && !ShowSBar)
+				if ((Y + ItemHeight > Position.Y + GetAbsoluteSize().Y) && !ShowSBar)
 					ShowSBar = true;
 
 				Cur = null;
@@ -197,7 +197,7 @@ namespace FishUI.Controls
 				}
 
 				if (Cur != null)
-					UI.Graphics.DrawNPatch(Cur, new Vector2(Position.X + 2, Y) + ScrollOffset, new Vector2(Size.X - 4 - (ScrollBar?.Size.X ?? 0), ItemHeight), Color);
+					UI.Graphics.DrawNPatch(Cur, new Vector2(Position.X + 2, Y) + ScrollOffset, new Vector2(GetAbsoluteSize().X - 4 - (ScrollBar?.GetAbsoluteSize().X ?? 0), ItemHeight), Color);
 
 				UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Items[i].Text, new Vector2(Position.X + 4, Y) + ScrollOffset + StartOffset, TxtColor);
 
