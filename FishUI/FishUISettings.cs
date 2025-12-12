@@ -90,6 +90,14 @@ namespace FishUI
 		public NPatch ImgSBHBtnRightHover { get; set; }
 		public NPatch ImgSBHBtnRightDisabled { get; set; }
 
+		// Dropdown
+		public NPatch ImgDropdownNormal { get; set; }
+		public NPatch ImgDropdownHover { get; set; }
+		public NPatch ImgDropdownPressed { get; set; }
+		public NPatch ImgDropdownDisabled { get; set; }
+		public NPatch ImgDropdownArrowBlack { get; set; }
+		public NPatch ImgDropdownArrowWhite { get; set; }	
+
 
 		public FishUISettings()
 		{
@@ -183,6 +191,14 @@ namespace FishUI
 			ImgSBHBtnRightPressed = new NPatch(UI, SBFolder + "h_right_pressed.png", 2, 2, 2, 2);
 			ImgSBHBtnRightHover = new NPatch(UI, SBFolder + "h_right_hover.png", 2, 2, 2, 2);
 			ImgSBHBtnRightDisabled = new NPatch(UI, SBFolder + "h_right_disabled.png", 2, 2, 2, 2);
+
+			// Dropdown
+			ImgDropdownNormal = new NPatch(UI, DataFolder + "dropdown_normal.png", 2, 2, 2, 2);
+			ImgDropdownHover = new NPatch(UI, DataFolder + "dropdown_hover.png", 2, 2, 2, 2);
+			ImgDropdownPressed = new NPatch(UI, DataFolder + "dropdown_pressed.png", 2, 2, 2, 2);
+			ImgDropdownDisabled = new NPatch(UI, DataFolder + "dropdown_disabled.png", 2, 2, 2, 2);
+			ImgDropdownArrowBlack = new NPatch(UI, DataFolder + "dropdown_arrow_black.png", 1, 1, 1, 1);
+			ImgDropdownArrowWhite = new NPatch(UI, DataFolder + "dropdown_arrow_white.png", 1, 1, 1, 1);
 
 		}
 	}

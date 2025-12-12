@@ -58,7 +58,18 @@ namespace FishUISample
 				Lb.AddItem("Item " + i);
 			}
 
-			//Lb.AutoResizeHeight();
+			Lb.AutoResizeHeight();
+
+			DropDown DD = new DropDown();
+			DD.Position = new Vector2(550, 350);
+			DD.ZDepth = 2;
+			DD.ID = "dropdown1";
+			FUI.AddControl(DD);
+
+			for (int i = 0; i < 10; i++)
+			{
+				DD.AddItem("Option " + i);
+			}
 
 			ScrollBarV Sbv = new ScrollBarV();
 			Sbv.Position = new Vector2(480, 340);
