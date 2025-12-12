@@ -9,10 +9,17 @@ using YamlDotNet.Serialization;
 
 namespace FishUI.Controls
 {
+	public delegate void ListBoxItemSelectedFunc(ListBox ListBox, int Idx, ListBoxItem Itm);
+
 	public class ListBoxItem
 	{
 		public string Text;
 		public object UserData;
+
+		public ListBoxItem()
+		{
+			Text = "Empty Item";
+		}
 
 		public ListBoxItem(string Text, object UserData = null)
 		{
@@ -34,11 +41,16 @@ namespace FishUI.Controls
 	public class ListBox : Control
 	{
 		public List<ListBoxItem> Items = new List<ListBoxItem>();
+
+		[YamlIgnore]
 		Vector2 StartOffset = new Vector2(0, 2);
 
 		Vector2 ScrollOffset = new Vector2(0, 0);
 
+		[YamlMember]
 		int SelectedIndex = -1;
+
+		[YamlMember]
 		int HoveredIndex = -1;
 
 		[YamlIgnore]
@@ -47,9 +59,37 @@ namespace FishUI.Controls
 		[YamlIgnore]
 		float ListItemHeight;
 
+		[YamlMember]
+		public bool ShowScrollBar = true;
+
+		public event ListBoxItemSelectedFunc OnItemSelected;
+
+		public ListBox()
+		{
+			Size = new Vector2(140, 120);
+		}
+
+		public void SelectIndex(int Idx)
+		{
+			int LastSelectedIndex = SelectedIndex;
+
+			if (Idx < 0)
+				Idx = 0;
+
+			if (Idx >= Items.Count)
+				Idx = Items.Count - 1;
+
+			SelectedIndex = Idx;
+
+			if (LastSelectedIndex != SelectedIndex)
+			{
+				FishUI.Events.Broadcast(FishUI, this, "item_selected", new object[] { SelectedIndex, Items[SelectedIndex] });
+				OnItemSelected?.Invoke(this, SelectedIndex, Items[SelectedIndex]);
+			}
+		}
+
 		int PickIndexFromPosition(FishUI UI, Vector2 LocalPos, float ItemHeight)
 		{
-
 			int Index = (int)((LocalPos.Y - StartOffset.Y) / ItemHeight);
 
 			if (Index < 0 || Index >= Items.Count)
@@ -71,8 +111,10 @@ namespace FishUI.Controls
 
 		public override void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
 		{
-			SelectedIndex = HoveredIndex;
-			Console.WriteLine(">> Selected index: " + SelectedIndex);
+			if (HoveredIndex != -1)
+				SelectIndex(HoveredIndex);
+
+			//Console.WriteLine(">> Selected index: " + SelectedIndex);
 		}
 
 		public override void HandleKeyPress(FishUI UI, FishInputState InState, FishKey Key)
@@ -80,17 +122,9 @@ namespace FishUI.Controls
 			if (SelectedIndex >= 0 && SelectedIndex < Items.Count)
 			{
 				if (Key == FishKey.Up)
-				{
-					SelectedIndex--;
-					if (SelectedIndex < 0)
-						SelectedIndex = 0;
-				}
+					SelectIndex(SelectedIndex - 1);
 				else if (Key == FishKey.Down)
-				{
-					SelectedIndex++;
-					if (SelectedIndex >= Items.Count)
-						SelectedIndex = Items.Count - 1;
-				}
+					SelectIndex(SelectedIndex + 1);
 			}
 		}
 
@@ -98,6 +132,7 @@ namespace FishUI.Controls
 		{
 			if (ScrollBar != null)
 				return;
+			RemoveAllChildren();
 
 			ScrollBar = new ScrollBarV();
 			ScrollBar.Position = new Vector2(Size.X - 16, 0);
@@ -105,27 +140,24 @@ namespace FishUI.Controls
 			ScrollBar.ThumbHeight = 0.5f;
 			ScrollBar.OnScrollChanged += (_, Scroll, Delta) =>
 			{
-				// Scroll is in range 0..1
-
 				float ContentHeight = Items.Count * ListItemHeight;
-
 				ScrollOffset = new Vector2(0, -Scroll * ContentHeight);
 			};
-
-			/*ScrollBar.OnThumbPositionChanged += (s, pos) =>
-			{
-				float ContentHeight = Items.Count * (UI.Settings.FontDefault.Size + 4) + 4;
-				float ViewHeight = Size.Y;
-				float MaxScroll = MathF.Max(0, ContentHeight - ViewHeight);
-				ScrollOffset.Y = MaxScroll * pos;
-			};*/
 
 			AddChild(ScrollBar);
 		}
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
-			CreateScrollBar(UI);
+			if (ShowScrollBar)
+				CreateScrollBar(UI);
+			else if (ScrollBar != null)
+			{
+				RemoveChild(ScrollBar);
+				ScrollBar = null;
+			}
+
+
 
 			NPatch Cur = UI.Settings.ImgListBoxNormal;
 			UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), Color);
@@ -133,7 +165,7 @@ namespace FishUI.Controls
 			float ItemHeight = UI.Settings.FontDefault.Size + 4;
 			ListItemHeight = ItemHeight;
 
-			bool ShowScrollBar = false;
+			bool ShowSBar = false;
 
 			UI.Graphics.PushScissor(GetAbsolutePosition() + new Vector2(2, 2), GetAbsoluteSize() - new Vector2(4, 4));
 			for (int i = 0; i < Items.Count; i++)
@@ -143,8 +175,8 @@ namespace FishUI.Controls
 
 				float Y = Position.Y + 2 + i * ItemHeight;
 
-				if ((Y + ItemHeight > Position.Y + Size.Y) && !ShowScrollBar)
-					ShowScrollBar = true;
+				if ((Y + ItemHeight > Position.Y + Size.Y) && !ShowSBar)
+					ShowSBar = true;
 
 				Cur = null;
 				FishColor TxtColor = FishColor.Black;
@@ -156,23 +188,26 @@ namespace FishUI.Controls
 				}
 				else if (IsHovered)
 				{
-					//UI.Graphics.DrawRectangle(new Vector2(Position.X + 2, Y) + ScrollOffset, new Vector2(Size.X - 4, ItemHeight), FishColor.Red);
 					Cur = UI.Settings.ImgListBoxItmHovered;
 				}
 				else if (IsSelected)
 				{
-					//UI.Graphics.DrawRectangle(new Vector2(Position.X + 2, Y) + ScrollOffset, new Vector2(Size.X - 4, ItemHeight), FishColor.Cyan);
 					Cur = UI.Settings.ImgListBoxItmSelected;
 					TxtColor = FishColor.White;
 				}
 
 				if (Cur != null)
-					UI.Graphics.DrawNPatch(Cur, new Vector2(Position.X + 2, Y) + ScrollOffset, new Vector2(Size.X - 4, ItemHeight), Color);
+					UI.Graphics.DrawNPatch(Cur, new Vector2(Position.X + 2, Y) + ScrollOffset, new Vector2(Size.X - 4 - (ScrollBar?.Size.X ?? 0), ItemHeight), Color);
 
 				UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Items[i].Text, new Vector2(Position.X + 4, Y) + ScrollOffset + StartOffset, TxtColor);
 
-				ScrollBar.Visible = ShowScrollBar;
+				if (!ShowScrollBar)
+					ShowSBar = false;
+
+				if (ScrollBar != null)
+					ScrollBar.Visible = ShowSBar;
 			}
+
 			UI.Graphics.PopScissor();
 		}
 	}

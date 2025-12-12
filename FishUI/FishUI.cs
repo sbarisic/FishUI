@@ -12,7 +12,7 @@ namespace FishUI
 		public IFishUIInput Input;
 		public IFishUIEvents Events;
 
-		public List<Control> Controls;
+		List<Control> Controls;
 		public int Width;
 		public int Height;
 
@@ -46,9 +46,26 @@ namespace FishUI
 			Settings.Init(this);
 		}
 
-		Control[] GetOrderedControls()
+		public void AddControl(Control C)
+		{
+			C._FishUI = this;
+			Controls.Add(C);
+		}
+
+		public void RemoveAllControls()
+		{
+			//Control[] Ctrls = GetOrderedControls();
+			Controls.Clear();
+		}
+
+		public Control[] GetOrderedControls()
 		{
 			return Controls.OrderBy(C => C.ZDepth).ToArray();
+		}
+
+		public Control[] GetAllControls()
+		{
+			return Controls.ToArray();
 		}
 
 		// Top-down control picking, for mouse events etc

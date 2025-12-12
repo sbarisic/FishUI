@@ -9,7 +9,10 @@ namespace FishUI.Controls
 {
 	public enum Align
 	{
-		Left, Center, Right
+		None,
+		Left,
+		Center,
+		Right
 	}
 
 	public class Label : Control
@@ -41,31 +44,39 @@ namespace FishUI.Controls
 					Position.X = Parent.Size.X + 4;
 					Position.Y = Parent.Size.Y / 2 - UI.Settings.FontLabel.Size / 2;
 				}
-				
+
 
 				Vector2 TxtSz = UI.Graphics.MeasureText(UI.Settings.FontLabel, Txt);
-				if (float.IsNaN(TxtSz.X)) 
+				if (float.IsNaN(TxtSz.X))
 					TxtSz.X = 0;
 
-				if (float.IsNaN(TxtSz.Y)) 
+				if (float.IsNaN(TxtSz.Y))
 					TxtSz.Y = 0;
 
-				Vector2 Pos = (GetAbsolutePosition() + GetAbsoluteSize() / 2) - TxtSz / 2;
+				Vector2 Pos = Vector2.Zero;
 
-				if (Alignment == Align.Center)
+				switch (Alignment)
 				{
-					Pos = (GetAbsolutePosition() + GetAbsoluteSize() / 2) - TxtSz / 2;
+					case Align.None:
+						Pos = GetAbsolutePosition();
+						break;
+
+					case Align.Left:
+						Pos = GetAbsolutePosition() + new Vector2(0, GetAbsoluteSize().Y / 2) - new Vector2(0, TxtSz.Y / 2);
+						break;
+
+					case Align.Center:
+						Pos = (GetAbsolutePosition() + GetAbsoluteSize() / 2) - TxtSz / 2;
+						break;
+
+					case Align.Right:
+						Pos = GetAbsolutePosition() + new Vector2(GetAbsoluteSize().X, GetAbsoluteSize().Y / 2) - new Vector2(TxtSz.X, TxtSz.Y / 2);
+						break;
+
+					default:
+						throw new NotImplementedException();
 				}
-				else if (Alignment == Align.Left)
-				{
-					Pos = GetAbsolutePosition() + new Vector2(0, GetAbsoluteSize().Y / 2) - new Vector2(0, TxtSz.Y / 2);
-				}
-				else if (Alignment == Align.Right)
-				{
-					Pos = GetAbsolutePosition() + new Vector2(GetAbsoluteSize().X, GetAbsoluteSize().Y / 2) - new Vector2(TxtSz.X, TxtSz.Y / 2);
-				}
-				else
-					throw new NotImplementedException();
+
 
 				UI.Graphics.DrawText(UI.Settings.FontLabel, Txt, Pos);
 			}

@@ -10,16 +10,16 @@ namespace FishUI.Controls
 	public class Textbox : Control
 	{
 		public string Text;
-		public int FontSize;
+		//public int FontSize;
 
 		public Textbox()
 		{
+			Size = new Vector2(200, 19);
 		}
 
-		public Textbox(int FontSize, string Text)
+		public Textbox(string Text) : this()
 		{
 			this.Text = Text;
-			this.FontSize = FontSize;
 		}
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)

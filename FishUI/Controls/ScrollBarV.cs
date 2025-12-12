@@ -12,9 +12,13 @@ namespace FishUI.Controls
 
 	public class ScrollBarV : Control
 	{
+		[YamlMember]
 		public float ThumbHeight = 0.5f; // 0..1
+
+		[YamlMember]
 		public float ThumbPosition = 0.1f; // 0..1
 
+		[YamlMember]
 		public float ScrollStep = 0.05f;
 
 		public event OnScrollChangedFunc OnScrollChanged;
@@ -32,13 +36,18 @@ namespace FishUI.Controls
 		bool BtnDownHovered = false;
 
 		[YamlIgnore]
-		Button BtnThumb;
+		Button BtnThumb = null;
 
 		[YamlIgnore]
-		Button BtnUp;
+		Button BtnUp = null;
 
 		[YamlIgnore]
-		Button BtnDown;
+		Button BtnDown = null;
+
+		public ScrollBarV()
+		{
+			Size = new Vector2(15, 200);
+		}
 
 		bool IsInsideThumb(FishUI UI, Vector2 Pos)
 		{
@@ -98,6 +107,10 @@ namespace FishUI.Controls
 
 		void CreateChildControls(FishUI UI)
 		{
+			if (BtnDown != null)
+				return;
+			RemoveAllChildren();
+
 			BtnDown = new Button(UI.Settings.ImgSBVBtnUpNormal, UI.Settings.ImgSBVBtnUpDisabled, UI.Settings.ImgSBVBtnUpPressed, UI.Settings.ImgSBVBtnUpHover);
 			BtnDown.Position = new Vector2(0, 0);
 			BtnDown.Size = ButtonSize;
@@ -164,8 +177,7 @@ namespace FishUI.Controls
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
-			if (BtnDown == null)
-				CreateChildControls(UI);
+			CreateChildControls(UI);
 
 			Vector2 GlobalPos = GetAbsolutePosition();
 

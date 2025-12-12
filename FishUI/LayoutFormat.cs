@@ -36,6 +36,8 @@ namespace FishUI
 			{ "!Panel", typeof(Panel) },
 			{ "!Textbox", typeof(Textbox) },
 			{ "!Label", typeof(Label) },
+			{ "!ListBox", typeof(ListBox) },
+			{ "!ScrollBarV", typeof(ScrollBarV) },
 		};
 
 		public static string Serialize(FishUI UI)
@@ -51,7 +53,7 @@ namespace FishUI
 
 
 			ISerializer ser = sbuild.Build();
-			string yamlDoc = ser.Serialize(UI.Controls.ToArray());
+			string yamlDoc = ser.Serialize(UI.GetAllControls());
 
 			return yamlDoc;
 		}
@@ -79,11 +81,13 @@ namespace FishUI
 			IDeserializer dser = dbuild.Build();
 			Control[] Ctrls = dser.Deserialize<Control[]>(Data);
 
+			UI.RemoveAllControls();
 			foreach (Control C in Ctrls)
+			{
 				LinkParents(C);
-
-			UI.Controls = new List<Control>(Ctrls);
+				UI.AddControl(C);
+			}
 		}
-	
+
 	}
 }

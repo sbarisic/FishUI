@@ -19,16 +19,7 @@ namespace FishUISample
 
 			FUI = new FishUI.FishUI(UISettings, Gfx, Input, Events);
 			FUI.Init();
-
-			bool LoadLayout = !true;
-
-			if (File.Exists("layout.yaml") && LoadLayout)
-				LayoutFormat.DeserializeFromFile(FUI, "layout.yaml");
-			else
-			{
-				MakeGUISample();
-				LayoutFormat.SerializeToFile(FUI, "layout.yaml");
-			}
+			MakeGUISample();
 
 			Stopwatch SWatch = Stopwatch.StartNew();
 			Stopwatch RuntimeWatch = Stopwatch.StartNew();
@@ -51,17 +42,16 @@ namespace FishUISample
 
 		static void MakeGUISample()
 		{
-			Textbox Lbl = new Textbox(18, "The quick");
+			Textbox Lbl = new Textbox("The quick");
 			Lbl.Position = new Vector2(100, 400);
-			Lbl.Size = new Vector2(200, 30); //Lbl.MeasureText(FUI);
 			Lbl.ZDepth = 2;
-			FUI.Controls.Add(Lbl);
+			FUI.AddControl(Lbl);
 
 			ListBox Lb = new ListBox();
 			Lb.Position = new Vector2(320, 350);
-			Lb.Size = new Vector2(140, 120);
 			Lb.ZDepth = 2;
-			FUI.Controls.Add(Lb);
+			Lb.ID = "listbox1";
+			FUI.AddControl(Lb);
 
 			for (int i = 0; i < 10; i++)
 			{
@@ -70,13 +60,8 @@ namespace FishUISample
 
 			ScrollBarV Sbv = new ScrollBarV();
 			Sbv.Position = new Vector2(480, 340);
-			Sbv.Size = new Vector2(15, 170);
 			Sbv.ZDepth = 2;
-			Sbv.OnScrollChanged += (_, Scroll, Delta) =>
-			{
-				Console.WriteLine($"Scroll position: {Scroll}, Delta: {Delta}");
-			};
-			FUI.Controls.Add(Sbv);
+			FUI.AddControl(Sbv);
 
 			Button Btn0 = new Button();
 			Btn0.ID = "visible";
@@ -84,7 +69,23 @@ namespace FishUISample
 			Btn0.Position = new Vector2(430, 100);
 			Btn0.Size = new Vector2(150, 50);
 			Btn0.ZDepth = 2;
-			FUI.Controls.Add(Btn0);
+			FUI.AddControl(Btn0);
+
+			Button Btn1 = new Button();
+			Btn1.ID = "savelayout";
+			Btn1.Text = "Save Layout";
+			Btn1.Position = new Vector2(430, 160);
+			Btn1.Size = new Vector2(150, 50);
+			Btn1.ZDepth = 2;
+			FUI.AddControl(Btn1);
+
+			Button Btn2 = new Button();
+			Btn2.ID = "loadlayout";
+			Btn2.Text = "Load Layout";
+			Btn2.Position = new Vector2(430, 220);
+			Btn2.Size = new Vector2(150, 50);
+			Btn2.ZDepth = 2;
+			FUI.AddControl(Btn2);
 
 			// Panel ------------------
 			Panel Pnl = new Panel();
@@ -93,7 +94,8 @@ namespace FishUISample
 			Pnl.Size = new Vector2(400, 350);
 			Pnl.ZDepth = 1;
 			Pnl.Draggable = true;
-			FUI.Controls.Add(Pnl);
+			Pnl.IsTransparent = true;
+			FUI.AddControl(Pnl);
 
 			Button Btn = new Button();
 			Btn.ID = "invisible";

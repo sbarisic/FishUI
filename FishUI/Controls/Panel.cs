@@ -8,6 +8,9 @@ namespace FishUI.Controls
 {
 	public class Panel : Control
 	{
+		const bool Debug = true;
+		public bool IsTransparent = false;
+
 		public Panel()
 		{
 		}
@@ -15,6 +18,12 @@ namespace FishUI.Controls
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
 			//base.Draw(UI, Dt, Time);
+
+			if (Debug)
+				UI.Graphics.DrawRectangleOutline(GetAbsolutePosition(), GetAbsoluteSize(), FishColor.Teal);
+
+			if (IsTransparent)
+				return;
 
 			NPatch Cur = UI.Settings.ImgPanel;
 

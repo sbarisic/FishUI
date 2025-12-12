@@ -10,6 +10,21 @@ namespace FishUI.Controls
 
 	public abstract class Control
 	{
+		[YamlIgnore]
+		internal FishUI _FishUI;
+
+		[YamlIgnore]
+		protected FishUI FishUI
+		{
+			get
+			{
+				if (Parent != null)
+					return Parent.FishUI;
+				else
+					return _FishUI;
+			}
+		}
+
 		const bool DebugPrint = true;
 
 		protected Control Parent;
@@ -124,6 +139,14 @@ namespace FishUI.Controls
 		{
 			Child.Parent = null;
 			Children.Remove(Child);
+		}
+
+		public void RemoveAllChildren()
+		{
+			Control[] Ch = GetAllChildren(false);
+
+			for (int i = 0; i < Ch.Length; i++)
+				RemoveChild(Ch[i]);
 		}
 
 		// Called once at first draw - for loading resources...
