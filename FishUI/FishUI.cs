@@ -195,6 +195,12 @@ namespace FishUI
 			CheckMousePress(ControlUnderMouse, InState, InState.MouseRightPressed, FishMouseButton.Right, ref RightClickedControl);
 			CheckMouseRelease(ControlUnderMouse, InState, InState.MouseRightReleased, FishMouseButton.Right, ref RightClickedControl);
 
+			// Key press handling
+			FishKey Key = Input.GetKeyPressed();
+			if (Key != FishKey.None && InputActiveControl != null)
+			{
+				InputActiveControl.HandleKeyPress(this, InState, Key);
+			}
 
 			foreach (Control Ctl in Controls)
 				UpdateSingleControl(Ctl, InState, InLast);

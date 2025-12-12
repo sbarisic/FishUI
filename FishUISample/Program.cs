@@ -54,23 +54,36 @@ namespace FishUISample
 			Textbox Lbl = new Textbox(18, "The quick");
 			Lbl.Position = new Vector2(100, 400);
 			Lbl.Size = new Vector2(200, 30); //Lbl.MeasureText(FUI);
-			Lbl.ZDepth = 1;
+			Lbl.ZDepth = 2;
 			FUI.Controls.Add(Lbl);
 
-			Panel Pnl = new Panel();
-			Pnl.ID = "panel1";
-			Pnl.Position = new Vector2(10, 10);
-			Pnl.Size = new Vector2(400, 350);
-			Pnl.ZDepth = 2;
-			Pnl.Draggable = true;
-			FUI.Controls.Add(Pnl);
+			ListBox Lb = new ListBox();
+			Lb.Position = new Vector2(320, 350);
+			Lb.Size = new Vector2(140, 120);
+			Lb.ZDepth = 2;
+			FUI.Controls.Add(Lb);
+
+			for (int i = 0; i < 10; i++)
+			{
+				Lb.Items.Add("Item " + i);
+			}
 
 			Button Btn0 = new Button();
 			Btn0.ID = "visible";
 			Btn0.Text = "Make Visible";
 			Btn0.Position = new Vector2(430, 100);
 			Btn0.Size = new Vector2(150, 50);
+			Btn0.ZDepth = 2;
 			FUI.Controls.Add(Btn0);
+
+			// Panel ------------------
+			Panel Pnl = new Panel();
+			Pnl.ID = "panel1";
+			Pnl.Position = new Vector2(10, 10);
+			Pnl.Size = new Vector2(400, 350);
+			Pnl.ZDepth = 1;
+			Pnl.Draggable = true;
+			FUI.Controls.Add(Pnl);
 
 			Button Btn = new Button();
 			Btn.ID = "invisible";

@@ -183,8 +183,8 @@ namespace FishUI.Controls
 			if (Draggable)
 				Position += InState.MouseDelta;
 
-			if (DebugPrint)
-				Console.WriteLine($"{GetType().Name}({ID ?? "null"}) - Drag Control");
+			//if (DebugPrint)
+			//	Console.WriteLine($"{GetType().Name}({ID ?? "null"}) - Drag Control");
 		}
 
 		public virtual void HandleMouseEnter(FishUI UI, FishInputState InState)
@@ -195,8 +195,8 @@ namespace FishUI.Controls
 
 		public virtual void HandleMouseMove(FishUI UI, FishInputState InState, Vector2 Pos)
 		{
-			if (DebugPrint)
-				Console.WriteLine($"{GetType().Name}({ID ?? "null"}) - Mouse Move");
+			//if (DebugPrint)
+			//	Console.WriteLine($"{GetType().Name}({ID ?? "null"}) - Mouse Move");
 		}
 
 		public virtual void HandleMouseLeave(FishUI UI, FishInputState InState)
@@ -234,6 +234,15 @@ namespace FishUI.Controls
 		{
 
 		}
+
+		public virtual void HandleKeyPress(FishUI UI, FishInputState InState, FishKey Key)
+		{
+		}
+
+		public virtual void HandleKeyRelease(FishUI UI, FishInputState InState, FishKey Key)
+		{
+		}
+
 
 		/*public virtual void HandleInput(FishUI UI, FishInputState InState)
 		{

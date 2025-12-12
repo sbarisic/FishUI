@@ -54,6 +54,9 @@ namespace FishUI
 		public NPatch ImgTextboxActive { get; set; }
 		public NPatch ImgTextboxDisabled { get; set; }
 
+		// ListBox
+		public NPatch ImgListBoxNormal { get; set; }
+
 		public FishUISettings()
 		{
 		}
@@ -104,6 +107,9 @@ namespace FishUI
 			ImgRadioButtonDisabledUnchecked = new NPatch(UI, DataFolder + "radiobutton_disabled_unchecked.png", 2, 2, 2, 2);
 			ImgRadioButtonCheckedHover = new NPatch(UI, DataFolder + "radiobutton_checked_hover.png", 2, 2, 2, 2);
 			ImgRadioButtonUncheckedHover = new NPatch(UI, DataFolder + "radiobutton_unchecked_hover.png", 2, 2, 2, 2);
+
+			// ListBox
+			ImgListBoxNormal = new NPatch(UI, DataFolder + "listbox_normal.png", 2, 2, 2, 2);
 		}
 	}
 }
