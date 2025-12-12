@@ -167,23 +167,13 @@ namespace FishUI
 		{
 			Control ControlUnderMouse = PickControl(InState.MousePos);
 
-			/*if (LeftClickedControl != null && InState.MouseLeft)
-			{
-				HeldControl = LeftClickedControl;
-				HeldControl.HandleDrag(this, InLast.MousePos, InState.MousePos, InState);
-			}*/
-
 			// Mouse drag
 			if (LeftClickedControl != null && InState.MouseLeft && InState.MouseDelta != Vector2.Zero)
-			{
 				LeftClickedControl.HandleDrag(this, InLast.MousePos, InState.MousePos, InState);
-			}
 
 			// Mouse move
 			if (HoveredControl == ControlUnderMouse && ControlUnderMouse != null && InState.MouseDelta != Vector2.Zero)
-			{
 				ControlUnderMouse.HandleMouseMove(this, InState, InState.MousePos);
-			}
 
 			// Mouse enter/leave handling
 			if (HoveredControl != ControlUnderMouse)
@@ -197,9 +187,11 @@ namespace FishUI
 			}
 
 
+			// Left mouse press/release handling
 			CheckMousePress(ControlUnderMouse, InState, InState.MouseLeftPressed, FishMouseButton.Left, ref LeftClickedControl);
 			CheckMouseRelease(ControlUnderMouse, InState, InState.MouseLeftReleased, FishMouseButton.Left, ref LeftClickedControl);
 
+			// Right mouse press/release handling
 			CheckMousePress(ControlUnderMouse, InState, InState.MouseRightPressed, FishMouseButton.Right, ref RightClickedControl);
 			CheckMouseRelease(ControlUnderMouse, InState, InState.MouseRightReleased, FishMouseButton.Right, ref RightClickedControl);
 
