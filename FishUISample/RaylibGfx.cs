@@ -3,6 +3,7 @@ using Raylib_cs;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace FishUISample
@@ -231,25 +232,33 @@ namespace FishUISample
 			Info.Bottom = NP.Bottom;
 			Info.Source = new Rectangle(NP.ImagePos, NP.ImageSize);
 
-			Raylib.DrawTextureNPatch(Tex, Info, new Rectangle(Pos, Size), Vector2.Zero, 0, C);
+			Raylib.DrawTextureNPatch(Tex, Info, new Rectangle(Pos.Round(), Size.Round()), Vector2.Zero, 0, C);
 		}
 
 		public void DrawText(FontRef Fn, string Text, Vector2 Pos)
 		{
 			Font F = (Font)Fn.Userdata;
-			Raylib.DrawTextEx(F, Text, new Vector2((int)Pos.X, (int)Pos.Y), Fn.Size, Fn.Spacing, new Color(Fn.Color.R, Fn.Color.G, Fn.Color.B, Fn.Color.A));
+			Raylib.DrawTextEx(F, Text, Pos, Fn.Size, Fn.Spacing, new Color(Fn.Color.R, Fn.Color.G, Fn.Color.B, Fn.Color.A));
 		}
 
 		public void DrawTextColor(FontRef Fn, string Text, Vector2 Pos, FishColor Color)
 		{
 			Font F = (Font)Fn.Userdata;
-			Raylib.DrawTextEx(F, Text, new Vector2((int)Pos.X, (int)Pos.Y), Fn.Size, Fn.Spacing, new Color(Color.R, Color.G, Color.B, Color.A));
+			Raylib.DrawTextEx(F, Text, Pos.Round(), Fn.Size, Fn.Spacing, new Color(Color.R, Color.G, Color.B, Color.A));
 		}
 
 		public Vector2 MeasureText(FontRef Fn, string Text)
 		{
 			Font F = (Font)Fn.Userdata;
 			return Raylib.MeasureTextEx(F, Text, Fn.Size, Fn.Spacing);
+		}
+	}
+
+	static class GfxUtils
+	{
+		public static Vector2 Round(this Vector2 V)
+		{
+			return new Vector2((int)Math.Round(V.X), (int)Math.Round(V.Y));
 		}
 	}
 }

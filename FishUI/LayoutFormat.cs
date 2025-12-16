@@ -38,6 +38,7 @@ namespace FishUI
 			{ "!Label", typeof(Label) },
 			{ "!ListBox", typeof(ListBox) },
 			{ "!ScrollBarV", typeof(ScrollBarV) },
+			{ "!DropDown", typeof(DropDown) }
 		};
 
 		public static string Serialize(FishUI UI)

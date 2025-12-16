@@ -58,7 +58,7 @@ namespace FishUISample
 				Lb.AddItem("Item " + i);
 			}
 
-			Lb.AutoResizeHeight();
+			//Lb.AutoResizeHeight();
 
 			DropDown DD = new DropDown();
 			DD.Position = new Vector2(550, 350);
@@ -114,7 +114,7 @@ namespace FishUISample
 			Btn.ID = "invisible";
 			Btn.Text = "Make Invisible";
 			//Btn.Position = new Vector2(100, 100);
-			Btn.Position = new FishUIPosition(PositionMode.Docked, DockMode.Horizontal, new Vector4(10, 0, 10, 0), new Vector2(100, 100));
+			Btn.Position = new FishUIPosition(PositionMode.Docked, DockMode.Horizontal, new Vector4(15, 0, 15, 0), new Vector2(100, 100));
 			Btn.Size = new Vector2(150, 50);
 			Pnl.AddChild(Btn);
 
