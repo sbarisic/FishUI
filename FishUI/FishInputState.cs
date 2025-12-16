@@ -10,6 +10,8 @@ namespace FishUI
 		public Vector2 MousePos;
 		public Vector2 MouseDelta;
 
+		public FishTouchPoint[] TouchPoints;
+
 		public bool MouseLeft;
 		public bool MouseLeftPressed;
 		public bool MouseLeftReleased;

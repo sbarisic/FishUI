@@ -23,12 +23,17 @@ namespace FishUISample
 			return Raylib.GetCharPressed();
 		}
 
-        public Vector2 GetMousePosition()
-        {
+		public Vector2 GetMousePosition()
+		{
 			return Raylib.GetMousePosition();
-        }
+		}
 
-        public bool IsKeyDown(FishKey Key)
+		public FishTouchPoint[] GetTouchPoints()
+		{
+			return new FishTouchPoint[0];
+		}
+
+		public bool IsKeyDown(FishKey Key)
 		{
 			return Raylib.IsKeyDown((KeyboardKey)Key);
 		}
@@ -48,24 +53,24 @@ namespace FishUISample
 			return Raylib.IsKeyUp((KeyboardKey)Key);
 		}
 
-        public bool IsMouseDown(FishMouseButton Button)
-        {
+		public bool IsMouseDown(FishMouseButton Button)
+		{
 			return Raylib.IsMouseButtonDown((MouseButton)Button);
-        }
+		}
 
-        public bool IsMousePressed(FishMouseButton Button)
-        {
+		public bool IsMousePressed(FishMouseButton Button)
+		{
 			return Raylib.IsMouseButtonPressed((MouseButton)Button);
 		}
 
-        public bool IsMouseReleased(FishMouseButton Button)
-        {
+		public bool IsMouseReleased(FishMouseButton Button)
+		{
 			return Raylib.IsMouseButtonReleased((MouseButton)Button);
 		}
 
-        public bool IsMouseUp(FishMouseButton Button)
-        {
+		public bool IsMouseUp(FishMouseButton Button)
+		{
 			return Raylib.IsMouseButtonUp((MouseButton)Button);
 		}
-    }
+	}
 }

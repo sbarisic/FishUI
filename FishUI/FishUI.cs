@@ -257,6 +257,7 @@ namespace FishUI
 			InState.MousePos = MousePos;
 			InState.MouseLeft = MouseLeft;
 			InState.MouseRight = MouseRight;
+			InState.TouchPoints = Input.GetTouchPoints();
 			InState.MouseLeftPressed = Input.IsMousePressed(FishMouseButton.Left);
 			InState.MouseLeftReleased = Input.IsMouseReleased(FishMouseButton.Left);
 			InState.MouseRightPressed = Input.IsMousePressed(FishMouseButton.Right);

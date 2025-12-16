@@ -6,21 +6,23 @@ using System.Numerics;
 namespace FishUI
 {
 	public interface IFishUIInput
-    {
-        public FishKey GetKeyPressed();
-        public int GetCharPressed();
+	{
+		public FishKey GetKeyPressed();
+		public int GetCharPressed();
 
 		public bool IsKeyDown(FishKey Key);
-        public bool IsKeyUp(FishKey Key);
-        public bool IsKeyPressed(FishKey Key);
-        public bool IsKeyReleased(FishKey Key);
+		public bool IsKeyUp(FishKey Key);
+		public bool IsKeyPressed(FishKey Key);
+		public bool IsKeyReleased(FishKey Key);
 
-        public Vector2 GetMousePosition();
+		public Vector2 GetMousePosition();
 
-        public bool IsMouseDown(FishMouseButton Button);
-        public bool IsMouseUp(FishMouseButton Button);
-        public bool IsMousePressed(FishMouseButton Button);
-        public bool IsMouseReleased(FishMouseButton Button);
+		public FishTouchPoint[] GetTouchPoints();
 
+
+		public bool IsMouseDown(FishMouseButton Button);
+		public bool IsMouseUp(FishMouseButton Button);
+		public bool IsMousePressed(FishMouseButton Button);
+		public bool IsMouseReleased(FishMouseButton Button);
 	}
 }
