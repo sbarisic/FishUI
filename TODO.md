@@ -162,10 +162,10 @@ A list of planned features, improvements, and new controls for FishUI.
 - [ ] Anti-aliased rendering option (2 CPX)
 
 ### Theming & Styling
-- [ ] Theme loading from file (YAML) (3 CPX)
-- [ ] Runtime theme switching (3 CPX)
-- [ ] Custom color palettes from theme file (2 CPX)
-- [ ] **Sprite Atlas Theme Support** (4 CPX)
+- [x] Theme loading from file (YAML) (3 CPX)
+- [x] Runtime theme switching (3 CPX)
+- [x] Custom color palettes from theme file (2 CPX)
+- [x] **Sprite Atlas Theme Support** (4 CPX)
   - Support loading a single theme image (sprite atlas) as alternative to individual image files
   - Use `gwen.png` as the base/reference theme atlas
   - Define texture region coordinates for each control skin (buttons, panels, scrollbars, checkboxes, etc.)

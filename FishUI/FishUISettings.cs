@@ -8,6 +8,20 @@ namespace FishUI
 {
 	public class FishUISettings
 	{
+		// Theme support
+		private FishUI UI;
+		private FishUIThemeLoader themeLoader;
+
+		/// <summary>
+		/// The currently loaded theme, or null if using default settings.
+		/// </summary>
+		public FishUITheme CurrentTheme { get; private set; }
+
+		/// <summary>
+		/// Event raised when the theme is changed.
+		/// </summary>
+		public event Action<FishUITheme> OnThemeChanged;
+
 		// Public settings
 		public int FontSpacing { get; set; } = 0;
 		public int FontSize { get; set; } = 14;
@@ -160,6 +174,9 @@ namespace FishUI
 
 		public void Init(FishUI UI)
 		{
+			this.UI = UI;
+			this.themeLoader = new FishUIThemeLoader(UI);
+
 			string DataFolder = "data/";
 			string FontFolder = "data/fonts/";
 			string SBFolder = "data/sb/";
@@ -255,6 +272,220 @@ namespace FishUI
 			ImgDropdownArrowBlack = new NPatch(UI, DataFolder + "dropdown_arrow_black.png", 1, 1, 1, 1);
 			ImgDropdownArrowWhite = new NPatch(UI, DataFolder + "dropdown_arrow_white.png", 1, 1, 1, 1);
 
+		}
+
+		/// <summary>
+		/// Loads a theme from a YAML file and applies it.
+		/// </summary>
+		/// <param name="themePath">Path to the theme YAML file.</param>
+		/// <param name="applyImmediately">If true, applies the theme immediately after loading.</param>
+		/// <returns>The loaded theme.</returns>
+		public FishUITheme LoadTheme(string themePath, bool applyImmediately = true)
+		{
+			if (themeLoader == null)
+				throw new InvalidOperationException("Settings must be initialized with Init() before loading themes.");
+
+			var theme = themeLoader.LoadFromFile(themePath);
+
+			if (theme.UseAtlas)
+			{
+				themeLoader.LoadAtlasImage(theme);
+			}
+
+			if (applyImmediately)
+			{
+				ApplyTheme(theme);
+			}
+
+			return theme;
+		}
+
+		/// <summary>
+		/// Applies a loaded theme, updating all control skins.
+		/// </summary>
+		/// <param name="theme">The theme to apply.</param>
+		public void ApplyTheme(FishUITheme theme)
+		{
+			if (themeLoader == null)
+				throw new InvalidOperationException("Settings must be initialized with Init() before applying themes.");
+
+			CurrentTheme = theme;
+
+			// Apply font settings from theme
+			if (theme.Fonts != null)
+			{
+				FontSpacing = theme.Fonts.Spacing;
+				FontSize = theme.Fonts.DefaultSize;
+				FontSizeLabel = theme.Fonts.LabelSize;
+
+				// Reload fonts if paths are specified
+				if (!string.IsNullOrEmpty(theme.Fonts.DefaultFontPath))
+				{
+					FontDefault = UI.Graphics.LoadFont(theme.Fonts.DefaultFontPath, FontSize, FontSpacing, theme.Colors.Foreground);
+					FontTextboxDefault = UI.Graphics.LoadFont(theme.Fonts.DefaultFontPath, FontSize, FontSpacing, theme.Colors.Foreground);
+					FontLabel = UI.Graphics.LoadFont(theme.Fonts.DefaultFontPath, FontSizeLabel, FontSpacing, theme.Colors.Foreground);
+				}
+				if (!string.IsNullOrEmpty(theme.Fonts.BoldFontPath))
+				{
+					FontDefaultBold = UI.Graphics.LoadFont(theme.Fonts.BoldFontPath, FontSize, FontSpacing, theme.Colors.Foreground);
+				}
+			}
+
+			// Apply control skins from theme regions
+			ApplyThemeRegions(theme);
+
+			// Raise theme changed event
+			OnThemeChanged?.Invoke(theme);
+		}
+
+		/// <summary>
+		/// Applies theme regions to control skin properties.
+		/// </summary>
+		private void ApplyThemeRegions(FishUITheme theme)
+		{
+			// Button
+			var np = themeLoader.CreateNPatch(theme, "Button", "Normal");
+			if (np != null) ImgButtonNormal = np;
+			np = themeLoader.CreateNPatch(theme, "Button", "Hover");
+			if (np != null) ImgButtonHover = np;
+			np = themeLoader.CreateNPatch(theme, "Button", "Pressed");
+			if (np != null) ImgButtonPressed = np;
+			np = themeLoader.CreateNPatch(theme, "Button", "Disabled");
+			if (np != null) ImgButtonDisabled = np;
+
+			// Panel
+			np = themeLoader.CreateNPatch(theme, "Panel", "Normal");
+			if (np != null) ImgPanel = np;
+			np = themeLoader.CreateNPatch(theme, "Panel", "Disabled");
+			if (np != null) ImgPanelDisabled = np;
+
+			// Checkbox
+			np = themeLoader.CreateNPatch(theme, "Checkbox", "Checked");
+			if (np != null) ImgCheckboxChecked = np;
+			np = themeLoader.CreateNPatch(theme, "Checkbox", "Unchecked");
+			if (np != null) ImgCheckboxUnchecked = np;
+			np = themeLoader.CreateNPatch(theme, "Checkbox", "CheckedHover");
+			if (np != null) ImgCheckboxCheckedHover = np;
+			np = themeLoader.CreateNPatch(theme, "Checkbox", "UncheckedHover");
+			if (np != null) ImgCheckboxUncheckedHover = np;
+			np = themeLoader.CreateNPatch(theme, "Checkbox", "DisabledChecked");
+			if (np != null) ImgCheckboxDisabledChecked = np;
+			np = themeLoader.CreateNPatch(theme, "Checkbox", "DisabledUnchecked");
+			if (np != null) ImgCheckboxDisabledUnchecked = np;
+
+			// RadioButton
+			np = themeLoader.CreateNPatch(theme, "RadioButton", "Checked");
+			if (np != null) ImgRadioButtonChecked = np;
+			np = themeLoader.CreateNPatch(theme, "RadioButton", "Unchecked");
+			if (np != null) ImgRadioButtonUnchecked = np;
+			np = themeLoader.CreateNPatch(theme, "RadioButton", "CheckedHover");
+			if (np != null) ImgRadioButtonCheckedHover = np;
+			np = themeLoader.CreateNPatch(theme, "RadioButton", "UncheckedHover");
+			if (np != null) ImgRadioButtonUncheckedHover = np;
+			np = themeLoader.CreateNPatch(theme, "RadioButton", "DisabledChecked");
+			if (np != null) ImgRadioButtonDisabledChecked = np;
+			np = themeLoader.CreateNPatch(theme, "RadioButton", "DisabledUnchecked");
+			if (np != null) ImgRadioButtonDisabledUnchecked = np;
+
+			// Textbox
+			np = themeLoader.CreateNPatch(theme, "Textbox", "Normal");
+			if (np != null) ImgTextboxNormal = np;
+			np = themeLoader.CreateNPatch(theme, "Textbox", "Active");
+			if (np != null) ImgTextboxActive = np;
+			np = themeLoader.CreateNPatch(theme, "Textbox", "Disabled");
+			if (np != null) ImgTextboxDisabled = np;
+
+			// ListBox
+			np = themeLoader.CreateNPatch(theme, "ListBox", "Normal");
+			if (np != null) ImgListBoxNormal = np;
+			np = themeLoader.CreateNPatch(theme, "ListBox", "ItemSelected");
+			if (np != null) ImgListBoxItmSelected = np;
+			np = themeLoader.CreateNPatch(theme, "ListBox", "ItemSelectedHovered");
+			if (np != null) ImgListBoxItmSelectedHovered = np;
+			np = themeLoader.CreateNPatch(theme, "ListBox", "ItemHovered");
+			if (np != null) ImgListBoxItmHovered = np;
+
+			// SelectionBox
+			np = themeLoader.CreateNPatch(theme, "SelectionBox", "Normal");
+			if (np != null) ImgSelectionBoxNormal = np;
+
+			// ScrollBar Vertical
+			np = themeLoader.CreateNPatch(theme, "ScrollBarV", "BarNormal");
+			if (np != null) ImgSBVBarNormal = np;
+			np = themeLoader.CreateNPatch(theme, "ScrollBarV", "BarHover");
+			if (np != null) ImgSBVBarHover = np;
+			np = themeLoader.CreateNPatch(theme, "ScrollBarV", "BarPressed");
+			if (np != null) ImgSBVBarPressed = np;
+			np = themeLoader.CreateNPatch(theme, "ScrollBarV", "BarDisabled");
+			if (np != null) ImgSBVBarDisabled = np;
+			np = themeLoader.CreateNPatch(theme, "ScrollBarV", "Background");
+			if (np != null) ImgSBVBarBackground = np;
+			np = themeLoader.CreateNPatch(theme, "ScrollBarV", "UpNormal");
+			if (np != null) ImgSBVBtnUpNormal = np;
+			np = themeLoader.CreateNPatch(theme, "ScrollBarV", "UpHover");
+			if (np != null) ImgSBVBtnUpHover = np;
+			np = themeLoader.CreateNPatch(theme, "ScrollBarV", "UpPressed");
+			if (np != null) ImgSBVBtnUpPressed = np;
+			np = themeLoader.CreateNPatch(theme, "ScrollBarV", "UpDisabled");
+			if (np != null) ImgSBVBtnUpDisabled = np;
+			np = themeLoader.CreateNPatch(theme, "ScrollBarV", "DownNormal");
+			if (np != null) ImgSBVBtnDownNormal = np;
+			np = themeLoader.CreateNPatch(theme, "ScrollBarV", "DownHover");
+			if (np != null) ImgSBVBtnDownHover = np;
+			np = themeLoader.CreateNPatch(theme, "ScrollBarV", "DownPressed");
+			if (np != null) ImgSBVBtnDownPressed = np;
+			np = themeLoader.CreateNPatch(theme, "ScrollBarV", "DownDisabled");
+			if (np != null) ImgSBVBtnDownDisabled = np;
+
+			// ScrollBar Horizontal
+			np = themeLoader.CreateNPatch(theme, "ScrollBarH", "BarNormal");
+			if (np != null) ImgSBHBarNormal = np;
+			np = themeLoader.CreateNPatch(theme, "ScrollBarH", "BarHover");
+			if (np != null) ImgSBHBarHover = np;
+			np = themeLoader.CreateNPatch(theme, "ScrollBarH", "BarPressed");
+			if (np != null) ImgSBHBarPressed = np;
+			np = themeLoader.CreateNPatch(theme, "ScrollBarH", "BarDisabled");
+			if (np != null) ImgSBHBarDisabled = np;
+			np = themeLoader.CreateNPatch(theme, "ScrollBarH", "Background");
+			if (np != null) ImgSBHBarBackground = np;
+			np = themeLoader.CreateNPatch(theme, "ScrollBarH", "LeftNormal");
+			if (np != null) ImgSBHBtnLeftNormal = np;
+			np = themeLoader.CreateNPatch(theme, "ScrollBarH", "LeftHover");
+			if (np != null) ImgSBHBtnLeftHover = np;
+			np = themeLoader.CreateNPatch(theme, "ScrollBarH", "LeftPressed");
+			if (np != null) ImgSBHBtnLeftPressed = np;
+			np = themeLoader.CreateNPatch(theme, "ScrollBarH", "LeftDisabled");
+			if (np != null) ImgSBHBtnLeftDisabled = np;
+			np = themeLoader.CreateNPatch(theme, "ScrollBarH", "RightNormal");
+			if (np != null) ImgSBHBtnRightNormal = np;
+			np = themeLoader.CreateNPatch(theme, "ScrollBarH", "RightHover");
+			if (np != null) ImgSBHBtnRightHover = np;
+			np = themeLoader.CreateNPatch(theme, "ScrollBarH", "RightPressed");
+			if (np != null) ImgSBHBtnRightPressed = np;
+			np = themeLoader.CreateNPatch(theme, "ScrollBarH", "RightDisabled");
+			if (np != null) ImgSBHBtnRightDisabled = np;
+
+			// Dropdown
+			np = themeLoader.CreateNPatch(theme, "Dropdown", "Normal");
+			if (np != null) ImgDropdownNormal = np;
+			np = themeLoader.CreateNPatch(theme, "Dropdown", "Hover");
+			if (np != null) ImgDropdownHover = np;
+			np = themeLoader.CreateNPatch(theme, "Dropdown", "Pressed");
+			if (np != null) ImgDropdownPressed = np;
+			np = themeLoader.CreateNPatch(theme, "Dropdown", "Disabled");
+			if (np != null) ImgDropdownDisabled = np;
+			np = themeLoader.CreateNPatch(theme, "Dropdown", "ArrowBlack");
+			if (np != null) ImgDropdownArrowBlack = np;
+			np = themeLoader.CreateNPatch(theme, "Dropdown", "ArrowWhite");
+			if (np != null) ImgDropdownArrowWhite = np;
+		}
+
+		/// <summary>
+		/// Gets the current color palette from the active theme, or a default palette if no theme is loaded.
+		/// </summary>
+		public FishUIColorPalette GetColorPalette()
+		{
+			return CurrentTheme?.Colors ?? new FishUIColorPalette();
 		}
 	}
 }
