@@ -15,11 +15,11 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ### High Priority
 
-- [ ] **Slider / TrackBar** (2 CPX)
-  - Horizontal and vertical variants
-  - Min/max value range with configurable step
-  - Thumb dragging with value change events
-  - Optional value label display
+- [x] **Slider / TrackBar** (2 CPX)
+- Horizontal and vertical variants
+- Min/max value range with configurable step
+- Thumb dragging with value change events
+- Optional value label display
 
 - [x] **ProgressBar** (1 CPX)
 - Horizontal and vertical variants

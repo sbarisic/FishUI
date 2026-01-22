@@ -141,6 +141,27 @@ namespace FishUISample
             toggle2.ShowLabels = true;
             FUI.AddControl(toggle2);
 
+            // Horizontal slider
+            Slider slider1 = new Slider();
+            slider1.Position = new Vector2(260, 700);
+            slider1.Size = new Vector2(200, 24);
+            slider1.MinValue = 0;
+            slider1.MaxValue = 100;
+            slider1.Value = 50;
+            slider1.ShowValueLabel = true;
+            FUI.AddControl(slider1);
+
+            // Vertical slider
+            Slider slider2 = new Slider();
+            slider2.Position = new Vector2(500, 540);
+            slider2.Size = new Vector2(24, 150);
+            slider2.Orientation = SliderOrientation.Vertical;
+            slider2.MinValue = 0;
+            slider2.MaxValue = 100;
+            slider2.Step = 10; // Snap to 10s
+            slider2.Value = 30;
+            FUI.AddControl(slider2);
+
 
             Button Btn0 = new Button();
             Btn0.ID = "visible";
