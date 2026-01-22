@@ -219,7 +219,7 @@ A list of planned features, improvements, and new controls for FishUI.
 ## Known Issues / Bugs
 
 - [ ] DropDown doesn't close on outside click (1 CPX)
-- [ ] Textbox cursor is underscore style, should be vertical line (1 CPX)
+- [ ] Textbox cursor is underscore style, should be vertical line, it should blink when control is in focus (1 CPX)
 - [ ] ScrollBarV thumb position calculation needs refinement (1 CPX)
 - [ ] Docked positioning may not work correctly without parent (2 CPX)
 - [ ] `Control.GetAbsolutePosition()` throws `NotImplementedException` for unknown position modes (1 CPX)
