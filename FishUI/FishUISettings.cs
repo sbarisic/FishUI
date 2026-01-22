@@ -96,8 +96,44 @@ namespace FishUI
 		public NPatch ImgDropdownPressed { get; set; }
 		public NPatch ImgDropdownDisabled { get; set; }
 		public NPatch ImgDropdownArrowBlack { get; set; }
-		public NPatch ImgDropdownArrowWhite { get; set; }	
+		public NPatch ImgDropdownArrowWhite { get; set; }
 
+		// Debug settings
+		/// <summary>
+		/// Enables or disables all debug logging in FishUI.
+		/// </summary>
+		public bool DebugEnabled
+		{
+			get => FishUIDebug.Enabled;
+			set => FishUIDebug.Enabled = value;
+		}
+
+		/// <summary>
+		/// Enables or disables logging of control events (mouse enter/leave, click, etc).
+		/// </summary>
+		public bool DebugLogControlEvents
+		{
+			get => FishUIDebug.LogControlEvents;
+			set => FishUIDebug.LogControlEvents = value;
+		}
+
+		/// <summary>
+		/// Enables or disables drawing debug outlines on panels.
+		/// </summary>
+		public bool DebugDrawPanelOutlines
+		{
+			get => FishUIDebug.DrawPanelOutlines;
+			set => FishUIDebug.DrawPanelOutlines = value;
+		}
+
+		/// <summary>
+		/// Enables or disables logging of ListBox selection changes.
+		/// </summary>
+		public bool DebugLogListBoxSelection
+		{
+			get => FishUIDebug.LogListBoxSelection;
+			set => FishUIDebug.LogListBoxSelection = value;
+		}
 
 		public FishUISettings()
 		{

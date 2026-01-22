@@ -25,8 +25,6 @@ namespace FishUI.Controls
 			}
 		}
 
-		const bool DebugPrint = true;
-
 		protected Control Parent;
 
 		[YamlMember]
@@ -298,8 +296,7 @@ namespace FishUI.Controls
 
 		public virtual void HandleMouseEnter(FishUI UI, FishInputState InState)
 		{
-			if (DebugPrint)
-				Console.WriteLine($"{GetType().Name}({ID ?? "null"}) - Mouse Enter");
+			FishUIDebug.LogControlEvent(GetType().Name, ID, "Mouse Enter");
 		}
 
 		public virtual void HandleMouseMove(FishUI UI, FishInputState InState, Vector2 Pos)
@@ -310,27 +307,23 @@ namespace FishUI.Controls
 
 		public virtual void HandleMouseLeave(FishUI UI, FishInputState InState)
 		{
-			if (DebugPrint)
-				Console.WriteLine($"{GetType().Name}({ID ?? "null"}) - Mouse Leave");
+			FishUIDebug.LogControlEvent(GetType().Name, ID, "Mouse Leave");
 		}
 
 
 		public virtual void HandleMousePress(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
 		{
-			if (DebugPrint)
-				Console.WriteLine($"{GetType().Name}({ID ?? "null"}) - Mouse Press {Btn}");
+			FishUIDebug.LogControlEvent(GetType().Name, ID, "Mouse Press", Btn.ToString());
 		}
 
 		public virtual void HandleMouseRelease(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
 		{
-			if (DebugPrint)
-				Console.WriteLine($"{GetType().Name}({ID ?? "null"}) - Mouse Release {Btn}");
+			FishUIDebug.LogControlEvent(GetType().Name, ID, "Mouse Release", Btn.ToString());
 		}
 
 		public virtual void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
 		{
-			if (DebugPrint)
-				Console.WriteLine($"{GetType().Name}({ID ?? "null"}) - Mouse Click {Btn}");
+			FishUIDebug.LogControlEvent(GetType().Name, ID, "Mouse Click", Btn.ToString());
 
 			UI.Events.Broadcast(UI, this, "mouse_click", null);
 		}

@@ -8,7 +8,6 @@ namespace FishUI.Controls
 {
 	public class Panel : Control
 	{
-		const bool Debug = true;
 		public bool IsTransparent = false;
 
 		public Panel()
@@ -19,7 +18,7 @@ namespace FishUI.Controls
 		{
 			//base.Draw(UI, Dt, Time);
 
-			if (Debug)
+			if (FishUIDebug.DrawPanelOutlines)
 				UI.Graphics.DrawRectangleOutline(GetAbsolutePosition(), GetAbsoluteSize(), FishColor.Teal);
 
 			if (IsTransparent)
