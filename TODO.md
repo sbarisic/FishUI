@@ -48,7 +48,7 @@ A list of planned features, improvements, and new controls for FishUI.
   - Textbox with up/down increment buttons
   - Min/max/step value constraints
 
-- [ ] **ToggleSwitch** (1 CPX)
+- [x] **ToggleSwitch** (1 CPX)
   - Modern on/off toggle control
   - Animated transition between states
   - Optional on/off labels

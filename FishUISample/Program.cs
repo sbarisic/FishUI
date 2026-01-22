@@ -126,6 +126,21 @@ namespace FishUISample
             loadingBar.IsIndeterminate = true;
             FUI.AddControl(loadingBar);
 
+            // Toggle switch
+            ToggleSwitch toggle1 = new ToggleSwitch();
+            toggle1.Position = new Vector2(260, 660);
+            toggle1.Size = new Vector2(50, 24);
+            toggle1.IsOn = false;
+            FUI.AddControl(toggle1);
+
+            // Toggle switch with labels
+            ToggleSwitch toggle2 = new ToggleSwitch();
+            toggle2.Position = new Vector2(320, 660);
+            toggle2.Size = new Vector2(70, 24);
+            toggle2.IsOn = true;
+            toggle2.ShowLabels = true;
+            FUI.AddControl(toggle2);
+
 
             Button Btn0 = new Button();
             Btn0.ID = "visible";
