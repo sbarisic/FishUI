@@ -35,7 +35,7 @@ namespace FishUI.Controls
 
 			UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), Color);
 
-			UI.Graphics.PushScissor(GetAbsolutePosition(), GetAbsoluteSize());
+		UI.Graphics.PushScissor(GetAbsolutePosition(), GetAbsoluteSize());
 			string Txt = Text;
 			Vector2 TxtSz = UI.Graphics.MeasureText(UI.Settings.FontTextboxDefault, Txt);
 
@@ -46,12 +46,15 @@ namespace FishUI.Controls
 			bool DrawCursor = false;
 
 			if (UI.InputActiveControl == this)
-				DrawCursor = MathF.Cos(Time * 10) > 0;
+				DrawCursor = MathF.Sin(Time * 5) > 0;
 
 			if (DrawCursor)
 			{
-				Vector2 LineStart = TxtPos + TxtSz + new Vector2(-1, -2);
-				UI.Graphics.DrawLine(LineStart, LineStart + new Vector2(8, 0), 2, FishColor.Black);
+				// Draw vertical line cursor after the text
+				float cursorHeight = TxtSz.Y;
+				Vector2 cursorStart = new Vector2(TxtPos.X + TxtSz.X + 1, TxtPos.Y);
+				Vector2 cursorEnd = new Vector2(cursorStart.X, cursorStart.Y + cursorHeight);
+				UI.Graphics.DrawLine(cursorStart, cursorEnd, 1, FishColor.Black);
 			}
 
 			//DrawChildren(UI, Dt, Time);
