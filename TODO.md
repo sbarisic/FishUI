@@ -190,12 +190,39 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ---
 
+## Code Cleanup & Technical Debt
+
+### Incomplete Implementations
+- [ ] Implement `FishUI.Resized()` method - currently empty with placeholder comment (2 CPX)
+- [ ] Implement or remove `Padding` property in `Control.cs` - currently commented out (2 CPX)
+- [ ] Implement or remove `UICommands.cs` and `UICommandList.cs` - unused command buffer scaffolding (1 CPX)
+- [ ] Complete `Panel` hover/pressed states - currently commented out in `Panel.cs` (1 CPX)
+
+### Commented-Out Code to Review
+- [ ] `FishUI.cs`: Remove or implement `PressedLeftControl`, `HeldLeftControl`, `PressedRightControl`, `HeldRightControl` fields (1 CPX)
+- [ ] `Control.cs`: Remove commented `HandleInput` method or implement it (1 CPX)
+- [ ] `ScrollBarV.cs`: Remove old manual drawing code block (already replaced by child buttons) (1 CPX)
+
+### Debug Code to Address
+- [ ] `Control.cs`: Make `DebugPrint` configurable (1 CPX)
+- [ ] `Panel.cs`: Make `Debug` flag configurable (1 CPX)
+- [ ] `ListBox.cs`: Make debug `Console.WriteLine` for selected index configurable (1 CPX)
+- [ ] Centrailize debug logging mechanism (2 CPX)
+
+### Code Quality
+- [ ] Remove unused `using System.ComponentModel.Design` in `FishUI.cs` (1 CPX)
+- [ ] Remove unused `using System.Runtime.ConstrainedExecution` in `ListBox.cs` (1 CPX)
+- [ ] Remove unused `using static System.Net.Mime.MediaTypeNames` in `Textbox.cs` and `Label.cs` (1 CPX)
+
+---
+
 ## Known Issues / Bugs
 
 - [ ] DropDown doesn't close on outside click (1 CPX)
 - [ ] Textbox cursor is underscore style, should be vertical line (1 CPX)
 - [ ] ScrollBarV thumb position calculation needs refinement (1 CPX)
 - [ ] Docked positioning may not work correctly without parent (2 CPX)
+- [ ] `Control.GetAbsolutePosition()` throws `NotImplementedException` for unknown position modes (1 CPX)
 
 ---
 
