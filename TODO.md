@@ -8,19 +8,18 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ### High Priority
 
-- [ ] **Slider / TrackBar**
+- [ ] **Slider / TrackBar** (0 CPX)
   - Horizontal and vertical variants
   - Min/max value range with configurable step
   - Thumb dragging with value change events
   - Optional value label display
 
-- [ ] **ProgressBar**
+- [ ] **ProgressBar** (0 CPX)
   - Horizontal and vertical variants
   - Determinate mode (0-100%)
   - Indeterminate/marquee animation mode
-  - Customizable fill color
 
-- [ ] **ScrollBarH** (Horizontal Scrollbar)
+- [ ] **ScrollBarH** (Horizontal Scrollbar) (0 CPX)
   - Assets already exist in `data/sb/` folder
   - Settings already defined in `FishUISettings.cs`
   - Mirror `ScrollBarV` implementation
@@ -28,21 +27,19 @@ A list of planned features, improvements, and new controls for FishUI.
 - [ ] **TabControl / TabPanel**
   - Tab header strip with clickable tabs
   - Content panels that switch based on selected tab
-  - Support for closable tabs
-  - Tab overflow handling (scroll or dropdown)
+  - Tab overflow handling (scroll with left-right arrows)
 
 - [ ] **Window / Dialog**
   - Draggable title bar
-  - Close, minimize, maximize buttons
+  - Close button only
   - Modal and non-modal modes
-  - Resizable borders
+  - Resizable and fixed border mode
 
 ### Medium Priority
 
 - [ ] **NumericUpDown / Spinner**
   - Textbox with up/down increment buttons
   - Min/max/step value constraints
-  - Keyboard input validation
 
 - [ ] **ToggleSwitch**
   - Modern on/off toggle control
@@ -70,7 +67,6 @@ A list of planned features, improvements, and new controls for FishUI.
 - [ ] **Tooltip**
   - Hover-triggered popup text
   - Configurable delay and duration
-  - Rich content support (multi-line, styled)
 
 ### Lower Priority
 
@@ -102,13 +98,8 @@ A list of planned features, improvements, and new controls for FishUI.
 
 - [ ] **DateTimePicker**
   - Calendar popup for date selection
-  - Time selection spinner
+  - Optional time selection spinner
   - Configurable date formats
-
-- [ ] **RichTextBox**
-  - Multi-line text with formatting
-  - Bold, italic, underline support
-  - Multiple font sizes/colors
 
 ---
 
@@ -117,9 +108,8 @@ A list of planned features, improvements, and new controls for FishUI.
 ### Textbox Enhancements
 - [ ] Cursor positioning with mouse click
 - [ ] Text selection (click and drag)
-- [ ] Copy/paste support (Ctrl+C, Ctrl+V)
-- [ ] Select all (Ctrl+A)
-- [ ] Undo/redo support
+- [ ] Copy/paste support (Ctrl+C, Ctrl+V, exposed as functions on a control)
+- [ ] Select all (Ctrl+A, exposed as a function)
 - [ ] Multi-line mode with word wrap
 - [ ] Password masking mode
 - [ ] Placeholder text
@@ -128,8 +118,7 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ### DropDown Enhancements
 - [ ] Proper dropdown popup behavior (opens below, closes on outside click)
-- [ ] Search/filter functionality
-- [ ] Multi-select mode
+- [ ] Multi-select mode (checkbox icon per item)
 - [ ] Custom item rendering
 
 ### ListBox Enhancements
@@ -144,9 +133,7 @@ A list of planned features, improvements, and new controls for FishUI.
 - [ ] Repeat button mode (fires while held)
 
 ### Panel Enhancements
-- [ ] Collapsible/expandable mode
 - [ ] Border styles
-- [ ] Shadow/elevation effects
 
 ---
 
@@ -170,7 +157,6 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ### Rendering
 - [ ] Control opacity/transparency
-- [ ] Rotation and scale transforms
 - [ ] Animation system for transitions
 - [ ] Shader effects support
 - [ ] Anti-aliased rendering option
@@ -179,20 +165,11 @@ A list of planned features, improvements, and new controls for FishUI.
 - [ ] Theme loading from file (JSON/YAML)
 - [ ] Runtime theme switching
 - [ ] Per-control style overrides
-- [ ] Dark/light theme presets
 - [ ] Custom color palettes
 
 ### Accessibility
-- [ ] Screen reader support
-- [ ] High contrast mode
-- [ ] Keyboard-only navigation
+- [ ] Keyboard-only navigation, virtual mouse mode (modifier key + arrow keys/numpad keys)
 - [ ] Scalable UI for different DPI
-
-### Performance
-- [ ] Dirty rectangle rendering (only redraw changed areas)
-- [ ] Control pooling/recycling for virtual lists
-- [ ] Lazy initialization of child controls
-- [ ] Render caching for static controls
 
 ### Serialization
 - [ ] JSON layout format support
@@ -221,15 +198,6 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ---
 
-## Backend Implementations
-
-- [ ] **MonoGame** backend sample
-- [ ] **SDL2** backend sample
-- [ ] **OpenGL** (raw) backend sample
-- [ ] **SFML** backend sample
-
----
-
 ## Known Issues / Bugs
 
 - [ ] DropDown doesn't close on outside click
@@ -244,3 +212,12 @@ A list of planned features, improvements, and new controls for FishUI.
 - Prioritize controls that are commonly needed in game development
 - Maintain the "dependency-free" philosophy - keep the core library minimal
 - Backend implementations should remain in separate sample projects
+
+Complexity points (CPX) estimates are provided for each item to help prioritize development efforts
+1 to 5 scale, 1 being very simple, 5 being very complex
+
+1 - Single file control/component
+2 - Single file control/component with single function change dependencies (eg. event system, input system...)
+3 - Multi-file control/component or single file with multiple dependencies, no architecture changes, only additions
+4 - Multi-file control/component with multiple dependencies and significant logic, possible minor architecture changes
+5 - Large feature spanning multiple components and subsystems, major architecture changes
