@@ -44,7 +44,7 @@ namespace FishUISample
         static void Main(string[] args)
         {
             FishUISettings UISettings = new FishUISettings();
-            IFishUIGfx Gfx = new RaylibGfx(800, 600, "FishUI");
+            IFishUIGfx Gfx = new RaylibGfx(1920, 1080, "FishUI");
             IFishUIInput Input = new RaylibInput();
             IFishUIEvents Events = new EvtHandler();
 
