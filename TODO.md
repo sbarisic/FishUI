@@ -21,10 +21,10 @@ A list of planned features, improvements, and new controls for FishUI.
   - Thumb dragging with value change events
   - Optional value label display
 
-- [ ] **ProgressBar** (1 CPX)
-  - Horizontal and vertical variants
-  - Determinate mode (0-100%)
-  - Indeterminate/marquee animation mode
+- [x] **ProgressBar** (1 CPX)
+- Horizontal and vertical variants
+- Determinate mode (0-100%)
+- Indeterminate/marquee animation mode
 
 - [x] **ScrollBarH** (Horizontal Scrollbar) (1 CPX)
 - Assets already exist in `data/sb/` folder

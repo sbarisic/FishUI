@@ -66,7 +66,7 @@ namespace FishUISample
                 }
 
                 FUI.Tick(Dt, (float)RuntimeWatch.Elapsed.TotalSeconds);
-                AutoScreenshot(Gfx as RaylibGfx);
+                //AutoScreenshot(Gfx as RaylibGfx);
             }
 
             Raylib.CloseWindow();
@@ -112,6 +112,20 @@ namespace FishUISample
             Sbh.Position = new Vector2(260, 540);
             Sbh.ZDepth = 2;
             FUI.AddControl(Sbh);
+
+            // Determinate progress bar
+            ProgressBar progressBar = new ProgressBar();
+            progressBar.Position = new Vector2(260, 580);
+            progressBar.Size = new Vector2(200, 20);
+            progressBar.Value = 0.75f; // 75% complete
+            FUI.AddControl(progressBar);
+
+            // Indeterminate/marquee progress bar
+            ProgressBar loadingBar = new ProgressBar();
+            loadingBar.Position = new Vector2(260, 620);
+            loadingBar.IsIndeterminate = true;
+            FUI.AddControl(loadingBar);
+
 
             Button Btn0 = new Button();
             Btn0.ID = "visible";
