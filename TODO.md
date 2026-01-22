@@ -235,6 +235,9 @@ A list of planned features, improvements, and new controls for FishUI.
 - [x] ScrollBarV thumb position calculation needs refinement (1 CPX)
 - [x] Docked positioning may not work correctly without parent (2 CPX)
 - [x] `Control.GetAbsolutePosition()` throws `NotImplementedException` for unknown position modes (1 CPX)
+- [ ] `LayoutFormat.Deserialize()` fails with abstract `Control` type - YamlDotNet cannot instantiate abstract class (2 CPX)
+  - Exception at line 83: `MissingMethodException: Cannot dynamically create an instance of type 'FishUI.Controls.Control'`
+  - Need to configure YamlDotNet to use concrete types via tag mapping or custom type resolver
 
 ---
 

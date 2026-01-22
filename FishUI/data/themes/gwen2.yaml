@@ -1,0 +1,579 @@
+# FishUI Theme File - Gwen Theme
+# Based on the GWEN UI skin (gwen.png sprite atlas)
+# Atlas size: 512x512
+
+theme:
+  name: "Gwen Default"
+  description: "Default theme using the GWEN UI sprite atlas"
+  version: "1.0"
+  author: "FishUI"
+
+atlas:
+  enabled: true
+  path: "gwen2.png"
+
+colors:
+  background: "#F0F0F0"
+  foreground: "#000000"
+  accent: "#4A90D9"
+  accentsecondary: "#6CB0F0"
+  disabled: "#A0A0A0"
+  error: "#DC3232"
+  success: "#32B432"
+  warning: "#FFB400"
+  border: "#B4B4B4"
+  custom:
+    buttontext: "#000000"
+    highlight: "#E0E8F0"
+
+fonts:
+  defaultpath: "data/fonts/ubuntu_mono.ttf"
+  boldpath: "data/fonts/ubuntu_mono_bold.ttf"
+  defaultsize: 14
+  labelsize: 14
+  spacing: 0
+
+# Regions define sprite atlas coordinates for each control state
+# Format: x, y, width, height, top, bottom, left, right (NPatch borders)
+regions:
+  Button:
+    Normal:
+      x: 480
+      y: 0
+      width: 31
+      height: 31
+      top: 8
+      bottom: 8
+      left: 8
+      right: 8
+    Hover:
+      x: 480
+      y: 32
+      width: 31
+      height: 31
+      top: 8
+      bottom: 8
+      left: 8
+      right: 8
+    Pressed:
+      x: 480
+      y: 64
+      width: 31
+      height: 31
+      top: 8
+      bottom: 8
+      left: 8
+      right: 8
+    Disabled:
+      x: 480
+      y: 96
+      width: 31
+      height: 31
+      top: 8
+      bottom: 8
+      left: 8
+      right: 8
+
+  Panel:
+    Normal:
+      x: 256
+      y: 256
+      width: 127
+      height: 127
+      top: 12
+      bottom: 12
+      left: 12
+      right: 12
+    Disabled:
+      x: 256
+      y: 256
+      width: 127
+      height: 127
+      top: 12
+      bottom: 12
+      left: 12
+      right: 12
+
+  Checkbox:
+    Unchecked:
+      x: 384
+      y: 0
+      width: 15
+      height: 15
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+    Checked:
+      x: 400
+      y: 0
+      width: 15
+      height: 15
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+    UncheckedHover:
+      x: 384
+      y: 16
+      width: 15
+      height: 15
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+    CheckedHover:
+      x: 400
+      y: 16
+      width: 15
+      height: 15
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+    DisabledUnchecked:
+      x: 384
+      y: 32
+      width: 15
+      height: 15
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+    DisabledChecked:
+      x: 400
+      y: 32
+      width: 15
+      height: 15
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+
+  RadioButton:
+    Unchecked:
+      x: 448
+      y: 0
+      width: 15
+      height: 15
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+    Checked:
+      x: 464
+      y: 0
+      width: 15
+      height: 15
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+    UncheckedHover:
+      x: 448
+      y: 16
+      width: 15
+      height: 15
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+    CheckedHover:
+      x: 464
+      y: 16
+      width: 15
+      height: 15
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+    DisabledUnchecked:
+      x: 448
+      y: 32
+      width: 15
+      height: 15
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+    DisabledChecked:
+      x: 464
+      y: 32
+      width: 15
+      height: 15
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+
+  Textbox:
+    Normal:
+      x: 384
+      y: 144
+      width: 63
+      height: 21
+      top: 4
+      bottom: 4
+      left: 4
+      right: 4
+    Active:
+      x: 384
+      y: 166
+      width: 63
+      height: 21
+      top: 4
+      bottom: 4
+      left: 4
+      right: 4
+    Disabled:
+      x: 384
+      y: 188
+      width: 63
+      height: 21
+      top: 4
+      bottom: 4
+      left: 4
+      right: 4
+
+  ListBox:
+    Normal:
+      x: 256
+      y: 256
+      width: 127
+      height: 127
+      top: 4
+      bottom: 4
+      left: 4
+      right: 4
+    ItemSelected:
+      x: 384
+      y: 224
+      width: 31
+      height: 21
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+    ItemSelectedHovered:
+      x: 384
+      y: 224
+      width: 31
+      height: 21
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+    ItemHovered:
+      x: 384
+      y: 246
+      width: 31
+      height: 21
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+
+  SelectionBox:
+    Normal:
+      x: 384
+      y: 268
+      width: 31
+      height: 21
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+
+  ScrollBarV:
+    Background:
+      x: 384
+      y: 128
+      width: 15
+      height: 127
+      top: 4
+      bottom: 4
+      left: 2
+      right: 2
+    BarNormal:
+      x: 400
+      y: 128
+      width: 15
+      height: 31
+      top: 8
+      bottom: 8
+      left: 2
+      right: 2
+    BarHover:
+      x: 416
+      y: 128
+      width: 15
+      height: 31
+      top: 8
+      bottom: 8
+      left: 2
+      right: 2
+    BarPressed:
+      x: 432
+      y: 128
+      width: 15
+      height: 31
+      top: 8
+      bottom: 8
+      left: 2
+      right: 2
+    BarDisabled:
+      x: 400
+      y: 128
+      width: 15
+      height: 31
+      top: 8
+      bottom: 8
+      left: 2
+      right: 2
+    UpNormal:
+      x: 464
+      y: 80
+      width: 15
+      height: 15
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+    UpHover:
+      x: 464
+      y: 80
+      width: 15
+      height: 15
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+    UpPressed:
+      x: 464
+      y: 80
+      width: 15
+      height: 15
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+    UpDisabled:
+      x: 464
+      y: 80
+      width: 15
+      height: 15
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+    DownNormal:
+      x: 464
+      y: 96
+      width: 15
+      height: 15
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+    DownHover:
+      x: 464
+      y: 96
+      width: 15
+      height: 15
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+    DownPressed:
+      x: 464
+      y: 96
+      width: 15
+      height: 15
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+    DownDisabled:
+      x: 464
+      y: 96
+      width: 15
+      height: 15
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+
+  ScrollBarH:
+    Background:
+      x: 384
+      y: 128
+      width: 127
+      height: 15
+      top: 2
+      bottom: 2
+      left: 4
+      right: 4
+    BarNormal:
+      x: 400
+      y: 128
+      width: 31
+      height: 15
+      top: 2
+      bottom: 2
+      left: 8
+      right: 8
+    BarHover:
+      x: 416
+      y: 128
+      width: 31
+      height: 15
+      top: 2
+      bottom: 2
+      left: 8
+      right: 8
+    BarPressed:
+      x: 432
+      y: 128
+      width: 31
+      height: 15
+      top: 2
+      bottom: 2
+      left: 8
+      right: 8
+    BarDisabled:
+      x: 400
+      y: 128
+      width: 31
+      height: 15
+      top: 2
+      bottom: 2
+      left: 8
+      right: 8
+    LeftNormal:
+      x: 448
+      y: 80
+      width: 15
+      height: 15
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+    LeftHover:
+      x: 448
+      y: 80
+      width: 15
+      height: 15
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+    LeftPressed:
+      x: 448
+      y: 80
+      width: 15
+      height: 15
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+    LeftDisabled:
+      x: 448
+      y: 80
+      width: 15
+      height: 15
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+    RightNormal:
+      x: 480
+      y: 80
+      width: 15
+      height: 15
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+    RightHover:
+      x: 480
+      y: 80
+      width: 15
+      height: 15
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+    RightPressed:
+      x: 480
+      y: 80
+      width: 15
+      height: 15
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+    RightDisabled:
+      x: 480
+      y: 80
+      width: 15
+      height: 15
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+
+  Dropdown:
+    Normal:
+      x: 384
+      y: 144
+      width: 127
+      height: 31
+      top: 4
+      bottom: 4
+      left: 4
+      right: 24
+    Hover:
+      x: 384
+      y: 176
+      width: 127
+      height: 31
+      top: 4
+      bottom: 4
+      left: 4
+      right: 24
+    Pressed:
+      x: 384
+      y: 208
+      width: 127
+      height: 31
+      top: 4
+      bottom: 4
+      left: 4
+      right: 24
+    Disabled:
+      x: 384
+      y: 144
+      width: 127
+      height: 31
+      top: 4
+      bottom: 4
+      left: 4
+      right: 24
+    ArrowBlack:
+      x: 496
+      y: 80
+      width: 15
+      height: 15
+      top: 1
+      bottom: 1
+      left: 1
+      right: 1
+    ArrowWhite:
+      x: 496
+      y: 96
+      width: 15
+      height: 15
+      top: 1
+      bottom: 1
+      left: 1
+      right: 1

@@ -51,7 +51,7 @@ namespace FishUISample
 			FUI = new FishUI.FishUI(UISettings, Gfx, Input, Events);
 			FUI.Init();
 
-			FishUITheme theme = UISettings.LoadTheme("data/themes/gwen.yaml", applyImmediately: false);
+			FishUITheme theme = UISettings.LoadTheme("data/themes/gwen2.yaml", applyImmediately: false);
 			UISettings.ApplyTheme(theme);
 			UISettings.OnThemeChanged += (theme) => { /* handle theme change */ };
 			FishUIColorPalette colors = UISettings.GetColorPalette();
