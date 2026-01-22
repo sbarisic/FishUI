@@ -6,127 +6,158 @@ using System.Numerics;
 
 namespace FishUISample
 {
-	internal class Program
-	{
-		static FishUI.FishUI FUI;
+    internal class Program
+    {
+        static FishUI.FishUI FUI;
 
-		static void Main(string[] args)
-		{
-			FishUISettings UISettings = new FishUISettings();
-			IFishUIGfx Gfx = new RaylibGfx(800, 600, "FishUI");
-			IFishUIInput Input = new RaylibInput();
-			IFishUIEvents Events = new EvtHandler();
+        static bool ScreenshotMade = false;
+        static int Ctr = 100;
 
-			FUI = new FishUI.FishUI(UISettings, Gfx, Input, Events);
-			FUI.Init();
-			MakeGUISample();
+        // Automatically take a screenshot after a set number of frames
+        static void AutoScreenshot(RaylibGfx Gfx)
+        {
+            if (Ctr > 0)
+            {
+                Ctr--;
+            }
+            else if (!ScreenshotMade)
+            {
+                ScreenshotMade = true;
 
-			Stopwatch SWatch = Stopwatch.StartNew();
-			Stopwatch RuntimeWatch = Stopwatch.StartNew();
+                DateTime Now = DateTime.Now;
+                string FName = $"../../../../screenshots/ss_{Now.ToString("ddMMyyyy_HHmmss")}.png";
 
-			while (!Raylib.WindowShouldClose())
-			{
-				float Dt = SWatch.ElapsedMilliseconds / 1000.0f;
-				SWatch.Restart();
+                Gfx.FocusWindow();
+                Thread.Sleep(200);
 
-				if (Raylib.IsWindowResized())
-				{
-					FUI.Resized();
-				}
+                ScreenCapture.CaptureActiveWindow().Save(FName);
 
-				FUI.Tick(Dt, (float)RuntimeWatch.Elapsed.TotalSeconds);
-			}
+                Thread.Sleep(200);
+                Environment.Exit(0);
 
-			Raylib.CloseWindow();
-		}
+                //Raylib.TakeScreenshot(FName);
+                //Console.WriteLine("Made screenshot " + FName);
+            }
+        }
 
-		static void MakeGUISample()
-		{
-			Textbox Lbl = new Textbox("The quick");
-			Lbl.Position = new Vector2(100, 400);
-			Lbl.ZDepth = 2;
-			FUI.AddControl(Lbl);
+        static void Main(string[] args)
+        {
+            FishUISettings UISettings = new FishUISettings();
+            IFishUIGfx Gfx = new RaylibGfx(800, 600, "FishUI");
+            IFishUIInput Input = new RaylibInput();
+            IFishUIEvents Events = new EvtHandler();
 
-			ListBox Lb = new ListBox();
-			Lb.Position = new Vector2(320, 350);
-			Lb.ZDepth = 2;
-			Lb.ID = "listbox1";
-			FUI.AddControl(Lb);
+            FUI = new FishUI.FishUI(UISettings, Gfx, Input, Events);
+            FUI.Init();
+            MakeGUISample();
 
-			for (int i = 0; i < 10; i++)
-			{
-				Lb.AddItem("Item " + i);
-			}
+            Stopwatch SWatch = Stopwatch.StartNew();
+            Stopwatch RuntimeWatch = Stopwatch.StartNew();
 
-			//Lb.AutoResizeHeight();
+            while (!Raylib.WindowShouldClose())
+            {
+                float Dt = SWatch.ElapsedMilliseconds / 1000.0f;
+                SWatch.Restart();
 
-			DropDown DD = new DropDown();
-			DD.Position = new Vector2(550, 350);
-			DD.ZDepth = 2;
-			DD.ID = "dropdown1";
-			FUI.AddControl(DD);
+                if (Raylib.IsWindowResized())
+                {
+                    FUI.Resized();
+                }
 
-			for (int i = 0; i < 10; i++)
-			{
-				DD.AddItem("Option " + i);
-			}
+                FUI.Tick(Dt, (float)RuntimeWatch.Elapsed.TotalSeconds);
+                AutoScreenshot(Gfx as RaylibGfx);
+            }
 
-			ScrollBarV Sbv = new ScrollBarV();
-			Sbv.Position = new Vector2(480, 340);
-			Sbv.ZDepth = 2;
-			FUI.AddControl(Sbv);
+            Raylib.CloseWindow();
+        }
 
-			Button Btn0 = new Button();
-			Btn0.ID = "visible";
-			Btn0.Text = "Make Visible";
-			Btn0.Position = new Vector2(430, 100);
-			Btn0.Size = new Vector2(150, 50);
-			Btn0.ZDepth = 2;
-			FUI.AddControl(Btn0);
+        static void MakeGUISample()
+        {
+            Textbox Lbl = new Textbox("The quick");
+            Lbl.Position = new Vector2(100, 400);
+            Lbl.ZDepth = 2;
+            FUI.AddControl(Lbl);
 
-			Button Btn1 = new Button();
-			Btn1.ID = "savelayout";
-			Btn1.Text = "Save Layout";
-			Btn1.Position = new Vector2(430, 160);
-			Btn1.Size = new Vector2(150, 50);
-			Btn1.ZDepth = 2;
-			FUI.AddControl(Btn1);
+            ListBox Lb = new ListBox();
+            Lb.Position = new Vector2(320, 350);
+            Lb.ZDepth = 2;
+            Lb.ID = "listbox1";
+            FUI.AddControl(Lb);
 
-			Button Btn2 = new Button();
-			Btn2.ID = "loadlayout";
-			Btn2.Text = "Load Layout";
-			Btn2.Position = new Vector2(430, 220);
-			Btn2.Size = new Vector2(150, 50);
-			Btn2.ZDepth = 2;
-			FUI.AddControl(Btn2);
+            for (int i = 0; i < 10; i++)
+            {
+                Lb.AddItem("Item " + i);
+            }
 
-			// Panel ------------------
-			Panel Pnl = new Panel();
-			Pnl.ID = "panel1";
-			Pnl.Position = new Vector2(10, 10);
-			Pnl.Size = new Vector2(400, 350);
-			Pnl.ZDepth = 1;
-			Pnl.Draggable = true;
-			Pnl.IsTransparent = true;
-			FUI.AddControl(Pnl);
+            //Lb.AutoResizeHeight();
 
-			Button Btn = new Button();
-			Btn.ID = "invisible";
-			Btn.Text = "Make Invisible";
-			//Btn.Position = new Vector2(100, 100);
-			Btn.Position = new FishUIPosition(PositionMode.Docked, DockMode.Horizontal, new Vector4(15, 0, 15, 0), new Vector2(100, 100));
-			Btn.Size = new Vector2(150, 50);
-			Pnl.AddChild(Btn);
+            DropDown DD = new DropDown();
+            DD.Position = new Vector2(550, 350);
+            DD.ZDepth = 2;
+            DD.ID = "dropdown1";
+            FUI.AddControl(DD);
 
-			CheckBox CBox = new CheckBox("Checkbox");
-			CBox.Position = new Vector2(5, 10);
-			CBox.Size = new Vector2(15, 15);
-			Pnl.AddChild(CBox);
+            for (int i = 0; i < 10; i++)
+            {
+                DD.AddItem("Option " + i);
+            }
 
-			RadioButton RBut = new RadioButton("Radio button");
-			RBut.Position = new Vector2(5, 40);
-			RBut.Size = new Vector2(15, 15);
-			Pnl.AddChild(RBut);
-		}
-	}
+            ScrollBarV Sbv = new ScrollBarV();
+            Sbv.Position = new Vector2(480, 340);
+            Sbv.ZDepth = 2;
+            FUI.AddControl(Sbv);
+
+            Button Btn0 = new Button();
+            Btn0.ID = "visible";
+            Btn0.Text = "Make Visible";
+            Btn0.Position = new Vector2(430, 100);
+            Btn0.Size = new Vector2(150, 50);
+            Btn0.ZDepth = 2;
+            FUI.AddControl(Btn0);
+
+            Button Btn1 = new Button();
+            Btn1.ID = "savelayout";
+            Btn1.Text = "Save Layout";
+            Btn1.Position = new Vector2(430, 160);
+            Btn1.Size = new Vector2(150, 50);
+            Btn1.ZDepth = 2;
+            FUI.AddControl(Btn1);
+
+            Button Btn2 = new Button();
+            Btn2.ID = "loadlayout";
+            Btn2.Text = "Load Layout";
+            Btn2.Position = new Vector2(430, 220);
+            Btn2.Size = new Vector2(150, 50);
+            Btn2.ZDepth = 2;
+            FUI.AddControl(Btn2);
+
+            // Panel ------------------
+            Panel Pnl = new Panel();
+            Pnl.ID = "panel1";
+            Pnl.Position = new Vector2(10, 10);
+            Pnl.Size = new Vector2(400, 350);
+            Pnl.ZDepth = 1;
+            Pnl.Draggable = true;
+            Pnl.IsTransparent = true;
+            FUI.AddControl(Pnl);
+
+            Button Btn = new Button();
+            Btn.ID = "invisible";
+            Btn.Text = "Make Invisible";
+            //Btn.Position = new Vector2(100, 100);
+            Btn.Position = new FishUIPosition(PositionMode.Docked, DockMode.Horizontal, new Vector4(15, 0, 15, 0), new Vector2(100, 100));
+            Btn.Size = new Vector2(150, 50);
+            Pnl.AddChild(Btn);
+
+            CheckBox CBox = new CheckBox("Checkbox");
+            CBox.Position = new Vector2(5, 10);
+            CBox.Size = new Vector2(15, 15);
+            Pnl.AddChild(CBox);
+
+            RadioButton RBut = new RadioButton("Radio button");
+            RBut.Position = new Vector2(5, 40);
+            RBut.Size = new Vector2(15, 15);
+            Pnl.AddChild(RBut);
+        }
+    }
 }
