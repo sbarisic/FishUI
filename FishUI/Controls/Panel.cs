@@ -21,14 +21,10 @@ namespace FishUI.Controls
 			if (IsTransparent)
 				return;
 
-			NPatch Cur = UI.Settings.ImgPanel;
+		NPatch Cur = UI.Settings.ImgPanel;
 
 			if (Disabled)
 				Cur = UI.Settings.ImgPanelDisabled;
-			/**else if (IsMousePressed)
-				Cur = ImgPressed;
-			else if (IsMouseInside)
-				Cur = ImgHover;**/
 
 			UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), Color);
 

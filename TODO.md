@@ -193,15 +193,15 @@ A list of planned features, improvements, and new controls for FishUI.
 ## Code Cleanup & Technical Debt
 
 ### Incomplete Implementations
-- [ ] Implement `FishUI.Resized()` method - currently empty with placeholder comment (2 CPX)
-- [ ] Implement or remove `Padding` property in `Control.cs` - currently commented out (2 CPX)
-- [ ] Implement or remove `UICommands.cs` and `UICommandList.cs` - unused command buffer scaffolding (1 CPX)
-- [ ] Complete `Panel` hover/pressed states - currently commented out in `Panel.cs` (1 CPX)
+- [x] Implement `FishUI.Resized()` method - currently empty with placeholder comment (2 CPX)
+- [x] Implement or remove `Padding` property in `Control.cs` - currently commented out (2 CPX)
+- [x] Implement or remove `UICommands.cs` and `UICommandList.cs` - unused command buffer scaffolding (1 CPX)
+- [x] Complete `Panel` hover/pressed states - currently commented out in `Panel.cs` (1 CPX)
 
 ### Commented-Out Code to Review
-- [ ] `FishUI.cs`: Remove or implement `PressedLeftControl`, `HeldLeftControl`, `PressedRightControl`, `HeldRightControl` fields (1 CPX)
-- [ ] `Control.cs`: Remove commented `HandleInput` method or implement it (1 CPX)
-- [ ] `ScrollBarV.cs`: Remove old manual drawing code block (already replaced by child buttons) (1 CPX)
+- [x] `FishUI.cs`: Remove or implement `PressedLeftControl`, `HeldLeftControl`, `PressedRightControl`, `HeldRightControl` fields (1 CPX)
+- [x] `Control.cs`: Remove commented `HandleInput` method or implement it (1 CPX)
+- [x] `ScrollBarV.cs`: Remove old manual drawing code block (already replaced by child buttons) (1 CPX)
 
 ### Debug Code to Address
 - [x] `Control.cs`: Make `DebugPrint` configurable (1 CPX)
@@ -211,9 +211,9 @@ A list of planned features, improvements, and new controls for FishUI.
 - [x] Implement debug outline drawing for all controls when debug mode is enabled (3 CPX)
 
 ### Code Quality
-- [ ] Remove unused `using System.ComponentModel.Design` in `FishUI.cs` (1 CPX)
-- [ ] Remove unused `using System.Runtime.ConstrainedExecution` in `ListBox.cs` (1 CPX)
-- [ ] Remove unused `using static System.Net.Mime.MediaTypeNames` in `Textbox.cs` and `Label.cs` (1 CPX)
+- [x] Remove unused `using System.ComponentModel.Design` in `FishUI.cs` (1 CPX)
+- [x] Remove unused `using System.Runtime.ConstrainedExecution` in `ListBox.cs` (1 CPX)
+- [x] Remove unused `using static System.Net.Mime.MediaTypeNames` in `Textbox.cs` and `Label.cs` (1 CPX)
 
 ---
 

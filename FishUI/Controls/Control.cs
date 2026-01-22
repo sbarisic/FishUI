@@ -30,11 +30,8 @@ namespace FishUI.Controls
 		[YamlMember]
 		public List<Control> Children = new List<Control>();
 
-		[YamlMember]
+	[YamlMember]
 		public FishUIPosition Position;
-
-		//[YamlMember]
-		//public Padding Padding;
 
 		[YamlMember]
 		public Vector2 Size;
@@ -350,13 +347,8 @@ namespace FishUI.Controls
 		{
 		}
 
-		public virtual void HandleMouseWheel(FishUI UI, FishInputState InState, float WheelDelta)
+	public virtual void HandleMouseWheel(FishUI UI, FishInputState InState, float WheelDelta)
 		{
 		}
-
-
-		/*public virtual void HandleInput(FishUI UI, FishInputState InState)
-		{
-		}*/
 	}
 }

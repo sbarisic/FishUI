@@ -202,32 +202,12 @@ namespace FishUI.Controls
 			// Draw background
 			UI.Graphics.DrawNPatch(UI.Settings.ImgSBVBarBackground, GlobalPos, GetAbsoluteSize(), Color);
 
-			CalculateThumb(out Vector2 thumbSize, out Vector2 thumbPos);
+		CalculateThumb(out Vector2 thumbSize, out Vector2 thumbPos);
 			if (BtnThumb != null)
 			{
 				BtnThumb.Position = GetLocalRelative(thumbPos);
 				BtnThumb.Size = thumbSize;
 			}
-
-			/*// Draw up button
-			if (BtnUpHovered)
-				UI.Graphics.DrawNPatch(UI.Settings.ImgSBVBtnUpHover, GlobalPos, ButtonSize, Color);
-			else
-				UI.Graphics.DrawNPatch(UI.Settings.ImgSBVBtnUpNormal, GlobalPos, ButtonSize, Color);
-
-			// Draw down button
-			if (BtnDownHovered)
-				UI.Graphics.DrawNPatch(UI.Settings.ImgSBVBtnDownHover, GlobalPos + new Vector2(0, Size.Y - ButtonSize.Y), ButtonSize, Color);
-			else
-				UI.Graphics.DrawNPatch(UI.Settings.ImgSBVBtnDownNormal, GlobalPos + new Vector2(0, Size.Y - ButtonSize.Y), ButtonSize, Color);
-
-			CalculateThumb(out Vector2 thumbSize, out Vector2 thumbPos);
-
-			// Draw thumb
-			if (ThumbHovered)
-				UI.Graphics.DrawNPatch(UI.Settings.ImgSBVBarHover, thumbPos, thumbSize, Color);
-			else
-				UI.Graphics.DrawNPatch(UI.Settings.ImgSBVBarNormal, thumbPos, thumbSize, Color);*/
 		}
 	}
 }

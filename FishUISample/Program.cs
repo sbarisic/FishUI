@@ -60,9 +60,9 @@ namespace FishUISample
                 float Dt = SWatch.ElapsedMilliseconds / 1000.0f;
                 SWatch.Restart();
 
-                if (Raylib.IsWindowResized())
+			if (Raylib.IsWindowResized())
                 {
-                    FUI.Resized();
+                    FUI.Resized(Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
                 }
 
                 FUI.Tick(Dt, (float)RuntimeWatch.Elapsed.TotalSeconds);

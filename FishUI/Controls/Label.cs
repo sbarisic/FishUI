@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
 using YamlDotNet.Serialization;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace FishUI.Controls
 {
