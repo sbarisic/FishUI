@@ -238,6 +238,11 @@ A list of planned features, improvements, and new controls for FishUI.
 - [ ] `LayoutFormat.Deserialize()` fails with abstract `Control` type - YamlDotNet cannot instantiate abstract class (2 CPX)
   - Exception at line 83: `MissingMethodException: Cannot dynamically create an instance of type 'FishUI.Controls.Control'`
   - Need to configure YamlDotNet to use concrete types via tag mapping or custom type resolver
+- [ ] **Theme system incomplete for newer controls** (3 CPX)
+  - ProgressBar, Slider, ToggleSwitch use hardcoded `FishColor` values instead of theme color palette
+  - These controls don't have theme region mappings in `FishUISettings.ApplyThemeRegions()`
+  - Need to add region definitions for these controls in theme YAML files
+  - Controls should use `Settings.GetColorPalette()` for colors instead of hardcoded values
 
 ---
 
