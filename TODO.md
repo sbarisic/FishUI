@@ -144,11 +144,11 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ### Input & Events
 - [x] Mouse wheel scrolling support (2 CPX)
-- [ ] Double-click event handling (2 CPX)
-- [ ] Keyboard focus navigation (Tab key) (3 CPX)
-- [ ] Focus visual indicators (2 CPX)
-- [ ] Global keyboard shortcuts / hotkeys (3 CPX)
-- [ ] Virtual mouse cursor mode, custom mouse pointer drawing, input functions to move and click the virtual mouse, i.e. joystick to mouse input (4 CPX)
+- [x] Double-click event handling (2 CPX)
+- [x] Keyboard focus navigation (Tab key) (3 CPX)
+- [x] Focus visual indicators (2 CPX)
+- [x] Global keyboard shortcuts / hotkeys (3 CPX)
+- [x] Virtual mouse cursor mode, custom mouse pointer drawing, input functions to move and click the virtual mouse, i.e. joystick to mouse input (4 CPX)
 
 ### Rendering
 - [ ] Control opacity/transparency (2 CPX)

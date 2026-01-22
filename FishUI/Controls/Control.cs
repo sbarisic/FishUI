@@ -37,7 +37,7 @@ namespace FishUI.Controls
 		public Vector2 Size;
 
 		[YamlMember]
-		public string ID;
+	public string ID;
 
 		public virtual int ZDepth { get; set; }
 
@@ -49,6 +49,23 @@ namespace FishUI.Controls
 
 		// If true, this control can be dragged and repositioned with the mouse, handled in the HandleDrag implementation
 		public virtual bool Draggable { get; set; } = false;
+
+		/// <summary>
+		/// If true, this control can receive keyboard focus via Tab key navigation.
+		/// </summary>
+		public virtual bool Focusable { get; set; } = false;
+
+		/// <summary>
+		/// The tab order index for keyboard navigation. Lower values are focused first.
+		/// Controls with the same TabIndex are focused in the order they were added.
+		/// </summary>
+		public virtual int TabIndex { get; set; } = 0;
+
+		/// <summary>
+		/// Returns true if this control currently has input focus.
+		/// </summary>
+		[YamlIgnore]
+		public bool HasFocus => FishUI?.InputActiveControl == this;
 
 		public event OnControlDraggedFunc OnDragged;
 
@@ -268,21 +285,25 @@ namespace FishUI.Controls
 		bool DrawHasInit = false;
 
 	public void DrawControlAndChildren(FishUI UI, float Dt, float Time)
-		{
-			if (!DrawHasInit)
-			{
-				DrawHasInit = true;
-				Init(UI);
-			}
+	{
+	if (!DrawHasInit)
+	{
+	DrawHasInit = true;
+	Init(UI);
+	}
 
-			DrawControl(UI, Dt, Time);
+	DrawControl(UI, Dt, Time);
 
-			// Draw debug outline if enabled
-			if (FishUIDebug.DrawControlOutlines)
-				UI.Graphics.DrawRectangleOutline(GetAbsolutePosition(), GetAbsoluteSize(), FishUIDebug.OutlineColor);
+	// Draw debug outline if enabled
+	if (FishUIDebug.DrawControlOutlines)
+	UI.Graphics.DrawRectangleOutline(GetAbsolutePosition(), GetAbsoluteSize(), FishUIDebug.OutlineColor);
 
-			DrawChildren(UI, Dt, Time);
-		}
+	// Draw focus indicator if this control has focus
+	if (FishUIDebug.DrawFocusIndicators && HasFocus && Focusable)
+	UI.Graphics.DrawRectangleOutline(GetAbsolutePosition() - new Vector2(2, 2), GetAbsoluteSize() + new Vector2(4, 4), FishUIDebug.FocusIndicatorColor);
+
+	DrawChildren(UI, Dt, Time);
+	}
 
 		public virtual void HandleDrag(FishUI UI, Vector2 StartPos, Vector2 EndPos, FishInputState InState)
 		{
@@ -323,15 +344,28 @@ namespace FishUI.Controls
 			FishUIDebug.LogControlEvent(GetType().Name, ID, "Mouse Release", Btn.ToString());
 		}
 
-		public virtual void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
+	public virtual void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
 		{
 			FishUIDebug.LogControlEvent(GetType().Name, ID, "Mouse Click", Btn.ToString());
 
 			UI.Events.Broadcast(UI, this, "mouse_click", null);
 		}
 
-		public virtual void HandleFocus()
+		public virtual void HandleMouseDoubleClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
 		{
+			FishUIDebug.LogControlEvent(GetType().Name, ID, "Mouse Double Click", Btn.ToString());
+
+			UI.Events.Broadcast(UI, this, "mouse_double_click", null);
+		}
+
+	public virtual void HandleFocus()
+		{
+			FishUIDebug.LogControlEvent(GetType().Name, ID, "Focus");
+		}
+
+		public virtual void HandleBlur()
+		{
+			FishUIDebug.LogControlEvent(GetType().Name, ID, "Blur");
 		}
 
 		public virtual void HandleTextInput(FishUI UI, FishInputState InState, char Chr)

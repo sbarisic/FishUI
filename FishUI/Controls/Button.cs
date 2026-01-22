@@ -26,8 +26,9 @@ namespace FishUI.Controls
 
 		public event ButtonPressFunc OnButtonPressed;
 
-		public Button()
+	public Button()
 		{
+			Focusable = true;
 		}
 
 		public Button(NPatch Normal, NPatch Disabled, NPatch Pressed, NPatch Hovered)

@@ -28,15 +28,25 @@ namespace FishUI
 			set => DrawControlOutlines = value;
 		}
 
-		/// <summary>
+	/// <summary>
 		/// Gets or sets whether debug outlines are drawn around all controls.
 		/// </summary>
-		public static bool DrawControlOutlines { get; set; } = true;
+		public static bool DrawControlOutlines { get; set; } = false;
 
 		/// <summary>
 		/// Gets or sets the color used for debug outlines. Default is Teal.
 		/// </summary>
 		public static FishColor OutlineColor { get; set; } = FishColor.Teal;
+
+		/// <summary>
+		/// Gets or sets whether focus indicators are drawn around focused controls.
+		/// </summary>
+		public static bool DrawFocusIndicators { get; set; } = true;
+
+		/// <summary>
+		/// Gets or sets the color used for focus indicators. Default is a bright blue.
+		/// </summary>
+		public static FishColor FocusIndicatorColor { get; set; } = new FishColor(0, 120, 215, 255);
 
 		/// <summary>
 		/// Gets or sets whether ListBox selection changes are logged.

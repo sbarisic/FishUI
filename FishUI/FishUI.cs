@@ -22,6 +22,34 @@ namespace FishUI
 		Control LeftClickedControl;
 		Control RightClickedControl;
 
+		// Double-click detection
+		float LastLeftClickTime = -1f;
+		float LastRightClickTime = -1f;
+		Vector2 LastLeftClickPos;
+		Vector2 LastRightClickPos;
+		Control LastLeftClickControl;
+		Control LastRightClickControl;
+
+		/// <summary>
+		/// Maximum time between clicks for a double-click (in seconds).
+		/// </summary>
+		public float DoubleClickTime { get; set; } = 0.3f;
+
+	/// <summary>
+		/// Maximum distance between clicks for a double-click (in pixels).
+		/// </summary>
+		public float DoubleClickDistance { get; set; } = 5f;
+
+	/// <summary>
+		/// Manager for global keyboard hotkeys.
+		/// </summary>
+		public FishUIHotkeyManager Hotkeys { get; } = new FishUIHotkeyManager();
+
+		/// <summary>
+		/// Virtual mouse cursor for keyboard/gamepad input.
+		/// </summary>
+		public FishUIVirtualMouse VirtualMouse { get; } = new FishUIVirtualMouse();
+
 
 		public FishUI(FishUISettings Settings, IFishUIGfx Graphics, IFishUIInput Input, IFishUIEvents Events)
 		{
@@ -137,18 +165,61 @@ namespace FishUI
 			}
 		}
 
-		// Check for mouse release and clicks
+	// Check for mouse release and clicks
 		// Mouse release gets triggered for the first control under the mouse
 		// Mouse click gets triggered only after release if the control under the mouse is the same as the one that was pressed
-		void CheckMouseRelease(Control ControlUnderMouse, FishInputState InState, bool BtnPressed, FishMouseButton MBtn, ref Control ClickedControl)
+		void CheckMouseRelease(Control ControlUnderMouse, FishInputState InState, bool BtnReleased, FishMouseButton MBtn, ref Control ClickedControl, float Time)
 		{
-			if (BtnPressed)
+			if (BtnReleased)
 			{
 				if (ControlUnderMouse != null)
 					ControlUnderMouse.HandleMouseRelease(this, InState, MBtn, InState.MousePos);
 
 				if (ClickedControl != null && ControlUnderMouse == ClickedControl)
-					ClickedControl.HandleMouseClick(this, InState, MBtn, InState.MousePos);
+				{
+					// Check for double-click
+					bool isDoubleClick = false;
+
+					if (MBtn == FishMouseButton.Left)
+					{
+						float timeSinceLastClick = Time - LastLeftClickTime;
+						float distance = Vector2.Distance(InState.MousePos, LastLeftClickPos);
+
+						if (timeSinceLastClick <= DoubleClickTime && distance <= DoubleClickDistance && LastLeftClickControl == ControlUnderMouse)
+						{
+							isDoubleClick = true;
+							LastLeftClickTime = -1f; // Reset to prevent triple-click being detected as double
+						}
+						else
+						{
+							LastLeftClickTime = Time;
+							LastLeftClickPos = InState.MousePos;
+							LastLeftClickControl = ControlUnderMouse;
+						}
+					}
+					else if (MBtn == FishMouseButton.Right)
+					{
+						float timeSinceLastClick = Time - LastRightClickTime;
+						float distance = Vector2.Distance(InState.MousePos, LastRightClickPos);
+
+						if (timeSinceLastClick <= DoubleClickTime && distance <= DoubleClickDistance && LastRightClickControl == ControlUnderMouse)
+						{
+							isDoubleClick = true;
+							LastRightClickTime = -1f;
+						}
+						else
+						{
+							LastRightClickTime = Time;
+							LastRightClickPos = InState.MousePos;
+							LastRightClickControl = ControlUnderMouse;
+						}
+					}
+
+					if (isDoubleClick)
+						ClickedControl.HandleMouseDoubleClick(this, InState, MBtn, InState.MousePos);
+					else
+						ClickedControl.HandleMouseClick(this, InState, MBtn, InState.MousePos);
+				}
 
 				ClickedControl = null;
 			}
@@ -173,7 +244,7 @@ namespace FishUI
 			}
 		}
 
-		void Update(Control[] Controls, FishInputState InState, FishInputState InLast)
+	void Update(Control[] Controls, FishInputState InState, FishInputState InLast, float Time)
 		{
 			Control ControlUnderMouse = PickControl(InState.MousePos);
 
@@ -199,11 +270,11 @@ namespace FishUI
 
 			// Left mouse press/release handling
 			CheckMousePress(ControlUnderMouse, InState, InState.MouseLeftPressed, FishMouseButton.Left, ref LeftClickedControl);
-			CheckMouseRelease(ControlUnderMouse, InState, InState.MouseLeftReleased, FishMouseButton.Left, ref LeftClickedControl);
+			CheckMouseRelease(ControlUnderMouse, InState, InState.MouseLeftReleased, FishMouseButton.Left, ref LeftClickedControl, Time);
 
 			// Right mouse press/release handling
 			CheckMousePress(ControlUnderMouse, InState, InState.MouseRightPressed, FishMouseButton.Right, ref RightClickedControl);
-			CheckMouseRelease(ControlUnderMouse, InState, InState.MouseRightReleased, FishMouseButton.Right, ref RightClickedControl);
+			CheckMouseRelease(ControlUnderMouse, InState, InState.MouseRightReleased, FishMouseButton.Right, ref RightClickedControl, Time);
 
 			// Mouse wheel handling
 			if (InState.MouseWheelDelta != 0 && ControlUnderMouse != null)
@@ -211,11 +282,24 @@ namespace FishUI
 				ControlUnderMouse.HandleMouseWheel(this, InState, InState.MouseWheelDelta);
 			}
 
-			// Key press handling
+		// Key press handling
 			FishKey Key = Input.GetKeyPressed();
-			if (Key != FishKey.None && InputActiveControl != null)
+
+			// Process global hotkeys first
+			bool hotkeyHandled = Hotkeys.ProcessKeyPress(Key, Input);
+
+			if (!hotkeyHandled)
 			{
-				InputActiveControl.HandleKeyPress(this, InState, Key);
+				// Tab key navigation
+				if (Key == FishKey.Tab)
+				{
+					bool shiftHeld = Input.IsKeyDown(FishKey.LeftShift) || Input.IsKeyDown(FishKey.RightShift);
+					FocusNextControl(shiftHeld);
+				}
+				else if (Key != FishKey.None && InputActiveControl != null)
+				{
+					InputActiveControl.HandleKeyPress(this, InState, Key);
+				}
 			}
 
 			foreach (Control Ctl in Controls)
@@ -238,13 +322,84 @@ namespace FishUI
 			Graphics.EndDrawing();
 		}
 
-		public void FocusControl(Control Ctrl)
+	public void FocusControl(Control Ctrl)
 		{
+			Control previousFocus = InputActiveControl;
+			
+			if (previousFocus != null && previousFocus != Ctrl)
+				previousFocus.HandleBlur();
+
 			InputActiveControl = Ctrl;
-			Ctrl.HandleFocus();
+			
+			if (Ctrl != null)
+				Ctrl.HandleFocus();
 		}
 
-		FishInputState InLast;
+		/// <summary>
+		/// Clears the current focus without focusing another control.
+		/// </summary>
+		public void ClearFocus()
+		{
+			if (InputActiveControl != null)
+			{
+				InputActiveControl.HandleBlur();
+				InputActiveControl = null;
+			}
+		}
+
+		/// <summary>
+		/// Gets all focusable controls in tab order.
+		/// </summary>
+		List<Control> GetFocusableControls()
+		{
+			List<Control> focusable = new List<Control>();
+			CollectFocusableControls(Controls.ToArray(), focusable);
+			return focusable.OrderBy(c => c.TabIndex).ToList();
+		}
+
+		void CollectFocusableControls(Control[] controls, List<Control> result)
+		{
+			foreach (Control c in controls)
+			{
+				if (c.Visible && !c.Disabled && c.Focusable)
+					result.Add(c);
+
+				CollectFocusableControls(c.GetAllChildren(), result);
+			}
+		}
+
+		/// <summary>
+		/// Focuses the next (or previous if reverse is true) focusable control.
+		/// </summary>
+		/// <param name="reverse">If true, focus the previous control (Shift+Tab behavior).</param>
+		public void FocusNextControl(bool reverse = false)
+		{
+			List<Control> focusable = GetFocusableControls();
+			
+			if (focusable.Count == 0)
+				return;
+
+			int currentIndex = focusable.IndexOf(InputActiveControl);
+
+			int nextIndex;
+			if (currentIndex == -1)
+			{
+				// No control is focused, focus the first or last
+				nextIndex = reverse ? focusable.Count - 1 : 0;
+			}
+			else
+			{
+				// Move to next or previous
+				if (reverse)
+					nextIndex = (currentIndex - 1 + focusable.Count) % focusable.Count;
+				else
+					nextIndex = (currentIndex + 1) % focusable.Count;
+			}
+
+			FocusControl(focusable[nextIndex]);
+		}
+
+	FishInputState InLast;
 
 		public void Tick(float Dt, float Time)
 		{
@@ -253,22 +408,50 @@ namespace FishUI
 			bool MouseRight = Input.IsMouseDown(FishMouseButton.Right);
 			float MouseWheel = Input.GetMouseWheelMove();
 
+			// Override with virtual mouse if enabled
+			if (VirtualMouse.Enabled)
+			{
+				VirtualMouse.ClampToScreen(Width > 0 ? Width : Graphics.GetWindowWidth(), 
+					Height > 0 ? Height : Graphics.GetWindowHeight());
+				
+				MousePos = VirtualMouse.Position;
+				MouseLeft = VirtualMouse.IsLeftDown;
+				MouseRight = VirtualMouse.IsRightDown;
+			}
+
 			FishInputState InState = new FishInputState();
 			InState.MousePos = MousePos;
 			InState.MouseLeft = MouseLeft;
 			InState.MouseRight = MouseRight;
 			InState.TouchPoints = Input.GetTouchPoints();
-			InState.MouseLeftPressed = Input.IsMousePressed(FishMouseButton.Left);
-			InState.MouseLeftReleased = Input.IsMouseReleased(FishMouseButton.Left);
-			InState.MouseRightPressed = Input.IsMousePressed(FishMouseButton.Right);
-			InState.MouseRightReleased = Input.IsMouseReleased(FishMouseButton.Right);
+
+			if (VirtualMouse.Enabled)
+			{
+				InState.MouseLeftPressed = VirtualMouse.IsLeftPressed;
+				InState.MouseLeftReleased = VirtualMouse.IsLeftReleased;
+				InState.MouseRightPressed = VirtualMouse.IsRightPressed;
+				InState.MouseRightReleased = VirtualMouse.IsRightReleased;
+			}
+			else
+			{
+				InState.MouseLeftPressed = Input.IsMousePressed(FishMouseButton.Left);
+				InState.MouseLeftReleased = Input.IsMouseReleased(FishMouseButton.Left);
+				InState.MouseRightPressed = Input.IsMousePressed(FishMouseButton.Right);
+				InState.MouseRightReleased = Input.IsMouseReleased(FishMouseButton.Right);
+			}
+
 			InState.MouseDelta = MousePos - InLast.MousePos;
 			InState.MouseWheelDelta = MouseWheel;
 
 			Control[] OrderedControls = GetOrderedControls();
 
-			Update(OrderedControls, InState, InLast);
+			Update(OrderedControls, InState, InLast, Time);
 			Draw(OrderedControls, Dt, Time);
+
+			// Draw virtual mouse cursor last (on top of everything)
+			VirtualMouse.Draw(Graphics);
+			VirtualMouse.EndFrame();
+
 			InLast = InState;
 		}
 

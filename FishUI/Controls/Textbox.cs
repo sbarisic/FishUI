@@ -14,6 +14,7 @@ namespace FishUI.Controls
 		public Textbox()
 		{
 			Size = new Vector2(200, 19);
+			Focusable = true;
 		}
 
 		public Textbox(string Text) : this()

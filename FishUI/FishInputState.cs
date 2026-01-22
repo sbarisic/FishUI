@@ -20,5 +20,9 @@ namespace FishUI
 		public bool MouseRight;
 		public bool MouseRightPressed;
 		public bool MouseRightReleased;
+
+		// Double-click detection
+		public bool MouseLeftDoubleClick;
+		public bool MouseRightDoubleClick;
 	}
 }
