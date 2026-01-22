@@ -9,6 +9,7 @@ namespace FishUI
 	{
 		public Vector2 MousePos;
 		public Vector2 MouseDelta;
+		public float MouseWheelDelta;
 
 		public FishTouchPoint[] TouchPoints;
 

@@ -28,6 +28,11 @@ namespace FishUISample
 			return Raylib.GetMousePosition();
 		}
 
+		public float GetMouseWheelMove()
+		{
+			return Raylib.GetMouseWheelMove();
+		}
+
 		public FishTouchPoint[] GetTouchPoints()
 		{
 			return new FishTouchPoint[0];

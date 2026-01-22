@@ -212,6 +212,12 @@ namespace FishUI
 			CheckMousePress(ControlUnderMouse, InState, InState.MouseRightPressed, FishMouseButton.Right, ref RightClickedControl);
 			CheckMouseRelease(ControlUnderMouse, InState, InState.MouseRightReleased, FishMouseButton.Right, ref RightClickedControl);
 
+			// Mouse wheel handling
+			if (InState.MouseWheelDelta != 0 && ControlUnderMouse != null)
+			{
+				ControlUnderMouse.HandleMouseWheel(this, InState, InState.MouseWheelDelta);
+			}
+
 			// Key press handling
 			FishKey Key = Input.GetKeyPressed();
 			if (Key != FishKey.None && InputActiveControl != null)
@@ -252,6 +258,7 @@ namespace FishUI
 			Vector2 MousePos = Input.GetMousePosition();
 			bool MouseLeft = Input.IsMouseDown(FishMouseButton.Left);
 			bool MouseRight = Input.IsMouseDown(FishMouseButton.Right);
+			float MouseWheel = Input.GetMouseWheelMove();
 
 			FishInputState InState = new FishInputState();
 			InState.MousePos = MousePos;
@@ -263,6 +270,7 @@ namespace FishUI
 			InState.MouseRightPressed = Input.IsMousePressed(FishMouseButton.Right);
 			InState.MouseRightReleased = Input.IsMouseReleased(FishMouseButton.Right);
 			InState.MouseDelta = MousePos - InLast.MousePos;
+			InState.MouseWheelDelta = MouseWheel;
 
 			Control[] OrderedControls = GetOrderedControls();
 

@@ -326,6 +326,10 @@ namespace FishUI.Controls
 		{
 		}
 
+		public virtual void HandleMouseWheel(FishUI UI, FishInputState InState, float WheelDelta)
+		{
+		}
+
 
 		/*public virtual void HandleInput(FishUI UI, FishInputState InState)
 		{

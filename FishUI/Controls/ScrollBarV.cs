@@ -175,6 +175,14 @@ namespace FishUI.Controls
 			OnScrollChanged?.Invoke(this, ThumbPosition, 1);
 		}
 
+		public override void HandleMouseWheel(FishUI UI, FishInputState InState, float WheelDelta)
+		{
+			if (WheelDelta > 0)
+				ScrollUp();
+			else if (WheelDelta < 0)
+				ScrollDown();
+		}
+
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
 			CreateChildControls(UI);

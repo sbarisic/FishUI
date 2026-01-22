@@ -16,6 +16,7 @@ namespace FishUI
 		public bool IsKeyReleased(FishKey Key);
 
 		public Vector2 GetMousePosition();
+		public float GetMouseWheelMove();
 
 		public FishTouchPoint[] GetTouchPoints();
 

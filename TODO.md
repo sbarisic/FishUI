@@ -143,7 +143,7 @@ A list of planned features, improvements, and new controls for FishUI.
 - [ ] Auto-sizing controls based on content (3 CPX)
 
 ### Input & Events
-- [ ] Mouse wheel scrolling support (2 CPX)
+- [x] Mouse wheel scrolling support (2 CPX)
 - [ ] Double-click event handling (2 CPX)
 - [ ] Keyboard focus navigation (Tab key) (3 CPX)
 - [ ] Focus visual indicators (2 CPX)

@@ -133,6 +133,32 @@ namespace FishUI.Controls
 			}
 		}
 
+		public override void HandleMouseWheel(FishUI UI, FishInputState InState, float WheelDelta)
+		{
+			if (ScrollBar != null)
+			{
+				// Delegate to scrollbar if it exists
+				if (WheelDelta > 0)
+					ScrollBar.ScrollUp();
+				else if (WheelDelta < 0)
+					ScrollBar.ScrollDown();
+			}
+			else
+			{
+				// Direct scrolling when no scrollbar
+				float scrollAmount = ListItemHeight > 0 ? ListItemHeight : 18f;
+				ScrollOffset.Y += WheelDelta * scrollAmount;
+
+				// Clamp scroll offset
+				float contentHeight = Items.Count * (ListItemHeight > 0 ? ListItemHeight : 18f);
+				float visibleHeight = GetAbsoluteSize().Y;
+				float maxScroll = 0;
+				float minScroll = Math.Min(0, visibleHeight - contentHeight);
+
+				ScrollOffset.Y = Math.Clamp(ScrollOffset.Y, minScroll, maxScroll);
+			}
+		}
+
 		void CreateScrollBar(FishUI UI)
 		{
 			if (ScrollBar != null)
