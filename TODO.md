@@ -70,16 +70,10 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ### Lower Priority
 
-- [ ] **SplitContainer**
-  - Resizable split pane (horizontal/vertical)
-  - Draggable splitter bar
-  - Minimum size constraints for each pane
-
 - [ ] **GridView / DataGrid**
   - Tabular data display
-  - Column headers with sorting
+  - Column headers
   - Row selection
-  - Cell editing support
 
 - [ ] **ImageBox / PictureBox**
   - Image display control
@@ -89,12 +83,6 @@ A list of planned features, improvements, and new controls for FishUI.
 - [ ] **GroupBox**
   - Labeled container with border
   - Title positioning options
-
-- [ ] **ColorPicker**
-  - Color selection dialog/control
-  - Hue/saturation/brightness picker
-  - Hex/RGB input
-  - Alpha channel support
 
 - [ ] **DateTimePicker**
   - Calendar popup for date selection
@@ -162,26 +150,23 @@ A list of planned features, improvements, and new controls for FishUI.
 - [ ] Anti-aliased rendering option
 
 ### Theming & Styling
-- [ ] Theme loading from file (JSON/YAML)
+- [ ] Theme loading from file (YAML)
 - [ ] Runtime theme switching
-- [ ] Per-control style overrides
-- [ ] Custom color palettes
+- [ ] Custom color palettes from theme file
 
 ### Accessibility
-- [ ] Keyboard-only navigation, virtual mouse mode (modifier key + arrow keys/numpad keys)
+- [ ] Keyboard-only navigation
+- [ ] Virtual mouse mode (modifier key + arrow keys/numpad keys)
 - [ ] Scalable UI for different DPI
 
 ### Serialization
-- [ ] JSON layout format support
-- [ ] Binary layout format for faster loading
-- [ ] Layout editor tool integration
+- [ ] YAML layout format support
 
 ---
 
 ## Sample Application
 
 - [ ] Complete demo showcasing all controls
-- [ ] Interactive property editor for testing
 - [ ] Theme switcher demo
 - [ ] Responsive layout examples
 - [ ] Game UI example (inventory, HUD, dialogs)
@@ -213,11 +198,12 @@ A list of planned features, improvements, and new controls for FishUI.
 - Maintain the "dependency-free" philosophy - keep the core library minimal
 - Backend implementations should remain in separate sample projects
 
-Complexity points (CPX) estimates are provided for each item to help prioritize development efforts
-1 to 5 scale, 1 being very simple, 5 being very complex
+```
+Complexity points (CPX) estimates are provided for each item to help prioritize development efforts. 1 to 5 scale.
 
-1 - Single file control/component
-2 - Single file control/component with single function change dependencies (eg. event system, input system...)
-3 - Multi-file control/component or single file with multiple dependencies, no architecture changes, only additions
-4 - Multi-file control/component with multiple dependencies and significant logic, possible minor architecture changes
-5 - Large feature spanning multiple components and subsystems, major architecture changes
+	1 - Single file control/component
+	2 - Single file control/component with single function change dependencies (eg. event system, input system...)
+	3 - Multi-file control/component or single file with multiple dependencies, no architecture changes, only additions
+	4 - Multi-file control/component with multiple dependencies and significant logic, possible minor architecture changes
+	5 - Large feature spanning multiple components and subsystems, major architecture changes
+```
