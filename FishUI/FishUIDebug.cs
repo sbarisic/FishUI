@@ -31,7 +31,7 @@ namespace FishUI
 	/// <summary>
 		/// Gets or sets whether debug outlines are drawn around all controls.
 		/// </summary>
-		public static bool DrawControlOutlines { get; set; } = false;
+		public static bool DrawControlOutlines { get; set; } = true;
 
 		/// <summary>
 		/// Gets or sets the color used for debug outlines. Default is Teal.

@@ -87,6 +87,12 @@ A list of planned features, improvements, and new controls for FishUI.
   - Scaling modes (stretch, fit, fill, none)
   - Click events
 
+- [ ] **AnimatedImageBox** (2 CPX)
+  - Frame sequences are stored as an array of images
+  - Configurable frame rate
+  - Ability to pause animation display static frame
+  - Play/pause control
+
 - [ ] **GroupBox** (1 CPX)
   - Labeled container with border
   - Title positioning options
