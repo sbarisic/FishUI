@@ -129,27 +129,37 @@ namespace FishUI.Controls
 			};
 			AddChild(BtnUp);
 
-			BtnThumb = new Button(UI.Settings.ImgSBVBarNormal, UI.Settings.ImgSBVBarDisabled, UI.Settings.ImgSBVBarPressed, UI.Settings.ImgSBVBarHover);
+		BtnThumb = new Button(UI.Settings.ImgSBVBarNormal, UI.Settings.ImgSBVBarDisabled, UI.Settings.ImgSBVBarPressed, UI.Settings.ImgSBVBarHover);
 			BtnThumb.Draggable = true;
 			BtnThumb.OnDragged += (_, Delta) =>
 			{
 				Vector2 BtnSize = ButtonSize;
 				Vector2 thumbScrollSize = GetAbsoluteSize() - new Vector2(0, BtnSize.Y + BtnSize.Y);
 
-				float newThumbY = ThumbPosition * (thumbScrollSize.Y - (thumbScrollSize.Y * ThumbHeight)) + Delta.Y;
+				float thumbH = thumbScrollSize.Y * ThumbHeight;
+				float availableRange = thumbScrollSize.Y - thumbH;
+
+				// Avoid division by zero when thumb fills the entire track
+				if (availableRange <= 0)
+					return;
+
+				float currentThumbY = ThumbPosition * availableRange;
+				float newThumbY = currentThumbY + Delta.Y;
 
 				float OldThumbPosition = ThumbPosition;
-				ThumbPosition = newThumbY / (thumbScrollSize.Y - (thumbScrollSize.Y * ThumbHeight));
+				ThumbPosition = newThumbY / availableRange;
 
-				float Dt = ThumbPosition - OldThumbPosition;
-				int Dir = Dt > 0 ? 1 : -1;
-
+				// Clamp before calculating direction
 				if (ThumbPosition < 0)
 					ThumbPosition = 0;
 				if (ThumbPosition > 1)
 					ThumbPosition = 1;
 
-				OnScrollChanged?.Invoke(this, ThumbPosition, Dir);
+				float Dt = ThumbPosition - OldThumbPosition;
+				int Dir = Dt > 0 ? 1 : (Dt < 0 ? -1 : 0);
+
+				if (Dir != 0)
+					OnScrollChanged?.Invoke(this, ThumbPosition, Dir);
 			};
 			AddChild(BtnThumb);
 

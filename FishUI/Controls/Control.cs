@@ -98,7 +98,10 @@ namespace FishUI.Controls
 				}
 			}
 			else
-				throw new NotImplementedException();
+			{
+				// Fallback for unknown position modes - treat as absolute position
+				return new Vector2(Position.X, Position.Y);
+			}
 		}
 
 		public Vector2 GetLocalRelative(Vector2 GlobalPt)
