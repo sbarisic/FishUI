@@ -148,12 +148,11 @@ A list of planned features, improvements, and new controls for FishUI.
 - [ ] Keyboard focus navigation (Tab key) (3 CPX)
 - [ ] Focus visual indicators (2 CPX)
 - [ ] Global keyboard shortcuts / hotkeys (3 CPX)
-- [ ] Gamepad/controller input support (4 CPX)
+- [ ] Virtual mouse cursor mode, custom mouse pointer drawing, input functions to move and click the virtual mouse, i.e. joystick to mouse input (4 CPX)
 
 ### Rendering
 - [ ] Control opacity/transparency (2 CPX)
 - [ ] Animation system for transitions (4 CPX)
-- [ ] Shader effects support (3 CPX)
 - [ ] Anti-aliased rendering option (2 CPX)
 
 ### Theming & Styling
