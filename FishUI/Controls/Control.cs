@@ -134,10 +134,10 @@ namespace FishUI.Controls
 				return MyNewSize;
 			}
 
-			return Size;
+		return Size;
 		}
 
-		public bool IsPointInside(Vector2 GlobalPt)
+		public virtual bool IsPointInside(Vector2 GlobalPt)
 		{
 			Vector2 AbsPos = GetAbsolutePosition();
 			Vector2 AbsSize = GetAbsoluteSize();

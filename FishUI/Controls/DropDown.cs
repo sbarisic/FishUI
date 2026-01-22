@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Runtime.ConstrainedExecution;
 using System.Text;
 using System.Threading.Tasks;
 using YamlDotNet.Serialization;
@@ -48,16 +47,31 @@ namespace FishUI.Controls
 		Vector2 ScrollOffset = new Vector2(0, 0);
 
 		[YamlMember]
-		int SelectedIndex = -1;
+		public int SelectedIndex { get; private set; } = -1;
 
-		[YamlMember]
+		[YamlIgnore]
 		int HoveredIndex = -1;
 
 		[YamlIgnore]
-		ScrollBarV ScrollBar;
-
-		[YamlIgnore]
 		float ListItemHeight;
+
+		/// <summary>
+		/// Whether the dropdown list is currently open/expanded
+		/// </summary>
+		[YamlIgnore]
+		public bool IsOpen { get; private set; } = false;
+
+		/// <summary>
+		/// Maximum number of visible items in the dropdown list (0 = show all)
+		/// </summary>
+		[YamlMember]
+		public int MaxVisibleItems { get; set; } = 8;
+
+		/// <summary>
+		/// Height of the dropdown button
+		/// </summary>
+		[YamlIgnore]
+		private float ButtonHeight = 19;
 
 		public event DropDownItemSelectedFunc OnItemSelected;
 
@@ -72,6 +86,31 @@ namespace FishUI.Controls
 		public void AddItem(DropDownItem Itm)
 		{
 			Items.Add(Itm);
+		}
+
+		public void ClearItems()
+		{
+			Items.Clear();
+			SelectedIndex = -1;
+		}
+
+		public void Open()
+		{
+			IsOpen = true;
+		}
+
+		public void Close()
+		{
+			IsOpen = false;
+			HoveredIndex = -1;
+		}
+
+		public void Toggle()
+		{
+			if (IsOpen)
+				Close();
+			else
+				Open();
 		}
 
 		public void SelectIndex(int Idx)
@@ -91,11 +130,47 @@ namespace FishUI.Controls
 				FishUI.Events.Broadcast(FishUI, this, "item_selected", new object[] { Items[SelectedIndex] });
 				OnItemSelected?.Invoke(this, Items[SelectedIndex]);
 			}
+
+			// Close the dropdown after selection
+			Close();
 		}
 
-		int PickIndexFromPosition(FishUI UI, Vector2 LocalPos, float ItemHeight)
+		/// <summary>
+		/// Gets the selected item, or null if nothing is selected
+		/// </summary>
+		public DropDownItem GetSelectedItem()
 		{
-			int Index = (int)((LocalPos.Y - StartOffset.Y) / ItemHeight);
+			if (SelectedIndex >= 0 && SelectedIndex < Items.Count)
+				return Items[SelectedIndex];
+			return null;
+		}
+
+		Vector2 GetDropdownListPosition()
+		{
+			return GetAbsolutePosition() + new Vector2(0, ButtonHeight);
+		}
+
+		Vector2 GetDropdownListSize(float itemHeight)
+		{
+			int visibleCount = MaxVisibleItems > 0 ? Math.Min(Items.Count, MaxVisibleItems) : Items.Count;
+			float listHeight = visibleCount * itemHeight + 4;
+			return new Vector2(Size.X, listHeight);
+		}
+
+		bool IsPointInsideDropdownList(Vector2 GlobalPos, float itemHeight)
+		{
+			if (!IsOpen)
+				return false;
+
+			Vector2 listPos = GetDropdownListPosition();
+			Vector2 listSize = GetDropdownListSize(itemHeight);
+
+			return Utils.IsInside(listPos, listSize, GlobalPos);
+		}
+
+		int PickIndexFromPosition(Vector2 LocalPos, float ItemHeight)
+		{
+			int Index = (int)((LocalPos.Y - 2) / ItemHeight);
 
 			if (Index < 0 || Index >= Items.Count)
 				return -1;
@@ -103,39 +178,99 @@ namespace FishUI.Controls
 			return Index;
 		}
 
-		int PickIndexFromPosition2(FishUI UI, Vector2 LocalPos, float ItemHeight)
-		{
-			return PickIndexFromPosition(UI, LocalPos - ScrollOffset, ItemHeight);
-		}
-
 		public override void HandleMouseMove(FishUI UI, FishInputState InState, Vector2 Pos)
 		{
-			Vector2 LocalPos = GetLocalRelative(Pos);
-			HoveredIndex = PickIndexFromPosition2(UI, LocalPos, UI.Settings.FontDefault.Size + 4);
+			if (IsOpen)
+			{
+				float itemHeight = UI.Settings.FontDefault.Size + 4;
+				Vector2 listPos = GetDropdownListPosition();
+
+				if (IsPointInsideDropdownList(Pos, itemHeight))
+				{
+					Vector2 localPos = Pos - listPos;
+					HoveredIndex = PickIndexFromPosition(localPos - ScrollOffset, itemHeight);
+				}
+				else
+				{
+					HoveredIndex = -1;
+				}
+			}
 		}
 
 		public override void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
 		{
-			if (HoveredIndex != -1)
-				SelectIndex(HoveredIndex);
+			if (Btn != FishMouseButton.Left)
+				return;
 
-			//Console.WriteLine(">> Selected index: " + SelectedIndex);
+			float itemHeight = UI.Settings.FontDefault.Size + 4;
+
+			// Check if clicking on the button area
+			Vector2 absPos = GetAbsolutePosition();
+			Vector2 buttonSize = new Vector2(Size.X, ButtonHeight);
+
+			if (Utils.IsInside(absPos, buttonSize, Pos))
+			{
+				Toggle();
+				return;
+			}
+
+			// Check if clicking on the dropdown list
+			if (IsOpen && IsPointInsideDropdownList(Pos, itemHeight))
+			{
+				if (HoveredIndex >= 0 && HoveredIndex < Items.Count)
+				{
+					SelectIndex(HoveredIndex);
+				}
+				return;
+			}
+		}
+
+		public override void HandleMouseLeave(FishUI UI, FishInputState InState)
+		{
+			base.HandleMouseLeave(UI, InState);
+			// Close dropdown when mouse leaves the control entirely
+			if (IsOpen)
+			{
+				Close();
+			}
 		}
 
 		public override void HandleKeyPress(FishUI UI, FishInputState InState, FishKey Key)
 		{
-			if (SelectedIndex >= 0 && SelectedIndex < Items.Count)
+			if (!IsOpen)
 			{
-				if (Key == FishKey.Up)
-					SelectIndex(SelectedIndex - 1);
-				else if (Key == FishKey.Down)
-					SelectIndex(SelectedIndex + 1);
+				if (Key == FishKey.Enter || Key == FishKey.Space)
+				{
+					Open();
+				}
+				return;
 			}
-		}
 
-		public void AutoResizeHeight()
-		{
-			Size = new Vector2(GetAbsoluteSize().X, Items.Count * ListItemHeight + 4);
+			if (Key == FishKey.Escape)
+			{
+				Close();
+				return;
+			}
+
+			if (Key == FishKey.Up)
+			{
+				if (HoveredIndex > 0)
+					HoveredIndex--;
+				else if (HoveredIndex == -1 && Items.Count > 0)
+					HoveredIndex = Items.Count - 1;
+			}
+			else if (Key == FishKey.Down)
+			{
+				if (HoveredIndex < Items.Count - 1)
+					HoveredIndex++;
+				else if (HoveredIndex == -1 && Items.Count > 0)
+					HoveredIndex = 0;
+			}
+			else if (Key == FishKey.Enter)
+			{
+				if (HoveredIndex >= 0 && HoveredIndex < Items.Count)
+					SelectIndex(HoveredIndex);
+			}
 		}
 
 		void CreateButton(FishUI UI)
@@ -145,45 +280,96 @@ namespace FishUI.Controls
 
 			DDButton = new Button(UI.Settings.ImgDropdownNormal, UI.Settings.ImgDropdownDisabled, UI.Settings.ImgDropdownPressed, UI.Settings.ImgDropdownHover);
 			DDButton.Position = Vector2.Zero;
-			DDButton.Size = new Vector2(Size.X, 19);
+			DDButton.Size = new Vector2(Size.X, ButtonHeight);
+			DDButton.OnButtonPressed += (sender, btn, pos) =>
+			{
+				Toggle();
+			};
 			AddChild(DDButton);
+		}
+
+		public override bool IsPointInside(Vector2 GlobalPt)
+		{
+			// Check if point is inside the button
+			if (base.IsPointInside(GlobalPt))
+				return true;
+
+			// Also check if point is inside the open dropdown list
+			if (IsOpen)
+			{
+				float itemHeight = ListItemHeight > 0 ? ListItemHeight : 18;
+				return IsPointInsideDropdownList(GlobalPt, itemHeight);
+			}
+
+			return false;
 		}
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
 			CreateButton(UI);
 
-			float ItemHeight = UI.Settings.FontDefault.Size + 4;
-			ListItemHeight = ItemHeight;
+			float itemHeight = UI.Settings.FontDefault.Size + 4;
+			ListItemHeight = itemHeight;
 
-			AutoResizeHeight();
+			Vector2 absPos = GetAbsolutePosition();
 
-			NPatch Cur = UI.Settings.ImgListBoxNormal;
-			UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), Color);
-
-			UI.Graphics.PushScissor(GetAbsolutePosition() + new Vector2(2, 2), GetAbsoluteSize() - new Vector2(4, 4));
-			for (int i = 0; i < Items.Count; i++)
+			// Update button size to match
+			if (DDButton != null)
 			{
-				bool IsSelected = (i == SelectedIndex);
-				bool IsHovered = (i == HoveredIndex);
+				DDButton.Size = new Vector2(Size.X, ButtonHeight);
 
-				float Y = Position.Y + 2 + i * ItemHeight;
+				// Draw selected item text on the button
+				string selectedText = "";
+				if (SelectedIndex >= 0 && SelectedIndex < Items.Count)
+					selectedText = Items[SelectedIndex].Text;
 
-				Cur = null;
-				FishColor TxtColor = FishColor.Black;
-
-				if (IsHovered)
-				{
-					Cur = UI.Settings.ImgSelectionBoxNormal;
-				}
-
-				if (Cur != null)
-					UI.Graphics.DrawNPatch(Cur, new Vector2(Position.X + 2, Y) + ScrollOffset, new Vector2(GetAbsoluteSize().X - 4, ItemHeight), Color);
-
-				UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Items[i].Text, new Vector2(Position.X + 4, Y) + ScrollOffset + StartOffset, TxtColor);
+				DDButton.Text = selectedText;
 			}
 
-			UI.Graphics.PopScissor();
+			// Draw dropdown list only when open
+			if (IsOpen && Items.Count > 0)
+			{
+				Vector2 listPos = GetDropdownListPosition();
+				Vector2 listSize = GetDropdownListSize(itemHeight);
+
+				// Draw list background
+				NPatch listBg = UI.Settings.ImgListBoxNormal;
+				UI.Graphics.DrawNPatch(listBg, listPos, listSize, Color);
+
+				// Draw items
+				UI.Graphics.PushScissor(listPos + new Vector2(2, 2), listSize - new Vector2(4, 4));
+
+				int visibleCount = MaxVisibleItems > 0 ? Math.Min(Items.Count, MaxVisibleItems) : Items.Count;
+
+				for (int i = 0; i < visibleCount; i++)
+				{
+					bool isSelected = (i == SelectedIndex);
+					bool isHovered = (i == HoveredIndex);
+
+					float y = listPos.Y + 2 + i * itemHeight;
+
+					NPatch itemBg = null;
+					FishColor txtColor = FishColor.Black;
+
+					if (isHovered)
+					{
+						itemBg = UI.Settings.ImgSelectionBoxNormal;
+					}
+					else if (isSelected)
+					{
+						itemBg = UI.Settings.ImgListBoxItmSelected;
+					}
+
+					if (itemBg != null)
+					{
+						UI.Graphics.DrawNPatch(itemBg, new Vector2(listPos.X + 2, y) + ScrollOffset, new Vector2(listSize.X - 4, itemHeight), Color);
+					}
+
+					UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Items[i].Text, new Vector2(listPos.X + 4, y) + ScrollOffset + StartOffset, txtColor);
+				}
+
+				UI.Graphics.PopScissor();
+			}
 		}
 	}
 }
