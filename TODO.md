@@ -26,10 +26,10 @@ A list of planned features, improvements, and new controls for FishUI.
   - Determinate mode (0-100%)
   - Indeterminate/marquee animation mode
 
-- [ ] **ScrollBarH** (Horizontal Scrollbar) (1 CPX)
-  - Assets already exist in `data/sb/` folder
-  - Settings already defined in `FishUISettings.cs`
-  - Mirror `ScrollBarV` implementation
+- [x] **ScrollBarH** (Horizontal Scrollbar) (1 CPX)
+- Assets already exist in `data/sb/` folder
+- Settings already defined in `FishUISettings.cs`
+- Mirror `ScrollBarV` implementation
 
 - [ ] **TabControl / TabPanel** (3 CPX)
   - Tab header strip with clickable tabs

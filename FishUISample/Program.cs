@@ -11,7 +11,8 @@ namespace FishUISample
         static FishUI.FishUI FUI;
 
         static bool ScreenshotMade = false;
-        static int Ctr = 100;
+        //static int Ctr = 100;
+        static int Ctr = 10;
 
         // Automatically take a screenshot after a set number of frames
         static void AutoScreenshot(RaylibGfx Gfx)
@@ -106,6 +107,11 @@ namespace FishUISample
             Sbv.Position = new Vector2(480, 340);
             Sbv.ZDepth = 2;
             FUI.AddControl(Sbv);
+
+            ScrollBarH Sbh = new ScrollBarH();
+            Sbh.Position = new Vector2(260, 540);
+            Sbh.ZDepth = 2;
+            FUI.AddControl(Sbh);
 
             Button Btn0 = new Button();
             Btn0.ID = "visible";
