@@ -208,7 +208,7 @@ A list of planned features, improvements, and new controls for FishUI.
 - [x] `Panel.cs`: Make `Debug` flag configurable (1 CPX)
 - [x] `ListBox.cs`: Make debug `Console.WriteLine` for selected index configurable (1 CPX)
 - [x] Centrailize debug logging mechanism (2 CPX)
-- [ ] Implement debug outline drawing for all controls when debug mode is enabled (3 CPX)
+- [x] Implement debug outline drawing for all controls when debug mode is enabled (3 CPX)
 
 ### Code Quality
 - [ ] Remove unused `using System.ComponentModel.Design` in `FishUI.cs` (1 CPX)

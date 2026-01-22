@@ -120,10 +120,29 @@ namespace FishUI
 		/// <summary>
 		/// Enables or disables drawing debug outlines on panels.
 		/// </summary>
+		[System.Obsolete("Use DebugDrawControlOutlines instead.")]
 		public bool DebugDrawPanelOutlines
 		{
 			get => FishUIDebug.DrawPanelOutlines;
 			set => FishUIDebug.DrawPanelOutlines = value;
+		}
+
+		/// <summary>
+		/// Enables or disables drawing debug outlines around all controls.
+		/// </summary>
+		public bool DebugDrawControlOutlines
+		{
+			get => FishUIDebug.DrawControlOutlines;
+			set => FishUIDebug.DrawControlOutlines = value;
+		}
+
+		/// <summary>
+		/// Gets or sets the color used for debug outlines. Default is Teal.
+		/// </summary>
+		public FishColor DebugOutlineColor
+		{
+			get => FishUIDebug.OutlineColor;
+			set => FishUIDebug.OutlineColor = value;
 		}
 
 		/// <summary>

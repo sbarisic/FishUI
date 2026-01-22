@@ -14,12 +14,9 @@ namespace FishUI.Controls
 		{
 		}
 
-		public override void DrawControl(FishUI UI, float Dt, float Time)
+	public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
 			//base.Draw(UI, Dt, Time);
-
-			if (FishUIDebug.DrawPanelOutlines)
-				UI.Graphics.DrawRectangleOutline(GetAbsolutePosition(), GetAbsoluteSize(), FishColor.Teal);
 
 			if (IsTransparent)
 				return;

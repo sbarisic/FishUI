@@ -270,7 +270,7 @@ namespace FishUI.Controls
 		[YamlIgnore]
 		bool DrawHasInit = false;
 
-		public void DrawControlAndChildren(FishUI UI, float Dt, float Time)
+	public void DrawControlAndChildren(FishUI UI, float Dt, float Time)
 		{
 			if (!DrawHasInit)
 			{
@@ -279,6 +279,11 @@ namespace FishUI.Controls
 			}
 
 			DrawControl(UI, Dt, Time);
+
+			// Draw debug outline if enabled
+			if (FishUIDebug.DrawControlOutlines)
+				UI.Graphics.DrawRectangleOutline(GetAbsolutePosition(), GetAbsoluteSize(), FishUIDebug.OutlineColor);
+
 			DrawChildren(UI, Dt, Time);
 		}
 

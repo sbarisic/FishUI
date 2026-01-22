@@ -18,10 +18,25 @@ namespace FishUI
 		/// </summary>
 		public static bool LogControlEvents { get; set; } = true;
 
-		/// <summary>
+	/// <summary>
 		/// Gets or sets whether panel debug outlines are drawn.
 		/// </summary>
-		public static bool DrawPanelOutlines { get; set; } = true;
+		[Obsolete("Use DrawControlOutlines instead for all controls.")]
+		public static bool DrawPanelOutlines
+		{
+			get => DrawControlOutlines;
+			set => DrawControlOutlines = value;
+		}
+
+		/// <summary>
+		/// Gets or sets whether debug outlines are drawn around all controls.
+		/// </summary>
+		public static bool DrawControlOutlines { get; set; } = true;
+
+		/// <summary>
+		/// Gets or sets the color used for debug outlines. Default is Teal.
+		/// </summary>
+		public static FishColor OutlineColor { get; set; } = FishColor.Teal;
 
 		/// <summary>
 		/// Gets or sets whether ListBox selection changes are logged.
