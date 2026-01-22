@@ -72,30 +72,36 @@ namespace FishUI.Controls
 
 				return ParentPos + new Vector2(Position.X, Position.Y);
 			}
-			else if (Position.Mode == PositionMode.Docked)
+		else if (Position.Mode == PositionMode.Docked)
 			{
+				Vector2 ParentPos;
+				Vector2 ParentSize;
+
 				if (Parent != null)
 				{
-					Vector2 ParentPos = Parent.GetAbsolutePosition();
-					Vector2 DockedPos = ParentPos + new Vector2(Position.X, Position.Y);
-
-					if (Position.Dock.HasFlag(DockMode.Left))
-					{
-						DockedPos.X = ParentPos.X + Position.Left;
-					}
-
-					if (Position.Dock.HasFlag(DockMode.Top))
-					{
-						DockedPos.Y = ParentPos.Y + Position.Top;
-					}
-
-					return DockedPos;
+					ParentPos = Parent.GetAbsolutePosition();
+					ParentSize = Parent.GetAbsoluteSize();
 				}
 				else
 				{
-					// No parent, treat as absolute
-					return new Vector2(Position.X, Position.Y);
+					// No parent - dock to screen bounds using FishUI dimensions
+					ParentPos = Vector2.Zero;
+					ParentSize = FishUI != null ? new Vector2(FishUI.Width, FishUI.Height) : Size;
 				}
+
+				Vector2 DockedPos = ParentPos + new Vector2(Position.X, Position.Y);
+
+				if (Position.Dock.HasFlag(DockMode.Left))
+				{
+					DockedPos.X = ParentPos.X + Position.Left;
+				}
+
+				if (Position.Dock.HasFlag(DockMode.Top))
+				{
+					DockedPos.Y = ParentPos.Y + Position.Top;
+				}
+
+				return DockedPos;
 			}
 			else
 			{
@@ -111,10 +117,27 @@ namespace FishUI.Controls
 
 		public Vector2 GetAbsoluteSize()
 		{
-			if (Position.Mode == PositionMode.Docked && Parent != null)
+			if (Position.Mode == PositionMode.Docked)
 			{
-				Vector2 ParentPos = Parent.GetAbsolutePosition();
-				Vector2 ParentSize = Parent.GetAbsoluteSize();
+				Vector2 ParentPos;
+				Vector2 ParentSize;
+
+				if (Parent != null)
+				{
+					ParentPos = Parent.GetAbsolutePosition();
+					ParentSize = Parent.GetAbsoluteSize();
+				}
+				else if (FishUI != null)
+				{
+					// No parent - dock to screen bounds using FishUI dimensions
+					ParentPos = Vector2.Zero;
+					ParentSize = new Vector2(FishUI.Width, FishUI.Height);
+				}
+				else
+				{
+					// No parent and no FishUI - return default size
+					return Size;
+				}
 
 				Vector2 MyPos = GetAbsolutePosition();
 				Vector2 MyNewSize = Size;
