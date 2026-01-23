@@ -263,6 +263,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] ~~Game main menu example~~ (SampleGameMenu.cs) - Buttons + Options window with tabs
 - [ ] Car dashboard example with gauges
   - Requires RadialGauge and BarGauge controls first
+- [x] ~~ImageBox example~~ - Added to SampleBasicControls with all scaling modes and click event demo
 - [ ] MultiLine textbox example (1 CPX)
   - Add below existing single-line textbox sample
   - Requires multi-line textbox mode implementation
@@ -313,9 +314,14 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] ~~Layout save/load breaks Window and TabControl~~ - Added `OnDeserialized` virtual method to Control, overridden in Window and TabControl to reinitialize internal state
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
-
-*No uncategorized items*
-
+- E:\Projects\FishUI\FishUISample\ScreenCapture.cs(44,35,44,61): warning CA1416: This call site is reachable on all platforms. 'Graphics.FromImage(Image)' is only supported on: 'windows' 6.1 and later. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1416)
+- E:\Projects\FishUI\FishUISample\ScreenCapture.cs(46,17,46,102): warning CA1416: This call site is reachable on all platforms. 'Graphics.CopyFromScreen(Point, Point, Size)' is only supported on: 'windows' 6.1 and later. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1416)
+- E:\Projects\FishUI\FishUISample\ScreenCapture.cs(43,26,43,65): warning CA1416: This call site is reachable on all platforms. 'Bitmap' is only supported on: 'windows' 6.1 and later. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1416)
+- E:\Projects\FishUI\FishUISample\Program.cs(27,4,27,51): warning CA1416: This call site is reachable on all platforms. 'Image.Save(string)' is only supported on: 'windows' 6.1 and later. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1416)
+- E:\Projects\FishUI\FishUISample\Program.cs(49,5,49,52): warning CA1416: This call site is reachable on all platforms. 'Image.Save(string)' is only supported on: 'windows' 6.1 and later. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1416)
+- Image boxes should be moved 100 units to the right, they overlap currently
+- Image boxes should use /data/images/ in examples, together with small icons, also icons should support pixelated rendering too (not just smooth)
+- 
 ---
 
 ## Notes

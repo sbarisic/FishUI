@@ -200,6 +200,98 @@ namespace FishUISample.Samples
 			numUpDown2.TooltipText = "Decimal (0.0-1.0)";
 			FUI.AddControl(numUpDown2);
 
+			// === ImageBox ===
+			Label imageBoxLabel = new Label("ImageBox Scaling Modes");
+			imageBoxLabel.Position = new Vector2(500, 60);
+			imageBoxLabel.Size = new Vector2(200, 20);
+			imageBoxLabel.Alignment = Align.Left;
+			FUI.AddControl(imageBoxLabel);
+
+			// Load a sample image for demonstration
+			ImageRef sampleImage = FUI.Graphics.LoadImage("data/silk_icons/picture.png");
+
+			// None - original size, centered
+			Label noneLabel = new Label("None");
+			noneLabel.Position = new Vector2(500, 85);
+			noneLabel.Size = new Vector2(80, 16);
+			noneLabel.Alignment = Align.Left;
+			FUI.AddControl(noneLabel);
+
+			ImageBox imgNone = new ImageBox(sampleImage);
+			imgNone.Position = new Vector2(500, 105);
+			imgNone.Size = new Vector2(80, 80);
+			imgNone.ScaleMode = ImageScaleMode.None;
+			imgNone.TooltipText = "ScaleMode.None - Original size, centered";
+			FUI.AddControl(imgNone);
+
+			// Stretch - fills bounds, may distort
+			Label stretchLabel = new Label("Stretch");
+			stretchLabel.Position = new Vector2(590, 85);
+			stretchLabel.Size = new Vector2(80, 16);
+			stretchLabel.Alignment = Align.Left;
+			FUI.AddControl(stretchLabel);
+
+			ImageBox imgStretch = new ImageBox(sampleImage);
+			imgStretch.Position = new Vector2(590, 105);
+			imgStretch.Size = new Vector2(80, 80);
+			imgStretch.ScaleMode = ImageScaleMode.Stretch;
+			imgStretch.TooltipText = "ScaleMode.Stretch - Fills bounds (may distort)";
+			FUI.AddControl(imgStretch);
+
+			// Fit - maintains aspect ratio, fits within bounds
+			Label fitLabel = new Label("Fit");
+			fitLabel.Position = new Vector2(500, 195);
+			fitLabel.Size = new Vector2(80, 16);
+			fitLabel.Alignment = Align.Left;
+			FUI.AddControl(fitLabel);
+
+			ImageBox imgFit = new ImageBox(sampleImage);
+			imgFit.Position = new Vector2(500, 215);
+			imgFit.Size = new Vector2(80, 50);
+			imgFit.ScaleMode = ImageScaleMode.Fit;
+			imgFit.TooltipText = "ScaleMode.Fit - Fits within bounds (maintains aspect)";
+			FUI.AddControl(imgFit);
+
+			// Fill - maintains aspect ratio, fills bounds (may crop)
+			Label fillLabel = new Label("Fill");
+			fillLabel.Position = new Vector2(590, 195);
+			fillLabel.Size = new Vector2(80, 16);
+			fillLabel.Alignment = Align.Left;
+			FUI.AddControl(fillLabel);
+
+			ImageBox imgFill = new ImageBox(sampleImage);
+			imgFill.Position = new Vector2(590, 215);
+			imgFill.Size = new Vector2(80, 50);
+			imgFill.ScaleMode = ImageScaleMode.Fill;
+			imgFill.TooltipText = "ScaleMode.Fill - Fills bounds (may crop, maintains aspect)";
+			FUI.AddControl(imgFill);
+
+			// Clickable ImageBox demo
+			Label clickLabel = new Label("Clickable:");
+			clickLabel.Position = new Vector2(500, 280);
+			clickLabel.Size = new Vector2(80, 16);
+			clickLabel.Alignment = Align.Left;
+			FUI.AddControl(clickLabel);
+
+			Label clickCountLabel = new Label("Clicks: 0");
+			clickCountLabel.Position = new Vector2(590, 305);
+			clickCountLabel.Size = new Vector2(80, 20);
+			clickCountLabel.Alignment = Align.Left;
+			FUI.AddControl(clickCountLabel);
+
+			int clickCount = 0;
+			ImageBox imgClickable = new ImageBox(sampleImage);
+			imgClickable.Position = new Vector2(500, 305);
+			imgClickable.Size = new Vector2(80, 80);
+			imgClickable.ScaleMode = ImageScaleMode.Stretch;
+			imgClickable.TooltipText = "Click me!";
+			imgClickable.OnClick += (sender, btn, pos) =>
+			{
+				clickCount++;
+				clickCountLabel.Text = $"Clicks: {clickCount}";
+			};
+			FUI.AddControl(imgClickable);
+
 			// === CheckBox and RadioButton ===
 			Label checkLabel = new Label("CheckBox & RadioButton");
 			checkLabel.Position = new Vector2(300, 540);
