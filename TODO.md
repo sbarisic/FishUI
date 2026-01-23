@@ -10,7 +10,7 @@ A list of planned features, improvements, and new controls for FishUI.
 > - **5** - Large feature spanning multiple components and subsystems, major architecture changes
 
 > How TODO file should be iterated
-- First handle the Uncategorized section
+- First handle the Uncategorized section, if any similar issues already are on the TODO list, increase their priority instead of adding duplicates
 - When Uncategorized section is empty, start by fixing Active Bugs (take one at a time)
 - After Active Bugs the rest of the TODO file by priority and complexity (High priority takes precedance, then CPX points) (take one at a time)
 
@@ -256,6 +256,9 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ## Sample Application
 
 - [ ] Examples should be implemented in FishUISample project, using the ISample interface (2 CPX each)
+- [ ] Implement sample chooser system in Program.cs (2 CPX)
+  - Console-based or UI-based selection to choose which sample to run
+  - Currently hardcoded to `Samples[2]` in Program.cs:54
 - [x] ~~Theme switcher example~~ ✅ **COMPLETED** (SampleThemeSwitcher.cs)
   - Demonstrates runtime theme switching between gwen.yaml and gwen2.yaml
 - [ ] Responsive layout example
@@ -289,8 +292,10 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ## Code Cleanup & Technical Debt
 - [ ] Standardize naming conventions across all controls (1 CPX)
 - [ ] Add XML documentation comments to public APIs (2 CPX)
-- [ ] Add a button to examples to tkae a screenshot with AutoScreenshot code in Program.cs (1 CPX)
-  - Forward screenshot method trough ISample interface
+- [ ] Add screenshot button to all examples (2 CPX)
+- Add a button to each sample that triggers screenshot capture
+- Forward `AutoScreenshot` method from Program.cs through ISample interface
+- Update SampleThemeSwitcher, SampleGameMenu, and SampleDefault with screenshot buttons
 
 ---
 
@@ -300,11 +305,15 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 *No active bugs*
 
+### Fixed Bugs
+
+- [x] ~~**DropDown.SelectIndex crashes with NullReferenceException**~~ ✅ **FIXED**
+  - Location: `DropDown.cs:130`
+  - Fix: Added null check before calling `FishUI.Events.Broadcast()` to handle case when control is not yet connected to FishUI
+
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
-- DropDown.cs:130 System.NullReferenceException: 'Object reference not set to an instance of an object.'
-  FishUI.Controls.Control.FishUI.get returned null.
-- Comment on Program.cs:52
-- Add buttons to all examples to take screenshots using AutoScreenshot method in Program.cs (update existing TODO entries, too, to include this)
+
+*No uncategorized items*
 ---
 
 ## Notes

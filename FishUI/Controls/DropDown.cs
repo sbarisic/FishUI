@@ -127,7 +127,11 @@ namespace FishUI.Controls
 
 			if (LastSelectedIndex != SelectedIndex)
 			{
-				FishUI.Events.Broadcast(FishUI, this, "item_selected", new object[] { Items[SelectedIndex] });
+				// Only broadcast event if control is connected to FishUI (has parent or _FishUI set)
+				if (FishUI != null)
+				{
+					FishUI.Events.Broadcast(FishUI, this, "item_selected", new object[] { Items[SelectedIndex] });
+				}
 				OnItemSelected?.Invoke(this, Items[SelectedIndex]);
 			}
 
