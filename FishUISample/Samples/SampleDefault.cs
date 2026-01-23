@@ -173,11 +173,13 @@ namespace FishUISample.Samples
 			//Btn.Position = new Vector2(100, 100);
 			Btn.Position = new FishUIPosition(PositionMode.Docked, DockMode.Horizontal, new Vector4(15, 0, 15, 0), new Vector2(100, 100));
 			Btn.Size = new Vector2(150, 50);
+			Btn.TooltipText = "Click to hide the panel";
 			Pnl.AddChild(Btn);
 
 			CheckBox CBox = new CheckBox("Checkbox");
 			CBox.Position = new Vector2(5, 10);
 			CBox.Size = new Vector2(15, 15);
+			CBox.TooltipText = "Toggle this option";
 			Pnl.AddChild(CBox);
 
 			RadioButton RBut = new RadioButton("Radio button");

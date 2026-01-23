@@ -58,15 +58,28 @@ namespace FishUI
 		// Z-order management
 		private int _nextZDepth = 0;
 
+		// Tooltip management
+		private Controls.Tooltip _activeTooltip;
+		private Control _tooltipTargetControl;
+		private float _tooltipHoverTime = 0f;
+
+		/// <summary>
+		/// Delay in seconds before showing tooltips.
+		/// </summary>
+		public float TooltipShowDelay { get; set; } = 0.5f;
+
 
 		public FishUI(FishUISettings Settings, IFishUIGfx Graphics, IFishUIInput Input, IFishUIEvents Events)
 		{
-			Controls = new List<Control>();
+		Controls = new List<Control>();
 
-			this.Settings = Settings;
-			this.Graphics = Graphics;
-			this.Input = Input;
-			this.Events = Events;
+		this.Settings = Settings;
+		this.Graphics = Graphics;
+		this.Input = Input;
+		this.Events = Events;
+
+		// Create the global tooltip
+		_activeTooltip = new Controls.Tooltip();
 		}
 
 		public void Init()
@@ -582,17 +595,99 @@ namespace FishUI
 			Control[] OrderedControls = GetOrderedControls();
 
 			Update(OrderedControls, InState, InLast, Time);
+
+			// Update tooltip
+			UpdateTooltip(Dt, InState.MousePos);
+
 			Draw(OrderedControls, Dt, Time);
+
+			// Draw tooltip on top of everything
+			DrawTooltip(Dt, Time);
 
 			// Draw virtual mouse cursor last (on top of everything)
 			VirtualMouse.Draw(Graphics);
 			VirtualMouse.EndFrame();
 
 			InLast = InState;
-		}
+			}
 
-	/// <summary>
-		/// Called when the UI container is resized.
+			private void UpdateTooltip(float dt, Vector2 mousePos)
+			{
+			// Find the control under the mouse that has tooltip text
+			Control controlWithTooltip = FindControlWithTooltip(HoveredControl);
+
+			if (controlWithTooltip != null && !string.IsNullOrEmpty(controlWithTooltip.TooltipText))
+			{
+			if (_tooltipTargetControl == controlWithTooltip)
+			{
+				// Still hovering the same control
+				_tooltipHoverTime += dt;
+
+				if (!_activeTooltip.IsShowing && _tooltipHoverTime >= TooltipShowDelay)
+				{
+				_activeTooltip.Text = controlWithTooltip.TooltipText;
+				_activeTooltip.Show(mousePos);
+				}
+			}
+			else
+			{
+				// Started hovering a new control
+				_tooltipTargetControl = controlWithTooltip;
+				_tooltipHoverTime = 0f;
+				_activeTooltip.Hide();
+			}
+			}
+			else
+			{
+			// Not hovering any control with tooltip
+			if (_activeTooltip.IsShowing)
+			{
+				_activeTooltip.Hide();
+			}
+			_tooltipTargetControl = null;
+			_tooltipHoverTime = 0f;
+			}
+
+			// Update tooltip position if showing
+			if (_activeTooltip.IsShowing)
+			{
+			_activeTooltip.UpdateTooltip(this, dt, mousePos, HoveredControl);
+			}
+			}
+
+			private Control FindControlWithTooltip(Control control)
+			{
+			if (control == null)
+			return null;
+
+			// Check this control first
+			if (!string.IsNullOrEmpty(control.TooltipText))
+			return control;
+
+			// Check parent chain
+			Control parent = control.GetParent();
+			while (parent != null)
+			{
+			if (!string.IsNullOrEmpty(parent.TooltipText))
+				return parent;
+			parent = parent.GetParent();
+			}
+
+			return null;
+			}
+
+			private void DrawTooltip(float dt, float time)
+			{
+			if (_activeTooltip.IsShowing)
+			{
+			Graphics.BeginDrawing(dt);
+			_activeTooltip.DrawControl(this, dt, time);
+			Graphics.EndDrawing();
+			}
+			}
+
+			/// <summary>
+			/// Called when the UI container is resized.
 		/// Override to handle responsive layout updates.
 		/// </summary>
 		/// <param name="newWidth">New width of the UI container.</param>

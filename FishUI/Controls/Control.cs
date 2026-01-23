@@ -78,6 +78,13 @@ namespace FishUI.Controls
 		/// </summary>
 		public virtual bool DisableChildScissor { get; set; } = false;
 
+		/// <summary>
+		/// Tooltip text to display when hovering over this control.
+		/// Set to null or empty to disable tooltip.
+		/// </summary>
+		[YamlMember]
+		public virtual string TooltipText { get; set; }
+
 		public event OnControlDraggedFunc OnDragged;
 
 		/// <summary>

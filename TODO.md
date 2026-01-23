@@ -40,6 +40,7 @@ A list of planned features, improvements, and new controls for FishUI.
 | GroupBox | ✅ Complete | ✅ Atlas |
 | TreeView | ✅ Complete | ✅ Atlas |
 | NumericUpDown | ✅ Complete | ✅ Atlas |
+| Tooltip | ✅ Complete | ✅ Atlas |
 
 ---
 
@@ -97,11 +98,11 @@ A list of planned features, improvements, and new controls for FishUI.
   - Separator items
   - *GWEN atlas regions available: Menu.Strip, Menu.Background, Menu.Hover*
 
-- [ ] **Tooltip** (2 CPX)
-  - Hover-triggered popup text
-  - Configurable delay and duration
-  - Multi-line support
-  - *GWEN atlas regions available: Tooltip.Top, Tooltip.Middle, Tooltip.Bottom*
+- [x] **Tooltip** (2 CPX) ✅ Implemented
+- Hover-triggered popup text with configurable delay
+- Automatic screen boundary clamping
+- TooltipText property on Control base class for easy attachment
+- *GWEN atlas regions available: Tooltip.Top, Tooltip.Middle, Tooltip.Bottom*
 
 - [x] **GroupBox** (1 CPX) ✅ Implemented
 - Labeled container with border
@@ -231,8 +232,12 @@ A list of planned features, improvements, and new controls for FishUI.
   - Uses `Window.Close_Disabled` atlas region for visual feedback
   - *Use case: Modal dialogs that should only be closed programmatically*
 - [x] Modal windows disable close button by default (1 CPX) ✅ Implemented
-- When `IsModal = true`, automatically sets `CloseButtonEnabled = false`
-- Can be overridden by explicitly setting `CloseButtonEnabled = true` afterward
+  - When `IsModal = true`, automatically sets `CloseButtonEnabled = false`
+  - Can be overridden by explicitly setting `CloseButtonEnabled = true` afterward
+
+### NumericUpDown Enhancements
+- [ ] Mouse wheel support (1 CPX)
+  - Scroll up to increment, scroll down to decrement value
 
 ---
 
@@ -352,7 +357,6 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ### SampleDefault Improvements
 - [ ] Replace main Panel with Window control (1 CPX)
   - Change `panel1` from Panel to Window with disabled close button
-  - *Depends on: Window Enhancements > Disabled close button mode*
 - [ ] Fix layout save/load for Window controls (2 CPX)
   - Analyze and fix LayoutFormat serialization for Window control type
   - Ensure Window-specific properties (Title, IsResizable, etc.) are preserved
@@ -442,20 +446,21 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
   - Changed Label default Alignment from `Align.Center` to `Align.Left`
   - Prevents text from extending past the left edge and getting scissor-clipped
 
-- [x] DropDown doesn't close on outside click
+#### Earlier Fixes (consolidated)
+- [x] DropDown outside click closing
 - [x] Textbox cursor styling and blinking
 - [x] ScrollBarV thumb position calculation
 - [x] Docked positioning without parent
-- [x] `Control.GetAbsolutePosition()` for unknown position modes
-- [x] `LayoutFormat.Deserialize()` with abstract Control type
+- [x] `Control.GetAbsolutePosition()` unknown position modes
+- [x] `LayoutFormat.Deserialize()` abstract Control type handling
 - [x] Theme system for newer controls
-- [x] Theme atlas coordinate mismatch (case sensitivity in region lookup)
-- [x] `Utils.Union` was commented out, breaking scissor intersection calculation
-- [x] `RaylibGfx.PopScissor` didn't restore previous scissor state correctly
-- [x] Window children positioned relative to window frame instead of content area
+- [x] Theme atlas case sensitivity in region lookup
+- [x] `Utils.Union` scissor intersection calculation
+- [x] `RaylibGfx.PopScissor` state restoration
+- [x] Window children positioning relative to content area
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
-- Add mouse wheel support to numeric up/down control (1 CPX)
+- Tooltips don't show up on mouse hover
 
 ---
 
