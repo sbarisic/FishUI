@@ -58,8 +58,11 @@ namespace FishUI.Controls
 		[YamlIgnore]
 		float ListItemHeight;
 
+		/// <summary>
+		/// Whether to show the vertical scrollbar when content exceeds visible area.
+		/// </summary>
 		[YamlMember]
-		public bool ShowScrollBar = true;
+		public bool ShowScrollBar { get; set; } = true;
 
 		public event ListBoxItemSelectedFunc OnItemSelected;
 

@@ -286,13 +286,13 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [ ] Audit all controls for missing `[YamlIgnore]` attributes (2 CPX)
   - Check read-only properties that could cause deserialization errors
   - Similar to fixed bugs: TreeNode.HasChildren, TabControl.SelectedTab
-- [ ] Standardize naming conventions across all controls (1 CPX)
+- [x] ~~Standardize naming conventions~~ - Converted fields to properties: CheckBox/RadioButton `Checked`→`IsChecked`, Panel `IsTransparent`, ListBox `ShowScrollBar`
 - [ ] Add XML documentation comments to public APIs (2 CPX)
 - [ ] Add screenshot button to all examples (2 CPX)
 - Add a button to each sample that triggers screenshot capture
-- Forward `AutoScreenshot` method from Program.cs through ISample interface
+- Forward `AutoScreenshot` method from Program.cs through ISample interface **HIGH PRIORITY**
 - Update SampleThemeSwitcher, SampleGameMenu, and SampleDefault with screenshot buttons
-- [ ] Extract TODO comments from code into TODO.md (2 CPX)
+- [ ] Extract TODO comments from code into TODO.md (2 CPX) **HIGH PRIORITY**
   - Scan all source files for TODO comments
   - Convert them to proper entries in this file
   - Remove the comments from code after extraction

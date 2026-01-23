@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
@@ -8,14 +8,18 @@ namespace FishUI.Controls
 {
 	public class CheckBox : Control
 	{
-	public bool Checked;
+		/// <summary>
+		/// Whether the checkbox is currently IsChecked.
+		/// </summary>
+		[YamlMember]
+		public bool IsChecked { get; set; }
 
-	/// <summary>
-	/// CheckBox disables child scissor so labels can extend beyond the checkbox icon bounds.
-	/// </summary>
-	public override bool DisableChildScissor { get; set; } = true;
+		/// <summary>
+		/// CheckBox disables child scissor so labels can extend beyond the checkbox icon bounds.
+		/// </summary>
+		public override bool DisableChildScissor { get; set; } = true;
 
-	public CheckBox()
+		public CheckBox()
 		{
 		}
 
@@ -34,14 +38,14 @@ namespace FishUI.Controls
 
 			if (Disabled)
 			{
-				if (Checked)
+				if (IsChecked)
 					Cur = UI.Settings.ImgCheckboxDisabledChecked;
 				else
 					Cur = UI.Settings.ImgCheckboxDisabledUnchecked;
 			}
 			else
 			{
-				if (Checked)
+				if (IsChecked)
 					Cur = IsMouseInside ? UI.Settings.ImgCheckboxCheckedHover : UI.Settings.ImgCheckboxChecked;
 				else
 					Cur = IsMouseInside ? UI.Settings.ImgCheckboxUncheckedHover : UI.Settings.ImgCheckboxUnchecked;
@@ -61,7 +65,7 @@ namespace FishUI.Controls
 			base.HandleMouseClick(UI, InState, Btn, Pos);
 
 			if (Btn == FishMouseButton.Left)
-				Checked = !Checked;
+				IsChecked = !IsChecked;
 		}
 	}
 }

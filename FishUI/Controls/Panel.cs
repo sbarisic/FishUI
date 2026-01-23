@@ -8,7 +8,11 @@ namespace FishUI.Controls
 {
 	public class Panel : Control
 	{
-		public bool IsTransparent = false;
+		/// <summary>
+		/// Whether the panel background is transparent (not drawn).
+		/// </summary>
+		[YamlMember]
+		public bool IsTransparent { get; set; } = false;
 
 		public Panel()
 		{

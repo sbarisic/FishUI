@@ -118,7 +118,7 @@ namespace FishUISample.Samples
 
 			CheckBox chkVibration = new CheckBox("Controller Vibration");
 			chkVibration.Position = new Vector2(10, 100);
-			chkVibration.Checked = true;
+			chkVibration.IsChecked = true;
 			content.AddChild(chkVibration);
 		}
 
@@ -140,12 +140,12 @@ namespace FishUISample.Samples
 
 			CheckBox chkFullscreen = new CheckBox("Fullscreen");
 			chkFullscreen.Position = new Vector2(10, 75);
-			chkFullscreen.Checked = true;
+			chkFullscreen.IsChecked = true;
 			content.AddChild(chkFullscreen);
 
 			CheckBox chkVSync = new CheckBox("V-Sync");
 			chkVSync.Position = new Vector2(10, 105);
-			chkVSync.Checked = true;
+			chkVSync.IsChecked = true;
 			content.AddChild(chkVSync);
 
 			Label lblQuality = new Label("Graphics Quality:");
@@ -181,12 +181,12 @@ namespace FishUISample.Samples
 
 			CheckBox chkTutorial = new CheckBox("Show Tutorials");
 			chkTutorial.Position = new Vector2(10, 75);
-			chkTutorial.Checked = true;
+			chkTutorial.IsChecked = true;
 			content.AddChild(chkTutorial);
 
 			CheckBox chkSubtitles = new CheckBox("Enable Subtitles");
 			chkSubtitles.Position = new Vector2(10, 105);
-			chkSubtitles.Checked = true;
+			chkSubtitles.IsChecked = true;
 			content.AddChild(chkSubtitles);
 
 			Label lblVolume = new Label("Master Volume:");

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
@@ -8,14 +8,18 @@ namespace FishUI.Controls
 {
 	public class RadioButton : Control
 	{
-	public bool Checked;
+		/// <summary>
+		/// Whether the radio button is currently IsChecked.
+		/// </summary>
+		[YamlMember]
+		public bool IsChecked { get; set; }
 
-	/// <summary>
-	/// RadioButton disables child scissor so labels can extend beyond the radio button icon bounds.
-	/// </summary>
-	public override bool DisableChildScissor { get; set; } = true;
+		/// <summary>
+		/// RadioButton disables child scissor so labels can extend beyond the radio button icon bounds.
+		/// </summary>
+		public override bool DisableChildScissor { get; set; } = true;
 
-	public RadioButton()
+		public RadioButton()
 		{
 		}
 
@@ -35,14 +39,14 @@ namespace FishUI.Controls
 
 			if (Disabled)
 			{
-				if (Checked)
+				if (IsChecked)
 					Cur = UI.Settings.ImgRadioButtonDisabledChecked;
 				else
 					Cur = UI.Settings.ImgRadioButtonDisabledUnchecked;
 			}
 			else
 			{
-				if (Checked)
+				if (IsChecked)
 					Cur = IsMouseInside ? UI.Settings.ImgRadioButtonCheckedHover : UI.Settings.ImgRadioButtonChecked;
 				else
 					Cur = IsMouseInside ? UI.Settings.ImgRadioButtonUncheckedHover : UI.Settings.ImgRadioButtonUnchecked;
@@ -56,7 +60,7 @@ namespace FishUI.Controls
 		public override void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
 		{
 			if (Btn == FishMouseButton.Left)
-				Checked = !Checked;
+				IsChecked = !IsChecked;
 		}
 
 	}
