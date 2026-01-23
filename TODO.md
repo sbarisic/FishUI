@@ -45,6 +45,7 @@ A list of planned features, improvements, and new controls for FishUI.
 | MenuItem | ✅ Complete | ✅ Atlas |
 | StackLayout | ✅ Complete | N/A |
 | ImageBox | ✅ Complete | N/A |
+| StaticText | ✅ Complete | N/A |
 
 ---
 
@@ -94,10 +95,7 @@ A list of planned features, improvements, and new controls for FishUI.
 
 - [x] ~~**ImageBox / StaticImage**~~ - Image display with scaling modes (None, Stretch, Fit, Fill) and click events
 
-- [ ] **StaticText** (1 CPX)
-  - Non-editable formatted text display
-  - Text alignment options
-  - *GWEN WidgetLook: StaticText*
+- [x] ~~**StaticText**~~ - Non-editable text with horizontal/vertical alignment, custom color, optional background
 
 - [ ] **VUMeter** (2 CPX)
   - Audio level visualization
@@ -267,6 +265,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [ ] **ImageBox example improvements** (2 CPX)
   - Use images from data/images/ folder instead of silk_icons
   - Add pixelated (nearest-neighbor) rendering mode to ImageBox
+- [ ] StaticText example (1 CPX)
+  - Add StaticText demo to SampleBasicControls showing alignment and color options
 - [ ] MultiLine textbox example (1 CPX)
   - Add below existing single-line textbox sample
   - Requires multi-line textbox mode implementation

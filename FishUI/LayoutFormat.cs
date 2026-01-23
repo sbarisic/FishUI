@@ -54,7 +54,8 @@ namespace FishUI
 		{ "!ContextMenu", typeof(ContextMenu) },
 		{ "!MenuItem", typeof(MenuItem) },
 		{ "!StackLayout", typeof(StackLayout) },
-		{ "!ImageBox", typeof(ImageBox) }
+		{ "!ImageBox", typeof(ImageBox) },
+		{ "!StaticText", typeof(StaticText) }
 	};
 
 		public static string Serialize(FishUI UI)
