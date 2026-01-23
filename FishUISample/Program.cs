@@ -308,6 +308,51 @@ namespace FishUISample
 			groupCheck2.Position = new Vector2(10, 50);
 			groupBox.AddChild(groupCheck2);
 
+			// TreeView demo
+			TreeView treeView = new TreeView();
+			treeView.Position = new Vector2(1300, 100);
+			treeView.Size = new Vector2(250, 300);
+			treeView.ZDepth = 5;
+			FUI.AddControl(treeView);
+
+			// Build a sample tree structure
+			TreeNode documentsNode = treeView.AddNode("Documents");
+			documentsNode.AddChild("Resume.docx");
+			documentsNode.AddChild("Report.pdf");
+			TreeNode projectsNode = documentsNode.AddChild("Projects");
+			projectsNode.AddChild("FishUI");
+			projectsNode.AddChild("GameEngine");
+			projectsNode.AddChild("WebApp");
+			documentsNode.IsExpanded = true;
+
+			TreeNode picturesNode = treeView.AddNode("Pictures");
+			picturesNode.AddChild("Vacation");
+			picturesNode.AddChild("Family");
+			picturesNode.AddChild("Screenshots");
+
+			TreeNode musicNode = treeView.AddNode("Music");
+			TreeNode rockNode = musicNode.AddChild("Rock");
+			rockNode.AddChild("Album 1");
+			rockNode.AddChild("Album 2");
+			musicNode.AddChild("Jazz");
+			musicNode.AddChild("Classical");
+
+			TreeNode settingsNode = treeView.AddNode("Settings");
+			settingsNode.AddChild("Display");
+			settingsNode.AddChild("Audio");
+			settingsNode.AddChild("Network");
+
+			// Handle selection events
+			treeView.OnNodeSelected += (tv, node) =>
+			{
+			Console.WriteLine($"Selected: {node.Text}");
+			};
+
+			treeView.OnNodeExpandedChanged += (tv, node, expanded) =>
+			{
+			Console.WriteLine($"{node.Text} {(expanded ? "expanded" : "collapsed")}");
+			};
+
 			CheckBox groupCheck3 = new CheckBox("Option 3");
 			groupCheck3.Position = new Vector2(10, 75);
 			groupBox.AddChild(groupCheck3);

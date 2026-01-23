@@ -33,6 +33,7 @@ A list of planned features, improvements, and new controls for FishUI.
 | Titlebar | ? Complete | ? Atlas |
 | TabControl | ? Complete | ? Atlas |
 | GroupBox | ? Complete | ? Atlas |
+| TreeView | ? Complete | ? Atlas |
 
 ---
 
@@ -66,10 +67,10 @@ A list of planned features, improvements, and new controls for FishUI.
   - Min/max/step value constraints
   - *GWEN atlas regions available: Input.UpDown.Up, Input.UpDown.Down*
 
-- [ ] **TreeView / Tree** (4 CPX)
+- [x] **TreeView / Tree** (4 CPX) ? Implemented
   - Hierarchical node display
   - Expand/collapse functionality
-  - Node selection and multi-select
+  - Node selection with keyboard navigation
   - Lazy loading support for large trees
   - *GWEN atlas regions available: Tree.Top, Tree.Middle, Tree.Bottom, Tree.Plus, Tree.Minus*
 
