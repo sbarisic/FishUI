@@ -1,4 +1,4 @@
-# FishUI - TODO
+﻿# FishUI - TODO
 
 A list of planned features, improvements, and new controls for FishUI.
 
@@ -15,25 +15,25 @@ A list of planned features, improvements, and new controls for FishUI.
 
 | Control | Status | Theme Support |
 |---------|--------|---------------|
-| Button | ? Complete | ? Atlas |
-| CheckBox | ? Complete | ? Atlas |
-| RadioButton | ? Complete | ? Atlas |
-| Panel | ? Complete | ? Atlas |
-| Label | ? Complete | Colors |
-| Textbox | ? Complete | ? Atlas |
-| ListBox | ? Complete | ? Atlas |
-| DropDown (Combobox) | ? Complete | ? Atlas |
-| ScrollBarV | ? Complete | ? Atlas |
-| ScrollBarH | ? Complete | ? Atlas |
-| ProgressBar | ? Complete | ? Atlas |
-| Slider | ? Complete | ? Atlas |
-| ToggleSwitch | ? Complete | ? Atlas |
-| SelectionBox | ? Complete | ? Atlas |
-| Window | ? Complete | ? Atlas |
-| Titlebar | ? Complete | ? Atlas |
-| TabControl | ? Complete | ? Atlas |
-| GroupBox | ? Complete | ? Atlas |
-| TreeView | ? Complete | ? Atlas |
+| Button | ✅ Complete | ✅ Atlas |
+| CheckBox | ✅ Complete | ✅ Atlas |
+| RadioButton | ✅ Complete | ✅ Atlas |
+| Panel | ✅ Complete | ✅ Atlas |
+| Label | ✅ Complete | Colors |
+| Textbox | ✅ Complete | ✅ Atlas |
+| ListBox | ✅ Complete | ✅ Atlas |
+| DropDown (Combobox) | ✅ Complete | ✅ Atlas |
+| ScrollBarV | ✅ Complete | ✅ Atlas |
+| ScrollBarH | ✅ Complete | ✅ Atlas |
+| ProgressBar | ✅ Complete | ✅ Atlas |
+| Slider | ✅ Complete | ✅ Atlas |
+| ToggleSwitch | ✅ Complete | ✅ Atlas |
+| SelectionBox | ✅ Complete | ✅ Atlas |
+| Window | ✅ Complete | ✅ Atlas |
+| Titlebar | ✅ Complete | ✅ Atlas |
+| TabControl | ✅ Complete | ✅ Atlas |
+| GroupBox | ✅ Complete | ✅ Atlas |
+| TreeView | ✅ Complete | ✅ Atlas |
 
 ---
 
@@ -41,21 +41,21 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ### High Priority
 
-- [x] **TabControl / TabPanel** (3 CPX) ? Implemented
+- [x] **TabControl / TabPanel** (3 CPX) ✅ Implemented
   - Tab header strip with clickable tabs
   - Content panels that switch based on selected tab
   - Tab overflow handling (scroll with left-right arrows) - *TODO*
   - Top/bottom tab positioning - *TODO*
   - *GWEN atlas regions available: Tab.Top.Active, Tab.Top.Inactive, Tab.Bottom.Active, Tab.Bottom.Inactive, Tab.Control, Tab.HeaderBar*
 
-- [x] **Window / FrameWindow / Dialog** (4 CPX) ? Implemented
+- [x] **Window / FrameWindow / Dialog** (4 CPX) ✅ Implemented
   - Draggable title bar
   - Close button (optional minimize/maximize) - minimize/maximize *TODO*
   - Modal and non-modal modes - modal blocking *TODO*
   - Resizable and fixed border mode
   - *GWEN atlas regions available: Window.Head.Normal, Window.Head.Inactive, Window.Middle, Window.Bottom, Window.Close*
 
-- [x] **Titlebar** (2 CPX) ? Implemented
+- [x] **Titlebar** (2 CPX) ✅ Implemented
   - Standalone titlebar component for windows
   - Text display with optional icon - icon *TODO*
   - *GWEN atlas regions available: Window.Head.Normal, Window.Head.Inactive*
@@ -67,7 +67,7 @@ A list of planned features, improvements, and new controls for FishUI.
   - Min/max/step value constraints
   - *GWEN atlas regions available: Input.UpDown.Up, Input.UpDown.Down*
 
-- [x] **TreeView / Tree** (4 CPX) ? Implemented
+- [x] **TreeView / Tree** (4 CPX) ✅ Implemented
   - Hierarchical node display
   - Expand/collapse functionality
   - Node selection with keyboard navigation
@@ -95,7 +95,7 @@ A list of planned features, improvements, and new controls for FishUI.
   - Multi-line support
   - *GWEN atlas regions available: Tooltip.Top, Tooltip.Middle, Tooltip.Bottom*
 
-- [x] **GroupBox** (1 CPX) ? Implemented
+- [x] **GroupBox** (1 CPX) ✅ Implemented
 - Labeled container with border
 - Title positioning options
 - *GWEN atlas regions available: GroupBox.Normal*
@@ -163,15 +163,15 @@ A list of planned features, improvements, and new controls for FishUI.
 ## Control Improvements
 
 ### Textbox Enhancements
-- [x] Cursor positioning with mouse click (2 CPX) ? Implemented
-- [x] Text selection (click and drag) (2 CPX) ? Implemented
-- [x] Copy/paste support (Ctrl+C, Ctrl+V, exposed as functions on a control) (2 CPX) ? Implemented
-- [x] Select all (Ctrl+A, exposed as a function) (1 CPX) ? Implemented
+- [x] Cursor positioning with mouse click (2 CPX) ✅ Implemented
+- [x] Text selection (click and drag) (2 CPX) ✅ Implemented
+- [x] Copy/paste support (Ctrl+C, Ctrl+V, exposed as functions on a control) (2 CPX) ✅ Implemented
+- [x] Select all (Ctrl+A, exposed as a function) (1 CPX) ✅ Implemented
 - [ ] Multi-line mode with word wrap (3 CPX)
-- [x] Password masking mode (1 CPX) ? Implemented
-- [x] Placeholder text (1 CPX) ? Implemented
-- [x] Max length constraint (1 CPX) ? Implemented
-- [x] Read-only mode (1 CPX) ? Implemented
+- [x] Password masking mode (1 CPX) ✅ Implemented
+- [x] Placeholder text (1 CPX) ✅ Implemented
+- [x] Max length constraint (1 CPX) ✅ Implemented
+- [x] Read-only mode (1 CPX) ✅ Implemented
 
 ### DropDown Enhancements
 - [ ] Multi-select mode (checkbox icon per item) (2 CPX)
@@ -215,7 +215,7 @@ A list of planned features, improvements, and new controls for FishUI.
 - [x] Color palette support
 
 ### Theme File Improvements
-- [x] Add missing GWEN atlas regions to gwen.yaml (2 CPX) ? Completed
+- [x] Add missing GWEN atlas regions to gwen.yaml (2 CPX) ✅ Completed
   - Window/FrameWindow regions (HeadNormal, HeadInactive, MiddleNormal, MiddleInactive, BottomNormal, BottomInactive, Close buttons)
   - Tab regions (HeaderBar, ControlBackground, TopActive, TopInactive)
   - Menu regions (Strip, Background, Hover, RightArrow, LeftArrow)
@@ -260,6 +260,12 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ---
 
 ## Core Framework Features
+
+### Core system
+- [ ] Z-order management for overlapping controls (3 CPX)
+	- BringToFront/SendToBack methods
+	- Always on top property
+	- Modal windows blocking input to background controls, always on top
 
 ### Layout System
 - [ ] **FlowLayout** - Automatic horizontal/vertical flow of children (3 CPX)
@@ -337,14 +343,15 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ## Known Issues / Bugs
 
 ### Active Bugs
-*No active bugs*
+- [ ] Sample window can only be resized when clicked and dragged on the bottom border, and not left and right borders
+- [ ] Tab control tabs seem to be a little bit too high, compared to the texture size
 
 ### Resolved Bugs
-- [x] **CheckBox/RadioButton labels clipped by scissor** (2 CPX) ? Fixed
+- [x] **CheckBox/RadioButton labels clipped by scissor** (2 CPX) ✅ Fixed
   - Added `DisableChildScissor` property to Control base class
   - CheckBox and RadioButton set this to true so labels can extend beyond icon bounds
 
-- [x] **Label default Alignment causes clipping in containers** (1 CPX) ? Fixed
+- [x] **Label default Alignment causes clipping in containers** (1 CPX) ✅ Fixed
   - Changed Label default Alignment from `Align.Center` to `Align.Left`
   - Prevents text from extending past the left edge and getting scissor-clipped
 
