@@ -319,6 +319,52 @@ namespace FishUISample.Samples
 			radio2.Position = new Vector2(420, 590);
 			radio2.Size = new Vector2(15, 15);
 			FUI.AddControl(radio2);
+
+			// === StaticText ===
+			Label staticTextLabel = new Label("StaticText Alignment & Colors");
+			staticTextLabel.Position = new Vector2(600, 400);
+			staticTextLabel.Size = new Vector2(200, 20);
+			staticTextLabel.Alignment = Align.Left;
+			FUI.AddControl(staticTextLabel);
+
+			// Top-Left aligned
+			StaticText stTopLeft = new StaticText("Top-Left", Align.Left, VerticalAlign.Top);
+			stTopLeft.Position = new Vector2(600, 425);
+			stTopLeft.Size = new Vector2(80, 50);
+			stTopLeft.ShowBackground = true;
+			stTopLeft.BackgroundColor = new FishColor(60, 60, 80, 200);
+			stTopLeft.TooltipText = "HorizontalAlign.Left, VerticalAlign.Top";
+			FUI.AddControl(stTopLeft);
+
+			// Center aligned
+			StaticText stCenter = new StaticText("Center", Align.Center, VerticalAlign.Middle);
+			stCenter.Position = new Vector2(690, 425);
+			stCenter.Size = new Vector2(80, 50);
+			stCenter.ShowBackground = true;
+			stCenter.BackgroundColor = new FishColor(60, 80, 60, 200);
+			stCenter.TooltipText = "HorizontalAlign.Center, VerticalAlign.Middle";
+			FUI.AddControl(stCenter);
+
+			// Bottom-Right aligned
+			StaticText stBottomRight = new StaticText("Bot-Right", Align.Right, VerticalAlign.Bottom);
+			stBottomRight.Position = new Vector2(600, 485);
+			stBottomRight.Size = new Vector2(80, 50);
+			stBottomRight.ShowBackground = true;
+			stBottomRight.BackgroundColor = new FishColor(80, 60, 60, 200);
+			stBottomRight.TooltipText = "HorizontalAlign.Right, VerticalAlign.Bottom";
+			FUI.AddControl(stBottomRight);
+
+			// Custom text color
+			StaticText stColored = new StaticText("Colored!");
+			stColored.Position = new Vector2(690, 485);
+			stColored.Size = new Vector2(80, 50);
+			stColored.HorizontalAlignment = Align.Center;
+			stColored.VerticalAlignment = VerticalAlign.Middle;
+			stColored.TextColor = new FishColor(100, 200, 255, 255);
+			stColored.ShowBackground = true;
+			stColored.BackgroundColor = new FishColor(40, 40, 60, 220);
+			stColored.TooltipText = "Custom TextColor (cyan)";
+			FUI.AddControl(stColored);
 		}
 	}
 }

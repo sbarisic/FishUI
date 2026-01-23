@@ -265,8 +265,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [ ] **ImageBox example improvements** (2 CPX)
   - Use images from data/images/ folder instead of silk_icons
   - Add pixelated (nearest-neighbor) rendering mode to ImageBox
-- [ ] StaticText example (1 CPX)
-  - Add StaticText demo to SampleBasicControls showing alignment and color options
+- [x] ~~StaticText example~~ - Added to SampleBasicControls with alignment and color demos
 - [ ] MultiLine textbox example (1 CPX)
   - Add below existing single-line textbox sample
   - Requires multi-line textbox mode implementation
