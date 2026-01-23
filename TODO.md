@@ -265,8 +265,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - Requires multi-line textbox mode implementation
 
 ### SampleDefault Improvements
-- [ ] Replace main Panel with Window control (1 CPX)
-  - Change `panel1` from Panel to Window with disabled close button
+- [x] ~~Replace main Panel with Window control~~ - Changed `panel1` from Panel to Window with hidden close button
 - [x] ~~Add context menu to SampleDefault~~ - Demonstrates ContextMenu with items, separators, checkable items, and submenus
 
 ---
@@ -308,8 +307,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] ~~DropDown.SelectIndex NullReferenceException~~ - Added null check before `FishUI.Events.Broadcast()`
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
-
-*No uncategorized items*
+- Make Invisible button on the new window in default example does not close window. I assume Make Visible logic is broken in the same way?
+- Get all TODO comments from the code and convert them into proper TODO entries above, remove them from the code
 
 ---
 

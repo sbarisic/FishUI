@@ -157,14 +157,13 @@ namespace FishUISample.Samples
 			Btn2.ZDepth = 2;
 			FUI.AddControl(Btn2);
 
-			// Panel ------------------
-			Panel Pnl = new Panel();
+			// Main Window (replaces Panel) ------------------
+			Window Pnl = new Window("Controls Demo");
 			Pnl.ID = "panel1";
 			Pnl.Position = new Vector2(10, 10);
 			Pnl.Size = new Vector2(400, 350);
 			Pnl.ZDepth = 1;
-			Pnl.Draggable = true;
-			Pnl.IsTransparent = true;
+			Pnl.ShowCloseButton = false; // Disable close button
 			FUI.AddControl(Pnl);
 
 			Button Btn = new Button();
