@@ -205,6 +205,16 @@ namespace FishUISample.Samples
 			RBut.Size = new Vector2(15, 15);
 			Pnl.AddChild(RBut);
 
+			// Toggle button demo
+			Button toggleBtn = new Button();
+			toggleBtn.Text = "Toggle Me";
+			toggleBtn.Position = new Vector2(5, 70);
+			toggleBtn.Size = new Vector2(100, 30);
+			toggleBtn.IsToggleButton = true;
+			toggleBtn.TooltipText = "Click to toggle on/off";
+			toggleBtn.OnToggled += (btn, toggled) => Console.WriteLine($"Toggle button: {toggled}");
+			Pnl.AddChild(toggleBtn);
+
 			// === NEW CONTROLS DEMO ===
 
 			// Window / Dialog demo

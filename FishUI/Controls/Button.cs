@@ -15,6 +15,7 @@ namespace FishUI.Controls
 	}
 
 	public delegate void ButtonPressFunc(Button Sender, FishMouseButton Btn, Vector2 Pos);
+	public delegate void ButtonToggledFunc(Button Sender, bool IsToggled);
 
 	public class Button : Control
 	{
@@ -48,7 +49,22 @@ namespace FishUI.Controls
 		/// </summary>
 		public float IconSpacing = 4f;
 
+		/// <summary>
+		/// If true, this button acts as a toggle (stays pressed when clicked, unpressed when clicked again).
+		/// </summary>
+		public bool IsToggleButton { get; set; } = false;
+
+		/// <summary>
+		/// Gets or sets the toggled state. Only applicable when IsToggleButton is true.
+		/// </summary>
+		public bool IsToggled { get; set; } = false;
+
 		public event ButtonPressFunc OnButtonPressed;
+
+		/// <summary>
+		/// Event fired when the toggle state changes. Only applicable when IsToggleButton is true.
+		/// </summary>
+		public event ButtonToggledFunc OnToggled;
 
 	public Button()
 		{
@@ -67,6 +83,13 @@ namespace FishUI.Controls
 		{
 			base.HandleMouseClick(UI, InState, Btn, Pos);
 
+			// Handle toggle mode
+			if (IsToggleButton && Btn == FishMouseButton.Left)
+			{
+				IsToggled = !IsToggled;
+				OnToggled?.Invoke(this, IsToggled);
+			}
+
 			if (OnButtonPressed != null)
 				OnButtonPressed(this, Btn, Pos);
 		}
@@ -84,7 +107,7 @@ namespace FishUI.Controls
 
 			if (Disabled)
 				Cur = NDisabled;
-			else if (IsMousePressed)
+			else if (IsMousePressed || (IsToggleButton && IsToggled))
 				Cur = NPressed;
 			else if (IsMouseInside)
 				Cur = NHover;
