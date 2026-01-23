@@ -50,6 +50,14 @@ namespace FishUI
 		/// </summary>
 		public FishUIVirtualMouse VirtualMouse { get; } = new FishUIVirtualMouse();
 
+		/// <summary>
+		/// The current modal control (if any). When set, only this control and its children receive input.
+		/// </summary>
+		public Control ModalControl { get; private set; }
+
+		// Z-order management
+		private int _nextZDepth = 0;
+
 
 		public FishUI(FishUISettings Settings, IFishUIGfx Graphics, IFishUIInput Input, IFishUIEvents Events)
 		{
@@ -67,27 +75,104 @@ namespace FishUI
 			Settings.Init(this);
 		}
 
+		/// <summary>
+		/// Gets the next available Z-depth value for a control.
+		/// </summary>
+		internal int GetNextZDepth()
+		{
+			return _nextZDepth++;
+		}
+
+		/// <summary>
+		/// Gets the highest Z-depth among all controls (excluding AlwaysOnTop controls).
+		/// </summary>
+		internal int GetHighestZDepth()
+		{
+			int highest = 0;
+			foreach (var c in Controls)
+			{
+				if (!c.AlwaysOnTop && c.ZDepth > highest)
+					highest = c.ZDepth;
+			}
+			return highest;
+		}
+
+		/// <summary>
+		/// Gets the lowest Z-depth among all controls.
+		/// </summary>
+		internal int GetLowestZDepth()
+		{
+			int lowest = int.MaxValue;
+			foreach (var c in Controls)
+			{
+				if (c.ZDepth < lowest)
+					lowest = c.ZDepth;
+			}
+			return lowest == int.MaxValue ? 0 : lowest;
+		}
+
+		/// <summary>
+		/// Sets the modal control. Only this control (and its children) will receive input.
+		/// Pass null to clear modal mode.
+		/// </summary>
+		public void SetModalControl(Control control)
+		{
+			ModalControl = control;
+			if (control != null)
+			{
+				// Bring modal control to front
+				control.BringToFront();
+			}
+		}
+
 		public void AddControl(Control C)
 		{
 			C._FishUI = this;
+			C.ZDepth = GetNextZDepth();
 			Controls.Add(C);
-		}
+	}
 
 		public void RemoveAllControls()
 		{
 			//Control[] Ctrls = GetOrderedControls();
 			Controls.Clear();
+			ModalControl = null;
 		}
 
+		/// <summary>
+		/// Gets controls ordered by Z-depth for rendering (lowest first, AlwaysOnTop last).
+		/// </summary>
 		public Control[] GetOrderedControls()
 		{
-			return Controls.OrderBy(C => C.ZDepth).ToArray();
+			// Sort: normal controls by ZDepth, then AlwaysOnTop controls by ZDepth
+			var normal = Controls.Where(c => !c.AlwaysOnTop).OrderBy(c => c.ZDepth);
+			var alwaysOnTop = Controls.Where(c => c.AlwaysOnTop).OrderBy(c => c.ZDepth);
+			return normal.Concat(alwaysOnTop).ToArray();
 		}
 
 		public Control[] GetAllControls()
 		{
 			return Controls.ToArray();
 		}
+
+		/// <summary>
+		/// Checks if a control is allowed to receive input (respects modal blocking).
+		/// </summary>
+		private bool IsControlInputAllowed(Control control)
+		{
+			if (ModalControl == null)
+				return true;
+
+			// Check if control is the modal control or a descendant of it
+			Control c = control;
+			while (c != null)
+			{
+				if (c == ModalControl)
+					return true;
+				c = c.GetParent();
+			}
+			return false;
+	}
 
 		// Top-down control picking, for mouse events etc
 		Control PickControl(Control[] Controls, Vector2 GlobalPos)
@@ -102,8 +187,16 @@ namespace FishUI
 					Control CPicked = PickControl(C.GetAllChildren(), GlobalPos);
 
 					if (CPicked != null)
+					{
+						// Check modal blocking
+						if (!IsControlInputAllowed(CPicked))
+							return null;
 						return CPicked;
+					}
 
+					// Check modal blocking
+					if (!IsControlInputAllowed(C))
+						return null;
 					return C;
 				}
 			}

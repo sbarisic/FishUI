@@ -41,6 +41,11 @@ namespace FishUI.Controls
 
 		public virtual int ZDepth { get; set; }
 
+		/// <summary>
+		/// If true, this control is always rendered on top of non-AlwaysOnTop controls.
+		/// </summary>
+		public virtual bool AlwaysOnTop { get; set; } = false;
+
 		public virtual bool Disabled { get; set; } = false;
 
 		public virtual bool Visible { get; set; } = true;
@@ -74,6 +79,59 @@ namespace FishUI.Controls
 		public virtual bool DisableChildScissor { get; set; } = false;
 
 		public event OnControlDraggedFunc OnDragged;
+
+		/// <summary>
+		/// Gets the parent control.
+		/// </summary>
+		public Control GetParent()
+		{
+			return Parent;
+		}
+
+		/// <summary>
+		/// Brings this control to the front of all sibling controls.
+		/// For root-level controls, this brings it in front of all other root controls.
+		/// </summary>
+		public virtual void BringToFront()
+		{
+			if (FishUI != null)
+			{
+				ZDepth = FishUI.GetHighestZDepth() + 1;
+			}
+			else if (Parent != null)
+			{
+				// For child controls, bring to front among siblings
+				int maxDepth = 0;
+				foreach (var sibling in Parent.Children)
+				{
+					if (sibling != this && sibling.ZDepth > maxDepth)
+						maxDepth = sibling.ZDepth;
+				}
+				ZDepth = maxDepth + 1;
+			}
+		}
+
+		/// <summary>
+		/// Sends this control to the back of all sibling controls.
+		/// </summary>
+		public virtual void SendToBack()
+		{
+			if (FishUI != null)
+			{
+				ZDepth = FishUI.GetLowestZDepth() - 1;
+			}
+			else if (Parent != null)
+			{
+				// For child controls, send to back among siblings
+				int minDepth = int.MaxValue;
+				foreach (var sibling in Parent.Children)
+				{
+					if (sibling != this && sibling.ZDepth < minDepth)
+						minDepth = sibling.ZDepth;
+				}
+				ZDepth = minDepth == int.MaxValue ? 0 : minDepth - 1;
+			}
+		}
 
 		public Vector2 GetAbsolutePosition()
 		{

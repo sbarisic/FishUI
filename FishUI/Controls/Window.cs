@@ -242,26 +242,38 @@ namespace FishUI.Controls
 			if (!args.Cancel)
 			{
 				Visible = false;
-				OnClosed?.Invoke(this);
+			OnClosed?.Invoke(this);
+
+				// Clear modal if this was the modal window
+				if (FishUI?.ModalControl == this)
+					FishUI.SetModalControl(null);
 			}
 		}
 
 		/// <summary>
 		/// Shows the window and brings it to front.
+		/// If IsModal is true, this window will block input to other controls.
 		/// </summary>
 		public void Show()
 		{
 			Visible = true;
 			IsActive = true;
 			BringToFront();
+
+			// Set as modal if needed
+			if (IsModal && FishUI != null)
+			{
+				FishUI.SetModalControl(this);
+			}
 		}
 
 		/// <summary>
-		/// Brings this window to the front (highest Z-depth).
+		/// Shows this window as a modal dialog, blocking input to other controls.
 		/// </summary>
-		public void BringToFront()
+		public void ShowModal()
 		{
-			ZDepth = int.MaxValue;
+			IsModal = true;
+			Show();
 		}
 
 		/// <summary>

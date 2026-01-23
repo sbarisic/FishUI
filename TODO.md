@@ -276,10 +276,11 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ## Core Framework Features
 
 ### Core system
-- [ ] Z-order management for overlapping controls (3 CPX) - **HIGH PRIORITY**
-	- BringToFront/SendToBack methods
-	- Always on top property
-	- Modal windows blocking input to background controls, always on top
+- [x] Z-order management for overlapping controls (3 CPX) ✅ Implemented
+	- BringToFront/SendToBack methods on Control base class
+	- AlwaysOnTop property for controls that should always render on top
+	- Modal windows blocking input to background controls via SetModalControl/ShowModal
+	- Auto-incrementing Z-depth assignment on AddControl
 
 ### Layout System
 - [ ] **FlowLayout** - Automatic horizontal/vertical flow of children (3 CPX)
@@ -358,7 +359,6 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ### Remaining Cleanup
 - [ ] Standardize naming conventions across all controls (1 CPX)
 - [ ] Add XML documentation comments to public APIs (2 CPX)
-- [ ] Review and optimize NPatch rendering performance (2 CPX)
 
 ---
 
@@ -406,7 +406,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] Window children positioned relative to window frame instead of content area
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority, assign complexity points where applicable. Do not delete this section when you are done, just empty it)
-*No active uncategorized items*
+- Mouse should bring control to front on click (windows, popups, panels, etc.)
 
 ---
 
