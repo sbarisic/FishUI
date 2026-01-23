@@ -80,6 +80,12 @@
     <None Update="data\gwen.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="data\images\win95.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="data\images\win95_small.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="data\listbox_itm_hovered.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -53,7 +53,8 @@ namespace FishUI
 		{ "!Tooltip", typeof(Tooltip) },
 		{ "!ContextMenu", typeof(ContextMenu) },
 		{ "!MenuItem", typeof(MenuItem) },
-		{ "!StackLayout", typeof(StackLayout) }
+		{ "!StackLayout", typeof(StackLayout) },
+		{ "!ImageBox", typeof(ImageBox) }
 	};
 
 		public static string Serialize(FishUI UI)

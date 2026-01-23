@@ -44,6 +44,7 @@ A list of planned features, improvements, and new controls for FishUI.
 | ContextMenu | ✅ Complete | ✅ Atlas |
 | MenuItem | ✅ Complete | ✅ Atlas |
 | StackLayout | ✅ Complete | N/A |
+| ImageBox | ✅ Complete | N/A |
 
 ---
 
@@ -91,11 +92,7 @@ A list of planned features, improvements, and new controls for FishUI.
   - Vertical scrollbar integration
   - *GWEN atlas regions: Uses TextBox regions*
 
-- [ ] **ImageBox / StaticImage** (1 CPX)
-  - Image display control
-  - Scaling modes (stretch, fit, fill, none)
-  - Click events
-  - *GWEN WidgetLook: StaticImage*
+- [x] ~~**ImageBox / StaticImage**~~ - Image display with scaling modes (None, Stretch, Fit, Fill) and click events
 
 - [ ] **StaticText** (1 CPX)
   - Non-editable formatted text display
