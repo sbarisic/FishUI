@@ -78,6 +78,13 @@ A list of planned features, improvements, and new controls for FishUI.
   - Row selection
   - *GWEN atlas regions available: ListHeaderSegment, ListHeader*
 
+- [ ] **SpreadsheetGrid** (5 CPX)
+  - Excel-like table control with cell editing
+  - X-axis (column) and Y-axis (row) headers
+  - Cell selection and navigation
+  - Configurable cell types (text, number, dropdown)
+  - *Use case: Data entry forms, configuration editors*
+
 - [ ] **MultiLineEditbox / TextArea** (3 CPX)
   - Multi-line text input
   - Word wrap support
@@ -251,15 +258,19 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ## Sample Application
 
+- [x] ~~**Split SampleDefault into multiple smaller samples**~~ - Created SampleBasicControls, SampleButtonVariants, SampleLayoutSystem; refocused SampleDefault to Windows/Dialogs only
+- [ ] **Sample runner loop back to chooser** (2 CPX) **HIGH PRIORITY**
+  - When game window closes, return to sample chooser instead of exiting application
+  - Allows testing multiple samples without restarting
 - [ ] Examples should be implemented in FishUISample project, using the ISample interface (2 CPX each)
 - [x] ~~Implement sample chooser system in Program.cs~~ - Added ChooseSample() with console menu and --sample/-s CLI args; added Name property to ISample
 - [x] ~~Theme switcher example~~ (SampleThemeSwitcher.cs)
 - [x] ~~Game main menu example~~ (SampleGameMenu.cs) - Buttons + Options window with tabs
 - [ ] Car dashboard example with gauges
-- Requires RadialGauge and BarGauge controls first
+  - Requires RadialGauge and BarGauge controls first
 - [ ] MultiLine textbox example (1 CPX)
-- Add below existing single-line textbox sample
-- Requires multi-line textbox mode implementation
+  - Add below existing single-line textbox sample
+  - Requires multi-line textbox mode implementation
 
 ### SampleDefault Improvements
 - [x] ~~Replace main Panel with Window control~~ - Changed `panel1` from Panel to Window with hidden close button
@@ -307,9 +318,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] ~~Layout save/load breaks Window and TabControl~~ - Added `OnDeserialized` virtual method to Control, overridden in Window and TabControl to reinitialize internal state
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
-- (Mark as highest priority) Split SampleDefault into multiple smaller samples, current one is getting too big
-- (Mark as second highest priority) When game window closes, sample runner should drop back to sample chooser instead of exiting application (2 CPX)
-- Implement an excel-like table control with cell editing, and the ability to have X axis and Y axis headers defined
+
+*No uncategorized items*
 
 ---
 
