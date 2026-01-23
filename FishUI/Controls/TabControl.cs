@@ -85,7 +85,7 @@ namespace FishUI.Controls
 		/// <summary>
 		/// Height of the tab header strip.
 		/// </summary>
-		public float TabHeaderHeight { get; set; } = 31;
+		public float TabHeaderHeight { get; set; } = 24;
 
 		/// <summary>
 		/// Minimum width of each tab.

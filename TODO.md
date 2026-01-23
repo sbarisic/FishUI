@@ -344,9 +344,13 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Active Bugs
 - [ ] Sample window can only be resized when clicked and dragged on the bottom border, and not left and right borders
-- [ ] Tab control tabs seem to be a little bit too high, compared to the texture size
+- [ ] First click on text box positions cursor at the start of the text, instead of the end
 
 ### Resolved Bugs
+- [x] **Tab control tabs positioned too high** (1 CPX) ✅ Fixed
+  - Reduced default `TabHeaderHeight` from 31 to 24 to match GWEN skin visual design
+  - Active tabs now connect seamlessly with the content area
+
 - [x] **CheckBox/RadioButton labels clipped by scissor** (2 CPX) ✅ Fixed
   - Added `DisableChildScissor` property to Control base class
   - CheckBox and RadioButton set this to true so labels can extend beyond icon bounds
