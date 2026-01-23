@@ -267,9 +267,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
   - Add pixelated (nearest-neighbor) rendering mode to ImageBox
 - [x] ~~BarGauge example interactive controls~~ - Added +/- repeat buttons for all gauges in SampleBasicControls
 - [x] ~~Virtual cursor example~~ - SampleVirtualCursor demonstrates keyboard/gamepad cursor navigation
-- [ ] **Virtual cursor custom images** (1 CPX)
-  - Load and use cursor images from data/images/cursors/*.png
-  - Add cursor selection dropdown to SampleVirtualCursor
+- [x] ~~Virtual cursor custom images~~ - Added cursor image dropdown to SampleVirtualCursor; loads from data/images/cursors/
 - [x] ~~AnimatedImageBox example with stargate images~~ - Added to SampleBasicControls with play/pause, stop, FPS slider, ping-pong toggle
 - [x] ~~AnimatedImageBox resizable window example~~ - "Animation Viewer" window with anchored AnimatedImageBox that scales with window resize
 - [x] ~~StaticText example~~ - Added to SampleBasicControls with alignment and color demos
@@ -331,7 +329,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-*No uncategorized items*
+- When moving virtual cursor to dropdown menu below, as soon as the cursor leaves the main button, dropdown disappears (probably because mouse leave event is triggered). Need to handle this case so that dropdown remains visible while interacting with it. (2 CPX)
 
 ---
 

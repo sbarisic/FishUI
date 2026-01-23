@@ -50,7 +50,7 @@ namespace FishUISample.Samples
 			// Main panel
 			Panel mainPanel = new Panel();
 			mainPanel.Position = new Vector2(50, 50);
-			mainPanel.Size = new Vector2(400, 400);
+			mainPanel.Size = new Vector2(400, 430);
 			FUI.AddControl(mainPanel);
 
 			// Title
@@ -97,57 +97,102 @@ namespace FishUISample.Samples
 			speedSlider.MaxValue = 800;
 			speedSlider.Value = 400;
 			speedSlider.ShowValueLabel = true;
-			speedSlider.OnValueChanged += (slider, val) =>
+		speedSlider.OnValueChanged += (slider, val) =>
 			{
 				FUI.VirtualMouse.Speed = val;
 			};
 			mainPanel.AddChild(speedSlider);
 
+			// Cursor image selection
+			Label cursorLabel = new Label("Cursor Image:");
+			cursorLabel.Position = new Vector2(20, 215);
+			cursorLabel.Size = new Vector2(100, 20);
+			cursorLabel.Alignment = Align.Left;
+			mainPanel.AddChild(cursorLabel);
+
+			// Load cursor images
+			string[] cursorFiles = new string[]
+			{
+				"(Default)",
+				"arrow.png",
+				"Beam.png",
+				"Cursor_3.png",
+				"Cursor_4.png",
+				"Cursor_5.png",
+				"Cursor_6.png",
+				"help_win95.png"
+			};
+
+			DropDown cursorDropdown = new DropDown();
+			cursorDropdown.Position = new Vector2(130, 212);
+			cursorDropdown.Size = new Vector2(200, 24);
+			foreach (var cursor in cursorFiles)
+			{
+				cursorDropdown.AddItem(new DropDownItem(cursor));
+			}
+			cursorDropdown.SelectIndex(0);
+			cursorDropdown.OnItemSelected += (dd, item) =>
+			{
+				if (item.Text == "(Default)")
+				{
+					// Use default drawn cursor
+					FUI.VirtualMouse.CursorImage = null;
+				}
+				else
+				{
+					// Load cursor image
+					string path = $"data/images/cursors/{item.Text}";
+					ImageRef cursorImg = FUI.Graphics.LoadImage(path);
+					FUI.VirtualMouse.CursorImage = cursorImg;
+				}
+			};
+			mainPanel.AddChild(cursorDropdown);
+
 			// Position label
 			positionLabel = new Label("Position: (0, 0)");
-			positionLabel.Position = new Vector2(20, 220);
+			positionLabel.Position = new Vector2(20, 250);
 			positionLabel.Size = new Vector2(300, 20);
 			positionLabel.Alignment = Align.Left;
 			mainPanel.AddChild(positionLabel);
 
 			// Status label
 			statusLabel = new Label("Status: Virtual cursor enabled");
-			statusLabel.Position = new Vector2(20, 245);
+			statusLabel.Position = new Vector2(20, 275);
 			statusLabel.Size = new Vector2(300, 20);
 			statusLabel.Alignment = Align.Left;
 			mainPanel.AddChild(statusLabel);
 
 			// Test buttons
 			Label testLabel = new Label("Test Buttons (click with virtual cursor):");
-			testLabel.Position = new Vector2(20, 280);
+			testLabel.Position = new Vector2(20, 310);
 			testLabel.Size = new Vector2(300, 20);
 			testLabel.Alignment = Align.Left;
 			mainPanel.AddChild(testLabel);
 
 			Button btn1 = new Button();
 			btn1.Text = "Button 1";
-			btn1.Position = new Vector2(20, 305);
+			btn1.Position = new Vector2(20, 335);
 			btn1.Size = new Vector2(100, 35);
 			btn1.OnButtonPressed += (ctrl, btn, pos) => statusLabel.Text = "Status: Button 1 clicked!";
 			mainPanel.AddChild(btn1);
 
 			Button btn2 = new Button();
 			btn2.Text = "Button 2";
-			btn2.Position = new Vector2(140, 305);
+			btn2.Position = new Vector2(140, 335);
 			btn2.Size = new Vector2(100, 35);
 			btn2.OnButtonPressed += (ctrl, btn, pos) => statusLabel.Text = "Status: Button 2 clicked!";
 			mainPanel.AddChild(btn2);
 
 			Button btn3 = new Button();
 			btn3.Text = "Button 3";
-			btn3.Position = new Vector2(260, 305);
+			btn3.Position = new Vector2(260, 335);
 			btn3.Size = new Vector2(100, 35);
 			btn3.OnButtonPressed += (ctrl, btn, pos) => statusLabel.Text = "Status: Button 3 clicked!";
 			mainPanel.AddChild(btn3);
 
 			// Checkbox test
 			CheckBox testCheckbox = new CheckBox("Checkbox Test");
-			testCheckbox.Position = new Vector2(20, 355);
+			testCheckbox.Position = new Vector2(20, 380);
 			testCheckbox.Size = new Vector2(15, 15);
 			mainPanel.AddChild(testCheckbox);
 
