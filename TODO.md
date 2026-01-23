@@ -162,8 +162,7 @@ A list of planned features, improvements, and new controls for FishUI.
 - [x] ~~Border styles, Panel variants (Normal, Bright, Dark, Highlight), examples~~ - Added PanelVariant enum, BorderStyle enum (None, Solid, Inset, Outset), theme regions, and SampleDefault demo
 
 ### ProgressBar Enhancements
-- [ ] Vertical progress bar mode (1 CPX)
-  - *GWEN has: VProgressBar regions for vertical variant*
+- [x] ~~Vertical progress bar mode~~ - Already implemented via Orientation property; added demo in SampleDefault
 
 ### Slider Enhancements
 - [x] ~~Mouse wheel support~~ - Scroll to adjust value (uses Step or 1% of range)
@@ -253,9 +252,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ## Sample Application
 
 - [ ] Examples should be implemented in FishUISample project, using the ISample interface (2 CPX each)
-- [ ] Implement sample chooser system in Program.cs (2 CPX)
-  - Console-based or UI-based selection to choose which sample to run
-  - Currently hardcoded to `Samples[2]` in Program.cs:54
+- [x] ~~Implement sample chooser system in Program.cs~~ - Added ChooseSample() with console menu and --sample/-s CLI args; added Name property to ISample
 - [x] ~~Theme switcher example~~ (SampleThemeSwitcher.cs)
 - [x] ~~Game main menu example~~ (SampleGameMenu.cs) - Buttons + Options window with tabs
 - [ ] Car dashboard example with gauges
@@ -310,8 +307,9 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] ~~Layout save/load breaks Window and TabControl~~ - Added `OnDeserialized` virtual method to Control, overridden in Window and TabControl to reinitialize internal state
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
-
-*No uncategorized items*
+- (Mark as highest priority) Split SampleDefault into multiple smaller samples, current one is getting too big
+- (Mark as second highest priority) When game window closes, sample runner should drop back to sample chooser instead of exiting application (2 CPX)
+- Implement an excel-like table control with cell editing, and the ability to have X axis and Y axis headers defined
 
 ---
 

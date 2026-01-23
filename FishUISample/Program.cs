@@ -60,12 +60,13 @@ namespace FishUISample
 		{
 			ISample[] Samples = new ISample[] { new SampleDefault(), new SampleThemeSwitcher(), new SampleGameMenu() };
 
+			// Sample chooser - select which sample to run
+			ISample Cur = ChooseSample(Samples, args);
+
 			FishUISettings UISettings = new FishUISettings();
-			RaylibGfx Gfx = new RaylibGfx(1920, 1080, "FishUI");
+			RaylibGfx Gfx = new RaylibGfx(1920, 1080, "FishUI - " + Cur.Name);
 			IFishUIInput Input = new RaylibInput();
 			IFishUIEvents Events = new EvtHandler();
-
-			ISample Cur = Samples[0];
 
 			// Set up screenshot action for the sample
 			Cur.TakeScreenshot = () => TakeScreenshot(Gfx);
@@ -91,6 +92,60 @@ namespace FishUISample
 			}
 
 			Raylib.CloseWindow();
+		}
+
+		/// <summary>
+		/// Displays a console menu to choose which sample to run.
+		/// Supports command-line argument to skip menu (e.g., --sample 0).
+		/// </summary>
+		static ISample ChooseSample(ISample[] samples, string[] args)
+		{
+			// Check for command-line argument: --sample N
+			for (int i = 0; i < args.Length - 1; i++)
+			{
+				if (args[i].Equals("--sample", StringComparison.OrdinalIgnoreCase) ||
+				    args[i].Equals("-s", StringComparison.OrdinalIgnoreCase))
+				{
+					if (int.TryParse(args[i + 1], out int sampleIndex) && 
+					    sampleIndex >= 0 && sampleIndex < samples.Length)
+					{
+						Console.WriteLine($"Starting sample {sampleIndex}: {samples[sampleIndex].Name}");
+						return samples[sampleIndex];
+					}
+				}
+			}
+
+			// Interactive console menu
+			Console.WriteLine("??????????????????????????????????????????");
+			Console.WriteLine("?         FishUI Sample Chooser          ?");
+			Console.WriteLine("??????????????????????????????????????????");
+			
+			for (int i = 0; i < samples.Length; i++)
+			{
+				Console.WriteLine($"?  [{i}] {samples[i].Name,-32} ?");
+			}
+			
+			Console.WriteLine("??????????????????????????????????????????");
+			Console.WriteLine("?  Enter number or press Enter for [0]   ?");
+			Console.WriteLine("??????????????????????????????????????????");
+			Console.Write("> ");
+
+			string input = Console.ReadLine() ?? "";
+			
+			if (string.IsNullOrWhiteSpace(input))
+			{
+				Console.WriteLine($"Starting default sample: {samples[0].Name}");
+				return samples[0];
+			}
+
+			if (int.TryParse(input.Trim(), out int choice) && choice >= 0 && choice < samples.Length)
+			{
+				Console.WriteLine($"Starting sample: {samples[choice].Name}");
+				return samples[choice];
+			}
+
+			Console.WriteLine($"Invalid choice, starting default sample: {samples[0].Name}");
+			return samples[0];
 		}
 	}
 }

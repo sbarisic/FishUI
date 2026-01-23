@@ -14,6 +14,11 @@ namespace FishUISample.Samples
 		FishUI.FishUI FUI;
 
 		/// <summary>
+		/// Display name of the sample.
+		/// </summary>
+		public string Name => "Default Controls Demo";
+
+		/// <summary>
 		/// Action to take a screenshot, set by Program.cs.
 		/// </summary>
 		public Action TakeScreenshot { get; set; }
@@ -87,6 +92,15 @@ namespace FishUISample.Samples
 			loadingBar.Position = new Vector2(260, 620);
 			loadingBar.IsIndeterminate = true;
 			FUI.AddControl(loadingBar);
+
+			// Vertical progress bar
+			ProgressBar vProgressBar = new ProgressBar();
+			vProgressBar.Position = new Vector2(540, 540);
+			vProgressBar.Size = new Vector2(20, 100);
+			vProgressBar.Orientation = ProgressBarOrientation.Vertical;
+			vProgressBar.Value = 0.6f;
+			vProgressBar.TooltipText = "Vertical ProgressBar";
+			FUI.AddControl(vProgressBar);
 
 			// Toggle switch
 			ToggleSwitch toggle1 = new ToggleSwitch();

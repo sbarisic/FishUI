@@ -19,6 +19,11 @@ namespace FishUISample.Samples
 		Label CurrentThemeLabel;
 
 		/// <summary>
+		/// Display name of the sample.
+		/// </summary>
+		public string Name => "Theme Switcher";
+
+		/// <summary>
 		/// Action to take a screenshot, set by Program.cs.
 		/// </summary>
 		public Action TakeScreenshot { get; set; }

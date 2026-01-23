@@ -9,6 +9,11 @@ namespace FishUISample.Samples
 {
 	internal interface ISample
 	{
+		/// <summary>
+		/// Display name of the sample.
+		/// </summary>
+		public string Name { get; }
+
 		public FishUI.FishUI CreateUI(FishUISettings UISettings, IFishUIGfx Gfx, IFishUIInput Input, IFishUIEvents Events);
 
 		public void Init();

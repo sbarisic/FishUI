@@ -19,6 +19,11 @@ namespace FishUISample.Samples
 		Window OptionsWindow;
 
 		/// <summary>
+		/// Display name of the sample.
+		/// </summary>
+		public string Name => "Game Main Menu";
+
+		/// <summary>
 		/// Action to take a screenshot, set by Program.cs.
 		/// </summary>
 		public Action TakeScreenshot { get; set; }
