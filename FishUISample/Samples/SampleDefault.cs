@@ -597,6 +597,53 @@ namespace FishUISample.Samples
 			labelCombined.Alignment = Align.Left;
 			panelCombined.AddChild(labelCombined);
 
+			// === Margin & Padding Demo ===
+			Label marginPaddingLabel = new Label("Margin & Padding Demo");
+			marginPaddingLabel.Position = new Vector2(600, 840);
+			marginPaddingLabel.Size = new Vector2(300, 20);
+			marginPaddingLabel.Alignment = Align.Left;
+			FUI.AddControl(marginPaddingLabel);
+
+			// Panel with padding - children are offset from edges
+			Panel paddedPanel = new Panel();
+			paddedPanel.Position = new Vector2(600, 860);
+			paddedPanel.Size = new Vector2(150, 80);
+			paddedPanel.Padding = new FishUIMargin(10); // 10px padding all sides
+			paddedPanel.Variant = PanelVariant.Bright;
+			FUI.AddControl(paddedPanel);
+
+			// This button will be offset by parent's padding
+			Button paddedBtn = new Button();
+			paddedBtn.Text = "Padded";
+			paddedBtn.Position = new Vector2(0, 0); // Actually placed at (10,10) due to padding
+			paddedBtn.Size = new Vector2(80, 25);
+			paddedPanel.AddChild(paddedBtn);
+
+			Label paddingDemoLabel = new Label("Padding=10");
+			paddingDemoLabel.Position = new Vector2(0, 30);
+			paddingDemoLabel.Alignment = Align.Left;
+			paddedPanel.AddChild(paddingDemoLabel);
+
+			// Panel with a child that has margin
+			Panel marginPanel = new Panel();
+			marginPanel.Position = new Vector2(760, 860);
+			marginPanel.Size = new Vector2(150, 80);
+			marginPanel.Variant = PanelVariant.Normal;
+			FUI.AddControl(marginPanel);
+
+			// This button has its own margin
+			Button marginBtn = new Button();
+			marginBtn.Text = "Margin";
+			marginBtn.Position = new Vector2(0, 0);
+			marginBtn.Size = new Vector2(80, 25);
+			marginBtn.Margin = new FishUIMargin(15, 10, 0, 10); // top, right, bottom, left
+			marginPanel.AddChild(marginBtn);
+
+			Label marginDemoLabel = new Label("Margin=10");
+			marginDemoLabel.Position = new Vector2(10, 50);
+			marginDemoLabel.Alignment = Align.Left;
+			marginPanel.AddChild(marginDemoLabel);
+
 			// === StackLayout Demo ===
 			// Vertical stack layout
 			StackLayout vStack = new StackLayout();

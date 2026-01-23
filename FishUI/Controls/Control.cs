@@ -48,11 +48,24 @@ namespace FishUI.Controls
 		[YamlMember]
 		public FishUIPosition Position;
 
+
 		/// <summary>
 		/// Size of the control in pixels.
 		/// </summary>
 		[YamlMember]
 		public Vector2 Size;
+
+		/// <summary>
+		/// Margin (outer spacing) around this control. Affects position relative to siblings.
+		/// </summary>
+		[YamlMember]
+		public FishUIMargin Margin;
+
+		/// <summary>
+		/// Padding (inner spacing) inside this control. Affects child control positions.
+		/// </summary>
+		[YamlMember]
+		public FishUIMargin Padding;
 
 		/// <summary>
 		/// Unique identifier for this control. Used for finding controls and layout serialization.
@@ -180,13 +193,24 @@ namespace FishUI.Controls
 
 		/// <summary>
 		/// Gets the absolute position of this control in screen coordinates.
+		/// Accounts for parent Padding and this control's Margin.
 		/// </summary>
 		/// <returns>The absolute position in pixels.</returns>
 		public Vector2 GetAbsolutePosition()
 		{
+			// Calculate parent padding offset
+			Vector2 parentPaddingOffset = Vector2.Zero;
+			if (Parent != null)
+			{
+				parentPaddingOffset = new Vector2(Parent.Padding.Left, Parent.Padding.Top);
+			}
+
+			// This control's margin offset
+			Vector2 marginOffset = new Vector2(Margin.Left, Margin.Top);
+
 			if (Position.Mode == PositionMode.Absolute)
 			{
-				return new Vector2(Position.X, Position.Y);
+				return new Vector2(Position.X, Position.Y) + marginOffset;
 			}
 			else if (Position.Mode == PositionMode.Relative)
 			{
@@ -195,7 +219,7 @@ namespace FishUI.Controls
 				if (Parent != null)
 					ParentPos = Parent.GetAbsolutePosition();
 
-				return ParentPos + new Vector2(Position.X, Position.Y);
+				return ParentPos + parentPaddingOffset + new Vector2(Position.X, Position.Y) + marginOffset;
 			}
 			else if (Position.Mode == PositionMode.Docked)
 			{
@@ -214,16 +238,16 @@ namespace FishUI.Controls
 					ParentSize = FishUI != null ? new Vector2(FishUI.Width, FishUI.Height) : Size;
 				}
 
-				Vector2 DockedPos = ParentPos + new Vector2(Position.X, Position.Y);
+				Vector2 DockedPos = ParentPos + parentPaddingOffset + new Vector2(Position.X, Position.Y) + marginOffset;
 
 				if (Position.Dock.HasFlag(DockMode.Left))
 				{
-					DockedPos.X = ParentPos.X + Position.Left;
+					DockedPos.X = ParentPos.X + parentPaddingOffset.X + Position.Left + Margin.Left;
 				}
 
 				if (Position.Dock.HasFlag(DockMode.Top))
 				{
-					DockedPos.Y = ParentPos.Y + Position.Top;
+					DockedPos.Y = ParentPos.Y + parentPaddingOffset.Y + Position.Top + Margin.Top;
 				}
 
 				return DockedPos;
@@ -231,7 +255,7 @@ namespace FishUI.Controls
 			else
 			{
 				// Fallback for unknown position modes - treat as absolute position
-				return new Vector2(Position.X, Position.Y);
+				return new Vector2(Position.X, Position.Y) + marginOffset;
 			}
 		}
 
@@ -246,7 +270,7 @@ namespace FishUI.Controls
 		}
 
 		/// <summary>
-		/// Gets the absolute size of this control, accounting for docked positioning.
+		/// Gets the absolute size of this control, accounting for docked positioning and margins.
 		/// </summary>
 		/// <returns>The actual size in pixels.</returns>
 		public Vector2 GetAbsoluteSize()
@@ -255,11 +279,13 @@ namespace FishUI.Controls
 			{
 				Vector2 ParentPos;
 				Vector2 ParentSize;
+				FishUIMargin parentPadding = new FishUIMargin();
 
 				if (Parent != null)
 				{
 					ParentPos = Parent.GetAbsolutePosition();
 					ParentSize = Parent.GetAbsoluteSize();
+					parentPadding = Parent.Padding;
 				}
 				else if (FishUI != null)
 				{
@@ -282,13 +308,15 @@ namespace FishUI.Controls
 				if (Position.Dock.HasFlag(DockMode.Right))
 				{
 					float FullChildWidth = ParentSize.X - SubX;
-					MyNewSize.X = FullChildWidth - Position.Right;
+					// Account for parent right padding and this control's right margin
+					MyNewSize.X = FullChildWidth - Position.Right - parentPadding.Right - Margin.Right;
 				}
 
 				if (Position.Dock.HasFlag(DockMode.Bottom))
 				{
 					float FullChildHeight = ParentSize.Y - SubY;
-					MyNewSize.Y = FullChildHeight - Position.Bottom;
+					// Account for parent bottom padding and this control's bottom margin
+					MyNewSize.Y = FullChildHeight - Position.Bottom - parentPadding.Bottom - Margin.Bottom;
 				}
 
 				return MyNewSize;

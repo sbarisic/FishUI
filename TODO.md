@@ -227,7 +227,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [ ] **GridLayout** - Grid-based child positioning (3 CPX)
 - [x] ~~**StackLayout**~~ - Vertical/horizontal stacking with spacing and padding
 - [ ] Anchor system for responsive resizing (4 CPX) **HIGH PRIORITY**
-- [ ] Margin and Padding properties on all controls (3 CPX) **HIGH PRIORITY**
+- [x] ~~Margin and Padding properties on all controls~~ - Added FishUIMargin struct; Margin/Padding properties on Control; demo in SampleDefault
 - [ ] Auto-sizing controls based on content (3 CPX)
 
 ### Rendering
