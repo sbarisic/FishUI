@@ -39,6 +39,7 @@ A list of planned features, improvements, and new controls for FishUI.
 | TabControl | ✅ Complete | ✅ Atlas |
 | GroupBox | ✅ Complete | ✅ Atlas |
 | TreeView | ✅ Complete | ✅ Atlas |
+| NumericUpDown | ✅ Complete | ✅ Atlas |
 
 ---
 
@@ -67,9 +68,11 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ### Medium Priority
 
-- [ ] **NumericUpDown / Spinner** (2 CPX)
+- [x] **NumericUpDown / Spinner** (2 CPX) ✅ Implemented
   - Textbox with up/down increment buttons
   - Min/max/step value constraints
+  - Decimal places formatting support
+  - Arrow key support for increment/decrement
   - *GWEN atlas regions available: Input.UpDown.Up, Input.UpDown.Down*
 
 - [x] **TreeView / Tree** (4 CPX) ✅ Implemented
@@ -452,7 +455,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] Window children positioned relative to window frame instead of content area
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
-*No uncategorized items*
+- Add mouse wheel support to numeric up/down control (1 CPX)
 
 ---
 

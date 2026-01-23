@@ -119,6 +119,19 @@ namespace FishUISample.Samples
 			slider2.Value = 30;
 			FUI.AddControl(slider2);
 
+			// NumericUpDown / Spinner
+			NumericUpDown numUpDown1 = new NumericUpDown(50, 0, 100, 1);
+			numUpDown1.Position = new Vector2(260, 740);
+			numUpDown1.Size = new Vector2(120, 24);
+			FUI.AddControl(numUpDown1);
+
+			// NumericUpDown with decimal places
+			NumericUpDown numUpDown2 = new NumericUpDown(0.5f, 0f, 1f, 0.1f);
+			numUpDown2.Position = new Vector2(400, 740);
+			numUpDown2.Size = new Vector2(120, 24);
+			numUpDown2.DecimalPlaces = 1;
+			FUI.AddControl(numUpDown2);
+
 
 			Button Btn0 = new Button();
 			Btn0.ID = "visible";
