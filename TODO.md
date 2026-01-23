@@ -46,6 +46,7 @@ A list of planned features, improvements, and new controls for FishUI.
 | StackLayout | ✅ Complete | N/A |
 | ImageBox | ✅ Complete | N/A |
 | StaticText | ✅ Complete | N/A |
+| BarGauge | ✅ Complete | N/A |
 
 ---
 
@@ -127,12 +128,7 @@ A list of planned features, improvements, and new controls for FishUI.
   - Tick marks and labels
   - *Use case: Dashboard-style data visualization*
 
-- [ ] **BarGauge** (2 CPX)
-  - Linear gauge display (horizontal or vertical)
-  - Configurable min/max values
-  - Color zones (e.g., green/yellow/red for temperature)
-  - Tick marks and labels
-  - *Use case: Temperature, fuel level, progress indicators*
+- [x] ~~**BarGauge**~~ - Linear gauge with min/max values, color zones (temperature/fuel presets), ticks, labels; demo in SampleBasicControls
 
 ---
 
@@ -264,6 +260,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [ ] **ImageBox example improvements** (2 CPX)
   - Use images from data/images/ folder instead of silk_icons
   - Add pixelated (nearest-neighbor) rendering mode to ImageBox
+- [x] ~~BarGauge example interactive controls~~ - Added +/- repeat buttons for all gauges in SampleBasicControls
 - [x] ~~StaticText example~~ - Added to SampleBasicControls with alignment and color demos
 - [ ] MultiLine textbox example (1 CPX)
   - Add below existing single-line textbox sample
@@ -318,9 +315,10 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] ~~Layout save/load breaks Window and TabControl~~ - Added `OnDeserialized` virtual method to Control, overridden in Window and TabControl to reinitialize internal state
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
+- Make bar gauge with ticks brigher, makde bar gauge background gray color, only the filled part should change color as it changes
+- Numeric up and down arrows should be a little narrower, i think they are 1:1 aspect ratio
+- Windows Forms-like property editor control needs to be implemented (PropertyGrid)
 
-*No uncategorized items*
-- 
 ---
 
 ## Notes

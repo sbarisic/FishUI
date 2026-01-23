@@ -446,6 +446,114 @@ namespace FishUISample.Samples
 			stColored.BackgroundColor = new FishColor(40, 40, 60, 220);
 			stColored.TooltipText = "Custom TextColor (cyan)";
 			FUI.AddControl(stColored);
+
+			// === BarGauge ===
+			Label barGaugeLabel = new Label("BarGauge (use +/- buttons)");
+			barGaugeLabel.Position = new Vector2(600, 545);
+			barGaugeLabel.Size = new Vector2(250, 20);
+			barGaugeLabel.Alignment = Align.Left;
+			FUI.AddControl(barGaugeLabel);
+
+			// Temperature gauge (green-yellow-red)
+			BarGauge tempGauge = new BarGauge(0, 100);
+			tempGauge.Position = new Vector2(600, 570);
+			tempGauge.Size = new Vector2(150, 25);
+			tempGauge.Value = 72;
+			tempGauge.SetupTemperatureZones();
+			tempGauge.ShowValue = true;
+			tempGauge.UnitSuffix = "°C";
+			tempGauge.TooltipText = "Temperature gauge with color zones";
+			FUI.AddControl(tempGauge);
+
+			// Temperature gauge controls
+			Button tempDown = new Button();
+			tempDown.Text = "-";
+			tempDown.Position = new Vector2(755, 570);
+			tempDown.Size = new Vector2(25, 25);
+			tempDown.IsRepeatButton = true;
+			tempDown.RepeatInterval = 0.05f;
+			tempDown.TooltipText = "Decrease temperature";
+			tempDown.OnButtonPressed += (btn, mbtn, pos) => { tempGauge.Value -= 2; };
+			FUI.AddControl(tempDown);
+
+			Button tempUp = new Button();
+			tempUp.Text = "+";
+			tempUp.Position = new Vector2(785, 570);
+			tempUp.Size = new Vector2(25, 25);
+			tempUp.IsRepeatButton = true;
+			tempUp.RepeatInterval = 0.05f;
+			tempUp.TooltipText = "Increase temperature";
+			tempUp.OnButtonPressed += (btn, mbtn, pos) => { tempGauge.Value += 2; };
+			FUI.AddControl(tempUp);
+
+			// Fuel gauge (red-yellow-green, vertical)
+			Label fuelLabel = new Label("Fuel");
+			fuelLabel.Position = new Vector2(830, 545);
+			fuelLabel.Size = new Vector2(40, 16);
+			fuelLabel.Alignment = Align.Center;
+			FUI.AddControl(fuelLabel);
+
+			BarGauge fuelGauge = new BarGauge(0, 100);
+			fuelGauge.Position = new Vector2(840, 570);
+			fuelGauge.Size = new Vector2(25, 80);
+			fuelGauge.Orientation = BarGaugeOrientation.Vertical;
+			fuelGauge.Value = 35;
+			fuelGauge.SetupFuelZones();
+			fuelGauge.TooltipText = "Fuel gauge (vertical)";
+			FUI.AddControl(fuelGauge);
+
+			// Fuel gauge controls
+			Button fuelDown = new Button();
+			fuelDown.Text = "-";
+			fuelDown.Position = new Vector2(870, 600);
+			fuelDown.Size = new Vector2(25, 25);
+			fuelDown.IsRepeatButton = true;
+			fuelDown.RepeatInterval = 0.05f;
+			fuelDown.TooltipText = "Decrease fuel";
+			fuelDown.OnButtonPressed += (btn, mbtn, pos) => { fuelGauge.Value -= 2; };
+			FUI.AddControl(fuelDown);
+
+			Button fuelUp = new Button();
+			fuelUp.Text = "+";
+			fuelUp.Position = new Vector2(870, 570);
+			fuelUp.Size = new Vector2(25, 25);
+			fuelUp.IsRepeatButton = true;
+			fuelUp.RepeatInterval = 0.05f;
+			fuelUp.TooltipText = "Increase fuel";
+			fuelUp.OnButtonPressed += (btn, mbtn, pos) => { fuelGauge.Value += 2; };
+			FUI.AddControl(fuelUp);
+
+			// Simple gauge with ticks
+			BarGauge tickGauge = new BarGauge(0, 50);
+			tickGauge.Position = new Vector2(600, 610);
+			tickGauge.Size = new Vector2(150, 20);
+			tickGauge.Value = 32;
+			tickGauge.ShowTicks = true;
+			tickGauge.TickCount = 5;
+			tickGauge.FillColor = new FishColor(100, 150, 255, 255);
+			tickGauge.TooltipText = "Gauge with tick marks";
+			FUI.AddControl(tickGauge);
+
+			// Tick gauge controls
+			Button tickDown = new Button();
+			tickDown.Text = "-";
+			tickDown.Position = new Vector2(755, 610);
+			tickDown.Size = new Vector2(25, 20);
+			tickDown.IsRepeatButton = true;
+			tickDown.RepeatInterval = 0.05f;
+			tickDown.TooltipText = "Decrease value";
+			tickDown.OnButtonPressed += (btn, mbtn, pos) => { tickGauge.Value -= 1; };
+			FUI.AddControl(tickDown);
+
+			Button tickUp = new Button();
+			tickUp.Text = "+";
+			tickUp.Position = new Vector2(785, 610);
+			tickUp.Size = new Vector2(25, 20);
+			tickUp.IsRepeatButton = true;
+			tickUp.RepeatInterval = 0.05f;
+			tickUp.TooltipText = "Increase value";
+			tickUp.OnButtonPressed += (btn, mbtn, pos) => { tickGauge.Value += 1; };
+			FUI.AddControl(tickUp);
 		}
 	}
 }
