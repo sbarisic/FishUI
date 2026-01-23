@@ -96,6 +96,11 @@ namespace FishUI.Controls
 		public float BottomBorderHeight { get; set; } = 4;
 
 		/// <summary>
+		/// Width of the side borders in pixels.
+		/// </summary>
+		public float SideBorderWidth { get; set; } = 4;
+
+		/// <summary>
 		/// The resize handle size in pixels (for edge detection).
 		/// </summary>
 		public float ResizeHandleSize { get; set; } = 6;
@@ -174,8 +179,8 @@ namespace FishUI.Controls
 			// Create content panel for child controls
 			_contentPanel = new Panel
 			{
-				Position = new Vector2(0, TitlebarHeight),
-				Size = new Vector2(Size.X, Size.Y - TitlebarHeight - BottomBorderHeight),
+				Position = new Vector2(SideBorderWidth, TitlebarHeight),
+				Size = new Vector2(Size.X - SideBorderWidth * 2, Size.Y - TitlebarHeight - BottomBorderHeight),
 				IsTransparent = true
 			};
 
@@ -189,8 +194,8 @@ namespace FishUI.Controls
 
 			if (_contentPanel != null)
 			{
-				_contentPanel.Position = new Vector2(0, TitlebarHeight);
-				_contentPanel.Size = new Vector2(Size.X, Size.Y - TitlebarHeight - BottomBorderHeight);
+				_contentPanel.Position = new Vector2(SideBorderWidth, TitlebarHeight);
+				_contentPanel.Size = new Vector2(Size.X - SideBorderWidth * 2, Size.Y - TitlebarHeight - BottomBorderHeight);
 			}
 		}
 
@@ -215,7 +220,7 @@ namespace FishUI.Controls
 		/// </summary>
 		public Vector2 GetContentPosition()
 		{
-			return GetAbsolutePosition() + new Vector2(0, TitlebarHeight);
+			return GetAbsolutePosition() + new Vector2(SideBorderWidth, TitlebarHeight);
 		}
 
 		/// <summary>
@@ -223,7 +228,7 @@ namespace FishUI.Controls
 		/// </summary>
 		public Vector2 GetContentSize()
 		{
-			return new Vector2(Size.X, Size.Y - TitlebarHeight - BottomBorderHeight);
+			return new Vector2(Size.X - SideBorderWidth * 2, Size.Y - TitlebarHeight - BottomBorderHeight);
 		}
 
 		/// <summary>

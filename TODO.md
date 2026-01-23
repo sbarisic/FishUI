@@ -158,6 +158,20 @@ A list of planned features, improvements, and new controls for FishUI.
   - Checkbox/radio states
   - *GWEN WidgetLook: MenuItem*
 
+- [ ] **RadialGauge** (3 CPX)
+  - Circular gauge display (e.g., RPM, speedometer)
+  - Configurable min/max values and range angle
+  - Needle/pointer rendering
+  - Tick marks and labels
+  - *Use case: Dashboard-style data visualization*
+
+- [ ] **BarGauge** (2 CPX)
+  - Linear gauge display (horizontal or vertical)
+  - Configurable min/max values
+  - Color zones (e.g., green/yellow/red for temperature)
+  - Tick marks and labels
+  - *Use case: Temperature, fuel level, progress indicators*
+
 ---
 
 ## Control Improvements
@@ -167,7 +181,7 @@ A list of planned features, improvements, and new controls for FishUI.
 - [x] Text selection (click and drag) (2 CPX) ✅ Implemented
 - [x] Copy/paste support (Ctrl+C, Ctrl+V, exposed as functions on a control) (2 CPX) ✅ Implemented
 - [x] Select all (Ctrl+A, exposed as a function) (1 CPX) ✅ Implemented
-- [ ] Multi-line mode with word wrap (3 CPX)
+- [ ] Multi-line mode with character wrap (3 CPX)
 - [x] Password masking mode (1 CPX) ✅ Implemented
 - [x] Placeholder text (1 CPX) ✅ Implemented
 - [x] Max length constraint (1 CPX) ✅ Implemented
@@ -262,7 +276,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ## Core Framework Features
 
 ### Core system
-- [ ] Z-order management for overlapping controls (3 CPX)
+- [ ] Z-order management for overlapping controls (3 CPX) - **HIGH PRIORITY**
 	- BringToFront/SendToBack methods
 	- Always on top property
 	- Modal windows blocking input to background controls, always on top
@@ -289,6 +303,10 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [ ] Anti-aliased rendering option (2 CPX)
 - [ ] Shadow rendering for windows/popups (2 CPX)
   - *GWEN has: Shadow region*
+- [ ] Font system refactoring (3 CPX)
+  - Support for both monospaced and variable-width fonts
+  - Font metrics and proper text measurement
+  - Font style variants (regular, bold, italic)
 
 ### Accessibility
 - [ ] Keyboard-only navigation (3 CPX)
@@ -305,6 +323,9 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [ ] Theme switcher demo (2 CPX)
 - [ ] Responsive layout examples (2 CPX)
 - [ ] Game UI example (inventory, HUD, dialogs) (3 CPX)
+- [ ] MultiLine textbox example (1 CPX)
+  - Add below existing single-line textbox sample
+  - Demonstrate word wrap and scrolling
 
 ---
 
@@ -343,10 +364,22 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ## Known Issues / Bugs
 
 ### Active Bugs
-- [ ] Sample window can only be resized when clicked and dragged on the bottom border, and not left and right borders
-- [ ] First click on text box positions cursor at the start of the text, instead of the end
+*No active bugs*
 
 ### Resolved Bugs
+- [x] **TreeView scrollbar position incorrect on expand** (2 CPX) ✅ Fixed
+  - Added scroll position recalculation when content height changes in `DrawControl`
+  - Scroll offset is now clamped to valid range and `ThumbPosition` is updated to match
+  - Scrollbar now maintains correct position when nodes are expanded/collapsed
+
+- [x] **Window resize only works on bottom border** (1 CPX) ✅ Fixed
+  - Added `SideBorderWidth` property and adjusted content panel to leave space for left/right resize handles
+  - Window can now be resized from all edges and corners
+
+- [x] **First click on text box positions cursor at start** (1 CPX) ✅ Fixed
+  - Removed `InputActiveControl` check in `HandleMousePress` that prevented cursor positioning on first click
+  - Cursor now correctly positions where clicked, even on the first click
+
 - [x] **Tab control tabs positioned too high** (1 CPX) ✅ Fixed
   - Reduced default `TabHeaderHeight` from 31 to 24 to match GWEN skin visual design
   - Active tabs now connect seamlessly with the content area
@@ -370,6 +403,9 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] `Utils.Union` was commented out, breaking scissor intersection calculation
 - [x] `RaylibGfx.PopScissor` didn't restore previous scissor state correctly
 - [x] Window children positioned relative to window frame instead of content area
+
+### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority, assign complexity points where applicable. Do not delete this section when you are done, just empty it)
+*No active uncategorized items*
 
 ---
 

@@ -608,7 +608,7 @@ namespace FishUI.Controls
 			_totalContentHeight = totalHeight;
 			float contentWidth = size.X - (_scrollBar?.Size.X ?? 0) - 4;
 
-			if (_scrollBar != null)
+		if (_scrollBar != null)
 			{
 			// Update scrollbar position and size to match TreeView
 			_scrollBar.Position = new Vector2(size.X - 16, 0);
@@ -617,6 +617,22 @@ namespace FishUI.Controls
 			float viewRatio = size.Y / Math.Max(1, totalHeight);
 			_scrollBar.ThumbHeight = Math.Clamp(viewRatio, 0.1f, 1f);
 			_scrollBar.Visible = totalHeight > size.Y;
+
+			// Recalculate scroll position when content height changes
+			float maxScroll = Math.Max(0, totalHeight - size.Y);
+			if (maxScroll > 0)
+			{
+				// Clamp scroll offset to valid range
+				_scrollOffset = Math.Clamp(_scrollOffset, 0, maxScroll);
+				// Update thumb position to match current scroll offset
+				_scrollBar.ThumbPosition = _scrollOffset / maxScroll;
+			}
+			else
+			{
+				// Content fits in view, reset scroll
+				_scrollOffset = 0;
+				_scrollBar.ThumbPosition = 0;
+			}
 			}
 
 			// Apply scissor for content area

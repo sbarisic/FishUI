@@ -358,7 +358,7 @@ namespace FishUI.Controls
 		{
 			base.HandleMousePress(UI, InState, Btn, Pos);
 
-			if (Btn == FishMouseButton.Left && UI.InputActiveControl == this)
+			if (Btn == FishMouseButton.Left)
 			{
 				// Set cursor position based on click location
 				CursorPosition = GetCursorPositionFromX(UI, Pos.X);
