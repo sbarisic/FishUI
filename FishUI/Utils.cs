@@ -15,7 +15,7 @@ namespace FishUI
 
 		public static bool Union(Vector2 Pos1, Vector2 Size1, Vector2 Pos2, Vector2 Size2, out Vector2 UnPos, out Vector2 UnSize)
 		{
-			/*// Calculate union for rectangle Pos1+Size1 and rectangle Pos2+Size2 into UnPos+UnSize
+			// Calculate intersection for rectangle Pos1+Size1 and rectangle Pos2+Size2 into UnPos+UnSize
 			// If they don't overlap, return false
 
 			float left = Math.Max(Pos1.X, Pos2.X);
@@ -32,11 +32,7 @@ namespace FishUI
 
 			UnPos = new Vector2(left, top);
 			UnSize = new Vector2(right - left, bottom - top);
-			return true;*/
-
-			UnPos = Vector2.Zero;
-			UnSize = Vector2.Zero;
-			return false;
+			return true;
 		}
 
 		public static float Round(this float F)

@@ -97,25 +97,7 @@ namespace FishUISample
         public void PushScissor(Vector2 Pos, Vector2 Size)
         {
             ScissorStack.Push(new Scissor(Pos, Size));
-            bool HasScissor = false;
-
-            if (ScissorStack.Count == 1)
-            {
-                HasScissor = true;
-                CurScissor = ScissorStack.Peek();
-            }
-            else if (ScissorStack.Count > 1)
-            {
-                HasScissor = true;
-                Scissor Tp = ScissorStack.Peek();
-                if (Utils.Union(CurScissor.Pos, CurScissor.Size, Tp.Pos, Tp.Size, out Vector2 NewPos, out Vector2 NewSize))
-                {
-                    CurScissor = new Scissor(NewPos, NewSize);
-                }
-            }
-
-            if (HasScissor)
-                BeginScissor(CurScissor.Pos, CurScissor.Size);
+            ApplyScissorStack();
         }
 
         public void PopScissor()
@@ -124,6 +106,36 @@ namespace FishUISample
 
             if (ScissorStack.Count == 0)
                 EndScissor();
+            else
+                ApplyScissorStack();
+        }
+
+        private void ApplyScissorStack()
+        {
+            if (ScissorStack.Count == 0)
+            {
+                EndScissor();
+                return;
+            }
+
+            // Calculate the intersection of all scissors in the stack
+            var scissors = ScissorStack.ToArray();
+            Vector2 resultPos = scissors[0].Pos;
+            Vector2 resultSize = scissors[0].Size;
+
+            for (int i = 1; i < scissors.Length; i++)
+            {
+                if (!Utils.Union(resultPos, resultSize, scissors[i].Pos, scissors[i].Size, out resultPos, out resultSize))
+                {
+                    // No intersection - use a zero-size scissor (nothing visible)
+                    resultPos = Vector2.Zero;
+                    resultSize = Vector2.Zero;
+                    break;
+                }
+            }
+
+            CurScissor = new Scissor(resultPos, resultSize);
+            BeginScissor(CurScissor.Pos, CurScissor.Size);
         }
 
         Texture2D LoadTex(Image Img)

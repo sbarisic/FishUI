@@ -249,6 +249,7 @@ namespace FishUISample
 			// Add a label inside the window
 			Label windowLabel = new Label("This is a draggable, resizable window!");
 			windowLabel.Position = new Vector2(10, 50);
+			windowLabel.Alignment = Align.Left;
 			window1.AddChild(windowLabel);
 
 			// TabControl demo
@@ -272,6 +273,7 @@ namespace FishUISample
 
 			Label tab1Label = new Label("Content of the General tab");
 			tab1Label.Position = new Vector2(10, 50);
+			tab1Label.Alignment = Align.Left;
 			tab1.Content.AddChild(tab1Label);
 
 			// Add content to second tab
@@ -287,6 +289,8 @@ namespace FishUISample
 			// Add content to third tab
 			Label tab3Label = new Label("FishUI - A lightweight UI framework\nVersion 1.0");
 			tab3Label.Position = new Vector2(10, 10);
+			tab3Label.Alignment = Align.Left;
+			tab3Label.Size = new Vector2(380, 50);
 			tab3.Content.AddChild(tab3Label);
 
 			// GroupBox demo
@@ -318,6 +322,7 @@ namespace FishUISample
 
 			Label dialogLabel = new Label("Are you sure?");
 			dialogLabel.Position = new Vector2(20, 20);
+			dialogLabel.Alignment = Align.Left;
 			window2.AddChild(dialogLabel);
 
 			Button dialogOk = new Button();
