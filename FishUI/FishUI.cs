@@ -170,9 +170,41 @@ namespace FishUI
 				if (c == ModalControl)
 					return true;
 				c = c.GetParent();
-			}
+		}
 			return false;
 	}
+
+		/// <summary>
+		/// Gets the root-level control that contains the given control.
+		/// </summary>
+		private Control GetRootControl(Control control)
+		{
+			if (control == null)
+				return null;
+
+			Control root = control;
+			while (root.GetParent() != null)
+			{
+				root = root.GetParent();
+			}
+			return root;
+		}
+
+		/// <summary>
+		/// Brings the root-level parent of a control to the front.
+		/// This is called automatically on mouse press.
+		/// </summary>
+		private void BringControlToFrontOnClick(Control control)
+		{
+			if (control == null)
+				return;
+
+			Control root = GetRootControl(control);
+			if (root != null && Controls.Contains(root) && !root.AlwaysOnTop)
+			{
+				root.BringToFront();
+			}
+		}
 
 		// Top-down control picking, for mouse events etc
 		Control PickControl(Control[] Controls, Vector2 GlobalPos)
@@ -243,7 +275,7 @@ namespace FishUI
 				UpdateSingleControl(C, InState, InLast);
 		}
 
-		// Check for mouse press
+	// Check for mouse press
 		// Mouse press gets triggered for the first control under the mouse
 		void CheckMousePress(Control ControlUnderMouse, FishInputState InState, bool BtnPressed, FishMouseButton MBtn, ref Control ClickedControl)
 		{
@@ -251,6 +283,9 @@ namespace FishUI
 			{
 				if (ControlUnderMouse != null)
 				{
+					// Bring the root control to front (for windows, panels, etc.)
+					BringControlToFrontOnClick(ControlUnderMouse);
+
 					ControlUnderMouse.HandleMousePress(this, InState, MBtn, InState.MousePos);
 					ClickedControl = ControlUnderMouse;
 					FocusControl(ControlUnderMouse);

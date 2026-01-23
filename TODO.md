@@ -281,6 +281,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 	- AlwaysOnTop property for controls that should always render on top
 	- Modal windows blocking input to background controls via SetModalControl/ShowModal
 	- Auto-incrementing Z-depth assignment on AddControl
+	- Mouse click automatically brings root control to front
 
 ### Layout System
 - [ ] **FlowLayout** - Automatic horizontal/vertical flow of children (3 CPX)
@@ -405,8 +406,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] `RaylibGfx.PopScissor` didn't restore previous scissor state correctly
 - [x] Window children positioned relative to window frame instead of content area
 
-### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority, assign complexity points where applicable. Do not delete this section when you are done, just empty it)
-- Mouse should bring control to front on click (windows, popups, panels, etc.)
+### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
+- Mouse click bring-to-front seems to be inverted, items to the back are brought to front instead of the clicked item
 
 ---
 
