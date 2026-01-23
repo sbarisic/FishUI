@@ -109,6 +109,12 @@ namespace FishUI.Controls
 		public float ThumbSize { get; set; } = 1.1f;
 
 		/// <summary>
+		/// When true, uses colors from the current theme's color palette instead of the control's color properties.
+		/// </summary>
+		[YamlMember]
+		public bool UseThemeColors { get; set; } = true;
+
+		/// <summary>
 		/// Event fired when the value changes
 		/// </summary>
 		public event SliderValueChangedFunc OnValueChanged;
@@ -119,6 +125,41 @@ namespace FishUI.Controls
 		public Slider()
 		{
 			Size = new Vector2(200, 20);
+		}
+
+		private FishColor GetTrackColor(FishUI UI)
+		{
+			if (UseThemeColors && UI.Settings.CurrentTheme != null)
+				return UI.Settings.GetColorPalette().Background;
+			return TrackColor;
+		}
+
+		private FishColor GetFillColor(FishUI UI)
+		{
+			if (UseThemeColors && UI.Settings.CurrentTheme != null)
+				return UI.Settings.GetColorPalette().Accent;
+			return FillColor;
+		}
+
+		private FishColor GetThumbColor(FishUI UI)
+		{
+			if (UseThemeColors && UI.Settings.CurrentTheme != null)
+				return FishColor.White;
+			return ThumbColor;
+		}
+
+		private FishColor GetBorderColor(FishUI UI)
+		{
+			if (UseThemeColors && UI.Settings.CurrentTheme != null)
+				return UI.Settings.GetColorPalette().Border;
+			return BorderColor;
+		}
+
+		private FishColor GetLabelColor(FishUI UI)
+		{
+			if (UseThemeColors && UI.Settings.CurrentTheme != null)
+				return UI.Settings.GetColorPalette().Foreground;
+			return LabelColor;
 		}
 
 		/// <summary>
@@ -238,7 +279,7 @@ namespace FishUI.Controls
 			}
 		}
 
-		private void DrawHorizontal(FishUI UI, Vector2 pos, Vector2 size, float normalized)
+	private void DrawHorizontal(FishUI UI, Vector2 pos, Vector2 size, float normalized)
 		{
 			float trackHeight = size.Y * 0.4f;
 			float trackY = pos.Y + (size.Y - trackHeight) / 2f;
@@ -246,19 +287,33 @@ namespace FishUI.Controls
 			Vector2 trackSize = new Vector2(size.X, trackHeight);
 
 			// Draw track background
-			UI.Graphics.DrawRectangle(trackPos, trackSize, TrackColor);
+			if (UI.Settings.ImgSliderTrack != null)
+			{
+				UI.Graphics.DrawNPatch(UI.Settings.ImgSliderTrack, trackPos, trackSize, FishColor.White);
+			}
+			else
+			{
+				UI.Graphics.DrawRectangle(trackPos, trackSize, GetTrackColor(UI));
+			}
 
 			// Draw fill (portion before thumb)
 			float fillWidth = size.X * normalized;
 			if (fillWidth > 0)
 			{
-				UI.Graphics.DrawRectangle(trackPos, new Vector2(fillWidth, trackHeight), FillColor);
+				if (UI.Settings.ImgSliderFill != null)
+				{
+					UI.Graphics.DrawNPatch(UI.Settings.ImgSliderFill, trackPos, new Vector2(fillWidth, trackHeight), FishColor.White);
+				}
+				else
+				{
+					UI.Graphics.DrawRectangle(trackPos, new Vector2(fillWidth, trackHeight), GetFillColor(UI));
+				}
 			}
 
-			// Draw track border
-			if (ShowBorder)
+			// Draw track border if no NPatch used
+			if (ShowBorder && UI.Settings.ImgSliderTrack == null)
 			{
-				UI.Graphics.DrawRectangleOutline(trackPos, trackSize, BorderColor);
+				UI.Graphics.DrawRectangleOutline(trackPos, trackSize, GetBorderColor(UI));
 			}
 
 			// Draw thumb
@@ -270,34 +325,48 @@ namespace FishUI.Controls
 			Vector2 thumbPos = new Vector2(thumbX, thumbY);
 			Vector2 thumbDimensions = new Vector2(thumbDiameter, thumbDiameter);
 
-			// Apply hover effect to thumb
-			FishColor currentThumbColor = ThumbColor;
-			if (IsMouseInside && !Disabled)
-			{
-				currentThumbColor = new FishColor(
-					(byte)Math.Min(255, currentThumbColor.R + 20),
-					(byte)Math.Min(255, currentThumbColor.G + 20),
-					(byte)Math.Min(255, currentThumbColor.B + 20),
-					currentThumbColor.A
-				);
-			}
+			// Select thumb NPatch based on state
+			NPatch thumbNPatch = UI.Settings.ImgSliderThumb;
+			if (_isDragging && UI.Settings.ImgSliderThumbPressed != null)
+				thumbNPatch = UI.Settings.ImgSliderThumbPressed;
+			else if (IsMouseInside && UI.Settings.ImgSliderThumbHover != null)
+				thumbNPatch = UI.Settings.ImgSliderThumbHover;
 
-			// Apply disabled effect
-			if (Disabled)
+			if (thumbNPatch != null)
 			{
-				currentThumbColor = new FishColor(
-					(byte)(currentThumbColor.R / 2),
-					(byte)(currentThumbColor.G / 2),
-					(byte)(currentThumbColor.B / 2),
-					currentThumbColor.A
-				);
+				UI.Graphics.DrawNPatch(thumbNPatch, thumbPos, thumbDimensions, FishColor.White);
 			}
+			else
+			{
+				// Apply hover effect to thumb
+				FishColor currentThumbColor = GetThumbColor(UI);
+				if (IsMouseInside && !Disabled)
+				{
+					currentThumbColor = new FishColor(
+						(byte)Math.Min(255, currentThumbColor.R + 20),
+						(byte)Math.Min(255, currentThumbColor.G + 20),
+						(byte)Math.Min(255, currentThumbColor.B + 20),
+						currentThumbColor.A
+					);
+				}
 
-			UI.Graphics.DrawRectangle(thumbPos, thumbDimensions, currentThumbColor);
-			UI.Graphics.DrawRectangleOutline(thumbPos, thumbDimensions, BorderColor);
+				// Apply disabled effect
+				if (Disabled)
+				{
+					currentThumbColor = new FishColor(
+						(byte)(currentThumbColor.R / 2),
+						(byte)(currentThumbColor.G / 2),
+						(byte)(currentThumbColor.B / 2),
+						currentThumbColor.A
+					);
+				}
+
+				UI.Graphics.DrawRectangle(thumbPos, thumbDimensions, currentThumbColor);
+				UI.Graphics.DrawRectangleOutline(thumbPos, thumbDimensions, GetBorderColor(UI));
+			}
 		}
 
-		private void DrawVertical(FishUI UI, Vector2 pos, Vector2 size, float normalized)
+	private void DrawVertical(FishUI UI, Vector2 pos, Vector2 size, float normalized)
 		{
 			float trackWidth = size.X * 0.4f;
 			float trackX = pos.X + (size.X - trackWidth) / 2f;
@@ -305,20 +374,34 @@ namespace FishUI.Controls
 			Vector2 trackSize = new Vector2(trackWidth, size.Y);
 
 			// Draw track background
-			UI.Graphics.DrawRectangle(trackPos, trackSize, TrackColor);
+			if (UI.Settings.ImgSliderTrack != null)
+			{
+				UI.Graphics.DrawNPatch(UI.Settings.ImgSliderTrack, trackPos, trackSize, FishColor.White);
+			}
+			else
+			{
+				UI.Graphics.DrawRectangle(trackPos, trackSize, GetTrackColor(UI));
+			}
 
 			// Draw fill (from bottom up for vertical)
 			float fillHeight = size.Y * normalized;
 			if (fillHeight > 0)
 			{
 				Vector2 fillPos = new Vector2(trackX, pos.Y + size.Y - fillHeight);
-				UI.Graphics.DrawRectangle(fillPos, new Vector2(trackWidth, fillHeight), FillColor);
+				if (UI.Settings.ImgSliderFill != null)
+				{
+					UI.Graphics.DrawNPatch(UI.Settings.ImgSliderFill, fillPos, new Vector2(trackWidth, fillHeight), FishColor.White);
+				}
+				else
+				{
+					UI.Graphics.DrawRectangle(fillPos, new Vector2(trackWidth, fillHeight), GetFillColor(UI));
+				}
 			}
 
-			// Draw track border
-			if (ShowBorder)
+			// Draw track border if no NPatch used
+			if (ShowBorder && UI.Settings.ImgSliderTrack == null)
 			{
-				UI.Graphics.DrawRectangleOutline(trackPos, trackSize, BorderColor);
+				UI.Graphics.DrawRectangleOutline(trackPos, trackSize, GetBorderColor(UI));
 			}
 
 			// Draw thumb
@@ -331,34 +414,48 @@ namespace FishUI.Controls
 			Vector2 thumbPos = new Vector2(thumbX, thumbY);
 			Vector2 thumbDimensions = new Vector2(thumbDiameter, thumbDiameter);
 
-			// Apply hover effect to thumb
-			FishColor currentThumbColor = ThumbColor;
-			if (IsMouseInside && !Disabled)
-			{
-				currentThumbColor = new FishColor(
-					(byte)Math.Min(255, currentThumbColor.R + 20),
-					(byte)Math.Min(255, currentThumbColor.G + 20),
-					(byte)Math.Min(255, currentThumbColor.B + 20),
-					currentThumbColor.A
-				);
-			}
+			// Select thumb NPatch based on state
+			NPatch thumbNPatch = UI.Settings.ImgSliderThumb;
+			if (_isDragging && UI.Settings.ImgSliderThumbPressed != null)
+				thumbNPatch = UI.Settings.ImgSliderThumbPressed;
+			else if (IsMouseInside && UI.Settings.ImgSliderThumbHover != null)
+				thumbNPatch = UI.Settings.ImgSliderThumbHover;
 
-			// Apply disabled effect
-			if (Disabled)
+			if (thumbNPatch != null)
 			{
-				currentThumbColor = new FishColor(
-					(byte)(currentThumbColor.R / 2),
-					(byte)(currentThumbColor.G / 2),
-					(byte)(currentThumbColor.B / 2),
-					currentThumbColor.A
-				);
+				UI.Graphics.DrawNPatch(thumbNPatch, thumbPos, thumbDimensions, FishColor.White);
 			}
+			else
+			{
+				// Apply hover effect to thumb
+				FishColor currentThumbColor = GetThumbColor(UI);
+				if (IsMouseInside && !Disabled)
+				{
+					currentThumbColor = new FishColor(
+						(byte)Math.Min(255, currentThumbColor.R + 20),
+						(byte)Math.Min(255, currentThumbColor.G + 20),
+						(byte)Math.Min(255, currentThumbColor.B + 20),
+						currentThumbColor.A
+					);
+				}
 
-			UI.Graphics.DrawRectangle(thumbPos, thumbDimensions, currentThumbColor);
-			UI.Graphics.DrawRectangleOutline(thumbPos, thumbDimensions, BorderColor);
+				// Apply disabled effect
+				if (Disabled)
+				{
+					currentThumbColor = new FishColor(
+						(byte)(currentThumbColor.R / 2),
+						(byte)(currentThumbColor.G / 2),
+						(byte)(currentThumbColor.B / 2),
+						currentThumbColor.A
+					);
+				}
+
+				UI.Graphics.DrawRectangle(thumbPos, thumbDimensions, currentThumbColor);
+				UI.Graphics.DrawRectangleOutline(thumbPos, thumbDimensions, GetBorderColor(UI));
+			}
 		}
 
-		private void DrawValueLabel(FishUI UI, Vector2 pos, Vector2 size)
+	private void DrawValueLabel(FishUI UI, Vector2 pos, Vector2 size)
 		{
 			string label = Value.ToString(ValueLabelFormat);
 			Vector2 textSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, label);
@@ -378,7 +475,7 @@ namespace FishUI.Controls
 				labelY = pos.Y + size.Y + 4;
 			}
 
-			UI.Graphics.DrawTextColor(UI.Settings.FontDefault, label, new Vector2(labelX, labelY), LabelColor);
+			UI.Graphics.DrawTextColor(UI.Settings.FontDefault, label, new Vector2(labelX, labelY), GetLabelColor(UI));
 		}
 	}
 }

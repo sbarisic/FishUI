@@ -112,6 +112,22 @@ namespace FishUI
 		public NPatch ImgDropdownArrowBlack { get; set; }
 		public NPatch ImgDropdownArrowWhite { get; set; }
 
+		// ProgressBar
+		public NPatch ImgProgressBarTrack { get; set; }
+		public NPatch ImgProgressBarFill { get; set; }
+
+		// Slider
+		public NPatch ImgSliderTrack { get; set; }
+		public NPatch ImgSliderFill { get; set; }
+		public NPatch ImgSliderThumb { get; set; }
+		public NPatch ImgSliderThumbHover { get; set; }
+		public NPatch ImgSliderThumbPressed { get; set; }
+
+		// ToggleSwitch
+		public NPatch ImgToggleSwitchTrackOn { get; set; }
+		public NPatch ImgToggleSwitchTrackOff { get; set; }
+		public NPatch ImgToggleSwitchThumb { get; set; }
+
 		// Debug settings
 		/// <summary>
 		/// Enables or disables all debug logging in FishUI.
@@ -478,6 +494,32 @@ namespace FishUI
 			if (np != null) ImgDropdownArrowBlack = np;
 			np = themeLoader.CreateNPatch(theme, "Dropdown", "ArrowWhite");
 			if (np != null) ImgDropdownArrowWhite = np;
+
+			// ProgressBar
+			np = themeLoader.CreateNPatch(theme, "ProgressBar", "Track");
+			if (np != null) ImgProgressBarTrack = np;
+			np = themeLoader.CreateNPatch(theme, "ProgressBar", "Fill");
+			if (np != null) ImgProgressBarFill = np;
+
+			// Slider
+			np = themeLoader.CreateNPatch(theme, "Slider", "Track");
+			if (np != null) ImgSliderTrack = np;
+			np = themeLoader.CreateNPatch(theme, "Slider", "Fill");
+			if (np != null) ImgSliderFill = np;
+			np = themeLoader.CreateNPatch(theme, "Slider", "Thumb");
+			if (np != null) ImgSliderThumb = np;
+			np = themeLoader.CreateNPatch(theme, "Slider", "ThumbHover");
+			if (np != null) ImgSliderThumbHover = np;
+			np = themeLoader.CreateNPatch(theme, "Slider", "ThumbPressed");
+			if (np != null) ImgSliderThumbPressed = np;
+
+			// ToggleSwitch
+			np = themeLoader.CreateNPatch(theme, "ToggleSwitch", "TrackOn");
+			if (np != null) ImgToggleSwitchTrackOn = np;
+			np = themeLoader.CreateNPatch(theme, "ToggleSwitch", "TrackOff");
+			if (np != null) ImgToggleSwitchTrackOff = np;
+			np = themeLoader.CreateNPatch(theme, "ToggleSwitch", "Thumb");
+			if (np != null) ImgToggleSwitchThumb = np;
 		}
 
 		/// <summary>

@@ -72,6 +72,12 @@ namespace FishUI.Controls
 		[YamlMember]
 		public bool ShowBorder { get; set; } = true;
 
+		/// <summary>
+		/// When true, uses colors from the current theme's color palette instead of the control's color properties.
+		/// </summary>
+		[YamlMember]
+		public bool UseThemeColors { get; set; } = true;
+
 		[YamlIgnore]
 		private float _animationTime = 0f;
 
@@ -80,13 +86,41 @@ namespace FishUI.Controls
 			Size = new Vector2(200, 20);
 		}
 
+		private FishColor GetBackgroundColor(FishUI UI)
+		{
+			if (UseThemeColors && UI.Settings.CurrentTheme != null)
+				return UI.Settings.GetColorPalette().Background;
+			return BackgroundColor;
+		}
+
+		private FishColor GetFillColor(FishUI UI)
+		{
+			if (UseThemeColors && UI.Settings.CurrentTheme != null)
+				return UI.Settings.GetColorPalette().Accent;
+			return FillColor;
+		}
+
+		private FishColor GetBorderColor(FishUI UI)
+		{
+			if (UseThemeColors && UI.Settings.CurrentTheme != null)
+				return UI.Settings.GetColorPalette().Border;
+			return BorderColor;
+		}
+
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
 			Vector2 pos = GetAbsolutePosition();
 			Vector2 size = GetAbsoluteSize();
 
-			// Draw background
-			UI.Graphics.DrawRectangle(pos, size, BackgroundColor);
+			// Draw background using NPatch if available, otherwise use color
+			if (UI.Settings.ImgProgressBarTrack != null)
+			{
+				UI.Graphics.DrawNPatch(UI.Settings.ImgProgressBarTrack, pos, size, FishColor.White);
+			}
+			else
+			{
+				UI.Graphics.DrawRectangle(pos, size, GetBackgroundColor(UI));
+			}
 
 			if (IsIndeterminate)
 			{
@@ -97,10 +131,10 @@ namespace FishUI.Controls
 				DrawDeterminate(UI, pos, size);
 			}
 
-			// Draw border
-			if (ShowBorder)
+			// Draw border if no NPatch is used
+			if (ShowBorder && UI.Settings.ImgProgressBarTrack == null)
 			{
-				UI.Graphics.DrawRectangleOutline(pos, size, BorderColor);
+				UI.Graphics.DrawRectangleOutline(pos, size, GetBorderColor(UI));
 			}
 		}
 
@@ -124,7 +158,15 @@ namespace FishUI.Controls
 				fillSize = new Vector2(size.X, fillHeight);
 			}
 
-			UI.Graphics.DrawRectangle(fillPos, fillSize, FillColor);
+			// Draw fill using NPatch if available, otherwise use color
+			if (UI.Settings.ImgProgressBarFill != null)
+			{
+				UI.Graphics.DrawNPatch(UI.Settings.ImgProgressBarFill, fillPos, fillSize, FishColor.White);
+			}
+			else
+			{
+				UI.Graphics.DrawRectangle(fillPos, fillSize, GetFillColor(UI));
+			}
 		}
 
 		private void DrawIndeterminate(FishUI UI, float Dt, Vector2 pos, Vector2 size)
@@ -158,7 +200,15 @@ namespace FishUI.Controls
 				fillSize = new Vector2(size.X, indicatorHeight);
 			}
 
-			UI.Graphics.DrawRectangle(fillPos, fillSize, FillColor);
+			// Draw fill using NPatch if available, otherwise use color
+			if (UI.Settings.ImgProgressBarFill != null)
+			{
+				UI.Graphics.DrawNPatch(UI.Settings.ImgProgressBarFill, fillPos, fillSize, FishColor.White);
+			}
+			else
+			{
+				UI.Graphics.DrawRectangle(fillPos, fillSize, GetFillColor(UI));
+			}
 		}
 	}
 }

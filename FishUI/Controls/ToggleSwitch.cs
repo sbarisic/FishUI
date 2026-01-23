@@ -81,6 +81,12 @@ namespace FishUI.Controls
 		public float AnimationSpeed { get; set; } = 8.0f;
 
 		/// <summary>
+		/// When true, uses colors from the current theme's color palette instead of the control's color properties.
+		/// </summary>
+		[YamlMember]
+		public bool UseThemeColors { get; set; } = true;
+
+		/// <summary>
 		/// Event fired when the toggle state changes
 		/// </summary>
 		public event ToggleSwitchChangedFunc OnToggleChanged;
@@ -91,6 +97,41 @@ namespace FishUI.Controls
 		public ToggleSwitch()
 		{
 			Size = new Vector2(50, 24);
+		}
+
+		private FishColor GetOnColor(FishUI UI)
+		{
+			if (UseThemeColors && UI.Settings.CurrentTheme != null)
+				return UI.Settings.GetColorPalette().Success;
+			return OnColor;
+		}
+
+		private FishColor GetOffColor(FishUI UI)
+		{
+			if (UseThemeColors && UI.Settings.CurrentTheme != null)
+				return UI.Settings.GetColorPalette().Disabled;
+			return OffColor;
+		}
+
+		private FishColor GetThumbColor(FishUI UI)
+		{
+			if (UseThemeColors && UI.Settings.CurrentTheme != null)
+				return FishColor.White;
+			return ThumbColor;
+		}
+
+		private FishColor GetBorderColor(FishUI UI)
+		{
+			if (UseThemeColors && UI.Settings.CurrentTheme != null)
+				return UI.Settings.GetColorPalette().Border;
+			return BorderColor;
+		}
+
+		private FishColor GetLabelColor(FishUI UI)
+		{
+			if (UseThemeColors && UI.Settings.CurrentTheme != null)
+				return FishColor.White;
+			return LabelColor;
 		}
 
 		public override void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
@@ -120,25 +161,37 @@ namespace FishUI.Controls
 				_animationPosition = targetPosition;
 			}
 
-			// Calculate colors with interpolation for smooth transition
-			FishColor currentBgColor = LerpColor(OffColor, OnColor, _animationPosition);
-
-			// Apply disabled state
-			if (Disabled)
+			// Draw background track using NPatch if available
+			bool useNPatch = false;
+			if (IsOn && UI.Settings.ImgToggleSwitchTrackOn != null)
 			{
-				currentBgColor = new FishColor(
-					(byte)(currentBgColor.R / 2),
-					(byte)(currentBgColor.G / 2),
-					(byte)(currentBgColor.B / 2),
-					currentBgColor.A
-				);
+				UI.Graphics.DrawNPatch(UI.Settings.ImgToggleSwitchTrackOn, pos, size, FishColor.White);
+				useNPatch = true;
 			}
+			else if (!IsOn && UI.Settings.ImgToggleSwitchTrackOff != null)
+			{
+				UI.Graphics.DrawNPatch(UI.Settings.ImgToggleSwitchTrackOff, pos, size, FishColor.White);
+				useNPatch = true;
+			}
+			else
+			{
+				// Calculate colors with interpolation for smooth transition
+				FishColor currentBgColor = LerpColor(GetOffColor(UI), GetOnColor(UI), _animationPosition);
 
-			// Draw background track
-			UI.Graphics.DrawRectangle(pos, size, currentBgColor);
+				// Apply disabled state
+				if (Disabled)
+				{
+					currentBgColor = new FishColor(
+						(byte)(currentBgColor.R / 2),
+						(byte)(currentBgColor.G / 2),
+						(byte)(currentBgColor.B / 2),
+						currentBgColor.A
+					);
+				}
 
-			// Draw border
-			UI.Graphics.DrawRectangleOutline(pos, size, BorderColor);
+				UI.Graphics.DrawRectangle(pos, size, currentBgColor);
+				UI.Graphics.DrawRectangleOutline(pos, size, GetBorderColor(UI));
+			}
 
 			// Calculate thumb dimensions and position
 			float thumbPadding = 2f;
@@ -150,19 +203,27 @@ namespace FishUI.Controls
 			Vector2 thumbPos = new Vector2(thumbX, thumbY);
 			Vector2 thumbDimensions = new Vector2(thumbSize, thumbSize);
 
-			// Draw thumb with hover effect
-			FishColor currentThumbColor = ThumbColor;
-			if (IsMouseInside && !Disabled)
+			// Draw thumb using NPatch if available
+			if (UI.Settings.ImgToggleSwitchThumb != null)
 			{
-				currentThumbColor = new FishColor(
-					(byte)Math.Min(255, currentThumbColor.R + 20),
-					(byte)Math.Min(255, currentThumbColor.G + 20),
-					(byte)Math.Min(255, currentThumbColor.B + 20),
-					currentThumbColor.A
-				);
+				UI.Graphics.DrawNPatch(UI.Settings.ImgToggleSwitchThumb, thumbPos, thumbDimensions, FishColor.White);
 			}
+			else
+			{
+				// Draw thumb with hover effect
+				FishColor currentThumbColor = GetThumbColor(UI);
+				if (IsMouseInside && !Disabled)
+				{
+					currentThumbColor = new FishColor(
+						(byte)Math.Min(255, currentThumbColor.R + 20),
+						(byte)Math.Min(255, currentThumbColor.G + 20),
+						(byte)Math.Min(255, currentThumbColor.B + 20),
+						currentThumbColor.A
+					);
+				}
 
-			UI.Graphics.DrawRectangle(thumbPos, thumbDimensions, currentThumbColor);
+				UI.Graphics.DrawRectangle(thumbPos, thumbDimensions, currentThumbColor);
+			}
 
 			// Draw optional labels
 			if (ShowLabels)
@@ -184,7 +245,7 @@ namespace FishUI.Controls
 				}
 
 				float labelY = pos.Y + (size.Y - textSize.Y) / 2;
-				UI.Graphics.DrawTextColor(UI.Settings.FontDefault, label, new Vector2(labelX, labelY), LabelColor);
+				UI.Graphics.DrawTextColor(UI.Settings.FontDefault, label, new Vector2(labelX, labelY), GetLabelColor(UI));
 			}
 		}
 

@@ -38,7 +38,12 @@ namespace FishUI
 			{ "!Label", typeof(Label) },
 			{ "!ListBox", typeof(ListBox) },
 			{ "!ScrollBarV", typeof(ScrollBarV) },
-			{ "!DropDown", typeof(DropDown) }
+			{ "!ScrollBarH", typeof(ScrollBarH) },
+			{ "!DropDown", typeof(DropDown) },
+			{ "!ProgressBar", typeof(ProgressBar) },
+			{ "!Slider", typeof(Slider) },
+			{ "!ToggleSwitch", typeof(ToggleSwitch) },
+			{ "!SelectionBox", typeof(SelectionBox) }
 		};
 
 		public static string Serialize(FishUI UI)
@@ -80,13 +85,19 @@ namespace FishUI
 			}
 
 			IDeserializer dser = dbuild.Build();
-			Control[] Ctrls = dser.Deserialize<Control[]>(Data);
+			
+			// Use List<object> to avoid abstract Control instantiation issue
+			// YamlDotNet will use the tag mappings to create concrete types
+			var Ctrls = dser.Deserialize<List<object>>(Data);
 
 			UI.RemoveAllControls();
-			foreach (Control C in Ctrls)
+			foreach (object Obj in Ctrls)
 			{
-				LinkParents(C);
-				UI.AddControl(C);
+				if (Obj is Control C)
+				{
+					LinkParents(C);
+					UI.AddControl(C);
+				}
 			}
 		}
 
