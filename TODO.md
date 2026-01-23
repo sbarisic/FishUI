@@ -176,16 +176,11 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ### NumericUpDown Enhancements
 - [x] ~~Mouse wheel support~~ - Scroll to increment/decrement value
-
-### TabControl Enhancements
+- [x] ~~Narrower arrow buttons~~ - Reduced ButtonWidth from 20 to 16 for better aspect ratio
 - [x] ~~Preserve tab names during serialization~~ - Added TabNames property that syncs with TabPages; names restored in OnDeserialized
 
 ### BarGauge Enhancements
 - [x] ~~Visual styling improvements~~ - Brighter tick marks (white), gray background for unfilled area, color zones only on filled portion
-
-### NumericUpDown Enhancements
-- [ ] Narrower arrow buttons (1 CPX)
-  - Arrow buttons currently use 1:1 aspect ratio, should be narrower
 
 ---
 

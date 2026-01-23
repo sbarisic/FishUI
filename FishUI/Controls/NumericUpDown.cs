@@ -60,7 +60,7 @@ namespace FishUI.Controls
 		/// Width of the up/down button area.
 		/// </summary>
 		[YamlMember]
-		public float ButtonWidth { get; set; } = 20f;
+		public float ButtonWidth { get; set; } = 16f;
 
 		/// <summary>
 		/// Event raised when the value changes.
