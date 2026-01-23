@@ -116,10 +116,9 @@ namespace FishUI.Controls
 		public event Action<Window, Vector2> OnResized;
 
 		private Titlebar _titlebar;
+		private Panel _contentPanel;
 		private ResizeDirection _resizeDirection = ResizeDirection.None;
 		private bool _isResizing = false;
-		private Vector2 _resizeStartPos;
-		private Vector2 _resizeStartSize;
 
 		[Flags]
 		private enum ResizeDirection
@@ -139,7 +138,7 @@ namespace FishUI.Controls
 		{
 			Size = new Vector2(300, 200);
 			Draggable = false; // Dragging is handled by the titlebar
-			CreateTitlebar();
+			CreateInternalControls();
 		}
 
 		public Window(string title) : this()
@@ -150,13 +149,15 @@ namespace FishUI.Controls
 		public Window(string title, Vector2 size) : this(title)
 		{
 			Size = size;
+			UpdateInternalSizes();
 		}
 
-		private void CreateTitlebar()
+		private void CreateInternalControls()
 		{
+			// Create titlebar
 			_titlebar = new Titlebar(_title)
 			{
-			Position = new Vector2(0, 0),
+				Position = new Vector2(0, 0),
 				Size = new Vector2(Size.X, TitlebarHeight),
 				ShowCloseButton = _showCloseButton,
 				IsActive = _isActive
@@ -168,7 +169,45 @@ namespace FishUI.Controls
 				Position += delta;
 			};
 
-			AddChild(_titlebar);
+			base.AddChild(_titlebar);
+
+			// Create content panel for child controls
+			_contentPanel = new Panel
+			{
+				Position = new Vector2(0, TitlebarHeight),
+				Size = new Vector2(Size.X, Size.Y - TitlebarHeight - BottomBorderHeight),
+				IsTransparent = true
+			};
+
+			base.AddChild(_contentPanel);
+		}
+
+		private void UpdateInternalSizes()
+		{
+			if (_titlebar != null)
+				_titlebar.Size = new Vector2(Size.X, TitlebarHeight);
+
+			if (_contentPanel != null)
+			{
+				_contentPanel.Position = new Vector2(0, TitlebarHeight);
+				_contentPanel.Size = new Vector2(Size.X, Size.Y - TitlebarHeight - BottomBorderHeight);
+			}
+		}
+
+		/// <summary>
+		/// Adds a child control to the window's content area.
+		/// </summary>
+		public new void AddChild(Control Child)
+		{
+			_contentPanel.AddChild(Child);
+		}
+
+		/// <summary>
+		/// Removes a child control from the window's content area.
+		/// </summary>
+		public new void RemoveChild(Control Child)
+		{
+			_contentPanel.RemoveChild(Child);
 		}
 
 		/// <summary>
@@ -264,8 +303,6 @@ namespace FishUI.Controls
 				if (_resizeDirection != ResizeDirection.None)
 				{
 					_isResizing = true;
-					_resizeStartPos = Pos;
-					_resizeStartSize = Size;
 				}
 			}
 		}
@@ -325,9 +362,8 @@ namespace FishUI.Controls
 				Position.X = newPos.X;
 				Position.Y = newPos.Y;
 
-				// Update titlebar width
-				if (_titlebar != null)
-					_titlebar.Size = new Vector2(Size.X, TitlebarHeight);
+				// Update internal control sizes
+				UpdateInternalSizes();
 
 				OnResized?.Invoke(this, Size);
 			}
@@ -338,16 +374,14 @@ namespace FishUI.Controls
 			Vector2 absPos = GetAbsolutePosition();
 			Vector2 absSize = GetAbsoluteSize();
 
-			// Update titlebar size in case window was resized
+			// Update internal sizes in case window was resized
+			UpdateInternalSizes();
 			if (_titlebar != null)
-			{
-				_titlebar.Size = new Vector2(Size.X, TitlebarHeight);
 				_titlebar.IsActive = IsActive;
-			}
 
 			// Draw window body (middle section)
-			NPatch middleImg = IsActive 
-				? UI.Settings.ImgWindowMiddleNormal 
+			NPatch middleImg = IsActive
+				? UI.Settings.ImgWindowMiddleNormal
 				: UI.Settings.ImgWindowMiddleInactive;
 
 			Vector2 bodyPos = new Vector2(absPos.X, absPos.Y + TitlebarHeight);
@@ -364,8 +398,8 @@ namespace FishUI.Controls
 			}
 
 			// Draw bottom border
-			NPatch bottomImg = IsActive 
-				? UI.Settings.ImgWindowBottomNormal 
+			NPatch bottomImg = IsActive
+				? UI.Settings.ImgWindowBottomNormal
 				: UI.Settings.ImgWindowBottomInactive;
 
 			Vector2 bottomPos = new Vector2(absPos.X, absPos.Y + absSize.Y - BottomBorderHeight);

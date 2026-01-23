@@ -269,7 +269,7 @@ namespace FishUI.Controls
 			page.Content.Size = contentSize;
 			}
 
-			// Draw tab control background (content area)
+		// Draw tab control background (content area)
 			NPatch bgImg = UI.Settings.ImgTabControlBackground;
 			Vector2 contentPos = new Vector2(absPos.X, absPos.Y + TabHeaderHeight);
 			Vector2 bgSize = new Vector2(absSize.X, absSize.Y - TabHeaderHeight);
@@ -285,11 +285,20 @@ namespace FishUI.Controls
 				UI.Graphics.DrawRectangleOutline(contentPos, bgSize, new FishColor(180, 180, 180));
 			}
 
-			// Draw header bar background
-			NPatch headerBarImg = UI.Settings.ImgTabHeaderBar;
-			if (headerBarImg != null)
+			// Calculate total tab width first
+			float totalTabWidth = 0;
+			foreach (var page in TabPages)
 			{
-				UI.Graphics.DrawNPatch(headerBarImg, absPos, new Vector2(absSize.X, TabHeaderHeight), Color);
+				totalTabWidth += GetTabWidth(UI, page);
+			}
+
+			// Draw header bar background only for the area not covered by tabs
+			NPatch headerBarImg = UI.Settings.ImgTabHeaderBar;
+			if (headerBarImg != null && totalTabWidth < absSize.X)
+			{
+				Vector2 headerPos = new Vector2(absPos.X + totalTabWidth, absPos.Y);
+				Vector2 headerSize = new Vector2(absSize.X - totalTabWidth, TabHeaderHeight);
+				UI.Graphics.DrawNPatch(headerBarImg, headerPos, headerSize, Color);
 			}
 
 			// Draw tabs
