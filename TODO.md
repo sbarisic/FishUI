@@ -268,7 +268,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] ~~BarGauge example interactive controls~~ - Added +/- repeat buttons for all gauges in SampleBasicControls
 - [x] ~~Virtual cursor example~~ - SampleVirtualCursor demonstrates keyboard/gamepad cursor navigation
 - [ ] **AnimatedImageBox example with stargate images** (1 CPX) **HIGH PRIORITY**
-- Requires /data/anim_images/stargate/* images to be added first
+- Use data/anim_images/stargate/*.png images to demonstrate animated image box
 - Add AnimatedImageBox demo to SampleBasicControls showing animation playback
 - [x] ~~StaticText example~~ - Added to SampleBasicControls with alignment and color demos
 - [ ] MultiLine textbox example (1 CPX)
@@ -312,6 +312,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Fixed Bugs
 
+- [x] ~~Virtual cursor not responding to arrow keys~~ - Added automatic arrow key and button input handling in FishUI.Tick() when VirtualMouse.Enabled is true
+
 - [x] ~~ImageBox examples overlap in SampleBasicControls~~ - Moved ImageBox controls 100 units right (X: 500→600, 590→690)
 
 - [x] ~~ScrollBar mouse wheel not working in examples~~ - Mouse wheel events now bubble up to parent controls; child buttons propagate to ScrollBar
@@ -325,8 +327,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-- Virtual cursor example does not seem to move when i use arrow keys, maybe add debug print options (Settings and Debug class)
-- Check data/anim_images/stargate/*.png again, folder exists
+- Virtual cursor draws below all controls. It should be the top most thing rendered
 
 ---
 
