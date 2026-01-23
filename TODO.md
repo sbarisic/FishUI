@@ -48,40 +48,9 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ### High Priority
 
-- [x] **TabControl / TabPanel** (3 CPX) ✅ Implemented
-  - Tab header strip with clickable tabs
-  - Content panels that switch based on selected tab
-  - Tab overflow handling (scroll with left-right arrows) - *TODO*
-  - Top/bottom tab positioning - *TODO*
-  - *GWEN atlas regions available: Tab.Top.Active, Tab.Top.Inactive, Tab.Bottom.Active, Tab.Bottom.Inactive, Tab.Control, Tab.HeaderBar*
-
-- [x] **Window / FrameWindow / Dialog** (4 CPX) ✅ Implemented
-  - Draggable title bar
-  - Close button (optional minimize/maximize) - minimize/maximize *TODO*
-  - Modal and non-modal modes - modal blocking *TODO*
-  - Resizable and fixed border mode
-  - *GWEN atlas regions available: Window.Head.Normal, Window.Head.Inactive, Window.Middle, Window.Bottom, Window.Close*
-
-- [x] **Titlebar** (2 CPX) ✅ Implemented
-  - Standalone titlebar component for windows
-  - Text display with optional icon - icon *TODO*
-  - *GWEN atlas regions available: Window.Head.Normal, Window.Head.Inactive*
+*All high priority controls have been implemented*
 
 ### Medium Priority
-
-- [x] **NumericUpDown / Spinner** (2 CPX) ✅ Implemented
-  - Textbox with up/down increment buttons
-  - Min/max/step value constraints
-  - Decimal places formatting support
-  - Arrow key support for increment/decrement
-  - *GWEN atlas regions available: Input.UpDown.Up, Input.UpDown.Down*
-
-- [x] **TreeView / Tree** (4 CPX) ✅ Implemented
-  - Hierarchical node display
-  - Expand/collapse functionality
-  - Node selection with keyboard navigation
-  - Lazy loading support for large trees
-  - *GWEN atlas regions available: Tree.Top, Tree.Middle, Tree.Bottom, Tree.Plus, Tree.Minus*
 
 - [ ] **ContextMenu / PopupMenu** (3 CPX)
   - Right-click context menus
@@ -97,17 +66,6 @@ A list of planned features, improvements, and new controls for FishUI.
   - Keyboard shortcuts display
   - Separator items
   - *GWEN atlas regions available: Menu.Strip, Menu.Background, Menu.Hover*
-
-- [x] **Tooltip** (2 CPX) ✅ Implemented
-- Hover-triggered popup text with configurable delay
-- Automatic screen boundary clamping
-- TooltipText property on Control base class for easy attachment
-- *GWEN atlas regions available: Tooltip.Top, Tooltip.Middle, Tooltip.Bottom*
-
-- [x] **GroupBox** (1 CPX) ✅ Implemented
-- Labeled container with border
-- Title positioning options
-- *GWEN atlas regions available: GroupBox.Normal*
 
 - [ ] **ScrollablePane** (3 CPX)
   - Container with automatic scrollbars
@@ -186,15 +144,7 @@ A list of planned features, improvements, and new controls for FishUI.
 ## Control Improvements
 
 ### Textbox Enhancements
-- [x] Cursor positioning with mouse click (2 CPX) ✅ Implemented
-- [x] Text selection (click and drag) (2 CPX) ✅ Implemented
-- [x] Copy/paste support (Ctrl+C, Ctrl+V, exposed as functions on a control) (2 CPX) ✅ Implemented
-- [x] Select all (Ctrl+A, exposed as a function) (1 CPX) ✅ Implemented
 - [ ] Multi-line mode with character wrap (3 CPX)
-- [x] Password masking mode (1 CPX) ✅ Implemented
-- [x] Placeholder text (1 CPX) ✅ Implemented
-- [x] Max length constraint (1 CPX) ✅ Implemented
-- [x] Read-only mode (1 CPX) ✅ Implemented
 
 ### DropDown Enhancements
 - [ ] Multi-select mode (checkbox icon per item) (2 CPX)
@@ -225,16 +175,6 @@ A list of planned features, improvements, and new controls for FishUI.
 - [ ] Vertical progress bar mode (1 CPX)
   - *GWEN has: VProgressBar regions for vertical variant*
 
-### Window Enhancements
-- [x] Disabled close button mode (1 CPX) ✅ Implemented
-  - Added `CloseButtonEnabled` property to Window and Titlebar controls
-  - When disabled, close button is visible but non-interactive (grayed out)
-  - Uses `Window.Close_Disabled` atlas region for visual feedback
-  - *Use case: Modal dialogs that should only be closed programmatically*
-- [x] Modal windows disable close button by default (1 CPX) ✅ Implemented
-  - When `IsModal = true`, automatically sets `CloseButtonEnabled = false`
-  - Can be overridden by explicitly setting `CloseButtonEnabled = true` afterward
-
 ### NumericUpDown Enhancements
 - [ ] Mouse wheel support (1 CPX)
   - Scroll up to increment, scroll down to decrement value
@@ -243,23 +183,7 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ## Theme System
 
-### Current State
-- [x] Theme loading from YAML files
-- [x] Sprite atlas support (gwen.png)
-- [x] NPatch/9-slice rendering
-- [x] Region coordinates from CEGUI imageset format
-- [x] Runtime theme switching
-- [x] Color palette support
-
 ### Theme File Improvements
-- [x] Add missing GWEN atlas regions to gwen.yaml (2 CPX) ✅ Completed
-  - Window/FrameWindow regions (HeadNormal, HeadInactive, MiddleNormal, MiddleInactive, BottomNormal, BottomInactive, Close buttons)
-  - Tab regions (HeaderBar, ControlBackground, TopActive, TopInactive)
-  - Menu regions (Strip, Background, Hover, RightArrow, LeftArrow)
-  - Tooltip regions
-  - GroupBox regions
-  - Tree regions (Background, Plus, Minus)
-  - NumericUpDown regions (Up/Down button states)
 - [ ] Theme inheritance / base themes (3 CPX)
   - Allow theme YAML files to inherit from other themes (e.g., `gwen2.yaml` inherits from `gwen.yaml`)
   - Child themes only need to override specific regions, inheriting all others from parent
@@ -299,14 +223,6 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ## Core Framework Features
 
-### Core system
-- [x] Z-order management for overlapping controls (3 CPX) ✅ Implemented
-	- BringToFront/SendToBack methods on Control base class
-	- AlwaysOnTop property for controls that should always render on top
-	- Modal windows blocking input to background controls via SetModalControl/ShowModal
-	- Auto-incrementing Z-depth assignment on AddControl
-	- Mouse click automatically brings root control to front
-
 ### Layout System
 - [ ] **FlowLayout** - Automatic horizontal/vertical flow of children (3 CPX)
 - [ ] **GridLayout** - Grid-based child positioning (3 CPX)
@@ -314,14 +230,6 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [ ] Anchor system for responsive resizing (4 CPX)
 - [ ] Margin and Padding properties on all controls (3 CPX)
 - [ ] Auto-sizing controls based on content (3 CPX)
-
-### Input & Events
-- [x] Mouse wheel scrolling support
-- [x] Double-click event handling
-- [x] Keyboard focus navigation (Tab key)
-- [x] Focus visual indicators
-- [x] Global keyboard shortcuts / hotkeys
-- [x] Virtual mouse cursor mode
 
 ### Rendering
 - [ ] Control opacity/transparency (2 CPX)
@@ -339,28 +247,33 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [ ] Scalable UI for different DPI (4 CPX)
 
 ### Serialization
-- [ ] YAML layout format support (2 CPX)
+- [ ] Add new controls to LayoutFormat TypeMapping (1 CPX) ** HIGH PRIORITY **
+  - Missing: Window, Titlebar, TabControl, GroupBox, TreeView, NumericUpDown, Tooltip
+  - Without these mappings, layout save/load will fail for these controls
+  - *Blocks: SampleDefault layout save/load functionality*
 
 ---
 
 ## Sample Application
 
-- [x] Complete demo showcasing all controls (2 CPX) - *Partially complete, includes new Window/Tab/GroupBox controls*
-- [ ] Examples should be implemented in FishUISample project, using the ISample interface
-	- [ ] Theme switcher example
-	- [ ] Responsive layout example
-	- [ ] Game main menu example, New Game, Options, Edit. Options shows a window with tabs Input, Graphics, Gameplay. 
-	- [ ] Car dashboard example with gauges
-	- [ ] MultiLine textbox example (1 CPX)
-	  - Add below existing single-line textbox sample
+- [ ] Examples should be implemented in FishUISample project, using the ISample interface (2 CPX each)
+- [ ] Theme switcher example ** MEDIUM PRIORITY **
+- Demonstrate runtime theme switching between gwen.yaml and gwen2.yaml
+- [ ] Responsive layout example
+- Show anchor/dock positioning with window resize
+- [ ] Game main menu example ** MEDIUM PRIORITY **
+- New Game, Options, Quit buttons
+- Options shows a window with tabs: Input, Graphics, Gameplay
+- [ ] Car dashboard example with gauges
+- Requires RadialGauge and BarGauge controls first
+- [ ] MultiLine textbox example (1 CPX)
+- Add below existing single-line textbox sample
+- Requires multi-line textbox mode implementation
 
 ### SampleDefault Improvements
 - [ ] Replace main Panel with Window control (1 CPX)
   - Change `panel1` from Panel to Window with disabled close button
-- [ ] Fix layout save/load for Window controls (2 CPX)
-  - Analyze and fix LayoutFormat serialization for Window control type
-  - Ensure Window-specific properties (Title, IsResizable, etc.) are preserved
-  - *Depends on: Replace main Panel with Window control*
+  - *Depends on: Add new controls to LayoutFormat TypeMapping*
 
 ---
 
@@ -376,118 +289,22 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ---
 
 ## Code Cleanup & Technical Debt
-
-### Completed Cleanup
-- [x] Implement `FishUI.Resized()` method
-- [x] Implement or remove `Padding` property in `Control.cs`
-- [x] Remove unused `UICommands.cs` and `UICommandList.cs`
-- [x] Complete `Panel` hover/pressed states
-- [x] Remove old commented code in `FishUI.cs`, `Control.cs`, `ScrollBarV.cs`
-- [x] Centralize debug logging mechanism (`FishUIDebug`)
-- [x] Implement debug outline drawing for all controls
-- [x] Remove unused `using` statements
-- [x] Fix `Utils.Union` scissor intersection calculation (was commented out)
-- [x] Fix `RaylibGfx` scissor stack management
-- [x] Add separate debug flag for tooltip logging (1 CPX) ✅ Completed
-  - Added `DebugLogTooltips` property to `FishUISettings` (default: false)
-  - Tooltips update every frame and produce excessive log output
-  - All tooltip-related debug logging now checks `DebugLogTooltips` instead of `DebugEnabled`
-  - Regular debug logging with `DebugEnabled` remains unaffected
-
-### Remaining Cleanup
 - [ ] Standardize naming conventions across all controls (1 CPX)
 - [ ] Add XML documentation comments to public APIs (2 CPX)
+- [ ] Add a button to examples to tkae a screenshot with AutoScreenshot code in Program.cs (1 CPX)
+  - Forward screenshot method trough ISample interface
 
 ---
 
 ## Known Issues / Bugs
 
 ### Active Bugs
-*No active bugs*
-
-### Resolved Bugs
-- [x] **Tooltip causes GUI flickering** (1 CPX) ✅ Fixed
-  - Entire GUI was flickering between showing GUI and showing tooltip
-  - Root cause: Tooltip was drawn in separate `BeginDrawing()`/`EndDrawing()` block in `DrawTooltip()` method
-  - Each `BeginDrawing()` clears the framebuffer, so two calls per frame caused alternating display
-  - Fixed by drawing tooltip inside main `Draw()` method after all controls but before `EndDrawing()`
-  - Removed the separate `DrawTooltip()` method
-
-- [x] **Tooltips shown but immediately hidden** (1 CPX) ✅ Fixed
-  - Tooltip was being shown then Hide() immediately called in same frame
-  - Root cause: `Tooltip.UpdateTooltip()` had duplicate hover detection that conflicted with `FishUI.UpdateTooltip()`
-  - Since `Tooltip.TargetControl` was never set (null), the hover check always failed and called Hide()
-  - Fixed by making `Tooltip.UpdatePosition()` public and calling that instead of `UpdateTooltip()` from FishUI
-  - FishUI already handles all hover detection, so duplicate logic was unnecessary
-
-- [x] **Tooltips don't show up on mouse hover** (1 CPX) ✅ Fixed
-  - Tooltip's `_FishUI` field was never initialized
-  - Fixed by setting `_activeTooltip._FishUI = this` in FishUI constructor
-  - Tooltips now display correctly after hover delay
-
-- [x] **IsModal does not disable close button by default** (1 CPX) ✅ Fixed
-  - IsModal was an auto-property that didn't trigger CloseButtonEnabled
-  - Fixed by converting IsModal to full property with backing field
-  - Now setting `IsModal = true` automatically sets `CloseButtonEnabled = false`
-
-- [x] **Z-order drawing is inverted** (1 CPX) ✅ Fixed
-  - `Draw()` in `FishUI.cs` was reversing the ordered controls array, causing lower Z-depth controls to render on top
-  - Fixed by removing `.Reverse()` call in `Draw()` method
-  - Now higher Z-depth controls are drawn last (on top), matching the logical Z-order
-
-- [x] **Drag/interaction events sent to wrong control** (2 CPX) ✅ Fixed
-  - Issue was in `PickControl()` recursive call for children - it wasn't reversing child order
-  - Fixed by adding `.Reverse().ToArray()` to `C.GetAllChildren()` call in `PickControl`
-  - Now child controls are also checked front-to-back (higher Z-depth first), matching root control behavior
-
-- [x] **Mouse click bring-to-front is inverted** (1 CPX) ✅ Fixed
-  - `PickControl()` now reverses the ordered controls array before iterating
-  - Front controls (higher Z-depth) are now checked first for mouse picking
-  - Clicking on overlapping controls now correctly brings the clicked item to front
-
-- [x] **TreeView scrollbar position incorrect on expand** (2 CPX) ✅ Fixed
-  - Added scroll position recalculation when content height changes in `DrawControl`
-  - Scroll offset is now clamped to valid range and `ThumbPosition` is updated to match
-  - Scrollbar now maintains correct position when nodes are expanded/collapsed
-
-- [x] **Window resize only works on bottom border** (1 CPX) ✅ Fixed
-  - Added `SideBorderWidth` property and adjusted content panel to leave space for left/right resize handles
-  - Window can now be resized from all edges and corners
-
-- [x] **First click on text box positions cursor at start** (1 CPX) ✅ Fixed
-  - Removed `InputActiveControl` check in `HandleMousePress` that prevented cursor positioning on first click
-  - Cursor now correctly positions where clicked, even on the first click
-
-- [x] **Tab control tabs positioned too high** (1 CPX) ✅ Fixed
-  - Reduced default `TabHeaderHeight` from 31 to 24 to match GWEN skin visual design
-  - Active tabs now connect seamlessly with the content area
-
-- [x] **CheckBox/RadioButton labels clipped by scissor** (2 CPX) ✅ Fixed
-  - Added `DisableChildScissor` property to Control base class
-  - CheckBox and RadioButton set this to true so labels can extend beyond icon bounds
-
-- [x] **Label default Alignment causes clipping in containers** (1 CPX) ✅ Fixed
-  - Changed Label default Alignment from `Align.Center` to `Align.Left`
-  - Prevents text from extending past the left edge and getting scissor-clipped
-
-#### Earlier Fixes (consolidated)
-- [x] DropDown outside click closing
-- [x] Textbox cursor styling and blinking
-- [x] ScrollBarV thumb position calculation
-- [x] Docked positioning without parent
-- [x] `Control.GetAbsolutePosition()` unknown position modes
-- [x] `LayoutFormat.Deserialize()` abstract Control type handling
-- [x] Theme system for newer controls
-- [x] Theme atlas case sensitivity in region lookup
-- [x] `Utils.Union` scissor intersection calculation
-- [x] `RaylibGfx.PopScissor` state restoration
-- [x] Window children positioning relative to content area
+- [ ] **Textbox HasSelection property serialization error** (1 CPX)
+  - YamlDotNet.Core.YamlException: 'Property 'HasSelection' not found on type 'FishUI.Controls.Textbox'.'
+  - Occurs when serializing/deserializing layouts containing Textbox controls
+  - Need to add [YamlIgnore] attribute to HasSelection property or make it serializable
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
-- Analyze the whole solution, identify any remaining issues, improvements, or todo comments not yet captured in the TODO file.
-  Files which need to be cleaned up should have high priority entries created here.
-  If there are systems which could be simplified or improved, note them here for future consideration.
-  Update TODO file accordingly, consolidate as much completed duplicate items as possible, remove completed items you deem unnecessary to keep.
 
 ---
 

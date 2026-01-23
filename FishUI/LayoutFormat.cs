@@ -28,23 +28,30 @@ namespace FishUI
 			Deserialize(UI, Data);
 		}
 
-		static Dictionary<string, Type> TypeMapping = new Dictionary<string, Type>()
-		{
-			{ "!Button", typeof(Button) },
-			{ "!CheckBox", typeof(CheckBox) },
-			{ "!RadioButton", typeof(RadioButton) },
-			{ "!Panel", typeof(Panel) },
-			{ "!Textbox", typeof(Textbox) },
-			{ "!Label", typeof(Label) },
-			{ "!ListBox", typeof(ListBox) },
-			{ "!ScrollBarV", typeof(ScrollBarV) },
-			{ "!ScrollBarH", typeof(ScrollBarH) },
-			{ "!DropDown", typeof(DropDown) },
-			{ "!ProgressBar", typeof(ProgressBar) },
-			{ "!Slider", typeof(Slider) },
-			{ "!ToggleSwitch", typeof(ToggleSwitch) },
-			{ "!SelectionBox", typeof(SelectionBox) }
-		};
+	static Dictionary<string, Type> TypeMapping = new Dictionary<string, Type>()
+	{
+		{ "!Button", typeof(Button) },
+		{ "!CheckBox", typeof(CheckBox) },
+		{ "!RadioButton", typeof(RadioButton) },
+		{ "!Panel", typeof(Panel) },
+		{ "!Textbox", typeof(Textbox) },
+		{ "!Label", typeof(Label) },
+		{ "!ListBox", typeof(ListBox) },
+		{ "!ScrollBarV", typeof(ScrollBarV) },
+		{ "!ScrollBarH", typeof(ScrollBarH) },
+		{ "!DropDown", typeof(DropDown) },
+		{ "!ProgressBar", typeof(ProgressBar) },
+		{ "!Slider", typeof(Slider) },
+		{ "!ToggleSwitch", typeof(ToggleSwitch) },
+		{ "!SelectionBox", typeof(SelectionBox) },
+		{ "!Window", typeof(Window) },
+		{ "!Titlebar", typeof(Titlebar) },
+		{ "!TabControl", typeof(TabControl) },
+		{ "!GroupBox", typeof(GroupBox) },
+		{ "!TreeView", typeof(TreeView) },
+		{ "!NumericUpDown", typeof(NumericUpDown) },
+		{ "!Tooltip", typeof(Tooltip) }
+	};
 
 		public static string Serialize(FishUI UI)
 		{
