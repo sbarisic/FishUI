@@ -386,6 +386,10 @@ namespace FishUI.Controls
 		{
 		}
 
+		public virtual void HandleKeyDown(FishUI UI, FishInputState InState, int KeyCode)
+		{
+		}
+
 		public virtual void HandleKeyRelease(FishUI UI, FishInputState InState, FishKey Key)
 		{
 		}

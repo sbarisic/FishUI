@@ -283,24 +283,25 @@ namespace FishUI
 			}
 
 		// Key press handling
-			FishKey Key = Input.GetKeyPressed();
+		FishKey Key = Input.GetKeyPressed();
 
-			// Process global hotkeys first
-			bool hotkeyHandled = Hotkeys.ProcessKeyPress(Key, Input);
+		// Process global hotkeys first
+		bool hotkeyHandled = Hotkeys.ProcessKeyPress(Key, Input);
 
-			if (!hotkeyHandled)
-			{
-				// Tab key navigation
-				if (Key == FishKey.Tab)
-				{
-					bool shiftHeld = Input.IsKeyDown(FishKey.LeftShift) || Input.IsKeyDown(FishKey.RightShift);
-					FocusNextControl(shiftHeld);
-				}
-				else if (Key != FishKey.None && InputActiveControl != null)
-				{
-					InputActiveControl.HandleKeyPress(this, InState, Key);
-				}
-			}
+		if (!hotkeyHandled)
+		{
+		// Tab key navigation
+		if (Key == FishKey.Tab)
+		{
+		bool shiftHeld = Input.IsKeyDown(FishKey.LeftShift) || Input.IsKeyDown(FishKey.RightShift);
+		FocusNextControl(shiftHeld);
+		}
+		else if (Key != FishKey.None && InputActiveControl != null)
+		{
+		InputActiveControl.HandleKeyPress(this, InState, Key);
+		InputActiveControl.HandleKeyDown(this, InState, (int)Key);
+		}
+		}
 
 			foreach (Control Ctl in Controls)
 				UpdateSingleControl(Ctl, InState, InLast);
@@ -442,6 +443,11 @@ namespace FishUI
 
 			InState.MouseDelta = MousePos - InLast.MousePos;
 			InState.MouseWheelDelta = MouseWheel;
+
+			// Modifier keys
+			InState.ShiftDown = Input.IsKeyDown(FishKey.LeftShift) || Input.IsKeyDown(FishKey.RightShift);
+			InState.CtrlDown = Input.IsKeyDown(FishKey.LeftControl) || Input.IsKeyDown(FishKey.RightControl);
+			InState.AltDown = Input.IsKeyDown(FishKey.LeftAlt) || Input.IsKeyDown(FishKey.RightAlt);
 
 			Control[] OrderedControls = GetOrderedControls();
 

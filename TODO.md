@@ -162,15 +162,15 @@ A list of planned features, improvements, and new controls for FishUI.
 ## Control Improvements
 
 ### Textbox Enhancements
-- [ ] Cursor positioning with mouse click (2 CPX)
-- [ ] Text selection (click and drag) (2 CPX)
-- [ ] Copy/paste support (Ctrl+C, Ctrl+V, exposed as functions on a control) (2 CPX)
-- [ ] Select all (Ctrl+A, exposed as a function) (1 CPX)
+- [x] Cursor positioning with mouse click (2 CPX) ? Implemented
+- [x] Text selection (click and drag) (2 CPX) ? Implemented
+- [x] Copy/paste support (Ctrl+C, Ctrl+V, exposed as functions on a control) (2 CPX) ? Implemented
+- [x] Select all (Ctrl+A, exposed as a function) (1 CPX) ? Implemented
 - [ ] Multi-line mode with word wrap (3 CPX)
-- [ ] Password masking mode (1 CPX)
-- [ ] Placeholder text (1 CPX)
-- [ ] Max length constraint (1 CPX)
-- [ ] Read-only mode (1 CPX)
+- [x] Password masking mode (1 CPX) ? Implemented
+- [x] Placeholder text (1 CPX) ? Implemented
+- [x] Max length constraint (1 CPX) ? Implemented
+- [x] Read-only mode (1 CPX) ? Implemented
 
 ### DropDown Enhancements
 - [ ] Multi-select mode (checkbox icon per item) (2 CPX)
