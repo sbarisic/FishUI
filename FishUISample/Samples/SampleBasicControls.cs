@@ -599,6 +599,105 @@ namespace FishUISample.Samples
 			// Initialize VU meters
 			vuMeter1.SetLevel(0.5f);
 			vuMeter2.SetLevel(0.5f);
+
+			// === AnimatedImageBox ===
+			Label animLabel = new Label("AnimatedImageBox");
+			animLabel.Position = new Vector2(20, 640);
+			animLabel.Size = new Vector2(150, 20);
+			animLabel.Alignment = Align.Left;
+			FUI.AddControl(animLabel);
+
+			// Load stargate animation frames
+			AnimatedImageBox stargateAnim = new AnimatedImageBox();
+			stargateAnim.Position = new Vector2(20, 665);
+			stargateAnim.Size = new Vector2(100, 100);
+			stargateAnim.ScaleMode = ImageScaleMode.Fit;
+			stargateAnim.FrameRate = 10f; // 0.1s delay = 10 FPS
+			stargateAnim.Loop = true;
+			stargateAnim.TooltipText = "Stargate animation (10 FPS, looping)";
+
+			// Load all 28 frames
+			for (int i = 0; i <= 27; i++)
+			{
+				string framePath = $"data/anim_images/stargate/frame_{i:D2}_delay-0.1s.png";
+				ImageRef frame = FUI.Graphics.LoadImage(framePath);
+				if (frame != null)
+					stargateAnim.AddFrame(frame);
+			}
+			FUI.AddControl(stargateAnim);
+
+			// Play/Pause button
+			Button animPlayPause = new Button();
+			animPlayPause.Text = "Pause";
+			animPlayPause.Position = new Vector2(130, 665);
+			animPlayPause.Size = new Vector2(70, 25);
+			animPlayPause.OnButtonPressed += (btn, mbtn, pos) =>
+			{
+				if (stargateAnim.IsPlaying)
+				{
+					stargateAnim.Pause();
+					animPlayPause.Text = "Play";
+				}
+				else
+				{
+					stargateAnim.Play();
+					animPlayPause.Text = "Pause";
+				}
+			};
+			FUI.AddControl(animPlayPause);
+
+			// Stop button
+			Button animStop = new Button();
+			animStop.Text = "Stop";
+			animStop.Position = new Vector2(130, 695);
+			animStop.Size = new Vector2(70, 25);
+			animStop.OnButtonPressed += (btn, mbtn, pos) =>
+			{
+				stargateAnim.Stop();
+				animPlayPause.Text = "Play";
+			};
+			FUI.AddControl(animStop);
+
+			// Frame rate slider
+			Label fpsLabel = new Label("FPS:");
+			fpsLabel.Position = new Vector2(130, 725);
+			fpsLabel.Size = new Vector2(30, 16);
+			fpsLabel.Alignment = Align.Left;
+			FUI.AddControl(fpsLabel);
+
+			Slider fpsSlider = new Slider();
+			fpsSlider.Position = new Vector2(160, 725);
+			fpsSlider.Size = new Vector2(80, 20);
+			fpsSlider.MinValue = 1;
+			fpsSlider.MaxValue = 30;
+			fpsSlider.Value = 10;
+			fpsSlider.Step = 1;
+			fpsSlider.ShowValueLabel = true;
+			fpsSlider.TooltipText = "Adjust animation frame rate";
+			fpsSlider.OnValueChanged += (slider, val) =>
+			{
+				stargateAnim.FrameRate = val;
+			};
+			FUI.AddControl(fpsSlider);
+
+			// Ping-pong toggle
+			CheckBox pingPongCheck = new CheckBox("Ping-Pong");
+			pingPongCheck.Position = new Vector2(130, 755);
+			pingPongCheck.Size = new Vector2(15, 15);
+			pingPongCheck.IsChecked = false;
+			FUI.AddControl(pingPongCheck);
+
+			// Use a button to toggle ping-pong since CheckBox doesn't have event
+			Button pingPongBtn = new Button();
+			pingPongBtn.Text = "Toggle";
+			pingPongBtn.Position = new Vector2(220, 750);
+			pingPongBtn.Size = new Vector2(50, 20);
+			pingPongBtn.OnButtonPressed += (btn, mbtn, pos) =>
+			{
+				stargateAnim.PingPong = !stargateAnim.PingPong;
+				pingPongCheck.IsChecked = stargateAnim.PingPong;
+			};
+			FUI.AddControl(pingPongBtn);
 		}
 	}
 }

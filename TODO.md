@@ -267,9 +267,10 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
   - Add pixelated (nearest-neighbor) rendering mode to ImageBox
 - [x] ~~BarGauge example interactive controls~~ - Added +/- repeat buttons for all gauges in SampleBasicControls
 - [x] ~~Virtual cursor example~~ - SampleVirtualCursor demonstrates keyboard/gamepad cursor navigation
-- [ ] **AnimatedImageBox example with stargate images** (1 CPX) **HIGH PRIORITY**
-- Use data/anim_images/stargate/*.png images to demonstrate animated image box
-- Add AnimatedImageBox demo to SampleBasicControls showing animation playback
+- [ ] **Virtual cursor custom images** (1 CPX)
+  - Load and use cursor images from data/images/cursors/*.png
+  - Add cursor selection dropdown to SampleVirtualCursor
+- [x] ~~AnimatedImageBox example with stargate images~~ - Added to SampleBasicControls with play/pause, stop, FPS slider, ping-pong toggle
 - [x] ~~StaticText example~~ - Added to SampleBasicControls with alignment and color demos
 - [ ] MultiLine textbox example (1 CPX)
   - Add below existing single-line textbox sample
@@ -329,7 +330,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-- Implement data/images/cursors/*.png cursor images for virtual mouse
+- Implement the animated image control example in a window that can be resized, and the image inside is anchored and resizes with the window, like a video player
 
 ---
 
