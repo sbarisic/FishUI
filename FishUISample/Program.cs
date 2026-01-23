@@ -44,9 +44,13 @@ namespace FishUISample
 		{
 			ISample[] Samples = new[] { new SampleDefault() };
 
-			ISample Cur = Samples[0];
+			FishUISettings UISettings = new FishUISettings();
+			IFishUIGfx Gfx = new RaylibGfx(1920, 1080, "FishUI");
+			IFishUIInput Input = new RaylibInput();
+			IFishUIEvents Events = new EvtHandler();
 
-			FishUI.FishUI FUI = Cur.CreateUI();
+			ISample Cur = Samples[0];
+			FishUI.FishUI FUI = Cur.CreateUI(UISettings, Gfx, Input, Events);
 			Cur.Init();
 
 			Stopwatch SWatch = Stopwatch.StartNew();

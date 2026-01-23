@@ -13,13 +13,8 @@ namespace FishUISample.Samples
 	{
 		FishUI.FishUI FUI;
 
-		public FishUI.FishUI CreateUI()
+		public FishUI.FishUI CreateUI(FishUISettings UISettings, IFishUIGfx Gfx, IFishUIInput Input, IFishUIEvents Events)
 		{
-			FishUISettings UISettings = new FishUISettings();
-			IFishUIGfx Gfx = new RaylibGfx(1920, 1080, "FishUI");
-			IFishUIInput Input = new RaylibInput();
-			IFishUIEvents Events = new EvtHandler();
-
 			FUI = new FishUI.FishUI(UISettings, Gfx, Input, Events);
 			FUI.Init();
 
