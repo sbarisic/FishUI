@@ -176,7 +176,7 @@ A list of planned features, improvements, and new controls for FishUI.
   - *GWEN has: VProgressBar regions for vertical variant*
 
 ### NumericUpDown Enhancements
-- [ ] Mouse wheel support (1 CPX)
+- [x] ~~Mouse wheel support~~ ✅ **COMPLETED**
   - Scroll up to increment, scroll down to decrement value
 
 ---
@@ -312,8 +312,9 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
   - Fix: Added null check before calling `FishUI.Events.Broadcast()` to handle case when control is not yet connected to FishUI
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
+- Add scroll wheel support to Slider controls and to ScrollBar Button controls
+- LayoutFormat:98 YamlDotNet.Core.YamlException: 'Property 'SelectedTab' not found on type 'FishUI.Controls.TabControl'.'
 
-*No uncategorized items*
 ---
 
 ## Notes

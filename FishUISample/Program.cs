@@ -51,7 +51,7 @@ namespace FishUISample
 
 			// TODO: Implement a simple console based input system to choose samples
 
-			ISample Cur = Samples[2];
+			ISample Cur = Samples[0];
 			FishUI.FishUI FUI = Cur.CreateUI(UISettings, Gfx, Input, Events);
 			Cur.Init();
 

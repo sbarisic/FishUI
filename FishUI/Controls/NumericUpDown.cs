@@ -258,6 +258,21 @@ namespace FishUI.Controls
 			}
 		}
 
+		public override void HandleMouseWheel(FishUI UI, FishInputState InState, float WheelDelta)
+		{
+			base.HandleMouseWheel(UI, InState, WheelDelta);
+
+			// Scroll up to increment, scroll down to decrement
+			if (WheelDelta > 0)
+			{
+				Increment();
+			}
+			else if (WheelDelta < 0)
+			{
+				Decrement();
+			}
+		}
+
 		public override void HandleBlur()
 		{
 			base.HandleBlur();
