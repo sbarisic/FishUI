@@ -126,6 +126,32 @@ namespace FishUI
 		}
 
 		/// <summary>
+		/// Sets the position from a touch point or absolute input.
+		/// Useful for mapping touch input or real mouse to virtual cursor.
+		/// </summary>
+		/// <param name="x">X coordinate in screen space.</param>
+		/// <param name="y">Y coordinate in screen space.</param>
+		public void SetPositionFromInput(float x, float y)
+		{
+			SetPosition(new Vector2(x, y));
+		}
+
+		/// <summary>
+		/// Syncs the virtual cursor position with the real mouse position.
+		/// Call this in your update loop if you want the virtual cursor to follow the real mouse.
+		/// </summary>
+		/// <param name="input">The input interface to read real mouse position from.</param>
+		public void SyncWithRealMouse(IFishUIInput input)
+		{
+			if (input != null)
+			{
+				Position = input.GetMousePosition();
+				_velocity = Vector2.Zero;
+				_accelerationTimer = 0f;
+			}
+		}
+
+		/// <summary>
 		/// Simulates pressing the left mouse button.
 		/// </summary>
 		public void PressLeft()

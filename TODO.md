@@ -243,6 +243,9 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [ ] Keyboard-only navigation (3 CPX)
 - [ ] Scalable UI for different DPI (4 CPX)
 
+### Virtual Cursor
+- [x] ~~Direct position setting~~ - Added SetPositionFromInput and SyncWithRealMouse methods for touch/mouse mapping
+
 ### Serialization
 - [x] ~~LayoutFormat TypeMapping~~ - Added all implemented controls for layout save/load
 - [ ] Image reference serialization (3 CPX)
@@ -341,7 +344,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-- Add ability for virtual cursors to set position directly, for example to map touch input to cursor position, or actual cursor to virtual cursor position. (2 CPX)
+- Modify virtual mouse example, so when the "virtual mouse" checkbox is unchecked, it maps the real cursor position to virtual cursor in hybrid mode
 
 ---
 
