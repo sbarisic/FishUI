@@ -10,10 +10,9 @@ A list of planned features, improvements, and new controls for FishUI.
 > - **5** - Large feature spanning multiple components and subsystems, major architecture changes
 
 > How TODO file should be iterated
+- After Active Bugs the rest of the TODO file by priority and complexity (High priority takes precedance, then CPX points) (take one at a time). Consolidate all completed TODO items by combining similar ones and shortening the descriptions where possible
 - First handle the Uncategorized section, if any similar issues already are on the TODO list, increase their priority instead of adding duplicates
 - When Uncategorized section is empty, start by fixing Active Bugs (take one at a time)
-- After Active Bugs the rest of the TODO file by priority and complexity (High priority takes precedance, then CPX points) (take one at a time)
-- Consolidate all completed TODO items by combining similar ones and shortening the descriptions where possible
 
 ---
 
@@ -44,6 +43,7 @@ A list of planned features, improvements, and new controls for FishUI.
 | Tooltip | ✅ Complete | ✅ Atlas |
 | ContextMenu | ✅ Complete | ✅ Atlas |
 | MenuItem | ✅ Complete | ✅ Atlas |
+| StackLayout | ✅ Complete | N/A |
 
 ---
 
@@ -225,7 +225,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ### Layout System
 - [ ] **FlowLayout** - Automatic horizontal/vertical flow of children (3 CPX)
 - [ ] **GridLayout** - Grid-based child positioning (3 CPX)
-- [ ] **StackLayout** - Vertical/horizontal stacking (2 CPX) **HIGH PRIORITY**
+- [x] ~~**StackLayout**~~ - Vertical/horizontal stacking with spacing and padding
 - [ ] Anchor system for responsive resizing (4 CPX) **HIGH PRIORITY**
 - [ ] Margin and Padding properties on all controls (3 CPX) **HIGH PRIORITY**
 - [ ] Auto-sizing controls based on content (3 CPX)
@@ -268,6 +268,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ### SampleDefault Improvements
 - [x] ~~Replace main Panel with Window control~~ - Changed `panel1` from Panel to Window with hidden close button
 - [x] ~~Add context menu to SampleDefault~~ - Demonstrates ContextMenu with items, separators, checkable items, and submenus
+- [x] ~~Expand StackLayout demo~~ - Added nested stacks (horizontal containing 3 vertical stacks with mixed controls)
 
 ---
 
@@ -293,8 +294,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - Forward `AutoScreenshot` method from Program.cs through ISample interface **HIGH PRIORITY**
 - Update SampleThemeSwitcher, SampleGameMenu, and SampleDefault with screenshot buttons
 - [x] ~~Extract TODO comments from code~~ - Moved 4 TODOs to proper sections, removed comments from source
-- [ ] Move DebugLogTooltips flag into FishUIDebug class (1 CPX)
-  - Currently in FishUISettings, should be in FishUIDebug like other debug flags
+- [x] ~~Move DebugLogTooltips flag into FishUIDebug~~ - Now forwards to `FishUIDebug.LogTooltips` like other debug flags
 
 ---
 
@@ -302,9 +302,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Active Bugs
 
-- [ ] **ContextMenu submenu text overlapping** (2 CPX)
-  - Multiple levels of submenu draw all the text overlapping
-  - Found in SampleDefault.cs context menu demo
+*No active bugs*
 
 ### Fixed Bugs
 
@@ -312,6 +310,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] ~~TabControl.SelectedTab deserialization error~~ - Added `[YamlIgnore]` to read-only property
 - [x] ~~DropDown.SelectIndex NullReferenceException~~ - Added null check before `FishUI.Events.Broadcast()`
 - [x] ~~Make Invisible/Visible buttons broken~~ - Changed `Panel` cast to `Control` in EvtHandler after Panel→Window conversion
+- [x] ~~ContextMenu submenu text overlapping~~ - Added `DrawChildren` override in MenuItem to prevent rendering submenu item data as visual children
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 

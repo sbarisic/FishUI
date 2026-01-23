@@ -409,6 +409,146 @@ namespace FishUISample.Samples
 				contextMenu.Show(pos + new Vector2(0, 30));
 			};
 			FUI.AddControl(showMenuBtn);
+
+			// === StackLayout Demo ===
+			// Vertical stack layout
+			StackLayout vStack = new StackLayout();
+			vStack.Position = new Vector2(1050, 420);
+			vStack.Size = new Vector2(180, 200);
+			vStack.Orientation = StackOrientation.Vertical;
+			vStack.Spacing = 8;
+			vStack.Padding = 10;
+			vStack.IsTransparent = false;
+			vStack.ZDepth = 5;
+			FUI.AddControl(vStack);
+
+			Button stackBtn1 = new Button();
+			stackBtn1.Text = "Stack Item 1";
+			stackBtn1.Size = new Vector2(150, 30);
+			vStack.AddChild(stackBtn1);
+
+			Button stackBtn2 = new Button();
+			stackBtn2.Text = "Stack Item 2";
+			stackBtn2.Size = new Vector2(150, 30);
+			vStack.AddChild(stackBtn2);
+
+			CheckBox stackCheck = new CheckBox("Stack Option");
+			stackCheck.Size = new Vector2(15, 15);
+			vStack.AddChild(stackCheck);
+
+			ToggleSwitch stackToggle = new ToggleSwitch();
+			stackToggle.Size = new Vector2(50, 24);
+			vStack.AddChild(stackToggle);
+
+			// Horizontal stack layout
+			StackLayout hStack = new StackLayout();
+			hStack.Position = new Vector2(1250, 420);
+			hStack.Size = new Vector2(300, 50);
+			hStack.Orientation = StackOrientation.Horizontal;
+			hStack.Spacing = 5;
+			hStack.Padding = 5;
+			hStack.IsTransparent = false;
+			hStack.ZDepth = 5;
+			FUI.AddControl(hStack);
+
+			Button hStackBtn1 = new Button();
+			hStackBtn1.Text = "A";
+			hStackBtn1.Size = new Vector2(40, 35);
+			hStack.AddChild(hStackBtn1);
+
+			Button hStackBtn2 = new Button();
+			hStackBtn2.Text = "B";
+			hStackBtn2.Size = new Vector2(40, 35);
+			hStack.AddChild(hStackBtn2);
+
+			Button hStackBtn3 = new Button();
+			hStackBtn3.Text = "C";
+			hStackBtn3.Size = new Vector2(40, 35);
+			hStack.AddChild(hStackBtn3);
+
+			Button hStackBtn4 = new Button();
+			hStackBtn4.Text = "D";
+			hStackBtn4.Size = new Vector2(40, 35);
+			hStack.AddChild(hStackBtn4);
+
+			// Nested/Mixed StackLayout demo - horizontal containing vertical stacks
+			StackLayout mixedStack = new StackLayout();
+			mixedStack.Position = new Vector2(1250, 490);
+			mixedStack.Size = new Vector2(300, 140);
+			mixedStack.Orientation = StackOrientation.Horizontal;
+			mixedStack.Spacing = 10;
+			mixedStack.Padding = 10;
+			mixedStack.IsTransparent = false;
+			mixedStack.ZDepth = 5;
+			FUI.AddControl(mixedStack);
+
+			// First nested vertical stack
+			StackLayout nestedV1 = new StackLayout();
+			nestedV1.Size = new Vector2(80, 110);
+			nestedV1.Orientation = StackOrientation.Vertical;
+			nestedV1.Spacing = 5;
+			nestedV1.Padding = 5;
+			nestedV1.IsTransparent = false;
+			mixedStack.AddChild(nestedV1);
+
+			Button nested1Btn1 = new Button();
+			nested1Btn1.Text = "1A";
+			nested1Btn1.Size = new Vector2(65, 25);
+			nestedV1.AddChild(nested1Btn1);
+
+			Button nested1Btn2 = new Button();
+			nested1Btn2.Text = "1B";
+			nested1Btn2.Size = new Vector2(65, 25);
+			nestedV1.AddChild(nested1Btn2);
+
+			Button nested1Btn3 = new Button();
+			nested1Btn3.Text = "1C";
+			nested1Btn3.Size = new Vector2(65, 25);
+			nestedV1.AddChild(nested1Btn3);
+
+			// Second nested vertical stack
+			StackLayout nestedV2 = new StackLayout();
+			nestedV2.Size = new Vector2(80, 110);
+			nestedV2.Orientation = StackOrientation.Vertical;
+			nestedV2.Spacing = 5;
+			nestedV2.Padding = 5;
+			nestedV2.IsTransparent = false;
+			mixedStack.AddChild(nestedV2);
+
+			CheckBox nested2Check1 = new CheckBox("X");
+			nested2Check1.Size = new Vector2(15, 15);
+			nestedV2.AddChild(nested2Check1);
+
+			CheckBox nested2Check2 = new CheckBox("Y");
+			nested2Check2.Size = new Vector2(15, 15);
+			nestedV2.AddChild(nested2Check2);
+
+			CheckBox nested2Check3 = new CheckBox("Z");
+			nested2Check3.Size = new Vector2(15, 15);
+			nestedV2.AddChild(nested2Check3);
+
+			// Third nested vertical stack with mixed controls
+			StackLayout nestedV3 = new StackLayout();
+			nestedV3.Size = new Vector2(80, 110);
+			nestedV3.Orientation = StackOrientation.Vertical;
+			nestedV3.Spacing = 5;
+			nestedV3.Padding = 5;
+			nestedV3.IsTransparent = false;
+			mixedStack.AddChild(nestedV3);
+
+			Label nestedLabel = new Label("Mix");
+			nestedLabel.Size = new Vector2(65, 20);
+			nestedLabel.Alignment = Align.Left;
+			nestedV3.AddChild(nestedLabel);
+
+			ToggleSwitch nestedToggle = new ToggleSwitch();
+			nestedToggle.Size = new Vector2(50, 20);
+			nestedV3.AddChild(nestedToggle);
+
+			ProgressBar nestedProgress = new ProgressBar();
+			nestedProgress.Size = new Vector2(65, 15);
+			nestedProgress.Value = 0.6f;
+			nestedV3.AddChild(nestedProgress);
 		}
     }
 }

@@ -48,10 +48,16 @@ namespace FishUI
 		/// </summary>
 		public static FishColor FocusIndicatorColor { get; set; } = new FishColor(0, 120, 215, 255);
 
-		/// <summary>
+	/// <summary>
 		/// Gets or sets whether ListBox selection changes are logged.
 		/// </summary>
 		public static bool LogListBoxSelection { get; set; } = true;
+
+		/// <summary>
+		/// Gets or sets whether tooltip-related events are logged.
+		/// Tooltips update every frame and can produce excessive log output.
+		/// </summary>
+		public static bool LogTooltips { get; set; } = false;
 
 		/// <summary>
 		/// Logs a debug message if debug logging is enabled.

@@ -196,14 +196,14 @@ namespace FishUI.Controls
 				}
 			}
 
-			// Draw checkmark if checked
+		// Draw checkmark if checked
 			if (IsCheckable || IsChecked)
 			{
 				if (IsChecked)
 				{
 					// Draw checkmark - use theme image or fallback to text
 					Vector2 checkPos = new Vector2(pos.X + 4, pos.Y + (size.Y - 14) / 2);
-					UI.Graphics.DrawText(UI.Settings.FontDefault, "?", checkPos);
+					UI.Graphics.DrawText(UI.Settings.FontDefault, "X", checkPos);
 				}
 			}
 
@@ -237,6 +237,16 @@ namespace FishUI.Controls
 					UI.Graphics.DrawText(UI.Settings.FontDefault, "?", arrowPos);
 				}
 			}
+		}
+
+		/// <summary>
+		/// Override to prevent drawing children - submenu items are data for the ContextMenu,
+		/// not visual children to be rendered here.
+		/// </summary>
+		public override void DrawChildren(FishUI UI, float Dt, float Time, bool UseScissors = true)
+		{
+			// Don't draw children - they are used as submenu item data only
+			// The actual submenu is drawn by the parent ContextMenu
 		}
 
 		public override void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)

@@ -52,7 +52,8 @@ namespace FishUI
 		{ "!NumericUpDown", typeof(NumericUpDown) },
 		{ "!Tooltip", typeof(Tooltip) },
 		{ "!ContextMenu", typeof(ContextMenu) },
-		{ "!MenuItem", typeof(MenuItem) }
+		{ "!MenuItem", typeof(MenuItem) },
+		{ "!StackLayout", typeof(StackLayout) }
 	};
 
 		public static string Serialize(FishUI UI)
