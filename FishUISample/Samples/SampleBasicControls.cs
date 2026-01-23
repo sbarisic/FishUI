@@ -58,8 +58,9 @@ namespace FishUISample.Samples
 			textbox.Size = new Vector2(200, 30);
 			FUI.AddControl(textbox);
 
+
 			// === ListBox ===
-			Label listLabel = new Label("ListBox");
+			Label listLabel = new Label("ListBox (Alternating Colors)");
 			listLabel.Position = new Vector2(250, 60);
 			listLabel.Alignment = Align.Left;
 			FUI.AddControl(listLabel);
@@ -67,6 +68,10 @@ namespace FishUISample.Samples
 			ListBox listBox = new ListBox();
 			listBox.Position = new Vector2(250, 85);
 			listBox.Size = new Vector2(150, 180);
+			listBox.AlternatingRowColors = true;
+			listBox.EvenRowColor = new FishColor(200, 220, 255, 40);
+			listBox.OddRowColor = new FishColor(255, 255, 255, 10);
+			listBox.TooltipText = "ListBox with alternating row colors";
 			FUI.AddControl(listBox);
 
 			for (int i = 0; i < 15; i++)

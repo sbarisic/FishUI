@@ -151,8 +151,7 @@ A list of planned features, improvements, and new controls for FishUI.
 - [ ] Virtual scrolling for large lists (3 CPX)
 - [ ] Custom item templates (2 CPX)
 - [ ] Drag and drop reordering (3 CPX)
-- [ ] Even/odd row alternating colors (1 CPX)
-  - *GWEN has: Input.ListBox.EvenLine, Input.ListBox.OddLine, Input.ListBox.EvenLineSelected, Input.ListBox.OddLineSelected*
+- [x] ~~Even/odd row alternating colors~~ - Added AlternatingRowColors, EvenRowColor, OddRowColor properties; demo in SampleBasicControls
 
 ### Button Enhancements
 - [x] ~~Icon support (image + text), add to examples~~ - Added Icon, IconPosition, IconSpacing properties; SampleDefault has icon button demo

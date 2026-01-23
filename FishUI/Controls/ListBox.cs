@@ -64,6 +64,24 @@ namespace FishUI.Controls
 		[YamlMember]
 		public bool ShowScrollBar { get; set; } = true;
 
+		/// <summary>
+		/// Whether to display alternating row background colors for even/odd rows.
+		/// </summary>
+		[YamlMember]
+		public bool AlternatingRowColors { get; set; } = false;
+
+		/// <summary>
+		/// Background color for even-indexed rows (0, 2, 4, ...) when AlternatingRowColors is enabled.
+		/// </summary>
+		[YamlMember]
+		public FishColor EvenRowColor { get; set; } = new FishColor(255, 255, 255, 20);
+
+		/// <summary>
+		/// Background color for odd-indexed rows (1, 3, 5, ...) when AlternatingRowColors is enabled.
+		/// </summary>
+		[YamlMember]
+		public FishColor OddRowColor { get; set; } = new FishColor(0, 0, 0, 20);
+
 		public event ListBoxItemSelectedFunc OnItemSelected;
 
 		public ListBox()
@@ -224,6 +242,21 @@ namespace FishUI.Controls
 				if ((Y + ListItemHeight > Position.Y + GetAbsoluteSize().Y) && !ShowSBar)
 					ShowSBar = true;
 
+				// Calculate scrollbar width for row rendering
+				float ScrollBarW = ScrollBar?.GetAbsoluteSize().X ?? 0;
+				if (!ScrollBar?.Visible ?? true)
+					ScrollBarW = 0;
+
+				// Draw alternating row background colors
+				if (AlternatingRowColors && !IsSelected && !IsHovered)
+				{
+					FishColor rowColor = (i % 2 == 0) ? EvenRowColor : OddRowColor;
+					UI.Graphics.DrawRectangle(
+						new Vector2(Position.X + 2, Y) + ScrollOffset,
+						new Vector2(GetAbsoluteSize().X - 4 - ScrollBarW, ListItemHeight),
+						rowColor);
+				}
+
 				Cur = null;
 				FishColor TxtColor = FishColor.Black;
 
@@ -244,10 +277,6 @@ namespace FishUI.Controls
 
 				if (Cur != null)
 				{
-					float ScrollBarW = ScrollBar?.GetAbsoluteSize().X ?? 0;
-					if (!ScrollBar?.Visible ?? true)
-						ScrollBarW = 0;
-
 					UI.Graphics.DrawNPatch(Cur, new Vector2(Position.X + 2, Y) + ScrollOffset, new Vector2(GetAbsoluteSize().X - 4 - (ScrollBarW), ListItemHeight), Color);
 				}
 
