@@ -484,7 +484,10 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] Window children positioning relative to content area
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
-*No uncategorized items*
+- Analyze the whole solution, identify any remaining issues, improvements, or todo comments not yet captured in the TODO file.
+  Files which need to be cleaned up should have high priority entries created here.
+  If there are systems which could be simplified or improved, note them here for future consideration.
+  Update TODO file accordingly, consolidate as much completed duplicate items as possible, remove completed items you deem unnecessary to keep.
 
 ---
 
