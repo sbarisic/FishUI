@@ -225,9 +225,9 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ### Layout System
 - [ ] **FlowLayout** - Automatic horizontal/vertical flow of children (3 CPX)
 - [ ] **GridLayout** - Grid-based child positioning (3 CPX)
-- [ ] **StackLayout** - Vertical/horizontal stacking (2 CPX)
-- [ ] Anchor system for responsive resizing (4 CPX)
-- [ ] Margin and Padding properties on all controls (3 CPX)
+- [ ] **StackLayout** - Vertical/horizontal stacking (2 CPX) **HIGH PRIORITY**
+- [ ] Anchor system for responsive resizing (4 CPX) **HIGH PRIORITY**
+- [ ] Margin and Padding properties on all controls (3 CPX) **HIGH PRIORITY**
 - [ ] Auto-sizing controls based on content (3 CPX)
 
 ### Rendering
@@ -236,10 +236,11 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [ ] Anti-aliased rendering option (2 CPX)
 - [ ] Shadow rendering for windows/popups (2 CPX)
   - *GWEN has: Shadow region*
-- [ ] Font system refactoring (3 CPX) ** MEDIUM PRIORITY **
+- [ ] Font system refactoring (3 CPX) **HIGH PRIORITY**
   - Support for both monospaced and variable-width fonts
   - Font metrics and proper text measurement
   - Font style variants (regular, bold, italic)
+- [ ] Rendering images with rotation and scaling (useful for gauges) (TODO: estimate CPX after analysis) **HIGH PRIORITY**
 
 ### Accessibility
 - [ ] Keyboard-only navigation (3 CPX)
@@ -272,16 +273,16 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ## Documentation
 
+- [ ] Update complete README.md from scratch 
 - [ ] API reference documentation
 - [ ] Getting started tutorial
 - [ ] Custom control creation guide
 - [ ] Backend implementation guide (beyond Raylib)
 - [ ] Theme creation guide
-- [ ] CEGUI theme conversion guide
 
 ---
 
-## Code Cleanup & Technical Debt
+## Code Cleanup & Technical Debt **HIGH PRIORITY**
 - [ ] Audit all controls for missing `[YamlIgnore]` attributes (2 CPX)
   - Check read-only properties that could cause deserialization errors
   - Similar to fixed bugs: TreeNode.HasChildren, TabControl.SelectedTab
@@ -291,6 +292,10 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - Add a button to each sample that triggers screenshot capture
 - Forward `AutoScreenshot` method from Program.cs through ISample interface
 - Update SampleThemeSwitcher, SampleGameMenu, and SampleDefault with screenshot buttons
+- [ ] Extract TODO comments from code into TODO.md (2 CPX)
+  - Scan all source files for TODO comments
+  - Convert them to proper entries in this file
+  - Remove the comments from code after extraction
 
 ---
 
@@ -305,10 +310,11 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] ~~TreeNode.HasChildren deserialization error~~ - Added `[YamlIgnore]` to read-only property
 - [x] ~~TabControl.SelectedTab deserialization error~~ - Added `[YamlIgnore]` to read-only property
 - [x] ~~DropDown.SelectIndex NullReferenceException~~ - Added null check before `FishUI.Events.Broadcast()`
+- [x] ~~Make Invisible/Visible buttons broken~~ - Changed `Panel` cast to `Control` in EvtHandler after Panel→Window conversion
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
-- Make Invisible button on the new window in default example does not close window. I assume Make Visible logic is broken in the same way?
-- Get all TODO comments from the code and convert them into proper TODO entries above, remove them from the code
+
+*No uncategorized items*
 
 ---
 

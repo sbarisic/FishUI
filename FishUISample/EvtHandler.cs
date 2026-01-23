@@ -1,4 +1,4 @@
-﻿using FishUI;
+using FishUI;
 using FishUI.Controls;
 using System;
 using System.Collections.Generic;
@@ -16,14 +16,14 @@ namespace FishUISample
 			{
 				if (Btn.ID == "visible")
 				{
-					Panel P1 = FUI.FindControlByID("panel1") as Panel;
+					Control P1 = FUI.FindControlByID("panel1");
 
 					if (P1 != null)
 						P1.Visible = true;
 				}
 				else if (Btn.ID == "invisible")
 				{
-					Panel P1 = FUI.FindControlByID("panel1") as Panel;
+					Control P1 = FUI.FindControlByID("panel1");
 
 					if (P1 != null)
 						P1.Visible = false;
