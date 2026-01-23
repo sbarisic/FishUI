@@ -59,6 +59,25 @@ namespace FishUI.Controls
 		/// </summary>
 		public bool IsToggled { get; set; } = false;
 
+		/// <summary>
+		/// If true, this button repeatedly fires OnButtonPressed while held down.
+		/// </summary>
+		public bool IsRepeatButton { get; set; } = false;
+
+		/// <summary>
+		/// Initial delay before repeat starts (in seconds). Only applicable when IsRepeatButton is true.
+		/// </summary>
+		public float RepeatDelay { get; set; } = 0.4f;
+
+		/// <summary>
+		/// Interval between repeat fires (in seconds). Only applicable when IsRepeatButton is true.
+		/// </summary>
+		public float RepeatInterval { get; set; } = 0.1f;
+
+		// Internal state for repeat timing
+		private float _repeatTimer = 0f;
+		private bool _repeatStarted = false;
+
 		public event ButtonPressFunc OnButtonPressed;
 
 		/// <summary>
@@ -90,12 +109,65 @@ namespace FishUI.Controls
 				OnToggled?.Invoke(this, IsToggled);
 			}
 
-			if (OnButtonPressed != null)
+			// Don't fire OnButtonPressed here for repeat buttons - it's handled in DrawControl
+			if (!IsRepeatButton && OnButtonPressed != null)
 				OnButtonPressed(this, Btn, Pos);
+		}
+
+		public override void HandleMousePress(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
+		{
+			base.HandleMousePress(UI, InState, Btn, Pos);
+
+			// Reset repeat timer on mouse press
+			if (IsRepeatButton && Btn == FishMouseButton.Left)
+			{
+				_repeatTimer = 0f;
+				_repeatStarted = false;
+				// Fire immediately on first press
+				OnButtonPressed?.Invoke(this, Btn, Pos);
+			}
+		}
+
+		public override void HandleMouseRelease(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
+		{
+			base.HandleMouseRelease(UI, InState, Btn, Pos);
+
+			// Reset repeat state on release
+			if (IsRepeatButton)
+			{
+				_repeatTimer = 0f;
+				_repeatStarted = false;
+			}
 		}
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
+			// Handle repeat button timing
+			if (IsRepeatButton && IsMousePressed && !Disabled)
+			{
+				_repeatTimer += Dt;
+
+				if (!_repeatStarted)
+				{
+					// Wait for initial delay
+					if (_repeatTimer >= RepeatDelay)
+					{
+						_repeatStarted = true;
+						_repeatTimer = 0f;
+						OnButtonPressed?.Invoke(this, FishMouseButton.Left, GetAbsolutePosition() + GetAbsoluteSize() / 2);
+					}
+				}
+				else
+				{
+					// Fire at repeat interval
+					if (_repeatTimer >= RepeatInterval)
+					{
+						_repeatTimer = 0f;
+						OnButtonPressed?.Invoke(this, FishMouseButton.Left, GetAbsolutePosition() + GetAbsoluteSize() / 2);
+					}
+				}
+			}
+
 			//base.Draw(UI, Dt, Time);
 
 			NPatch NNormal = ImgNormal ?? UI.Settings.ImgButtonNormal;

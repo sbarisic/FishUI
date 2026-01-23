@@ -215,6 +215,29 @@ namespace FishUISample.Samples
 			toggleBtn.OnToggled += (btn, toggled) => Console.WriteLine($"Toggle button: {toggled}");
 			Pnl.AddChild(toggleBtn);
 
+			// Repeat button demo (counter that increments while held)
+			int repeatCounter = 0;
+			Label repeatLabel = new Label($"Count: {repeatCounter}");
+			repeatLabel.Position = new Vector2(120, 75);
+			repeatLabel.Size = new Vector2(80, 20);
+			repeatLabel.Alignment = Align.Left;
+			Pnl.AddChild(repeatLabel);
+
+			Button repeatBtn = new Button();
+			repeatBtn.Text = "+";
+			repeatBtn.Position = new Vector2(200, 70);
+			repeatBtn.Size = new Vector2(30, 30);
+			repeatBtn.IsRepeatButton = true;
+			repeatBtn.RepeatDelay = 0.3f;
+			repeatBtn.RepeatInterval = 0.05f;
+			repeatBtn.TooltipText = "Hold to increment";
+			repeatBtn.OnButtonPressed += (btn, mbtn, pos) =>
+			{
+				repeatCounter++;
+				repeatLabel.Text = $"Count: {repeatCounter}";
+			};
+			Pnl.AddChild(repeatBtn);
+
 			// === NEW CONTROLS DEMO ===
 
 			// Window / Dialog demo

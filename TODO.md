@@ -155,7 +155,7 @@ A list of planned features, improvements, and new controls for FishUI.
 ### Button Enhancements
 - [x] ~~Icon support (image + text), add to examples~~ - Added Icon, IconPosition, IconSpacing properties; SampleDefault has icon button demo
 - [x] ~~Toggle button mode~~ - Added IsToggleButton, IsToggled properties, OnToggled event; demo in SampleDefault
-- [ ] Repeat button mode (fires while held) (1 CPX)
+- [x] ~~Repeat button mode (fires while held)~~ - Added IsRepeatButton, RepeatDelay, RepeatInterval properties; demo in SampleDefault
 - [ ] ImageButton variant (icon-only button) (1 CPX)
   - *GWEN WidgetLook: ImageButton*
 
