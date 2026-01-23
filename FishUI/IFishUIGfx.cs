@@ -53,6 +53,8 @@ namespace FishUI
 
 		public void DrawNPatch(NPatch NP, Vector2 Pos, Vector2 Size, FishColor Color);
 
+		public void DrawNPatch(NPatch NP, Vector2 Pos, Vector2 Size, FishColor Color, float Rotation);
+
 		public void DrawText(FontRef Fn, string Text, Vector2 Pos);
 
 		public void DrawTextColor(FontRef Fn, string Text, Vector2 Pos, FishColor Color);

@@ -401,7 +401,7 @@ namespace FishUI.Controls
 			// Draw track border if no NPatch used
 			if (ShowBorder && UI.Settings.ImgSliderTrack == null)
 			{
-				UI.Graphics.DrawRectangleOutline(trackPos, trackSize, GetBorderColor(UI));
+			UI.Graphics.DrawRectangleOutline(trackPos, trackSize, GetBorderColor(UI));
 			}
 
 			// Draw thumb
@@ -417,13 +417,14 @@ namespace FishUI.Controls
 			// Select thumb NPatch based on state
 			NPatch thumbNPatch = UI.Settings.ImgSliderThumb;
 			if (_isDragging && UI.Settings.ImgSliderThumbPressed != null)
-				thumbNPatch = UI.Settings.ImgSliderThumbPressed;
+			thumbNPatch = UI.Settings.ImgSliderThumbPressed;
 			else if (IsMouseInside && UI.Settings.ImgSliderThumbHover != null)
-				thumbNPatch = UI.Settings.ImgSliderThumbHover;
+			thumbNPatch = UI.Settings.ImgSliderThumbHover;
 
 			if (thumbNPatch != null)
 			{
-				UI.Graphics.DrawNPatch(thumbNPatch, thumbPos, thumbDimensions, FishColor.White);
+			// Rotate thumb by 90 degrees for vertical slider
+			UI.Graphics.DrawNPatch(thumbNPatch, thumbPos, thumbDimensions, FishColor.White, 90f);
 			}
 			else
 			{

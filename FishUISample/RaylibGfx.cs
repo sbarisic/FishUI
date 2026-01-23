@@ -239,6 +239,11 @@ namespace FishUISample
 
         public void DrawNPatch(NPatch NP, Vector2 Pos, Vector2 Size, FishColor Color)
         {
+            DrawNPatch(NP, Pos, Size, Color, 0);
+        }
+
+        public void DrawNPatch(NPatch NP, Vector2 Pos, Vector2 Size, FishColor Color, float Rotation)
+        {
             Texture2D Tex = (Texture2D)NP.Image.Userdata;
             Color C = new Color(Color.R, Color.G, Color.B, Color.A);
             NPatchInfo Info = new NPatchInfo();
@@ -250,7 +255,11 @@ namespace FishUISample
             Info.Source = new Rectangle(NP.ImagePos, NP.ImageSize);
             Info.Layout = NPatchLayout.NinePatch;
 
-            Raylib.DrawTextureNPatch(Tex, Info, new Rectangle(Pos.Round(), Size.Round()), Vector2.Zero, 0, C);
+            // When rotation is applied, we need to offset by the center of the destination rectangle
+            Vector2 origin = Rotation != 0 ? Size / 2 : Vector2.Zero;
+            Vector2 drawPos = Rotation != 0 ? Pos + origin : Pos;
+
+            Raylib.DrawTextureNPatch(Tex, Info, new Rectangle(drawPos.Round(), Size.Round()), origin.Round(), Rotation, C);
         }
 
         public void DrawText(FontRef Fn, string Text, Vector2 Pos)
