@@ -312,6 +312,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Fixed Bugs
 
+- [x] ~~DropDown list renders behind other controls~~ - Added overlay rendering: dropdown lists now drawn after all controls via static OpenDropdowns list and DrawDropdownListOverlay method
+
 - [x] ~~DropDown list click-through in SampleVirtualCursor~~ - Modified GetAllChildren to handle AlwaysOnTop like GetOrderedControls; dropdown with AlwaysOnTop=true is now checked first
 
 - [x] ~~DropDown list still doesn't block virtual cursor clicks~~ - Modified PickControl to check children first, before checking parent's IsPointInside; fixes controls that extend beyond parent bounds
@@ -339,7 +341,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-*No uncategorized items*
+- Add ability for virtual cursors to set position directly, for example to map touch input to cursor position, or actual cursor to virtual cursor position. (2 CPX)
 
 ---
 

@@ -528,6 +528,12 @@ namespace FishUI
 				}
 			}
 
+			// Draw open dropdown lists on top of all controls
+			foreach (var dropdown in global::FishUI.Controls.DropDown.OpenDropdowns)
+			{
+				dropdown.DrawDropdownListOverlay(this);
+			}
+
 			// Draw tooltip on top of all controls
 			if (_activeTooltip != null && _activeTooltip.IsShowing)
 			{

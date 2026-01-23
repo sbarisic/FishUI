@@ -39,6 +39,11 @@ namespace FishUI.Controls
 
 	public class DropDown : Control
 	{
+		/// <summary>
+		/// Static list of currently open dropdowns for overlay rendering.
+		/// </summary>
+		internal static List<DropDown> OpenDropdowns = new List<DropDown>();
+
 		List<DropDownItem> Items = new List<DropDownItem>();
 
 		[YamlIgnore]
@@ -101,6 +106,9 @@ namespace FishUI.Controls
 			// This ensures the dropdown list appears above other controls
 			AlwaysOnTop = true;
 			BringToFront();
+			// Track this dropdown for overlay rendering
+			if (!OpenDropdowns.Contains(this))
+				OpenDropdowns.Add(this);
 		}
 
 		public void Close()
@@ -109,6 +117,8 @@ namespace FishUI.Controls
 			HoveredIndex = -1;
 			// Restore normal Z-order behavior
 			AlwaysOnTop = false;
+			// Remove from overlay tracking
+			OpenDropdowns.Remove(this);
 		}
 
 		public void Toggle()
@@ -341,50 +351,59 @@ namespace FishUI.Controls
 				DDButton.Text = selectedText;
 			}
 
-			// Draw dropdown list only when open
-			if (IsOpen && Items.Count > 0)
+			// NOTE: Dropdown list is drawn separately via DrawDropdownListOverlay
+			// to ensure it appears on top of all controls
+		}
+
+		/// <summary>
+		/// Draws the dropdown list overlay. Called by FishUI after all controls are drawn.
+		/// </summary>
+		internal void DrawDropdownListOverlay(FishUI UI)
+		{
+			if (!IsOpen || Items.Count == 0)
+				return;
+
+			float itemHeight = UI.Settings.FontDefault.Size + 4;
+			Vector2 listPos = GetDropdownListPosition();
+			Vector2 listSize = GetDropdownListSize(itemHeight);
+
+			// Draw list background
+			NPatch listBg = UI.Settings.ImgListBoxNormal;
+			UI.Graphics.DrawNPatch(listBg, listPos, listSize, Color);
+
+			// Draw items
+			UI.Graphics.PushScissor(listPos + new Vector2(2, 2), listSize - new Vector2(4, 4));
+
+			int visibleCount = MaxVisibleItems > 0 ? Math.Min(Items.Count, MaxVisibleItems) : Items.Count;
+
+			for (int i = 0; i < visibleCount; i++)
 			{
-				Vector2 listPos = GetDropdownListPosition();
-				Vector2 listSize = GetDropdownListSize(itemHeight);
+				bool isSelected = (i == SelectedIndex);
+				bool isHovered = (i == HoveredIndex);
 
-				// Draw list background
-				NPatch listBg = UI.Settings.ImgListBoxNormal;
-				UI.Graphics.DrawNPatch(listBg, listPos, listSize, Color);
+				float y = listPos.Y + 2 + i * itemHeight;
 
-				// Draw items
-				UI.Graphics.PushScissor(listPos + new Vector2(2, 2), listSize - new Vector2(4, 4));
+				NPatch itemBg = null;
+				FishColor txtColor = FishColor.Black;
 
-				int visibleCount = MaxVisibleItems > 0 ? Math.Min(Items.Count, MaxVisibleItems) : Items.Count;
-
-				for (int i = 0; i < visibleCount; i++)
+				if (isHovered)
 				{
-					bool isSelected = (i == SelectedIndex);
-					bool isHovered = (i == HoveredIndex);
-
-					float y = listPos.Y + 2 + i * itemHeight;
-
-					NPatch itemBg = null;
-					FishColor txtColor = FishColor.Black;
-
-					if (isHovered)
-					{
-						itemBg = UI.Settings.ImgSelectionBoxNormal;
-					}
-					else if (isSelected)
-					{
-						itemBg = UI.Settings.ImgListBoxItmSelected;
-					}
-
-					if (itemBg != null)
-					{
-						UI.Graphics.DrawNPatch(itemBg, new Vector2(listPos.X + 2, y) + ScrollOffset, new Vector2(listSize.X - 4, itemHeight), Color);
-					}
-
-					UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Items[i].Text, new Vector2(listPos.X + 4, y) + ScrollOffset + StartOffset, txtColor);
+					itemBg = UI.Settings.ImgSelectionBoxNormal;
+				}
+				else if (isSelected)
+				{
+					itemBg = UI.Settings.ImgListBoxItmSelected;
 				}
 
-				UI.Graphics.PopScissor();
+				if (itemBg != null)
+				{
+					UI.Graphics.DrawNPatch(itemBg, new Vector2(listPos.X + 2, y) + ScrollOffset, new Vector2(listSize.X - 4, itemHeight), Color);
+				}
+
+				UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Items[i].Text, new Vector2(listPos.X + 4, y) + ScrollOffset + StartOffset, txtColor);
 			}
+
+			UI.Graphics.PopScissor();
 		}
 	}
 }
