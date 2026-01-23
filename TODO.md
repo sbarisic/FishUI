@@ -11,81 +11,126 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ---
 
+## Current Controls (Implemented)
+
+| Control | Status | Theme Support |
+|---------|--------|---------------|
+| Button | ? Complete | ? Atlas |
+| CheckBox | ? Complete | ? Atlas |
+| RadioButton | ? Complete | ? Atlas |
+| Panel | ? Complete | ? Atlas |
+| Label | ? Complete | Colors |
+| Textbox | ? Complete | ? Atlas |
+| ListBox | ? Complete | ? Atlas |
+| DropDown (Combobox) | ? Complete | ? Atlas |
+| ScrollBarV | ? Complete | ? Atlas |
+| ScrollBarH | ? Complete | ? Atlas |
+| ProgressBar | ? Complete | ? Atlas |
+| Slider | ? Complete | ? Atlas |
+| ToggleSwitch | ? Complete | ? Atlas |
+| SelectionBox | ? Complete | ? Atlas |
+
+---
+
 ## New Controls
 
 ### High Priority
-
-- [x] **Slider / TrackBar** (2 CPX)
-- Horizontal and vertical variants
-- Min/max value range with configurable step
-- Thumb dragging with value change events
-- Optional value label display
-
-- [x] **ProgressBar** (1 CPX)
-- Horizontal and vertical variants
-- Determinate mode (0-100%)
-- Indeterminate/marquee animation mode
-
-- [x] **ScrollBarH** (Horizontal Scrollbar) (1 CPX)
-- Assets already exist in `data/sb/` folder
-- Settings already defined in `FishUISettings.cs`
-- Mirror `ScrollBarV` implementation
 
 - [ ] **TabControl / TabPanel** (3 CPX)
   - Tab header strip with clickable tabs
   - Content panels that switch based on selected tab
   - Tab overflow handling (scroll with left-right arrows)
+  - Top/bottom tab positioning
+  - *GWEN atlas regions available: Tab.Top.Active, Tab.Top.Inactive, Tab.Bottom.Active, Tab.Bottom.Inactive, Tab.Control, Tab.HeaderBar*
 
-- [ ] **Window / Dialog** (4 CPX)
+- [ ] **Window / FrameWindow / Dialog** (4 CPX)
   - Draggable title bar
-  - Close button only
+  - Close button (optional minimize/maximize)
   - Modal and non-modal modes
   - Resizable and fixed border mode
+  - *GWEN atlas regions available: Window.Head.Normal, Window.Head.Inactive, Window.Middle, Window.Bottom, Window.Close*
+
+- [ ] **Titlebar** (2 CPX)
+  - Standalone titlebar component for windows
+  - Text display with optional icon
+  - *GWEN atlas regions available: Window.Head.Normal, Window.Head.Inactive*
 
 ### Medium Priority
 
 - [ ] **NumericUpDown / Spinner** (2 CPX)
   - Textbox with up/down increment buttons
   - Min/max/step value constraints
+  - *GWEN atlas regions available: Input.UpDown.Up, Input.UpDown.Down*
 
-- [x] **ToggleSwitch** (1 CPX)
-  - Modern on/off toggle control
-  - Animated transition between states
-  - Optional on/off labels
-
-- [ ] **TreeView** (4 CPX)
+- [ ] **TreeView / Tree** (4 CPX)
   - Hierarchical node display
   - Expand/collapse functionality
   - Node selection and multi-select
   - Lazy loading support for large trees
+  - *GWEN atlas regions available: Tree.Top, Tree.Middle, Tree.Bottom, Tree.Plus, Tree.Minus*
 
 - [ ] **ContextMenu / PopupMenu** (3 CPX)
   - Right-click context menus
   - Menu item with icons
   - Submenu support
   - Keyboard navigation
+  - Check mark support for toggleable items
+  - *GWEN atlas regions available: Menu.Background, Menu.Hover, Menu.Check, Menu.RightArrow, Menu.LeftArrow*
 
 - [ ] **MenuBar** (3 CPX)
   - Horizontal menu strip
   - Dropdown submenus
   - Keyboard shortcuts display
   - Separator items
+  - *GWEN atlas regions available: Menu.Strip, Menu.Background, Menu.Hover*
 
 - [ ] **Tooltip** (2 CPX)
   - Hover-triggered popup text
   - Configurable delay and duration
+  - Multi-line support
+  - *GWEN atlas regions available: Tooltip.Top, Tooltip.Middle, Tooltip.Bottom*
+
+- [ ] **GroupBox** (1 CPX)
+  - Labeled container with border
+  - Title positioning options
+  - *GWEN atlas regions available: GroupBox.Normal*
+
+- [ ] **ScrollablePane** (3 CPX)
+  - Container with automatic scrollbars
+  - Virtual scrolling for large content
+  - *GWEN atlas regions: Uses existing ScrollBarV/ScrollBarH*
 
 ### Lower Priority
 
-- [ ] **GridView / DataGrid** (4 CPX)
-  - Tabular data display
-  - Column headers
+- [ ] **MultiColumnList / DataGrid** (4 CPX)
+  - Tabular data display with multiple columns
+  - Column headers with sorting
+  - Column resizing
   - Row selection
+  - *GWEN atlas regions available: ListHeaderSegment, ListHeader*
 
-- [ ] **ImageBox / PictureBox** (1 CPX)
+- [ ] **MultiLineEditbox / TextArea** (3 CPX)
+  - Multi-line text input
+  - Word wrap support
+  - Vertical scrollbar integration
+  - *GWEN atlas regions: Uses TextBox regions*
+
+- [ ] **ImageBox / StaticImage** (1 CPX)
   - Image display control
   - Scaling modes (stretch, fit, fill, none)
   - Click events
+  - *GWEN WidgetLook: StaticImage*
+
+- [ ] **StaticText** (1 CPX)
+  - Non-editable formatted text display
+  - Text alignment options
+  - *GWEN WidgetLook: StaticText*
+
+- [ ] **VUMeter** (2 CPX)
+  - Audio level visualization
+  - Horizontal/vertical variants
+  - Peak hold indicator
+  - *GWEN WidgetLook: VUMeter (uses ProgressBar renderer)*
 
 - [ ] **AnimatedImageBox** (2 CPX)
   - Frame sequences are stored as an array of images
@@ -93,14 +138,20 @@ A list of planned features, improvements, and new controls for FishUI.
   - Ability to pause animation display static frame
   - Play/pause control
 
-- [ ] **GroupBox** (1 CPX)
-  - Labeled container with border
-  - Title positioning options
-
 - [ ] **DateTimePicker** (4 CPX)
   - Calendar popup for date selection
   - Optional time selection spinner
   - Configurable date formats
+
+- [ ] **ItemListbox** (2 CPX)
+  - Listbox with custom item widgets
+  - *GWEN WidgetLook: ItemListbox*
+
+- [ ] **MenuItem** (1 CPX)
+  - Individual menu item for menus
+  - Icon, text, shortcut display
+  - Checkbox/radio states
+  - *GWEN WidgetLook: MenuItem*
 
 ---
 
@@ -118,23 +169,89 @@ A list of planned features, improvements, and new controls for FishUI.
 - [ ] Read-only mode (1 CPX)
 
 ### DropDown Enhancements
-- [ ] Proper dropdown popup behavior (opens below, closes on outside click) (2 CPX)
 - [ ] Multi-select mode (checkbox icon per item) (2 CPX)
 - [ ] Custom item rendering (2 CPX)
+- [ ] Search/filter functionality (2 CPX)
 
 ### ListBox Enhancements
 - [ ] Multi-select mode (Ctrl+click, Shift+click) (2 CPX)
 - [ ] Virtual scrolling for large lists (3 CPX)
 - [ ] Custom item templates (2 CPX)
 - [ ] Drag and drop reordering (3 CPX)
+- [ ] Even/odd row alternating colors (1 CPX)
+  - *GWEN has: Input.ListBox.EvenLine, Input.ListBox.OddLine, Input.ListBox.EvenLineSelected, Input.ListBox.OddLineSelected*
 
 ### Button Enhancements
 - [ ] Icon support (image + text) (1 CPX)
 - [ ] Toggle button mode (1 CPX)
 - [ ] Repeat button mode (fires while held) (1 CPX)
+- [ ] ImageButton variant (icon-only button) (1 CPX)
+  - *GWEN WidgetLook: ImageButton*
 
 ### Panel Enhancements
 - [ ] Border styles (1 CPX)
+- [ ] Panel variants (Normal, Bright, Dark, Highlight) (1 CPX)
+  - *GWEN has: Panel.Normal, Panel.Bright, Panel.Dark, Panel.Highlight*
+
+### ProgressBar Enhancements
+- [ ] Vertical progress bar mode (1 CPX)
+  - *GWEN has: VProgressBar regions for vertical variant*
+
+---
+
+## Theme System
+
+### Current State
+- [x] Theme loading from YAML files
+- [x] Sprite atlas support (gwen.png)
+- [x] NPatch/9-slice rendering
+- [x] Region coordinates from CEGUI imageset format
+- [x] Runtime theme switching
+- [x] Color palette support
+
+### Theme File Improvements
+- [ ] Add missing GWEN atlas regions to gwen.yaml (2 CPX)
+  - Window/FrameWindow regions
+  - Tab regions
+  - Menu regions
+  - Tooltip regions
+  - GroupBox regions
+  - Tree regions
+  - StatusBar region
+  - Category list regions
+- [ ] Theme inheritance / base themes (3 CPX)
+- [ ] Per-control color overrides (2 CPX)
+- [ ] Support CEGUI imageset.xml format directly (3 CPX)
+
+### Theme Assets Available in gwen.png (from CEGUI imageset)
+The following regions are defined in the CEGUI imageset but may not be fully utilized:
+
+**Windows:**
+- `Window.Head.Normal/Inactive` (Left, Middle, Right)
+- `Window.Middle.Normal/Inactive` (Left, Middle, Right)
+- `Window.Bottom.Normal/Inactive` (Left, Middle, Right)
+- `Window.Close`, `Window.Close_Hover`, `Window.Close_Down`, `Window.Close_Disabled`
+
+**Tabs:**
+- `Tab.Top.Active/Inactive` (Top, Middle, Bottom sections)
+- `Tab.Bottom.Active/Inactive` (Top, Middle, Bottom sections)
+- `Tab.Left.Active/Inactive`, `Tab.Right.Active/Inactive`
+- `Tab.Control`, `Tab.HeaderBar`
+
+**Menus:**
+- `Menu.Strip`, `Menu.BackgroundWithMargin`
+- `Menu.Background` (9-slice)
+- `Menu.Hover` (9-slice)
+- `Menu.Check`, `Menu.RightArrow`, `Menu.LeftArrow`
+
+**Misc:**
+- `Tooltip` (9-slice)
+- `GroupBox.Normal` (9-slice)
+- `Tree` (9-slice) + `Tree.Plus`, `Tree.Minus`
+- `StatusBar`
+- `CategoryList.Outer`, `CategoryList.Inner`, `CategoryList.Header`
+- `Shadow`
+- `Selection`
 
 ---
 
@@ -149,32 +266,22 @@ A list of planned features, improvements, and new controls for FishUI.
 - [ ] Auto-sizing controls based on content (3 CPX)
 
 ### Input & Events
-- [x] Mouse wheel scrolling support (2 CPX)
-- [x] Double-click event handling (2 CPX)
-- [x] Keyboard focus navigation (Tab key) (3 CPX)
-- [x] Focus visual indicators (2 CPX)
-- [x] Global keyboard shortcuts / hotkeys (3 CPX)
-- [x] Virtual mouse cursor mode, custom mouse pointer drawing, input functions to move and click the virtual mouse, i.e. joystick to mouse input (4 CPX)
+- [x] Mouse wheel scrolling support
+- [x] Double-click event handling
+- [x] Keyboard focus navigation (Tab key)
+- [x] Focus visual indicators
+- [x] Global keyboard shortcuts / hotkeys
+- [x] Virtual mouse cursor mode
 
 ### Rendering
 - [ ] Control opacity/transparency (2 CPX)
 - [ ] Animation system for transitions (4 CPX)
 - [ ] Anti-aliased rendering option (2 CPX)
-
-### Theming & Styling
-- [x] Theme loading from file (YAML) (3 CPX)
-- [x] Runtime theme switching (3 CPX)
-- [x] Custom color palettes from theme file (2 CPX)
-- [x] **Sprite Atlas Theme Support** (4 CPX)
-  - Support loading a single theme image (sprite atlas) as alternative to individual image files
-  - Use `gwen.png` as the base/reference theme atlas
-  - Define texture region coordinates for each control skin (buttons, panels, scrollbars, checkboxes, etc.)
-  - Support both atlas-based and individual file-based theming modes
-  - Extract control states from atlas (normal, hover, pressed, disabled)
+- [ ] Shadow rendering for windows/popups (2 CPX)
+  - *GWEN has: Shadow region*
 
 ### Accessibility
 - [ ] Keyboard-only navigation (3 CPX)
-- [ ] Virtual mouse mode (modifier key + arrow keys/numpad keys) (3 CPX)
 - [ ] Scalable UI for different DPI (4 CPX)
 
 ### Serialization
@@ -197,52 +304,40 @@ A list of planned features, improvements, and new controls for FishUI.
 - [ ] Getting started tutorial
 - [ ] Custom control creation guide
 - [ ] Backend implementation guide (beyond Raylib)
-- [ ] Best practices and patterns
+- [ ] Theme creation guide
+- [ ] CEGUI theme conversion guide
 
 ---
 
 ## Code Cleanup & Technical Debt
 
-### Incomplete Implementations
-- [x] Implement `FishUI.Resized()` method - currently empty with placeholder comment (2 CPX)
-- [x] Implement or remove `Padding` property in `Control.cs` - currently commented out (2 CPX)
-- [x] Implement or remove `UICommands.cs` and `UICommandList.cs` - unused command buffer scaffolding (1 CPX)
-- [x] Complete `Panel` hover/pressed states - currently commented out in `Panel.cs` (1 CPX)
+### Completed Cleanup
+- [x] Implement `FishUI.Resized()` method
+- [x] Implement or remove `Padding` property in `Control.cs`
+- [x] Remove unused `UICommands.cs` and `UICommandList.cs`
+- [x] Complete `Panel` hover/pressed states
+- [x] Remove old commented code in `FishUI.cs`, `Control.cs`, `ScrollBarV.cs`
+- [x] Centralize debug logging mechanism (`FishUIDebug`)
+- [x] Implement debug outline drawing for all controls
+- [x] Remove unused `using` statements
 
-### Commented-Out Code to Review
-- [x] `FishUI.cs`: Remove or implement `PressedLeftControl`, `HeldLeftControl`, `PressedRightControl`, `HeldRightControl` fields (1 CPX)
-- [x] `Control.cs`: Remove commented `HandleInput` method or implement it (1 CPX)
-- [x] `ScrollBarV.cs`: Remove old manual drawing code block (already replaced by child buttons) (1 CPX)
-
-### Debug Code to Address
-- [x] `Control.cs`: Make `DebugPrint` configurable (1 CPX)
-- [x] `Panel.cs`: Make `Debug` flag configurable (1 CPX)
-- [x] `ListBox.cs`: Make debug `Console.WriteLine` for selected index configurable (1 CPX)
-- [x] Centrailize debug logging mechanism (2 CPX)
-- [x] Implement debug outline drawing for all controls when debug mode is enabled (3 CPX)
-
-### Code Quality
-- [x] Remove unused `using System.ComponentModel.Design` in `FishUI.cs` (1 CPX)
-- [x] Remove unused `using System.Runtime.ConstrainedExecution` in `ListBox.cs` (1 CPX)
-- [x] Remove unused `using static System.Net.Mime.MediaTypeNames` in `Textbox.cs` and `Label.cs` (1 CPX)
+### Remaining Cleanup
+- [ ] Standardize naming conventions across all controls (1 CPX)
+- [ ] Add XML documentation comments to public APIs (2 CPX)
+- [ ] Review and optimize NPatch rendering performance (2 CPX)
 
 ---
 
-## Known Issues / Bugs
+## Known Issues / Bugs (Resolved)
 
-- [x] DropDown doesn't close on outside click (1 CPX)
-- [x] Textbox cursor is underscore style, should be vertical line, it should blink when control is in focus (1 CPX)
-- [x] ScrollBarV thumb position calculation needs refinement (1 CPX)
-- [x] Docked positioning may not work correctly without parent (2 CPX)
-- [x] `Control.GetAbsolutePosition()` throws `NotImplementedException` for unknown position modes (1 CPX)
-- [x] `LayoutFormat.Deserialize()` fails with abstract `Control` type - YamlDotNet cannot instantiate abstract class (2 CPX)
-  - Fixed by using `List<object>` instead of `Control[]` for deserialization
-  - Added missing control types to TypeMapping (ScrollBarH, ProgressBar, Slider, ToggleSwitch, SelectionBox)
-- [x] **Theme system incomplete for newer controls** (3 CPX)
-  - Added `UseThemeColors` property to ProgressBar, Slider, ToggleSwitch
-  - Added NPatch properties and theme region mappings in `FishUISettings.ApplyThemeRegions()`
-  - Added region definitions for these controls in gwen.yaml theme file
-  - Controls now use `Settings.GetColorPalette()` for colors when `UseThemeColors` is true
+- [x] DropDown doesn't close on outside click
+- [x] Textbox cursor styling and blinking
+- [x] ScrollBarV thumb position calculation
+- [x] Docked positioning without parent
+- [x] `Control.GetAbsolutePosition()` for unknown position modes
+- [x] `LayoutFormat.Deserialize()` with abstract Control type
+- [x] Theme system for newer controls
+- [x] Theme atlas coordinate mismatch (case sensitivity in region lookup)
 
 ---
 
@@ -251,3 +346,5 @@ A list of planned features, improvements, and new controls for FishUI.
 - Prioritize controls that are commonly needed in game development
 - Maintain the "dependency-free" philosophy - keep the core library minimal
 - Backend implementations should remain in separate sample projects
+- CEGUI theme files in `data/cegui_theme/` provide reference for accurate atlas coordinates
+- The GWEN skin atlas (gwen.png) contains 512x512 pixels of UI elements
