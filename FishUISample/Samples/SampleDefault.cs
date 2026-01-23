@@ -410,6 +410,58 @@ namespace FishUISample.Samples
 			};
 			FUI.AddControl(showMenuBtn);
 
+			// === Icon Button Demo ===
+			// Load some icons from the silk_icons folder
+			ImageRef iconSave = FUI.Graphics.LoadImage("data/silk_icons/disk.png");
+			ImageRef iconFolder = FUI.Graphics.LoadImage("data/silk_icons/folder.png");
+			ImageRef iconSettings = FUI.Graphics.LoadImage("data/silk_icons/cog.png");
+			ImageRef iconHelp = FUI.Graphics.LoadImage("data/silk_icons/help.png");
+
+			// Button with icon on the left (default)
+			Button iconBtnLeft = new Button();
+			iconBtnLeft.Text = "Save";
+			iconBtnLeft.Icon = iconSave;
+			iconBtnLeft.IconPosition = IconPosition.Left;
+			iconBtnLeft.Position = new Vector2(600, 650);
+			iconBtnLeft.Size = new Vector2(100, 30);
+			iconBtnLeft.TooltipText = "Icon on left";
+			FUI.AddControl(iconBtnLeft);
+
+			// Button with icon on the right
+			Button iconBtnRight = new Button();
+			iconBtnRight.Text = "Open";
+			iconBtnRight.Icon = iconFolder;
+			iconBtnRight.IconPosition = IconPosition.Right;
+			iconBtnRight.Position = new Vector2(710, 650);
+			iconBtnRight.Size = new Vector2(100, 30);
+			iconBtnRight.TooltipText = "Icon on right";
+			FUI.AddControl(iconBtnRight);
+
+			// Icon-only button (no text)
+			Button iconOnlyBtn = new Button();
+			iconOnlyBtn.Icon = iconSettings;
+			iconOnlyBtn.Position = new Vector2(820, 650);
+			iconOnlyBtn.Size = new Vector2(30, 30);
+			iconOnlyBtn.TooltipText = "Settings (icon only)";
+			FUI.AddControl(iconOnlyBtn);
+
+			// Button with icon on top
+			Button iconBtnTop = new Button();
+			iconBtnTop.Text = "Help";
+			iconBtnTop.Icon = iconHelp;
+			iconBtnTop.IconPosition = IconPosition.Top;
+			iconBtnTop.Position = new Vector2(860, 640);
+			iconBtnTop.Size = new Vector2(60, 50);
+			iconBtnTop.TooltipText = "Icon on top";
+			FUI.AddControl(iconBtnTop);
+
+			// Label for icon button section
+			Label iconBtnLabel = new Label("Icon Buttons Demo");
+			iconBtnLabel.Position = new Vector2(600, 625);
+			iconBtnLabel.Size = new Vector2(200, 20);
+			iconBtnLabel.Alignment = Align.Left;
+			FUI.AddControl(iconBtnLabel);
+
 			// === StackLayout Demo ===
 			// Vertical stack layout
 			StackLayout vStack = new StackLayout();

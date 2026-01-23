@@ -153,16 +153,17 @@ A list of planned features, improvements, and new controls for FishUI.
   - *GWEN has: Input.ListBox.EvenLine, Input.ListBox.OddLine, Input.ListBox.EvenLineSelected, Input.ListBox.OddLineSelected*
 
 ### Button Enhancements
-- [ ] Icon support (image + text) (1 CPX)
+- [x] ~~Icon support (image + text), add to examples~~ - Added Icon, IconPosition, IconSpacing properties; SampleDefault has icon button demo
 - [ ] Toggle button mode (1 CPX)
 - [ ] Repeat button mode (fires while held) (1 CPX)
 - [ ] ImageButton variant (icon-only button) (1 CPX)
   - *GWEN WidgetLook: ImageButton*
 
-### Panel Enhancements
+### Panel Enhancements **HIGH PRIORITY**
 - [ ] Border styles (1 CPX)
 - [ ] Panel variants (Normal, Bright, Dark, Highlight) (1 CPX)
   - *GWEN has: Panel.Normal, Panel.Bright, Panel.Dark, Panel.Highlight*
+- [ ] Add to examples
 
 ### ProgressBar Enhancements
 - [ ] Vertical progress bar mode (1 CPX)
@@ -171,12 +172,17 @@ A list of planned features, improvements, and new controls for FishUI.
 ### Slider Enhancements
 - [x] ~~Mouse wheel support~~ - Scroll to adjust value (uses Step or 1% of range)
 
-### ScrollBar Enhancements
+### ScrollBar Enhancements **HIGH PRIORITY**
 - [ ] Mouse wheel support for ScrollBar buttons (1 CPX)
   - Allow scrolling with mouse wheel over ScrollBarV/ScrollBarH button areas
 
 ### NumericUpDown Enhancements
 - [x] ~~Mouse wheel support~~ - Scroll to increment/decrement value
+
+### TabControl Enhancements **HIGH PRIORITY**
+- [ ] Preserve tab names during serialization (2 CPX)
+  - Serialize TabPage data (name, content) while keeping internal properties [YamlIgnore]
+  - Currently TabPages is marked [YamlIgnore] which loses tab names on save/load
 
 ---
 
@@ -312,7 +318,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] ~~Layout save/load breaks Window and TabControl~~ - Added `OnDeserialized` virtual method to Control, overridden in Window and TabControl to reinitialize internal state
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
-- TabControl tab names are not preserved during serialization because TabPages is marked [YamlIgnore]. This could be improved in a future enhancement by serializing TabPage data.
+
+*No uncategorized items*
 
 ---
 
