@@ -177,16 +177,14 @@ A list of planned features, improvements, and new controls for FishUI.
   - *GWEN has: VProgressBar regions for vertical variant*
 
 ### Slider Enhancements
-- [ ] Mouse wheel support (1 CPX)
-  - Scroll up/down to adjust slider value
+- [x] ~~Mouse wheel support~~ - Scroll to adjust value (uses Step or 1% of range)
 
 ### ScrollBar Enhancements
 - [ ] Mouse wheel support for ScrollBar buttons (1 CPX)
   - Allow scrolling with mouse wheel over ScrollBarV/ScrollBarH button areas
 
 ### NumericUpDown Enhancements
-- [x] ~~Mouse wheel support~~ ✅ **COMPLETED**
-  - Scroll up to increment, scroll down to decrement value
+- [x] ~~Mouse wheel support~~ - Scroll to increment/decrement value
 
 ---
 
@@ -256,9 +254,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [ ] Scalable UI for different DPI (4 CPX)
 
 ### Serialization
-- [x] ~~Add new controls to LayoutFormat TypeMapping (1 CPX)~~ ✅ **COMPLETED**
-  - Added: Window, Titlebar, TabControl, GroupBox, TreeView, NumericUpDown, Tooltip
-  - Layout save/load now works for all implemented controls
+- [x] ~~LayoutFormat TypeMapping~~ - Added all implemented controls for layout save/load
 
 ---
 
@@ -268,13 +264,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [ ] Implement sample chooser system in Program.cs (2 CPX)
   - Console-based or UI-based selection to choose which sample to run
   - Currently hardcoded to `Samples[2]` in Program.cs:54
-- [x] ~~Theme switcher example~~ ✅ **COMPLETED** (SampleThemeSwitcher.cs)
-  - Demonstrates runtime theme switching between gwen.yaml and gwen2.yaml
-- [ ] Responsive layout example
-- Show anchor/dock positioning with window resize
-- [x] ~~Game main menu example~~ ✅ **COMPLETED** (SampleGameMenu.cs)
-  - New Game, Options, Quit buttons
-  - Options shows a window with tabs: Input, Graphics, Gameplay
+- [x] ~~Theme switcher example~~ (SampleThemeSwitcher.cs)
+- [x] ~~Game main menu example~~ (SampleGameMenu.cs) - Buttons + Options window with tabs
 - [ ] Car dashboard example with gauges
 - Requires RadialGauge and BarGauge controls first
 - [ ] MultiLine textbox example (1 CPX)
@@ -316,21 +307,12 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Fixed Bugs
 
-- [x] ~~**TreeNode.HasChildren causes deserialization error**~~ ✅ **FIXED**
-  - Location: `TreeView.cs:84`
-  - Fix: Added `[YamlIgnore]` attribute to `HasChildren` read-only property
-
-- [x] ~~**TabControl.SelectedTab causes deserialization error**~~ ✅ **FIXED**
-  - Location: `TabControl.cs:83`
-  - Fix: Added `[YamlIgnore]` attribute to `SelectedTab` read-only property
-
-- [x] ~~**DropDown.SelectIndex crashes with NullReferenceException**~~ ✅ **FIXED**
-  - Location: `DropDown.cs:130`
-  - Fix: Added null check before calling `FishUI.Events.Broadcast()` to handle case when control is not yet connected to FishUI
+- [x] ~~TreeNode.HasChildren deserialization error~~ - Added `[YamlIgnore]` to read-only property
+- [x] ~~TabControl.SelectedTab deserialization error~~ - Added `[YamlIgnore]` to read-only property
+- [x] ~~DropDown.SelectIndex NullReferenceException~~ - Added null check before `FishUI.Events.Broadcast()`
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
-
-*No uncategorized items*
+- Go trough all controls and see where YamlIgnore attributes are needed to avoid serialization errors (e.g., read-only properties) (2 CPX)
 
 ---
 

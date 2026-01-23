@@ -218,6 +218,26 @@ namespace FishUI.Controls
 			}
 		}
 
+		public override void HandleMouseWheel(FishUI UI, FishInputState InState, float WheelDelta)
+		{
+			base.HandleMouseWheel(UI, InState, WheelDelta);
+
+			if (Disabled)
+				return;
+
+			// Use Step if defined, otherwise use 1% of the range
+			float increment = Step > 0 ? Step : (MaxValue - MinValue) * 0.01f;
+
+			if (WheelDelta > 0)
+			{
+				Value += increment;
+			}
+			else if (WheelDelta < 0)
+			{
+				Value -= increment;
+			}
+		}
+
 		private void UpdateValueFromMousePosition(Vector2 mousePos)
 		{
 			Vector2 pos = GetAbsolutePosition();
