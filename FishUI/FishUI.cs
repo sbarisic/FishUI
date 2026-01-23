@@ -440,10 +440,10 @@ namespace FishUI
 			InLast = InState;
 		}
 
-		void Draw(Control[] Controls, float Dt, float Time)
+	void Draw(Control[] Controls, float Dt, float Time)
 		{
 			Graphics.BeginDrawing(Dt);
-			foreach (Control Ctl in Controls.Reverse())
+			foreach (Control Ctl in Controls)
 			{
 				if (Ctl.Visible)
 				{

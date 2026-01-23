@@ -9,7 +9,7 @@ A list of planned features, improvements, and new controls for FishUI.
 > - **4** - Multi-file control/component with multiple dependencies and significant logic, possible minor architecture changes
 > - **5** - Large feature spanning multiple components and subsystems, major architecture changes
 
-How TODO file should be iterated: First handle the Uncategorized section, when this section is empty, start by fixing Active Bugs (take one at a time). After that the rest of the TODO file by priority.
+How TODO file should be iterated: First handle the Uncategorized section, when this section is empty, start by fixing Active Bugs (take one at a time). After that the rest of the TODO file by priority (take one at a time).
 
 ---
 
@@ -371,6 +371,11 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 *No active bugs*
 
 ### Resolved Bugs
+- [x] **Z-order drawing is inverted** (1 CPX) ✅ Fixed
+  - `Draw()` in `FishUI.cs` was reversing the ordered controls array, causing lower Z-depth controls to render on top
+  - Fixed by removing `.Reverse()` call in `Draw()` method
+  - Now higher Z-depth controls are drawn last (on top), matching the logical Z-order
+
 - [x] **Drag/interaction events sent to wrong control** (2 CPX) ✅ Fixed
   - Issue was in `PickControl()` recursive call for children - it wasn't reversing child order
   - Fixed by adding `.Reverse().ToArray()` to `C.GetAllChildren()` call in `PickControl`
@@ -419,7 +424,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] Window children positioned relative to window frame instead of content area
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
-- Z odering is still broken. Drawing order is reversed to the logic Z order. Logic Z order should be inverted to match the rendering order.
+*No uncategorized items*
 
 ---
 
