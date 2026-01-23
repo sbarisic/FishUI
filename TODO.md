@@ -29,6 +29,10 @@ A list of planned features, improvements, and new controls for FishUI.
 | Slider | ? Complete | ? Atlas |
 | ToggleSwitch | ? Complete | ? Atlas |
 | SelectionBox | ? Complete | ? Atlas |
+| Window | ? Complete | ? Atlas |
+| Titlebar | ? Complete | ? Atlas |
+| TabControl | ? Complete | ? Atlas |
+| GroupBox | ? Complete | ? Atlas |
 
 ---
 
@@ -36,23 +40,23 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ### High Priority
 
-- [ ] **TabControl / TabPanel** (3 CPX)
+- [x] **TabControl / TabPanel** (3 CPX) ? Implemented
   - Tab header strip with clickable tabs
   - Content panels that switch based on selected tab
-  - Tab overflow handling (scroll with left-right arrows)
-  - Top/bottom tab positioning
+  - Tab overflow handling (scroll with left-right arrows) - *TODO*
+  - Top/bottom tab positioning - *TODO*
   - *GWEN atlas regions available: Tab.Top.Active, Tab.Top.Inactive, Tab.Bottom.Active, Tab.Bottom.Inactive, Tab.Control, Tab.HeaderBar*
 
-- [ ] **Window / FrameWindow / Dialog** (4 CPX)
+- [x] **Window / FrameWindow / Dialog** (4 CPX) ? Implemented
   - Draggable title bar
-  - Close button (optional minimize/maximize)
-  - Modal and non-modal modes
+  - Close button (optional minimize/maximize) - minimize/maximize *TODO*
+  - Modal and non-modal modes - modal blocking *TODO*
   - Resizable and fixed border mode
   - *GWEN atlas regions available: Window.Head.Normal, Window.Head.Inactive, Window.Middle, Window.Bottom, Window.Close*
 
-- [ ] **Titlebar** (2 CPX)
+- [x] **Titlebar** (2 CPX) ? Implemented
   - Standalone titlebar component for windows
-  - Text display with optional icon
+  - Text display with optional icon - icon *TODO*
   - *GWEN atlas regions available: Window.Head.Normal, Window.Head.Inactive*
 
 ### Medium Priority
@@ -90,10 +94,10 @@ A list of planned features, improvements, and new controls for FishUI.
   - Multi-line support
   - *GWEN atlas regions available: Tooltip.Top, Tooltip.Middle, Tooltip.Bottom*
 
-- [ ] **GroupBox** (1 CPX)
-  - Labeled container with border
-  - Title positioning options
-  - *GWEN atlas regions available: GroupBox.Normal*
+- [x] **GroupBox** (1 CPX) ? Implemented
+- Labeled container with border
+- Title positioning options
+- *GWEN atlas regions available: GroupBox.Normal*
 
 - [ ] **ScrollablePane** (3 CPX)
   - Container with automatic scrollbars
@@ -210,15 +214,14 @@ A list of planned features, improvements, and new controls for FishUI.
 - [x] Color palette support
 
 ### Theme File Improvements
-- [ ] Add missing GWEN atlas regions to gwen.yaml (2 CPX)
-  - Window/FrameWindow regions
-  - Tab regions
-  - Menu regions
+- [x] Add missing GWEN atlas regions to gwen.yaml (2 CPX) ? Completed
+  - Window/FrameWindow regions (HeadNormal, HeadInactive, MiddleNormal, MiddleInactive, BottomNormal, BottomInactive, Close buttons)
+  - Tab regions (HeaderBar, ControlBackground, TopActive, TopInactive)
+  - Menu regions (Strip, Background, Hover, RightArrow, LeftArrow)
   - Tooltip regions
   - GroupBox regions
-  - Tree regions
-  - StatusBar region
-  - Category list regions
+  - Tree regions (Background, Plus, Minus)
+  - NumericUpDown regions (Up/Down button states)
 - [ ] Theme inheritance / base themes (3 CPX)
 - [ ] Per-control color overrides (2 CPX)
 - [ ] Support CEGUI imageset.xml format directly (3 CPX)
@@ -291,7 +294,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ## Sample Application
 
-- [ ] Complete demo showcasing all controls (2 CPX)
+- [x] Complete demo showcasing all controls (2 CPX) - *Partially complete, includes new Window/Tab/GroupBox controls*
 - [ ] Theme switcher demo (2 CPX)
 - [ ] Responsive layout examples (2 CPX)
 - [ ] Game UI example (inventory, HUD, dialogs) (3 CPX)
@@ -320,6 +323,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] Centralize debug logging mechanism (`FishUIDebug`)
 - [x] Implement debug outline drawing for all controls
 - [x] Remove unused `using` statements
+- [x] Fix `Utils.Union` scissor intersection calculation (was commented out)
+- [x] Fix `RaylibGfx` scissor stack management
 
 ### Remaining Cleanup
 - [ ] Standardize naming conventions across all controls (1 CPX)
@@ -328,8 +333,22 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ---
 
-## Known Issues / Bugs (Resolved)
+## Known Issues / Bugs
 
+### Active Bugs
+- [ ] **CheckBox/RadioButton labels clipped by scissor** (2 CPX)
+  - Labels extend beyond the control's Size bounds (15x15 for the icon)
+  - DrawChildren applies scissor at control bounds, clipping the label text
+  - Affects all CheckBox/RadioButton controls when used as children
+  - *Workaround: None currently*
+  - *Fix options: Disable scissor for controls with external labels, or expand control Size to include label*
+
+- [ ] **Label default Alignment causes clipping in containers** (1 CPX)
+  - Label default is `Align.Center` which centers text within Label.Size
+  - When text is wider than Size, it extends past the left edge and gets scissor-clipped
+  - *Workaround: Set `Alignment = Align.Left` explicitly for labels in containers*
+
+### Resolved Bugs
 - [x] DropDown doesn't close on outside click
 - [x] Textbox cursor styling and blinking
 - [x] ScrollBarV thumb position calculation
@@ -338,6 +357,9 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] `LayoutFormat.Deserialize()` with abstract Control type
 - [x] Theme system for newer controls
 - [x] Theme atlas coordinate mismatch (case sensitivity in region lookup)
+- [x] `Utils.Union` was commented out, breaking scissor intersection calculation
+- [x] `RaylibGfx.PopScissor` didn't restore previous scissor state correctly
+- [x] Window children positioned relative to window frame instead of content area
 
 ---
 
