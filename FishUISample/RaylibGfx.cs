@@ -176,6 +176,11 @@ namespace FishUISample
 
         public FontRef LoadFont(string FileName, float Size, float Spacing, FishColor Color)
         {
+            return LoadFont(FileName, Size, Spacing, Color, FontStyle.Regular);
+        }
+
+        public FontRef LoadFont(string FileName, float Size, float Spacing, FishColor Color, FontStyle Style)
+        {
             Font F = Raylib.LoadFontEx(FileName, (int)Size, null, 250);
 
             FontRef FRef = new FontRef();
@@ -184,7 +189,32 @@ namespace FishUISample
             FRef.Spacing = Spacing;
             FRef.Size = Size;
             FRef.Color = Color;
+            FRef.Style = Style;
+            FRef.LineHeight = F.BaseSize;
+
+            // Check if font is monospaced by comparing widths of different characters
+            Vector2 wWidth = Raylib.MeasureTextEx(F, "W", Size, Spacing);
+            Vector2 iWidth = Raylib.MeasureTextEx(F, "i", Size, Spacing);
+            FRef.IsMonospaced = Math.Abs(wWidth.X - iWidth.X) < 0.5f;
+
             return FRef;
+        }
+
+        public FishUIFontMetrics GetFontMetrics(FontRef Fn)
+        {
+            Font F = (Font)Fn.Userdata;
+            
+            // Raylib font metrics
+            float lineHeight = F.BaseSize;
+            float ascent = lineHeight * 0.8f; // Approximate - Raylib doesn't expose this directly
+            float descent = lineHeight * 0.2f; // Approximate
+            float baseline = ascent;
+
+            // Measure average and max character widths
+            Vector2 avgSize = Raylib.MeasureTextEx(F, "x", Fn.Size, Fn.Spacing);
+            Vector2 maxSize = Raylib.MeasureTextEx(F, "W", Fn.Size, Fn.Spacing);
+
+            return new FishUIFontMetrics(lineHeight, ascent, descent, baseline, avgSize.X, maxSize.X);
         }
 
         public ImageRef LoadImage(string FileName)

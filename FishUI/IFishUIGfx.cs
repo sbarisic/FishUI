@@ -64,6 +64,11 @@ namespace FishUI
 		public FontRef LoadFont(string FileName, float Size, float Spacing, FishColor Color);
 
 		/// <summary>
+		/// Loads a font from a file with a specific style.
+		/// </summary>
+		public FontRef LoadFont(string FileName, float Size, float Spacing, FishColor Color, FontStyle Style);
+
+		/// <summary>
 		/// Loads an image from a file.
 		/// </summary>
 		public ImageRef LoadImage(string FileName);
@@ -87,6 +92,11 @@ namespace FishUI
 		/// Measures the size of text when rendered with the specified font.
 		/// </summary>
 		public Vector2 MeasureText(FontRef Fn, string Text);
+
+		/// <summary>
+		/// Gets font metrics (line height, ascent, descent, baseline) for a font.
+		/// </summary>
+		public FishUIFontMetrics GetFontMetrics(FontRef Fn);
 
 		// Drawing
 

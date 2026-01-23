@@ -236,10 +236,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [ ] Anti-aliased rendering option (2 CPX)
 - [ ] Shadow rendering for windows/popups (2 CPX)
   - *GWEN has: Shadow region*
-- [ ] Font system refactoring (3 CPX) **HIGH PRIORITY**
-  - Support for both monospaced and variable-width fonts
-  - Font metrics and proper text measurement
-  - Font style variants (regular, bold, italic)
+- [x] ~~Font system refactoring~~ - Added FontStyle enum, FishUIFontMetrics struct, GetFontMetrics method, IsMonospaced detection, LineHeight property
 - [ ] Rendering images with rotation and scaling (useful for gauges) (TODO: estimate CPX after analysis) **HIGH PRIORITY**
 
 ### Accessibility
