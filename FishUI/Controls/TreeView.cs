@@ -411,24 +411,17 @@ namespace FishUI.Controls
 
 		public override void Init(FishUI UI)
 		{
-			base.Init(UI);
+		base.Init(UI);
 
-			// Create scrollbar
-			_scrollBar = new ScrollBarV();
-			_scrollBar.Position = new FishUIPosition
-			{
-			Mode = PositionMode.Docked,
-			Dock = DockMode.Top | DockMode.Right | DockMode.Bottom,
-			Top = 0,
-			Right = 0,
-			Bottom = 0
-			};
-			_scrollBar.Size = new Vector2(16, 0);
-			_scrollBar.OnScrollChanged += (sender, position, direction) =>
-			{
-			_scrollOffset = position * Math.Max(0, _totalContentHeight - Size.Y);
-			};
-			AddChild(_scrollBar);
+		// Create scrollbar with relative positioning on the right side
+		_scrollBar = new ScrollBarV();
+		_scrollBar.Size = new Vector2(16, Size.Y);
+		_scrollBar.Position = new Vector2(Size.X - 16, 0);
+		_scrollBar.OnScrollChanged += (sender, position, direction) =>
+		{
+		_scrollOffset = position * Math.Max(0, _totalContentHeight - Size.Y);
+		};
+		AddChild(_scrollBar);
 		}
 
 		private void UpdateVisibleNodes()
@@ -617,6 +610,10 @@ namespace FishUI.Controls
 
 			if (_scrollBar != null)
 			{
+			// Update scrollbar position and size to match TreeView
+			_scrollBar.Position = new Vector2(size.X - 16, 0);
+			_scrollBar.Size = new Vector2(16, size.Y);
+
 			float viewRatio = size.Y / Math.Max(1, totalHeight);
 			_scrollBar.ThumbHeight = Math.Clamp(viewRatio, 0.1f, 1f);
 			_scrollBar.Visible = totalHeight > size.Y;
