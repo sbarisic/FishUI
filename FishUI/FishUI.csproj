@@ -3221,7 +3221,7 @@
     <None Update="data\themes\gwen2.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="data\themes\gwen_new.yaml">
+    <None Update="data\themes\gwen.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

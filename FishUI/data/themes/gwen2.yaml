@@ -1,16 +1,17 @@
 # FishUI Theme File - Gwen Theme
 # Based on the GWEN UI skin (gwen.png sprite atlas)
 # Atlas size: 512x512
+# Coordinates extracted from CEGUI GWEN.imageset.xml
 
 theme:
   name: "Gwen2 Default"
-  description: "Default2 theme using the GWEN UI sprite atlas"
+  description: "Default theme using the GWEN2 UI sprite atlas"
   version: "1.0"
   author: "FishUI"
 
 atlas:
-enabled: true
-path: "data/gwen.png"
+  enabled: true
+  path: "data/gwen2.png"
 
 colors:
   background: "#F0F0F0"
@@ -34,7 +35,7 @@ fonts:
   spacing: 0
 
 # Regions define sprite atlas coordinates for each control state
-# Format: x, y, width, height, top, bottom, left, right (NPatch borders)
+# Coordinates mapped from CEGUI GWEN.imageset.xml
 regions:
   Button:
     Normal:
@@ -42,62 +43,62 @@ regions:
       y: 0
       width: 31
       height: 31
-      top: 8
-      bottom: 8
-      left: 8
-      right: 8
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
     Hover:
       x: 480
       y: 32
       width: 31
       height: 31
-      top: 8
-      bottom: 8
-      left: 8
-      right: 8
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
     Pressed:
-      x: 480
-      y: 64
-      width: 31
-      height: 31
-      top: 8
-      bottom: 8
-      left: 8
-      right: 8
-    Disabled:
       x: 480
       y: 96
       width: 31
       height: 31
-      top: 8
-      bottom: 8
-      left: 8
-      right: 8
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
+    Disabled:
+      x: 480
+      y: 64
+      width: 31
+      height: 31
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
 
   Panel:
     Normal:
       x: 256
-      y: 256
-      width: 127
-      height: 127
-      top: 12
-      bottom: 12
-      left: 12
-      right: 12
+      y: 0
+      width: 63
+      height: 63
+      top: 4
+      bottom: 4
+      left: 4
+      right: 4
     Disabled:
       x: 256
-      y: 256
-      width: 127
-      height: 127
-      top: 12
-      bottom: 12
-      left: 12
-      right: 12
+      y: 64
+      width: 63
+      height: 63
+      top: 4
+      bottom: 4
+      left: 4
+      right: 4
 
   Checkbox:
     Unchecked:
-      x: 384
-      y: 0
+      x: 464
+      y: 32
       width: 15
       height: 15
       top: 2
@@ -105,8 +106,8 @@ regions:
       left: 2
       right: 2
     Checked:
-      x: 400
-      y: 0
+      x: 448
+      y: 32
       width: 15
       height: 15
       top: 2
@@ -114,8 +115,8 @@ regions:
       left: 2
       right: 2
     UncheckedHover:
-      x: 384
-      y: 16
+      x: 464
+      y: 32
       width: 15
       height: 15
       top: 2
@@ -123,8 +124,8 @@ regions:
       left: 2
       right: 2
     CheckedHover:
-      x: 400
-      y: 16
+      x: 448
+      y: 32
       width: 15
       height: 15
       top: 2
@@ -132,8 +133,8 @@ regions:
       left: 2
       right: 2
     DisabledUnchecked:
-      x: 384
-      y: 32
+      x: 464
+      y: 48
       width: 15
       height: 15
       top: 2
@@ -141,8 +142,8 @@ regions:
       left: 2
       right: 2
     DisabledChecked:
-      x: 400
-      y: 32
+      x: 448
+      y: 48
       width: 15
       height: 15
       top: 2
@@ -152,8 +153,8 @@ regions:
 
   RadioButton:
     Unchecked:
-      x: 448
-      y: 0
+      x: 464
+      y: 64
       width: 15
       height: 15
       top: 2
@@ -161,8 +162,8 @@ regions:
       left: 2
       right: 2
     Checked:
-      x: 464
-      y: 0
+      x: 448
+      y: 64
       width: 15
       height: 15
       top: 2
@@ -170,8 +171,8 @@ regions:
       left: 2
       right: 2
     UncheckedHover:
-      x: 448
-      y: 16
+      x: 464
+      y: 64
       width: 15
       height: 15
       top: 2
@@ -179,8 +180,8 @@ regions:
       left: 2
       right: 2
     CheckedHover:
-      x: 464
-      y: 16
+      x: 448
+      y: 64
       width: 15
       height: 15
       top: 2
@@ -188,8 +189,8 @@ regions:
       left: 2
       right: 2
     DisabledUnchecked:
-      x: 448
-      y: 32
+      x: 464
+      y: 80
       width: 15
       height: 15
       top: 2
@@ -197,8 +198,8 @@ regions:
       left: 2
       right: 2
     DisabledChecked:
-      x: 464
-      y: 32
+      x: 448
+      y: 80
       width: 15
       height: 15
       top: 2
@@ -208,66 +209,66 @@ regions:
 
   Textbox:
     Normal:
-      x: 384
-      y: 144
-      width: 63
+      x: 0
+      y: 150
+      width: 127
       height: 21
-      top: 4
-      bottom: 4
-      left: 4
-      right: 4
+      top: 6
+      bottom: 6
+      left: 6
+      right: 6
     Active:
-      x: 384
-      y: 166
-      width: 63
+      x: 0
+      y: 172
+      width: 127
       height: 21
-      top: 4
-      bottom: 4
-      left: 4
-      right: 4
+      top: 6
+      bottom: 6
+      left: 6
+      right: 6
     Disabled:
-      x: 384
-      y: 188
-      width: 63
+      x: 0
+      y: 194
+      width: 127
       height: 21
-      top: 4
-      bottom: 4
-      left: 4
-      right: 4
+      top: 6
+      bottom: 6
+      left: 6
+      right: 6
 
   ListBox:
     Normal:
       x: 256
       y: 256
-      width: 127
+      width: 63
       height: 127
       top: 4
       bottom: 4
       left: 4
       right: 4
     ItemSelected:
-      x: 384
-      y: 224
+      x: 320
+      y: 256
       width: 31
-      height: 21
+      height: 31
       top: 2
       bottom: 2
       left: 2
       right: 2
     ItemSelectedHovered:
-      x: 384
-      y: 224
+      x: 320
+      y: 320
       width: 31
-      height: 21
+      height: 31
       top: 2
       bottom: 2
       left: 2
       right: 2
     ItemHovered:
-      x: 384
-      y: 246
+      x: 320
+      y: 320
       width: 31
-      height: 21
+      height: 31
       top: 2
       bottom: 2
       left: 2
@@ -276,9 +277,9 @@ regions:
   SelectionBox:
     Normal:
       x: 384
-      y: 268
+      y: 32
       width: 31
-      height: 21
+      height: 31
       top: 2
       bottom: 2
       left: 2
@@ -287,52 +288,52 @@ regions:
   ScrollBarV:
     Background:
       x: 384
-      y: 128
+      y: 208
       width: 15
       height: 127
       top: 4
       bottom: 4
-      left: 2
-      right: 2
+      left: 4
+      right: 4
     BarNormal:
       x: 400
-      y: 128
+      y: 208
       width: 15
-      height: 31
-      top: 8
-      bottom: 8
+      height: 127
+      top: 2
+      bottom: 2
       left: 2
       right: 2
     BarHover:
       x: 416
-      y: 128
+      y: 208
       width: 15
-      height: 31
-      top: 8
-      bottom: 8
+      height: 127
+      top: 2
+      bottom: 2
       left: 2
       right: 2
     BarPressed:
       x: 432
-      y: 128
+      y: 208
       width: 15
-      height: 31
-      top: 8
-      bottom: 8
+      height: 127
+      top: 2
+      bottom: 2
       left: 2
       right: 2
     BarDisabled:
-      x: 400
-      y: 128
+      x: 448
+      y: 208
       width: 15
-      height: 31
-      top: 8
-      bottom: 8
+      height: 127
+      top: 2
+      bottom: 2
       left: 2
       right: 2
     UpNormal:
       x: 464
-      y: 80
+      y: 224
       width: 15
       height: 15
       top: 2
@@ -340,8 +341,8 @@ regions:
       left: 2
       right: 2
     UpHover:
-      x: 464
-      y: 80
+      x: 480
+      y: 224
       width: 15
       height: 15
       top: 2
@@ -350,7 +351,7 @@ regions:
       right: 2
     UpPressed:
       x: 464
-      y: 80
+      y: 288
       width: 15
       height: 15
       top: 2
@@ -358,8 +359,8 @@ regions:
       left: 2
       right: 2
     UpDisabled:
-      x: 464
-      y: 80
+      x: 480
+      y: 288
       width: 15
       height: 15
       top: 2
@@ -368,7 +369,7 @@ regions:
       right: 2
     DownNormal:
       x: 464
-      y: 96
+      y: 256
       width: 15
       height: 15
       top: 2
@@ -376,8 +377,8 @@ regions:
       left: 2
       right: 2
     DownHover:
-      x: 464
-      y: 96
+      x: 480
+      y: 256
       width: 15
       height: 15
       top: 2
@@ -386,7 +387,7 @@ regions:
       right: 2
     DownPressed:
       x: 464
-      y: 96
+      y: 320
       width: 15
       height: 15
       top: 2
@@ -394,8 +395,8 @@ regions:
       left: 2
       right: 2
     DownDisabled:
-      x: 464
-      y: 96
+      x: 480
+      y: 320
       width: 15
       height: 15
       top: 2
@@ -409,49 +410,49 @@ regions:
       y: 128
       width: 127
       height: 15
-      top: 2
-      bottom: 2
+      top: 4
+      bottom: 4
       left: 4
       right: 4
     BarNormal:
-      x: 400
-      y: 128
-      width: 31
+      x: 384
+      y: 144
+      width: 127
       height: 15
       top: 2
       bottom: 2
-      left: 8
-      right: 8
+      left: 2
+      right: 2
     BarHover:
-      x: 416
-      y: 128
-      width: 31
+      x: 384
+      y: 160
+      width: 127
       height: 15
       top: 2
       bottom: 2
-      left: 8
-      right: 8
+      left: 2
+      right: 2
     BarPressed:
-      x: 432
-      y: 128
-      width: 31
+      x: 384
+      y: 176
+      width: 127
       height: 15
       top: 2
       bottom: 2
-      left: 8
-      right: 8
+      left: 2
+      right: 2
     BarDisabled:
-      x: 400
-      y: 128
-      width: 31
+      x: 384
+      y: 192
+      width: 127
       height: 15
       top: 2
       bottom: 2
-      left: 8
-      right: 8
+      left: 2
+      right: 2
     LeftNormal:
-      x: 448
-      y: 80
+      x: 464
+      y: 208
       width: 15
       height: 15
       top: 2
@@ -459,8 +460,8 @@ regions:
       left: 2
       right: 2
     LeftHover:
-      x: 448
-      y: 80
+      x: 480
+      y: 208
       width: 15
       height: 15
       top: 2
@@ -468,8 +469,8 @@ regions:
       left: 2
       right: 2
     LeftPressed:
-      x: 448
-      y: 80
+      x: 464
+      y: 272
       width: 15
       height: 15
       top: 2
@@ -477,8 +478,8 @@ regions:
       left: 2
       right: 2
     LeftDisabled:
-      x: 448
-      y: 80
+      x: 480
+      y: 272
       width: 15
       height: 15
       top: 2
@@ -486,8 +487,8 @@ regions:
       left: 2
       right: 2
     RightNormal:
-      x: 480
-      y: 80
+      x: 464
+      y: 240
       width: 15
       height: 15
       top: 2
@@ -496,7 +497,7 @@ regions:
       right: 2
     RightHover:
       x: 480
-      y: 80
+      y: 240
       width: 15
       height: 15
       top: 2
@@ -504,8 +505,8 @@ regions:
       left: 2
       right: 2
     RightPressed:
-      x: 480
-      y: 80
+      x: 464
+      y: 304
       width: 15
       height: 15
       top: 2
@@ -514,7 +515,7 @@ regions:
       right: 2
     RightDisabled:
       x: 480
-      y: 80
+      y: 304
       width: 15
       height: 15
       top: 2
@@ -525,43 +526,43 @@ regions:
   Dropdown:
     Normal:
       x: 384
-      y: 144
+      y: 336
       width: 127
       height: 31
-      top: 4
-      bottom: 4
-      left: 4
-      right: 24
+      top: 2
+      bottom: 2
+      left: 2
+      right: 20
     Hover:
       x: 384
-      y: 176
+      y: 368
       width: 127
       height: 31
-      top: 4
-      bottom: 4
-      left: 4
-      right: 24
+      top: 2
+      bottom: 2
+      left: 2
+      right: 20
     Pressed:
       x: 384
-      y: 208
+      y: 400
       width: 127
       height: 31
-      top: 4
-      bottom: 4
-      left: 4
-      right: 24
+      top: 2
+      bottom: 2
+      left: 2
+      right: 20
     Disabled:
       x: 384
-      y: 144
+      y: 432
       width: 127
       height: 31
-      top: 4
-      bottom: 4
-      left: 4
-      right: 24
+      top: 2
+      bottom: 2
+      left: 2
+      right: 20
     ArrowBlack:
       x: 496
-      y: 80
+      y: 272
       width: 15
       height: 15
       top: 1
@@ -570,7 +571,7 @@ regions:
       right: 1
     ArrowWhite:
       x: 496
-      y: 96
+      y: 288
       width: 15
       height: 15
       top: 1
@@ -581,95 +582,95 @@ regions:
   ProgressBar:
     Track:
       x: 384
-      y: 128
-      width: 127
-      height: 15
-      top: 2
-      bottom: 2
-      left: 4
-      right: 4
-    Fill:
-      x: 384
-      y: 224
+      y: 0
       width: 31
-      height: 21
-      top: 2
-      bottom: 2
-      left: 2
-      right: 2
+      height: 31
+      top: 1
+      bottom: 1
+      left: 1
+      right: 1
+    Fill:
+      x: 416
+      y: 0
+      width: 31
+      height: 31
+      top: 1
+      bottom: 1
+      left: 1
+      right: 1
 
   Slider:
     Track:
       x: 384
-      y: 128
-      width: 127
-      height: 15
-      top: 2
-      bottom: 2
-      left: 4
-      right: 4
-    Fill:
-      x: 384
-      y: 224
+      y: 0
       width: 31
-      height: 21
+      height: 31
+      top: 1
+      bottom: 1
+      left: 1
+      right: 1
+    Fill:
+      x: 416
+      y: 0
+      width: 31
+      height: 31
+      top: 1
+      bottom: 1
+      left: 1
+      right: 1
+    Thumb:
+      x: 416
+      y: 32
+      width: 15
+      height: 15
       top: 2
       bottom: 2
       left: 2
       right: 2
-    Thumb:
-      x: 480
-      y: 0
-      width: 31
-      height: 31
-      top: 8
-      bottom: 8
-      left: 8
-      right: 8
     ThumbHover:
-      x: 480
-      y: 32
-      width: 31
-      height: 31
-      top: 8
-      bottom: 8
-      left: 8
-      right: 8
+      x: 416
+      y: 48
+      width: 15
+      height: 15
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
     ThumbPressed:
-      x: 480
+      x: 416
       y: 64
-      width: 31
-      height: 31
-      top: 8
-      bottom: 8
-      left: 8
-      right: 8
+      width: 15
+      height: 15
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
 
   ToggleSwitch:
     TrackOn:
-      x: 0
-      y: 480
-      width: 31
-      height: 31
-      top: 4
-      bottom: 4
-      left: 4
-      right: 4
-    TrackOff:
-      x: 32
-      y: 480
-      width: 31
-      height: 31
-      top: 4
-      bottom: 4
-      left: 4
-      right: 4
-    Thumb:
-      x: 480
+      x: 416
       y: 0
       width: 31
       height: 31
-      top: 8
-      bottom: 8
-      left: 8
-      right: 8
+      top: 1
+      bottom: 1
+      left: 1
+      right: 1
+    TrackOff:
+      x: 384
+      y: 0
+      width: 31
+      height: 31
+      top: 1
+      bottom: 1
+      left: 1
+      right: 1
+    Thumb:
+      x: 416
+      y: 32
+      width: 15
+      height: 15
+      top: 2
+      bottom: 2
+      left: 2
+      right: 2
