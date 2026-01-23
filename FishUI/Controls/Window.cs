@@ -68,6 +68,7 @@ namespace FishUI.Controls
 		/// <summary>
 		/// Whether the close button is enabled (clickable).
 		/// When false, the close button is visible but non-interactive (grayed out).
+		/// Note: Setting IsModal to true will automatically set this to false.
 		/// </summary>
 		public bool CloseButtonEnabled
 		{
@@ -83,8 +84,21 @@ namespace FishUI.Controls
 
 		/// <summary>
 		/// Whether this window is modal (blocks input to other controls).
+		/// When set to true, CloseButtonEnabled is automatically set to false.
 		/// </summary>
-		public bool IsModal { get; set; } = false;
+		public bool IsModal
+		{
+		get => _isModal;
+		set
+		{
+		_isModal = value;
+		if (value)
+		{
+		CloseButtonEnabled = false;
+		}
+		}
+		}
+		private bool _isModal = false;
 
 		/// <summary>
 		/// Whether this window can be resized by dragging its edges.

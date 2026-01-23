@@ -227,6 +227,9 @@ A list of planned features, improvements, and new controls for FishUI.
   - When disabled, close button is visible but non-interactive (grayed out)
   - Uses `Window.Close_Disabled` atlas region for visual feedback
   - *Use case: Modal dialogs that should only be closed programmatically*
+- [x] Modal windows disable close button by default (1 CPX) ✅ Implemented
+- When `IsModal = true`, automatically sets `CloseButtonEnabled = false`
+- Can be overridden by explicitly setting `CloseButtonEnabled = true` afterward
 
 ---
 
@@ -250,6 +253,8 @@ A list of planned features, improvements, and new controls for FishUI.
   - Tree regions (Background, Plus, Minus)
   - NumericUpDown regions (Up/Down button states)
 - [ ] Theme inheritance / base themes (3 CPX)
+  - Allow theme YAML files to inherit from other themes (e.g., `gwen2.yaml` inherits from `gwen.yaml`)
+  - Child themes only need to override specific regions, inheriting all others from parent
 - [ ] Per-control color overrides (2 CPX)
 
 ### Theme Assets Available in gwen.png (from CEGUI imageset)
@@ -389,6 +394,11 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 *No active bugs*
 
 ### Resolved Bugs
+- [x] **IsModal does not disable close button by default** (1 CPX) ✅ Fixed
+  - IsModal was an auto-property that didn't trigger CloseButtonEnabled
+  - Fixed by converting IsModal to full property with backing field
+  - Now setting `IsModal = true` automatically sets `CloseButtonEnabled = false`
+
 - [x] **Z-order drawing is inverted** (1 CPX) ✅ Fixed
   - `Draw()` in `FishUI.cs` was reversing the ordered controls array, causing lower Z-depth controls to render on top
   - Fixed by removing `.Reverse()` call in `Draw()` method
@@ -442,8 +452,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] Window children positioned relative to window frame instead of content area
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
-- Extend Theme inheritance / base themes improvement to yaml files. For example gwen2.yaml can inherit from gwen.yaml and only override the different regions.
-- Modify modal windows to have disabled close button by default
+*No uncategorized items*
 
 ---
 

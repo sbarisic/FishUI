@@ -1,4 +1,4 @@
-﻿using FishUI;
+using FishUI;
 using FishUI.Controls;
 using System;
 using System.Collections.Generic;
@@ -311,6 +311,7 @@ namespace FishUISample.Samples
 			window2.Size = new Vector2(250, 150);
 			window2.ZDepth = 15;
 			window2.IsResizable = false; // Fixed size dialog
+			window2.IsModal = true;
 			FUI.AddControl(window2);
 
 			Label dialogLabel = new Label("Are you sure?");
