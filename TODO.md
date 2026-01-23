@@ -320,12 +320,13 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ## Sample Application
 
 - [x] Complete demo showcasing all controls (2 CPX) - *Partially complete, includes new Window/Tab/GroupBox controls*
-- [ ] Theme switcher demo (2 CPX)
-- [ ] Responsive layout examples (2 CPX)
-- [ ] Game UI example (inventory, HUD, dialogs) (3 CPX)
-- [ ] MultiLine textbox example (1 CPX)
-  - Add below existing single-line textbox sample
-  - Demonstrate word wrap and scrolling
+- [ ] Examples should be implemented in FishUISample project, using the ISample interface
+	- [ ] Theme switcher example
+	- [ ] Responsive layout example
+	- [ ] Game main menu example, New Game, Options, Edit. Options shows a window with tabs Input, Graphics, Gameplay. 
+	- [ ] Car dashboard example with gauges
+	- [ ] MultiLine textbox example (1 CPX)
+	  - Add below existing single-line textbox sample
 
 ---
 
