@@ -424,7 +424,9 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] Window children positioned relative to window frame instead of content area
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
-*No uncategorized items*
+- Window controls should have the ability to have a disabled close button, so you can't close the window (used in modal dialogs for example)
+- Default example should be modified to use a window instead of a panel (with disabled close button) (id: panel1)
+- After the above two dependencies are done, the default example load and save layout logic should be carefully analyzed and fixed
 
 ---
 
