@@ -264,6 +264,9 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [ ] Car dashboard example with gauges
   - Requires RadialGauge and BarGauge controls first
 - [x] ~~ImageBox example~~ - Added to SampleBasicControls with all scaling modes and click event demo
+- [ ] **ImageBox example improvements** (2 CPX)
+  - Use images from data/images/ folder instead of silk_icons
+  - Add pixelated (nearest-neighbor) rendering mode to ImageBox
 - [ ] MultiLine textbox example (1 CPX)
   - Add below existing single-line textbox sample
   - Requires multi-line textbox mode implementation
@@ -287,6 +290,10 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ---
 
 ## Code Cleanup & Technical Debt
+- [ ] **ScreenCapture platform compatibility** (2 CPX)
+  - ScreenCapture.cs uses Windows-only APIs (Graphics.FromImage, CopyFromScreen, Bitmap)
+  - Add platform check to skip screenshot on non-Windows or use cross-platform alternative
+  - Resolves CA1416 warnings
 - [x] ~~Audit [YamlIgnore] attributes~~ - Added to FishUIThemeRegion.UsesImageFile and FishUIVirtualMouse read-only properties
 - [x] ~~Standardize naming conventions~~ - Converted fields to properties: CheckBox/RadioButton `Checked`→`IsChecked`, Panel `IsTransparent`, ListBox `ShowScrollBar`
 - [x] ~~Add XML documentation comments to core public APIs~~ - Documented Control, FishUI, FishUISettings, IFishUIGfx, IFishUIInput
@@ -304,6 +311,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Fixed Bugs
 
+- [x] ~~ImageBox examples overlap in SampleBasicControls~~ - Moved ImageBox controls 100 units right (X: 500→600, 590→690)
+
 - [x] ~~ScrollBar mouse wheel not working in examples~~ - Mouse wheel events now bubble up to parent controls; child buttons propagate to ScrollBar
 
 - [x] ~~TreeNode.HasChildren deserialization error~~ - Added `[YamlIgnore]` to read-only property
@@ -314,13 +323,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] ~~Layout save/load breaks Window and TabControl~~ - Added `OnDeserialized` virtual method to Control, overridden in Window and TabControl to reinitialize internal state
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
-- E:\Projects\FishUI\FishUISample\ScreenCapture.cs(44,35,44,61): warning CA1416: This call site is reachable on all platforms. 'Graphics.FromImage(Image)' is only supported on: 'windows' 6.1 and later. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1416)
-- E:\Projects\FishUI\FishUISample\ScreenCapture.cs(46,17,46,102): warning CA1416: This call site is reachable on all platforms. 'Graphics.CopyFromScreen(Point, Point, Size)' is only supported on: 'windows' 6.1 and later. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1416)
-- E:\Projects\FishUI\FishUISample\ScreenCapture.cs(43,26,43,65): warning CA1416: This call site is reachable on all platforms. 'Bitmap' is only supported on: 'windows' 6.1 and later. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1416)
-- E:\Projects\FishUI\FishUISample\Program.cs(27,4,27,51): warning CA1416: This call site is reachable on all platforms. 'Image.Save(string)' is only supported on: 'windows' 6.1 and later. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1416)
-- E:\Projects\FishUI\FishUISample\Program.cs(49,5,49,52): warning CA1416: This call site is reachable on all platforms. 'Image.Save(string)' is only supported on: 'windows' 6.1 and later. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1416)
-- Image boxes should be moved 100 units to the right, they overlap currently
-- Image boxes should use /data/images/ in examples, together with small icons, also icons should support pixelated rendering too (not just smooth)
+
+*No uncategorized items*
 - 
 ---
 
