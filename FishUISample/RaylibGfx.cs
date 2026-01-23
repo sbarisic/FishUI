@@ -236,6 +236,7 @@ namespace FishUISample
             Info.Top = NP.Top;
             Info.Bottom = NP.Bottom;
             Info.Source = new Rectangle(NP.ImagePos, NP.ImageSize);
+            Info.Layout = NPatchLayout.NinePatch;
 
             Raylib.DrawTextureNPatch(Tex, Info, new Rectangle(Pos.Round(), Size.Round()), Vector2.Zero, 0, C);
         }

@@ -303,9 +303,14 @@ namespace FishUI
 
 			var theme = themeLoader.LoadFromFile(themePath);
 
+			FishUIDebug.Log($"[Theme] Loaded theme '{theme.Name}' from {themePath}");
+			FishUIDebug.Log($"[Theme] UseAtlas={theme.UseAtlas}, AtlasPath={theme.AtlasPath}");
+			FishUIDebug.Log($"[Theme] Regions count={theme.Regions.Count}");
+
 			if (theme.UseAtlas)
 			{
 				themeLoader.LoadAtlasImage(theme);
+				FishUIDebug.Log($"[Theme] Atlas loaded: {(theme.AtlasImage != null ? "SUCCESS" : "FAILED")}");
 			}
 
 			if (applyImmediately)

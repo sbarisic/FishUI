@@ -173,7 +173,7 @@ namespace FishUI
 					break;
 				case "path":
 					string atlasPath = value.Trim('"');
-					if (!string.IsNullOrEmpty(baseDir) && !Path.IsPathRooted(atlasPath))
+					if (!string.IsNullOrEmpty(baseDir) && !Path.IsPathRooted(atlasPath) && !atlasPath.StartsWith("data"))
 						atlasPath = Path.Combine(baseDir, atlasPath);
 					theme.AtlasPath = atlasPath;
 					break;

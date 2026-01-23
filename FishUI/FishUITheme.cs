@@ -67,7 +67,8 @@ namespace FishUI
 		/// </summary>
 		public FishUIThemeRegion GetRegion(string controlName, string stateName)
 		{
-			string key = $"{controlName}.{stateName}";
+			// Keys are stored in lowercase by the parser
+			string key = $"{controlName}.{stateName}".ToLower();
 			if (Regions.TryGetValue(key, out var region))
 				return region;
 			return null;
@@ -78,7 +79,8 @@ namespace FishUI
 		/// </summary>
 		public void SetRegion(string controlName, string stateName, FishUIThemeRegion region)
 		{
-			string key = $"{controlName}.{stateName}";
+			// Store keys in lowercase for case-insensitive lookup
+			string key = $"{controlName}.{stateName}".ToLower();
 			Regions[key] = region;
 		}
 	}

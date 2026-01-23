@@ -10,7 +10,7 @@ theme:
 
 atlas:
   enabled: true
-  path: "gwen2.png"
+  path: "data/gwen2.png"
 
 colors:
   background: "#F0F0F0"
