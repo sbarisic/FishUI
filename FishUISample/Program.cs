@@ -42,12 +42,14 @@ namespace FishUISample
 
 		static void Main(string[] args)
 		{
-			ISample[] Samples = new[] { new SampleDefault() };
+			ISample[] Samples = new ISample[] { new SampleDefault(), new SampleThemeSwitcher() };
 
 			FishUISettings UISettings = new FishUISettings();
 			IFishUIGfx Gfx = new RaylibGfx(1920, 1080, "FishUI");
 			IFishUIInput Input = new RaylibInput();
 			IFishUIEvents Events = new EvtHandler();
+
+			// TODO: Implement a simple console based input system to choose samples
 
 			ISample Cur = Samples[0];
 			FishUI.FishUI FUI = Cur.CreateUI(UISettings, Gfx, Input, Events);

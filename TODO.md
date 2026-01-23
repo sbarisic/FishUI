@@ -256,8 +256,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ## Sample Application
 
 - [ ] Examples should be implemented in FishUISample project, using the ISample interface (2 CPX each)
-- [ ] Theme switcher example ** MEDIUM PRIORITY **
-- Demonstrate runtime theme switching between gwen.yaml and gwen2.yaml
+- [x] ~~Theme switcher example~~ ✅ **COMPLETED** (SampleThemeSwitcher.cs)
+  - Demonstrates runtime theme switching between gwen.yaml and gwen2.yaml
 - [ ] Responsive layout example
 - Show anchor/dock positioning with window resize
 - [ ] Game main menu example ** MEDIUM PRIORITY **
