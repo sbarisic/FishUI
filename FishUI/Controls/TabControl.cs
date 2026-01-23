@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using YamlDotNet.Serialization;
 
@@ -57,6 +58,27 @@ namespace FishUI.Controls
 		/// </summary>
 		[YamlIgnore]
 		public List<TabPage> TabPages { get; } = new List<TabPage>();
+
+		/// <summary>
+		/// Tab names for serialization. This property syncs with TabPages during save/load.
+		/// </summary>
+		[YamlMember]
+		public List<string> TabNames
+		{
+			get
+			{
+				// Populate from TabPages when serializing
+				return TabPages.Select(p => p.Text ?? "").ToList();
+			}
+			set
+			{
+				// Store for use during deserialization
+				_tabNamesForDeserialization = value;
+			}
+		}
+
+		// Temporary storage for tab names during deserialization
+		private List<string> _tabNamesForDeserialization;
 
 		/// <summary>
 		/// The index of the currently selected tab.
@@ -361,7 +383,7 @@ namespace FishUI.Controls
 
 		/// <summary>
 		/// Called after deserialization to rebuild the TabPages list from children.
-		/// Note: Tab names are lost during serialization - they will show as "Tab N".
+		/// Uses stored TabNames to preserve tab names across serialization.
 		/// </summary>
 		public override void OnDeserialized()
 		{
@@ -373,11 +395,19 @@ namespace FishUI.Controls
 			{
 				if (child is Panel panel)
 				{
-					var page = new TabPage($"Tab {tabIndex + 1}", panel);
+					// Use stored tab name if available, otherwise fallback to generic name
+					string tabName = (_tabNamesForDeserialization != null && tabIndex < _tabNamesForDeserialization.Count)
+						? _tabNamesForDeserialization[tabIndex]
+						: $"Tab {tabIndex + 1}";
+
+					var page = new TabPage(tabName, panel);
 					TabPages.Add(page);
 					tabIndex++;
 				}
 			}
+
+			// Clear the temporary storage
+			_tabNamesForDeserialization = null;
 
 			// Reset selected index if needed
 			if (_selectedIndex >= TabPages.Count)

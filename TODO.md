@@ -175,10 +175,8 @@ A list of planned features, improvements, and new controls for FishUI.
 ### NumericUpDown Enhancements
 - [x] ~~Mouse wheel support~~ - Scroll to increment/decrement value
 
-### TabControl Enhancements **HIGH PRIORITY**
-- [ ] Preserve tab names during serialization (2 CPX)
-  - Serialize TabPage data (name, content) while keeping internal properties [YamlIgnore]
-  - Currently TabPages is marked [YamlIgnore] which loses tab names on save/load
+### TabControl Enhancements
+- [x] ~~Preserve tab names during serialization~~ - Added TabNames property that syncs with TabPages; names restored in OnDeserialized
 
 ---
 
@@ -316,8 +314,9 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] ~~Layout save/load breaks Window and TabControl~~ - Added `OnDeserialized` virtual method to Control, overridden in Window and TabControl to reinitialize internal state
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
-
-*No uncategorized items*
+- Icons/images do not get preserved across Save Layout and Load Layout **LOW PRIORITY**
+  - Need to implement serialization for image references in controls like Button (icon), ImageBox, etc.
+  - May require changes to FishUIThemeRegion or a new mechanism to reference images in layout files (by file name or ID)
 
 ---
 
