@@ -297,6 +297,82 @@ namespace FishUISample.Samples
 			};
 			FUI.AddControl(imgClickable);
 
+			// === Opacity Demo ===
+			Label opacityLabel = new Label("Opacity:");
+			opacityLabel.Position = new Vector2(780, 60);
+			opacityLabel.Size = new Vector2(100, 16);
+			opacityLabel.Alignment = Align.Left;
+			FUI.AddControl(opacityLabel);
+
+			// Three panels with different opacity levels
+			Panel panel100 = new Panel();
+			panel100.Position = new Vector2(780, 85);
+			panel100.Size = new Vector2(60, 60);
+			panel100.Opacity = 1.0f;
+			panel100.TooltipText = "Opacity: 100%";
+			FUI.AddControl(panel100);
+
+			Label lbl100 = new Label("100%");
+			lbl100.Position = new Vector2(5, 22);
+			lbl100.Size = new Vector2(50, 16);
+			lbl100.Alignment = Align.Center;
+			panel100.AddChild(lbl100);
+
+			Panel panel50 = new Panel();
+			panel50.Position = new Vector2(850, 85);
+			panel50.Size = new Vector2(60, 60);
+			panel50.Opacity = 0.5f;
+			panel50.TooltipText = "Opacity: 50%";
+			FUI.AddControl(panel50);
+
+			Label lbl50 = new Label("50%");
+			lbl50.Position = new Vector2(5, 22);
+			lbl50.Size = new Vector2(50, 16);
+			lbl50.Alignment = Align.Center;
+			panel50.AddChild(lbl50);
+
+			Panel panel25 = new Panel();
+			panel25.Position = new Vector2(920, 85);
+			panel25.Size = new Vector2(60, 60);
+			panel25.Opacity = 0.25f;
+			panel25.TooltipText = "Opacity: 25%";
+			FUI.AddControl(panel25);
+
+			Label lbl25 = new Label("25%");
+			lbl25.Position = new Vector2(5, 22);
+			lbl25.Size = new Vector2(50, 16);
+			lbl25.Alignment = Align.Center;
+			panel25.AddChild(lbl25);
+
+			// Opacity slider to control a button
+			Label opacitySliderLabel = new Label("Adjust:");
+			opacitySliderLabel.Position = new Vector2(780, 155);
+			opacitySliderLabel.Size = new Vector2(60, 16);
+			opacitySliderLabel.Alignment = Align.Left;
+			FUI.AddControl(opacitySliderLabel);
+
+			Button opacityButton = new Button();
+			opacityButton.Text = "Fade Me";
+			opacityButton.Position = new Vector2(780, 175);
+			opacityButton.Size = new Vector2(100, 30);
+			opacityButton.TooltipText = "Opacity controlled by slider";
+			FUI.AddControl(opacityButton);
+
+			Slider opacitySlider = new Slider();
+			opacitySlider.Position = new Vector2(890, 175);
+			opacitySlider.Size = new Vector2(100, 24);
+			opacitySlider.MinValue = 0f;
+			opacitySlider.MaxValue = 1f;
+			opacitySlider.Value = 1f;
+			opacitySlider.Step = 0.05f;
+			opacitySlider.ShowValueLabel = true;
+			opacitySlider.TooltipText = "Adjust button opacity";
+			opacitySlider.OnValueChanged += (slider, val) =>
+			{
+				opacityButton.Opacity = val;
+			};
+			FUI.AddControl(opacitySlider);
+
 			// === CheckBox and RadioButton ===
 			Label checkLabel = new Label("CheckBox & RadioButton");
 			checkLabel.Position = new Vector2(300, 540);

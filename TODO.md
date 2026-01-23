@@ -230,7 +230,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [ ] Auto-sizing controls based on content (3 CPX)
 
 ### Rendering
-- [ ] Control opacity/transparency (2 CPX)
+- [x] ~~Control opacity/transparency~~ - Added Opacity property (0.0-1.0) and EffectiveColor; updated Panel, Button, ImageBox; demo in SampleBasicControls
 - [ ] Animation system for transitions (4 CPX)
 - [ ] Anti-aliased rendering option (2 CPX)
 - [ ] Shadow rendering for windows/popups (2 CPX)

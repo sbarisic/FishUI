@@ -74,18 +74,19 @@ namespace FishUI.Controls
 
 			Vector2 pos = GetAbsolutePosition();
 			Vector2 size = GetAbsoluteSize();
+			FishColor drawColor = EffectiveColor;
 
 			switch (ScaleMode)
 			{
 				case ImageScaleMode.None:
 					// Draw at original size, centered
 					Vector2 offset = (size - new Vector2(Image.Width, Image.Height)) / 2;
-					UI.Graphics.DrawImage(Image, pos + offset, 0f, 1f, Color);
+					UI.Graphics.DrawImage(Image, pos + offset, 0f, 1f, drawColor);
 					break;
 
 				case ImageScaleMode.Stretch:
 					// Stretch to fill the control bounds
-					UI.Graphics.DrawImage(Image, pos, size, 0f, 1f, Color);
+					UI.Graphics.DrawImage(Image, pos, size, 0f, 1f, drawColor);
 					break;
 
 				case ImageScaleMode.Fit:
@@ -105,11 +106,11 @@ namespace FishUI.Controls
 							drawSize = new Vector2(size.Y * imgAspect, size.Y);
 						}
 						Vector2 drawOffset = (size - drawSize) / 2;
-						UI.Graphics.DrawImage(Image, pos + drawOffset, drawSize, 0f, 1f, Color);
-					}
-					break;
+						UI.Graphics.DrawImage(Image, pos + drawOffset, drawSize, 0f, 1f, drawColor);
+						}
+						break;
 
-				case ImageScaleMode.Fill:
+						case ImageScaleMode.Fill:
 					// Scale to fill while maintaining aspect ratio (may crop)
 					{
 						float imgAspect = (float)Image.Width / Image.Height;
@@ -129,7 +130,7 @@ namespace FishUI.Controls
 						
 						// Use scissor to clip the overflow
 						UI.Graphics.PushScissor(pos, size);
-						UI.Graphics.DrawImage(Image, pos + drawOffset, drawSize, 0f, 1f, Color);
+						UI.Graphics.DrawImage(Image, pos + drawOffset, drawSize, 0f, 1f, drawColor);
 						UI.Graphics.PopScissor();
 					}
 					break;

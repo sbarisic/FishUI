@@ -218,7 +218,7 @@ namespace FishUI.Controls
 			else if (IsMouseInside)
 				Cur = NHover;
 
-			UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), Color);
+		UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), EffectiveColor);
 
 			string Txt = Text;
 			bool hasText = !string.IsNullOrEmpty(Txt);

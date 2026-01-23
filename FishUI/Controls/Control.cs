@@ -126,6 +126,26 @@ namespace FishUI.Controls
 		public virtual FishColor Color { get; set; } = new FishColor(255, 255, 255, 255);
 
 		/// <summary>
+		/// Opacity of the control from 0.0 (fully transparent) to 1.0 (fully opaque).
+		/// This is multiplied with the Color's alpha channel when rendering.
+		/// </summary>
+		[YamlMember]
+		public virtual float Opacity { get; set; } = 1.0f;
+
+		/// <summary>
+		/// Gets the effective color for rendering, combining Color with Opacity.
+		/// </summary>
+		[YamlIgnore]
+		public FishColor EffectiveColor
+		{
+			get
+			{
+				byte effectiveAlpha = (byte)(Color.A * Math.Clamp(Opacity, 0f, 1f));
+				return new FishColor(Color.R, Color.G, Color.B, effectiveAlpha);
+			}
+		}
+
+		/// <summary>
 		/// If true, this control can be dragged with the mouse. Fires OnDragged event.
 		/// </summary>
 		public virtual bool Draggable { get; set; } = false;
