@@ -42,6 +42,8 @@ A list of planned features, improvements, and new controls for FishUI.
 | TreeView | ✅ Complete | ✅ Atlas |
 | NumericUpDown | ✅ Complete | ✅ Atlas |
 | Tooltip | ✅ Complete | ✅ Atlas |
+| ContextMenu | ✅ Complete | ✅ Atlas |
+| MenuItem | ✅ Complete | ✅ Atlas |
 
 ---
 
@@ -53,13 +55,7 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ### Medium Priority
 
-- [ ] **ContextMenu / PopupMenu** (3 CPX)
-  - Right-click context menus
-  - Menu item with icons
-  - Submenu support
-  - Keyboard navigation
-  - Check mark support for toggleable items
-  - *GWEN atlas regions available: Menu.Background, Menu.Hover, Menu.Check, Menu.RightArrow, Menu.LeftArrow*
+- [x] ~~**ContextMenu / PopupMenu**~~ - Right-click context menus with submenu support, keyboard navigation, check marks
 
 - [ ] **MenuBar** (3 CPX)
   - Horizontal menu strip
@@ -120,11 +116,7 @@ A list of planned features, improvements, and new controls for FishUI.
   - Listbox with custom item widgets
   - *GWEN WidgetLook: ItemListbox*
 
-- [ ] **MenuItem** (1 CPX)
-  - Individual menu item for menus
-  - Icon, text, shortcut display
-  - Checkbox/radio states
-  - *GWEN WidgetLook: MenuItem*
+- [x] ~~**MenuItem**~~ - Individual menu item with text, shortcut display, checkbox states (implemented with ContextMenu)
 
 - [ ] **RadialGauge** (3 CPX)
   - Circular gauge display (e.g., RPM, speedometer)
@@ -275,6 +267,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ### SampleDefault Improvements
 - [ ] Replace main Panel with Window control (1 CPX)
   - Change `panel1` from Panel to Window with disabled close button
+- [x] ~~Add context menu to SampleDefault~~ - Demonstrates ContextMenu with items, separators, checkable items, and submenus
 
 ---
 
@@ -290,6 +283,9 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ---
 
 ## Code Cleanup & Technical Debt
+- [ ] Audit all controls for missing `[YamlIgnore]` attributes (2 CPX)
+  - Check read-only properties that could cause deserialization errors
+  - Similar to fixed bugs: TreeNode.HasChildren, TabControl.SelectedTab
 - [ ] Standardize naming conventions across all controls (1 CPX)
 - [ ] Add XML documentation comments to public APIs (2 CPX)
 - [ ] Add screenshot button to all examples (2 CPX)
@@ -312,7 +308,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] ~~DropDown.SelectIndex NullReferenceException~~ - Added null check before `FishUI.Events.Broadcast()`
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
-- Go trough all controls and see where YamlIgnore attributes are needed to avoid serialization errors (e.g., read-only properties) (2 CPX)
+
+*No uncategorized items*
 
 ---
 

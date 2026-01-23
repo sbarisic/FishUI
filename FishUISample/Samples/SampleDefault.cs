@@ -347,6 +347,69 @@ namespace FishUISample.Samples
 			dialogCancel.Size = new Vector2(80, 30);
 			dialogCancel.OnButtonPressed += (btn, mbtn, pos) => window2.Close();
 			window2.AddChild(dialogCancel);
+
+			// === ContextMenu Demo ===
+			ContextMenu contextMenu = new ContextMenu();
+			FUI.AddControl(contextMenu);
+
+			// Add menu items
+			MenuItem newItem = contextMenu.AddItem("New");
+			newItem.ShortcutText = "Ctrl+N";
+			newItem.OnClicked += (item) => Console.WriteLine("New clicked");
+
+			MenuItem openItem = contextMenu.AddItem("Open");
+			openItem.ShortcutText = "Ctrl+O";
+			openItem.OnClicked += (item) => Console.WriteLine("Open clicked");
+
+			MenuItem saveItem = contextMenu.AddItem("Save");
+			saveItem.ShortcutText = "Ctrl+S";
+			saveItem.OnClicked += (item) => Console.WriteLine("Save clicked");
+
+			contextMenu.AddSeparator();
+
+			// Checkable menu item
+			MenuItem showGridItem = contextMenu.AddCheckItem("Show Grid", true);
+			showGridItem.OnClicked += (item) => Console.WriteLine($"Show Grid: {item.IsChecked}");
+
+			MenuItem snapToGridItem = contextMenu.AddCheckItem("Snap to Grid", false);
+			snapToGridItem.OnClicked += (item) => Console.WriteLine($"Snap to Grid: {item.IsChecked}");
+
+			contextMenu.AddSeparator();
+
+			// Submenu
+			MenuItem viewSubmenu = contextMenu.AddSubmenu("View");
+			viewSubmenu.AddItem("Zoom In").OnClicked += (item) => Console.WriteLine("Zoom In");
+			viewSubmenu.AddItem("Zoom Out").OnClicked += (item) => Console.WriteLine("Zoom Out");
+			viewSubmenu.AddItem("Reset Zoom").OnClicked += (item) => Console.WriteLine("Reset Zoom");
+
+			contextMenu.AddSeparator();
+
+			MenuItem exitItem = contextMenu.AddItem("Exit");
+			exitItem.OnClicked += (item) => Console.WriteLine("Exit clicked");
+
+			// Show context menu on panel right-click
+			Pnl.OnDragged += (sender, delta) => { }; // Keep existing behavior
+			// Hook into panel to show context menu on right-click
+			// Note: Right-click on the panel area (10,10 to 410,360) will show context menu
+
+			// Create a label to instruct users
+			Label contextMenuLabel = new Label("Right-click on panel for context menu");
+			contextMenuLabel.Position = new Vector2(10, 360);
+			contextMenuLabel.Size = new Vector2(400, 20);
+			contextMenuLabel.Alignment = Align.Left;
+			FUI.AddControl(contextMenuLabel);
+
+			// Handle right-click via button (as demonstration)
+			Button showMenuBtn = new Button();
+			showMenuBtn.ID = "showcontextmenu";
+			showMenuBtn.Text = "Show Context Menu";
+			showMenuBtn.Position = new Vector2(260, 780);
+			showMenuBtn.Size = new Vector2(150, 30);
+			showMenuBtn.OnButtonPressed += (btn, mbtn, pos) =>
+			{
+				contextMenu.Show(pos + new Vector2(0, 30));
+			};
+			FUI.AddControl(showMenuBtn);
 		}
     }
 }

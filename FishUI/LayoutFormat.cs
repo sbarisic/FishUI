@@ -50,7 +50,9 @@ namespace FishUI
 		{ "!GroupBox", typeof(GroupBox) },
 		{ "!TreeView", typeof(TreeView) },
 		{ "!NumericUpDown", typeof(NumericUpDown) },
-		{ "!Tooltip", typeof(Tooltip) }
+		{ "!Tooltip", typeof(Tooltip) },
+		{ "!ContextMenu", typeof(ContextMenu) },
+		{ "!MenuItem", typeof(MenuItem) }
 	};
 
 		public static string Serialize(FishUI UI)
