@@ -19,6 +19,11 @@ namespace FishUISample.Samples
 		public void Init();
 
 		/// <summary>
+		/// Called every frame before FishUI.Tick(). Optional update logic.
+		/// </summary>
+		public void Update(float dt) { }
+
+		/// <summary>
 		/// Sets the action to be called when the sample wants to take a screenshot.
 		/// </summary>
 		public Action TakeScreenshot { get; set; }

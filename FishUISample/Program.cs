@@ -111,6 +111,9 @@ namespace FishUISample
 						FUI.Resized(Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
 					}
 
+					// Call sample-specific update logic
+					Cur.Update(Dt);
+
 					FUI.Tick(Dt, (float)RuntimeWatch.Elapsed.TotalSeconds);
 					//AutoScreenshot(Gfx as RaylibGfx);
 				}

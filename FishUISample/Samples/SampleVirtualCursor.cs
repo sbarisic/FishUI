@@ -12,6 +12,7 @@ namespace FishUISample.Samples
 	internal class SampleVirtualCursor : ISample
 	{
 		FishUI.FishUI FUI;
+		IFishUIInput InputRef;
 		Label statusLabel;
 		Label positionLabel;
 		CheckBox enabledCheckbox;
@@ -31,6 +32,7 @@ namespace FishUISample.Samples
 		{
 			FUI = new FishUI.FishUI(UISettings, Gfx, Input, Events);
 			FUI.Init();
+			InputRef = Input;
 
 			// Load theme
 			FishUITheme theme = UISettings.LoadTheme("data/themes/gwen.yaml", applyImmediately: true);
@@ -66,7 +68,7 @@ namespace FishUISample.Samples
 				"• Arrow Keys: Move cursor\n" +
 				"• Space/Enter: Left click\n" +
 				"• Right Shift: Right click\n" +
-				"• Escape: Toggle cursor enabled"
+				"Uncheck checkbox to use hybrid mode (follows real mouse)"
 			);
 			instructions.Position = new Vector2(20, 45);
 			instructions.Size = new Vector2(360, 90);
@@ -76,8 +78,8 @@ namespace FishUISample.Samples
 			instructions.BackgroundColor = new FishColor(40, 40, 60, 180);
 			mainPanel.AddChild(instructions);
 
-			// Enabled checkbox
-			enabledCheckbox = new CheckBox("Virtual Cursor Enabled");
+			// Enabled checkbox - controls keyboard input vs hybrid mode
+			enabledCheckbox = new CheckBox("Keyboard Control (uncheck for Hybrid)");
 			enabledCheckbox.Position = new Vector2(20, 150);
 			enabledCheckbox.Size = new Vector2(15, 15);
 			enabledCheckbox.IsChecked = true;
@@ -258,6 +260,24 @@ namespace FishUISample.Samples
 			toggleLabel.Size = new Vector2(150, 24);
 			toggleLabel.Alignment = Align.Left;
 			targetPanel.AddChild(toggleLabel);
+		}
+
+		/// <summary>
+		/// Called every frame. Handles hybrid mode - when checkbox is unchecked, 
+		/// sync virtual cursor with real mouse position.
+		/// </summary>
+		public void Update(float dt)
+		{
+			// Update position label
+			positionLabel.Text = $"Position: ({FUI.VirtualMouse.Position.X:F0}, {FUI.VirtualMouse.Position.Y:F0})";
+
+			// Hybrid mode: when keyboard control is unchecked, follow real mouse
+			if (!enabledCheckbox.IsChecked)
+			{
+				// Sync virtual cursor with real mouse position
+				FUI.VirtualMouse.SyncWithRealMouse(InputRef);
+				statusLabel.Text = "Status: Hybrid mode (following real mouse)";
+			}
 		}
 
 		private void UpdateStatus()

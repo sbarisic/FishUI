@@ -271,6 +271,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] ~~BarGauge example interactive controls~~ - Added +/- repeat buttons for all gauges in SampleBasicControls
 - [x] ~~Virtual cursor example~~ - SampleVirtualCursor demonstrates keyboard/gamepad cursor navigation
 - [x] ~~Virtual cursor custom images~~ - Added cursor image dropdown to SampleVirtualCursor; loads from data/images/cursors/
+- [x] ~~Virtual cursor hybrid mode demo~~ - When checkbox unchecked, sync virtual cursor with real mouse; demonstrates SyncWithRealMouse method
 - [x] ~~AnimatedImageBox example with stargate images~~ - Added to SampleBasicControls with play/pause, stop, FPS slider, ping-pong toggle
 - [x] ~~AnimatedImageBox resizable window example~~ - "Animation Viewer" window with anchored AnimatedImageBox that scales with window resize
 - [x] ~~StaticText example~~ - Added to SampleBasicControls with alignment and color demos
@@ -344,7 +345,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-- Modify virtual mouse example, so when the "virtual mouse" checkbox is unchecked, it maps the real cursor position to virtual cursor in hybrid mode
+- Refactor virtual mouse click events, they do not make sense in FishUI.Tick, modify virtual mouse example so when in hybrid mode, mouse clicks get passed trough, too
 
 ---
 
