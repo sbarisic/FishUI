@@ -13,6 +13,21 @@ namespace FishUISample
 		//static int Ctr = 100;
 		static int Ctr = 10;
 
+		/// <summary>
+		/// Takes a screenshot and saves it to the screenshots folder.
+		/// </summary>
+		static void TakeScreenshot(RaylibGfx Gfx)
+		{
+			DateTime Now = DateTime.Now;
+			string FName = $"../../../../screenshots/ss_{Now.ToString("ddMMyyyy_HHmmss")}.png";
+
+			Gfx.FocusWindow();
+			Thread.Sleep(200);
+
+			ScreenCapture.CaptureActiveWindow().Save(FName);
+			Console.WriteLine("Screenshot saved: " + FName);
+		}
+
 		// TODO: Add platform support, on windows take screenshot, on other platforms do nothing (to make the compile warnings go away)
 		// Automatically take a screenshot after a set number of frames
 		static void AutoScreenshot(RaylibGfx Gfx)
@@ -46,11 +61,15 @@ namespace FishUISample
 			ISample[] Samples = new ISample[] { new SampleDefault(), new SampleThemeSwitcher(), new SampleGameMenu() };
 
 			FishUISettings UISettings = new FishUISettings();
-			IFishUIGfx Gfx = new RaylibGfx(1920, 1080, "FishUI");
+			RaylibGfx Gfx = new RaylibGfx(1920, 1080, "FishUI");
 			IFishUIInput Input = new RaylibInput();
 			IFishUIEvents Events = new EvtHandler();
 
 			ISample Cur = Samples[0];
+
+			// Set up screenshot action for the sample
+			Cur.TakeScreenshot = () => TakeScreenshot(Gfx);
+
 			FishUI.FishUI FUI = Cur.CreateUI(UISettings, Gfx, Input, Events);
 			Cur.Init();
 

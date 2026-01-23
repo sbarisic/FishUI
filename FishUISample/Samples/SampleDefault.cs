@@ -13,6 +13,11 @@ namespace FishUISample.Samples
 	{
 		FishUI.FishUI FUI;
 
+		/// <summary>
+		/// Action to take a screenshot, set by Program.cs.
+		/// </summary>
+		public Action TakeScreenshot { get; set; }
+
 		public FishUI.FishUI CreateUI(FishUISettings UISettings, IFishUIGfx Gfx, IFishUIInput Input, IFishUIEvents Events)
 		{
 			FUI = new FishUI.FishUI(UISettings, Gfx, Input, Events);
@@ -156,6 +161,20 @@ namespace FishUISample.Samples
 			Btn2.Size = new Vector2(150, 50);
 			Btn2.ZDepth = 2;
 			FUI.AddControl(Btn2);
+
+			// Screenshot button
+			ImageRef iconCamera = FUI.Graphics.LoadImage("data/silk_icons/camera.png");
+			Button screenshotBtn = new Button();
+			screenshotBtn.ID = "screenshot";
+			screenshotBtn.Text = "Screenshot";
+			screenshotBtn.Icon = iconCamera;
+			screenshotBtn.IconPosition = IconPosition.Left;
+			screenshotBtn.Position = new Vector2(430, 280);
+			screenshotBtn.Size = new Vector2(150, 50);
+			screenshotBtn.ZDepth = 2;
+			screenshotBtn.TooltipText = "Take a screenshot";
+			screenshotBtn.OnButtonPressed += (btn, mbtn, pos) => TakeScreenshot?.Invoke();
+			FUI.AddControl(screenshotBtn);
 
 			// Main Window (replaces Panel) ------------------
 			Window Pnl = new Window("Controls Demo");

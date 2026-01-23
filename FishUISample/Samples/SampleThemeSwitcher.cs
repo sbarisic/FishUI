@@ -18,6 +18,11 @@ namespace FishUISample.Samples
 		FishUISettings UISettings;
 		Label CurrentThemeLabel;
 
+		/// <summary>
+		/// Action to take a screenshot, set by Program.cs.
+		/// </summary>
+		public Action TakeScreenshot { get; set; }
+
 		public FishUI.FishUI CreateUI(FishUISettings UISettings, IFishUIGfx Gfx, IFishUIInput Input, IFishUIEvents Events)
 		{
 			this.UISettings = UISettings;
@@ -85,6 +90,18 @@ namespace FishUISample.Samples
 			progressBar.Size = new Vector2(200, 20);
 			progressBar.Value = 0.7f;
 			panel.AddChild(progressBar);
+
+			// Screenshot button
+			ImageRef iconCamera = FUI.Graphics.LoadImage("data/silk_icons/camera.png");
+			Button screenshotBtn = new Button();
+			screenshotBtn.Text = "Screenshot";
+			screenshotBtn.Icon = iconCamera;
+			screenshotBtn.IconPosition = IconPosition.Left;
+			screenshotBtn.Position = new Vector2(250, 250);
+			screenshotBtn.Size = new Vector2(120, 32);
+			screenshotBtn.TooltipText = "Take a screenshot";
+			screenshotBtn.OnButtonPressed += (btn, mbtn, pos) => TakeScreenshot?.Invoke();
+			panel.AddChild(screenshotBtn);
 		}
 
 		private void SwitchTheme(string themePath)

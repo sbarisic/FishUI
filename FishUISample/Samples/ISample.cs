@@ -12,5 +12,10 @@ namespace FishUISample.Samples
 		public FishUI.FishUI CreateUI(FishUISettings UISettings, IFishUIGfx Gfx, IFishUIInput Input, IFishUIEvents Events);
 
 		public void Init();
+
+		/// <summary>
+		/// Sets the action to be called when the sample wants to take a screenshot.
+		/// </summary>
+		public Action TakeScreenshot { get; set; }
 	}
 }

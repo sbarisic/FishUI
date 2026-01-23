@@ -248,6 +248,9 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Serialization
 - [x] ~~LayoutFormat TypeMapping~~ - Added all implemented controls for layout save/load
+- [ ] Image reference serialization (3 CPX)
+  - Icons/images (Button.Icon, etc.) not preserved across Save/Load Layout
+  - Need mechanism to reference images by file path or ID in layout files
 
 ---
 
@@ -287,10 +290,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] ~~Audit [YamlIgnore] attributes~~ - Added to FishUIThemeRegion.UsesImageFile and FishUIVirtualMouse read-only properties
 - [x] ~~Standardize naming conventions~~ - Converted fields to properties: CheckBox/RadioButton `Checked`→`IsChecked`, Panel `IsTransparent`, ListBox `ShowScrollBar`
 - [ ] Add XML documentation comments to public APIs (2 CPX)
-- [ ] Add screenshot button to all examples (2 CPX)
-- Add a button to each sample that triggers screenshot capture
-- Forward `AutoScreenshot` method from Program.cs through ISample interface **HIGH PRIORITY**
-- Update SampleThemeSwitcher, SampleGameMenu, and SampleDefault with screenshot buttons
+- [x] ~~Add screenshot button to all examples~~ - Added TakeScreenshot to ISample; screenshot buttons with camera icons in all 3 samples
 - [x] ~~Extract TODO comments from code~~ - Moved 4 TODOs to proper sections, removed comments from source
 - [x] ~~Move DebugLogTooltips flag into FishUIDebug~~ - Now forwards to `FishUIDebug.LogTooltips` like other debug flags
 
@@ -314,9 +314,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] ~~Layout save/load breaks Window and TabControl~~ - Added `OnDeserialized` virtual method to Control, overridden in Window and TabControl to reinitialize internal state
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
-- Icons/images do not get preserved across Save Layout and Load Layout **LOW PRIORITY**
-  - Need to implement serialization for image references in controls like Button (icon), ImageBox, etc.
-  - May require changes to FishUIThemeRegion or a new mechanism to reference images in layout files (by file name or ID)
+
+*No uncategorized items*
 
 ---
 
