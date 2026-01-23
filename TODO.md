@@ -312,6 +312,12 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Fixed Bugs
 
+- [x] ~~DropDown list click-through in SampleVirtualCursor~~ - Modified GetAllChildren to handle AlwaysOnTop like GetOrderedControls; dropdown with AlwaysOnTop=true is now checked first
+
+- [x] ~~DropDown list still doesn't block virtual cursor clicks~~ - Modified PickControl to check children first, before checking parent's IsPointInside; fixes controls that extend beyond parent bounds
+
+- [x] ~~DropDown list doesn't block clicks to controls behind it~~ - Set AlwaysOnTop=true and BringToFront() when dropdown opens, restore on close
+
 - [x] ~~Virtual cursor has wrong pick order~~ - Added ZDepth assignment in Control.AddChild() so children are ordered by insertion order
 
 - [x] ~~DropDown closes when virtual cursor moves to dropdown list~~ - Modified HandleMouseLeave to check if cursor is inside dropdown list before closing
@@ -333,7 +339,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-- I can still click trough the drop down menu on the virtual cursor example
+*No uncategorized items*
 
 ---
 

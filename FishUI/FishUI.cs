@@ -278,19 +278,22 @@ namespace FishUI
 				if (!C.Visible)
 					continue;
 
+				// First, check children even if parent's IsPointInside is false
+				// This handles cases where children extend beyond parent bounds (e.g., DropDown list)
+				Control[] children = C.GetAllChildren().Reverse().ToArray();
+				Control CPicked = PickControl(children, GlobalPos);
+
+				if (CPicked != null)
+				{
+					// Check modal blocking
+					if (!IsControlInputAllowed(CPicked))
+						return null;
+					return CPicked;
+				}
+
+				// Then check if point is inside this control
 				if (C.IsPointInside(GlobalPos))
 				{
-					// Reverse children order so we check front children (higher Z-depth) first
-					Control CPicked = PickControl(C.GetAllChildren().Reverse().ToArray(), GlobalPos);
-
-					if (CPicked != null)
-					{
-						// Check modal blocking
-						if (!IsControlInputAllowed(CPicked))
-							return null;
-						return CPicked;
-					}
-
 					// Check modal blocking
 					if (!IsControlInputAllowed(C))
 						return null;

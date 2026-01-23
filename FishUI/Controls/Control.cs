@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 using YamlDotNet.Serialization;
@@ -507,12 +508,18 @@ namespace FishUI.Controls
 		/// <summary>
 		/// Gets all child controls.
 		/// </summary>
-		/// <param name="Order">If true, returns children ordered by ZDepth.</param>
+		/// <param name="Order">If true, returns children ordered by ZDepth with AlwaysOnTop controls last.</param>
 		/// <returns>Array of child controls.</returns>
 		public Control[] GetAllChildren(bool Order = true)
 		{
 			if (Order)
-				return Children.OrderBy(C => C.ZDepth).ToArray();
+			{
+				// Sort: normal controls by ZDepth, then AlwaysOnTop controls by ZDepth
+				// This matches GetOrderedControls behavior so AlwaysOnTop children are picked first when reversed
+				var normal = Children.Where(c => !c.AlwaysOnTop).OrderBy(c => c.ZDepth);
+				var alwaysOnTop = Children.Where(c => c.AlwaysOnTop).OrderBy(c => c.ZDepth);
+				return normal.Concat(alwaysOnTop).ToArray();
+			}
 			else
 				return Children.ToArray();
 		}

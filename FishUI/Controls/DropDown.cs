@@ -97,12 +97,18 @@ namespace FishUI.Controls
 		public void Open()
 		{
 			IsOpen = true;
+			// Bring dropdown to front and make it always on top while open
+			// This ensures the dropdown list appears above other controls
+			AlwaysOnTop = true;
+			BringToFront();
 		}
 
 		public void Close()
 		{
 			IsOpen = false;
 			HoveredIndex = -1;
+			// Restore normal Z-order behavior
+			AlwaysOnTop = false;
 		}
 
 		public void Toggle()
