@@ -9,7 +9,10 @@ A list of planned features, improvements, and new controls for FishUI.
 > - **4** - Multi-file control/component with multiple dependencies and significant logic, possible minor architecture changes
 > - **5** - Large feature spanning multiple components and subsystems, major architecture changes
 
-How TODO file should be iterated: First handle the Uncategorized section, when this section is empty, start by fixing Active Bugs (take one at a time). After that the rest of the TODO file by priority (take one at a time).
+> How TODO file should be iterated
+- First handle the Uncategorized section
+- When Uncategorized section is empty, start by fixing Active Bugs (take one at a time)
+- After Active Bugs the rest of the TODO file by priority and complexity (High priority takes precedance, then CPX points) (take one at a time)
 
 ---
 
@@ -218,6 +221,13 @@ How TODO file should be iterated: First handle the Uncategorized section, when t
 - [ ] Vertical progress bar mode (1 CPX)
   - *GWEN has: VProgressBar regions for vertical variant*
 
+### Window Enhancements
+- [x] Disabled close button mode (1 CPX) ✅ Implemented
+  - Added `CloseButtonEnabled` property to Window and Titlebar controls
+  - When disabled, close button is visible but non-interactive (grayed out)
+  - Uses `Window.Close_Disabled` atlas region for visual feedback
+  - *Use case: Modal dialogs that should only be closed programmatically*
+
 ---
 
 ## Theme System
@@ -241,7 +251,6 @@ How TODO file should be iterated: First handle the Uncategorized section, when t
   - NumericUpDown regions (Up/Down button states)
 - [ ] Theme inheritance / base themes (3 CPX)
 - [ ] Per-control color overrides (2 CPX)
-- [ ] Support CEGUI imageset.xml format directly (3 CPX)
 
 ### Theme Assets Available in gwen.png (from CEGUI imageset)
 The following regions are defined in the CEGUI imageset but may not be fully utilized:
@@ -307,7 +316,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [ ] Anti-aliased rendering option (2 CPX)
 - [ ] Shadow rendering for windows/popups (2 CPX)
   - *GWEN has: Shadow region*
-- [ ] Font system refactoring (3 CPX)
+- [ ] Font system refactoring (3 CPX) ** MEDIUM PRIORITY **
   - Support for both monospaced and variable-width fonts
   - Font metrics and proper text measurement
   - Font style variants (regular, bold, italic)
@@ -331,6 +340,15 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 	- [ ] Car dashboard example with gauges
 	- [ ] MultiLine textbox example (1 CPX)
 	  - Add below existing single-line textbox sample
+
+### SampleDefault Improvements
+- [ ] Replace main Panel with Window control (1 CPX)
+  - Change `panel1` from Panel to Window with disabled close button
+  - *Depends on: Window Enhancements > Disabled close button mode*
+- [ ] Fix layout save/load for Window controls (2 CPX)
+  - Analyze and fix LayoutFormat serialization for Window control type
+  - Ensure Window-specific properties (Title, IsResizable, etc.) are preserved
+  - *Depends on: Replace main Panel with Window control*
 
 ---
 
@@ -424,9 +442,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] Window children positioned relative to window frame instead of content area
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
-- Window controls should have the ability to have a disabled close button, so you can't close the window (used in modal dialogs for example)
-- Default example should be modified to use a window instead of a panel (with disabled close button) (id: panel1)
-- After the above two dependencies are done, the default example load and save layout logic should be carefully analyzed and fixed
+- Extend Theme inheritance / base themes improvement to yaml files. For example gwen2.yaml can inherit from gwen.yaml and only override the different regions.
+- Modify modal windows to have disabled close button by default
 
 ---
 
