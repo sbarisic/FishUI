@@ -48,13 +48,13 @@ namespace FishUISample
 			IFishUIInput Input = new RaylibInput();
 			IFishUIEvents Events = new EvtHandler();
 
-		FUI = new FishUI.FishUI(UISettings, Gfx, Input, Events);
+			FUI = new FishUI.FishUI(UISettings, Gfx, Input, Events);
 			FUI.Init();
 
 			// Enable debug logging to diagnose theme loading
 			UISettings.DebugEnabled = true;
 
-			FishUITheme theme = UISettings.LoadTheme("data/themes/gwen2.yaml", applyImmediately: false);
+			FishUITheme theme = UISettings.LoadTheme("data/themes/gwen.yaml", applyImmediately: false);
 			UISettings.ApplyTheme(theme);
 			UISettings.OnThemeChanged += (theme) => { /* handle theme change */ };
 			FishUIColorPalette colors = UISettings.GetColorPalette();

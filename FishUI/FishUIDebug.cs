@@ -31,7 +31,7 @@ namespace FishUI
 	/// <summary>
 		/// Gets or sets whether debug outlines are drawn around all controls.
 		/// </summary>
-		public static bool DrawControlOutlines { get; set; } = true;
+		public static bool DrawControlOutlines { get; set; } = false;
 
 		/// <summary>
 		/// Gets or sets the color used for debug outlines. Default is Teal.
@@ -41,7 +41,7 @@ namespace FishUI
 		/// <summary>
 		/// Gets or sets whether focus indicators are drawn around focused controls.
 		/// </summary>
-		public static bool DrawFocusIndicators { get; set; } = true;
+		public static bool DrawFocusIndicators { get; set; } = false;
 
 		/// <summary>
 		/// Gets or sets the color used for focus indicators. Default is a bright blue.

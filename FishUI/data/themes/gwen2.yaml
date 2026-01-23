@@ -9,8 +9,8 @@ theme:
   author: "FishUI"
 
 atlas:
-  enabled: true
-  path: "data/gwen2.png"
+enabled: true
+path: "data/gwen.png"
 
 colors:
   background: "#F0F0F0"
