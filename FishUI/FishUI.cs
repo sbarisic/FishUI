@@ -206,7 +206,7 @@ namespace FishUI
 			}
 		}
 
-		// Top-down control picking, for mouse events etc
+	// Top-down control picking, for mouse events etc
 		Control PickControl(Control[] Controls, Vector2 GlobalPos)
 		{
 			foreach (Control C in Controls)
@@ -216,7 +216,8 @@ namespace FishUI
 
 				if (C.IsPointInside(GlobalPos))
 				{
-					Control CPicked = PickControl(C.GetAllChildren(), GlobalPos);
+					// Reverse children order so we check front children (higher Z-depth) first
+					Control CPicked = PickControl(C.GetAllChildren().Reverse().ToArray(), GlobalPos);
 
 					if (CPicked != null)
 					{
@@ -236,9 +237,10 @@ namespace FishUI
 			return null;
 		}
 
-		public Control PickControl(Vector2 GlobalPos)
+	public Control PickControl(Vector2 GlobalPos)
 		{
-			return PickControl(GetOrderedControls(), GlobalPos);
+			// Reverse the order so we check front controls (higher Z-depth) first
+			return PickControl(GetOrderedControls().Reverse().ToArray(), GlobalPos);
 		}
 
 		Control FindControlByIDEx(Control[] Ctrls, string ID)
