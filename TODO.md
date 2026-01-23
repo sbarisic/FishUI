@@ -247,10 +247,9 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [ ] Scalable UI for different DPI (4 CPX)
 
 ### Serialization
-- [ ] Add new controls to LayoutFormat TypeMapping (1 CPX) ** HIGH PRIORITY **
-  - Missing: Window, Titlebar, TabControl, GroupBox, TreeView, NumericUpDown, Tooltip
-  - Without these mappings, layout save/load will fail for these controls
-  - *Blocks: SampleDefault layout save/load functionality*
+- [x] ~~Add new controls to LayoutFormat TypeMapping (1 CPX)~~ ✅ **COMPLETED**
+  - Added: Window, Titlebar, TabControl, GroupBox, TreeView, NumericUpDown, Tooltip
+  - Layout save/load now works for all implemented controls
 
 ---
 
@@ -273,7 +272,6 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ### SampleDefault Improvements
 - [ ] Replace main Panel with Window control (1 CPX)
   - Change `panel1` from Panel to Window with disabled close button
-  - *Depends on: Add new controls to LayoutFormat TypeMapping*
 
 ---
 
@@ -299,10 +297,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ## Known Issues / Bugs
 
 ### Active Bugs
-- [ ] **Textbox HasSelection property serialization error** (1 CPX)
-  - YamlDotNet.Core.YamlException: 'Property 'HasSelection' not found on type 'FishUI.Controls.Textbox'.'
-  - Occurs when serializing/deserializing layouts containing Textbox controls
-  - Need to add [YamlIgnore] attribute to HasSelection property or make it serializable
+
+*No active bugs*
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 

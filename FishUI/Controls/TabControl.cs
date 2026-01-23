@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using YamlDotNet.Serialization;
 
 namespace FishUI.Controls
 {
@@ -54,6 +55,7 @@ namespace FishUI.Controls
 		/// <summary>
 		/// The list of tab pages in this control.
 		/// </summary>
+		[YamlIgnore]
 		public List<TabPage> TabPages { get; } = new List<TabPage>();
 
 		/// <summary>

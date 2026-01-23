@@ -126,6 +126,7 @@ namespace FishUI.Controls
 		/// <summary>
 		/// Returns true if there is any text selected.
 		/// </summary>
+		[YamlIgnore]
 		public bool HasSelection => SelectionLength != 0;
 
 		/// <summary>
