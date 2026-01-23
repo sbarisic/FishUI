@@ -266,6 +266,10 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
   - Use images from data/images/ folder instead of silk_icons
   - Add pixelated (nearest-neighbor) rendering mode to ImageBox
 - [x] ~~BarGauge example interactive controls~~ - Added +/- repeat buttons for all gauges in SampleBasicControls
+- [x] ~~Virtual cursor example~~ - SampleVirtualCursor demonstrates keyboard/gamepad cursor navigation
+- [ ] **AnimatedImageBox example with stargate images** (1 CPX) **HIGH PRIORITY**
+- Requires /data/anim_images/stargate/* images to be added first
+- Add AnimatedImageBox demo to SampleBasicControls showing animation playback
 - [x] ~~StaticText example~~ - Added to SampleBasicControls with alignment and color demos
 - [ ] MultiLine textbox example (1 CPX)
   - Add below existing single-line textbox sample
@@ -321,8 +325,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-- Add example for virtual cursor **HIGH PRIORITY**
-- Use /data/anim_images/stargate/* images for AnimatedImageBox example **HIGH PRIORITY**
+- Virtual cursor example does not seem to move when i use arrow keys, maybe add debug print options (Settings and Debug class)
+- Check data/anim_images/stargate/*.png again, folder exists
 
 ---
 

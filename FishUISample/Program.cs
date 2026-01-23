@@ -66,14 +66,15 @@ namespace FishUISample
 
 		static void Main(string[] args)
 		{
-			ISample[] Samples = new ISample[] 
+		ISample[] Samples = new ISample[] 
 			{ 
 				new SampleDefault(),        // Windows, Dialogs, TabControl, TreeView, ContextMenu
 				new SampleBasicControls(),  // Textbox, ListBox, DropDown, ScrollBars, ProgressBars, Sliders, etc.
 				new SampleButtonVariants(), // Toggle, Repeat, ImageButton, Icon buttons
 				new SampleLayoutSystem(),   // Margin, Padding, Anchors, StackLayout, Panel variants
 				new SampleThemeSwitcher(),  // Runtime theme switching
-				new SampleGameMenu()        // Game main menu example
+				new SampleGameMenu(),       // Game main menu example
+				new SampleVirtualCursor()   // Virtual cursor/mouse for keyboard/gamepad navigation
 			};
 
 			// Loop back to chooser when window closes
