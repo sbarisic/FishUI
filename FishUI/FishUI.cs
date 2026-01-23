@@ -722,13 +722,10 @@ namespace FishUI
 		/// </summary>
 		/// <param name="newWidth">New width of the UI container.</param>
 		/// <param name="newHeight">New height of the UI container.</param>
-		public void Resized(int newWidth, int newHeight)
+	public void Resized(int newWidth, int newHeight)
 		{
 			Width = newWidth;
 			Height = newHeight;
-
-			// TODO: Notify controls that need to respond to size changes
-			// This will be expanded when anchor/docking system is implemented
 		}
 	}
 }

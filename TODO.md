@@ -292,10 +292,9 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - Add a button to each sample that triggers screenshot capture
 - Forward `AutoScreenshot` method from Program.cs through ISample interface **HIGH PRIORITY**
 - Update SampleThemeSwitcher, SampleGameMenu, and SampleDefault with screenshot buttons
-- [ ] Extract TODO comments from code into TODO.md (2 CPX) **HIGH PRIORITY**
-  - Scan all source files for TODO comments
-  - Convert them to proper entries in this file
-  - Remove the comments from code after extraction
+- [x] ~~Extract TODO comments from code~~ - Moved 4 TODOs to proper sections, removed comments from source
+- [ ] Move DebugLogTooltips flag into FishUIDebug class (1 CPX)
+  - Currently in FishUISettings, should be in FishUIDebug like other debug flags
 
 ---
 
@@ -303,7 +302,9 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Active Bugs
 
-*No active bugs*
+- [ ] **ContextMenu submenu text overlapping** (2 CPX)
+  - Multiple levels of submenu draw all the text overlapping
+  - Found in SampleDefault.cs context menu demo
 
 ### Fixed Bugs
 

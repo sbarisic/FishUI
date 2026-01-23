@@ -376,7 +376,6 @@ namespace FishUISample.Samples
 			contextMenu.AddSeparator();
 
 			// Submenu
-			// TODO: This seems like a bug? Multiple levels of submenu draw all the text overlapping
 			MenuItem viewSubmenu = contextMenu.AddSubmenu("View");
 			viewSubmenu.AddItem("Zoom In").OnClicked += (item) => Console.WriteLine("Zoom In");
 			viewSubmenu.AddItem("Zoom Out").OnClicked += (item) => Console.WriteLine("Zoom Out");

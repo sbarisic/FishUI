@@ -193,7 +193,6 @@ namespace FishUI
 		set => FishUIDebug.LogControlEvents = value;
 		}
 
-		// TODO: Move this flag into FishUIDebug, like the rest above
 		/// <summary>
 		/// Enables or disables logging of tooltip-related events.
 		/// Tooltips update every frame and can produce excessive log output.
