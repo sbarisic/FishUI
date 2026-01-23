@@ -130,6 +130,13 @@ A list of planned features, improvements, and new controls for FishUI.
 
 - [x] ~~**BarGauge**~~ - Linear gauge with min/max values, color zones (temperature/fuel presets), ticks, labels; demo in SampleBasicControls
 
+- [ ] **PropertyGrid** (4 CPX)
+  - Windows Forms-like property editor control
+  - Displays object properties in categorized/alphabetical list
+  - Supports editing of common types (string, int, float, bool, enum, color)
+  - Expandable nested objects
+  - *Use case: In-game editors, debug panels, configuration UIs*
+
 ---
 
 ## Control Improvements
@@ -172,6 +179,13 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ### TabControl Enhancements
 - [x] ~~Preserve tab names during serialization~~ - Added TabNames property that syncs with TabPages; names restored in OnDeserialized
+
+### BarGauge Enhancements
+- [x] ~~Visual styling improvements~~ - Brighter tick marks (white), gray background for unfilled area, color zones only on filled portion
+
+### NumericUpDown Enhancements
+- [ ] Narrower arrow buttons (1 CPX)
+  - Arrow buttons currently use 1:1 aspect ratio, should be narrower
 
 ---
 
@@ -315,9 +329,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] ~~Layout save/load breaks Window and TabControl~~ - Added `OnDeserialized` virtual method to Control, overridden in Window and TabControl to reinitialize internal state
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
-- Make bar gauge with ticks brigher, makde bar gauge background gray color, only the filled part should change color as it changes
-- Numeric up and down arrows should be a little narrower, i think they are 1:1 aspect ratio
-- Windows Forms-like property editor control needs to be implemented (PropertyGrid)
+
+*No uncategorized items*
 
 ---
 

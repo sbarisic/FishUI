@@ -107,10 +107,10 @@ namespace FishUI.Controls
 						}
 						Vector2 drawOffset = (size - drawSize) / 2;
 						UI.Graphics.DrawImage(Image, pos + drawOffset, drawSize, 0f, 1f, drawColor);
-						}
-						break;
+					}
+					break;
 
-						case ImageScaleMode.Fill:
+				case ImageScaleMode.Fill:
 					// Scale to fill while maintaining aspect ratio (may crop)
 					{
 						float imgAspect = (float)Image.Width / Image.Height;
@@ -127,7 +127,7 @@ namespace FishUI.Controls
 							drawSize = new Vector2(size.Y * imgAspect, size.Y);
 						}
 						Vector2 drawOffset = (size - drawSize) / 2;
-						
+
 						// Use scissor to clip the overflow
 						UI.Graphics.PushScissor(pos, size);
 						UI.Graphics.DrawImage(Image, pos + drawOffset, drawSize, 0f, 1f, drawColor);

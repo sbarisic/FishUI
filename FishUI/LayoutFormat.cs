@@ -28,7 +28,7 @@ namespace FishUI
 			Deserialize(UI, Data);
 		}
 
-	static Dictionary<string, Type> TypeMapping = new Dictionary<string, Type>()
+		static Dictionary<string, Type> TypeMapping = new Dictionary<string, Type>()
 	{
 		{ "!Button", typeof(Button) },
 		{ "!CheckBox", typeof(CheckBox) },
@@ -98,7 +98,7 @@ namespace FishUI
 			}
 
 			IDeserializer dser = dbuild.Build();
-			
+
 			// Use List<object> to avoid abstract Control instantiation issue
 			// YamlDotNet will use the tag mappings to create concrete types
 			var Ctrls = dser.Deserialize<List<object>>(Data);

@@ -80,10 +80,10 @@ namespace FishUI.Controls
 		public BarGaugeOrientation Orientation { get; set; } = BarGaugeOrientation.Horizontal;
 
 		/// <summary>
-		/// Background color of the gauge track.
+		/// Background color of the gauge track (unfilled area).
 		/// </summary>
 		[YamlMember]
-		public FishColor BackgroundColor { get; set; } = new FishColor(40, 40, 40, 255);
+		public FishColor BackgroundColor { get; set; } = new FishColor(80, 80, 80, 255);
 
 		/// <summary>
 		/// Default fill color when no color zones are defined.
@@ -119,7 +119,7 @@ namespace FishUI.Controls
 		/// Color of tick marks.
 		/// </summary>
 		[YamlMember]
-		public FishColor TickColor { get; set; } = new FishColor(200, 200, 200, 255);
+		public FishColor TickColor { get; set; } = new FishColor(255, 255, 255, 255);
 
 		/// <summary>
 		/// Length of tick marks in pixels.
@@ -254,20 +254,22 @@ namespace FishUI.Controls
 				}
 			}
 
-			// Draw background
+			// Draw background (gray unfilled area)
 			UI.Graphics.DrawRectangle(gaugePos, gaugeSize, BackgroundColor);
 
-			// Draw color zones as background (full width)
+			// Draw filled portion with color zones (only up to current value)
 			if (ColorZones.Count > 0)
 			{
 				foreach (var zone in ColorZones)
 				{
-					DrawZone(UI, gaugePos, gaugeSize, zone);
+					DrawFilledZone(UI, gaugePos, gaugeSize, zone, normalized);
 				}
 			}
-
-			// Draw fill overlay (darker portion for unfilled area)
-			DrawUnfilledOverlay(UI, gaugePos, gaugeSize, normalized);
+			else
+			{
+				// No color zones - draw single fill color
+				DrawFill(UI, gaugePos, gaugeSize, normalized, FillColor);
+			}
 
 			// Draw border
 			if (ShowBorder)
@@ -294,12 +296,39 @@ namespace FishUI.Controls
 			}
 		}
 
-		private void DrawZone(FishUI UI, Vector2 pos, Vector2 size, GaugeColorZone zone)
+		private void DrawFill(FishUI UI, Vector2 pos, Vector2 size, float normalized, FishColor color)
 		{
+			if (normalized <= 0)
+				return;
+
 			if (Orientation == BarGaugeOrientation.Horizontal)
 			{
-				float startX = pos.X + size.X * zone.Start;
-				float endX = pos.X + size.X * zone.End;
+				float fillWidth = size.X * normalized;
+				UI.Graphics.DrawRectangle(pos, new Vector2(fillWidth, size.Y), color);
+			}
+			else
+			{
+				float fillHeight = size.Y * normalized;
+				UI.Graphics.DrawRectangle(
+					new Vector2(pos.X, pos.Y + size.Y - fillHeight),
+					new Vector2(size.X, fillHeight),
+					color);
+			}
+		}
+
+		private void DrawFilledZone(FishUI UI, Vector2 pos, Vector2 size, GaugeColorZone zone, float normalized)
+		{
+			// Only draw the portion of the zone that is within the filled area
+			float clampedStart = Math.Max(zone.Start, 0f);
+			float clampedEnd = Math.Min(zone.End, normalized);
+
+			if (clampedEnd <= clampedStart)
+				return;
+
+			if (Orientation == BarGaugeOrientation.Horizontal)
+			{
+				float startX = pos.X + size.X * clampedStart;
+				float endX = pos.X + size.X * clampedEnd;
 				UI.Graphics.DrawRectangle(
 					new Vector2(startX, pos.Y),
 					new Vector2(endX - startX, size.Y),
@@ -307,44 +336,12 @@ namespace FishUI.Controls
 			}
 			else
 			{
-				float startY = pos.Y + size.Y * (1f - zone.End);
-				float endY = pos.Y + size.Y * (1f - zone.Start);
+				float startY = pos.Y + size.Y * (1f - clampedEnd);
+				float endY = pos.Y + size.Y * (1f - clampedStart);
 				UI.Graphics.DrawRectangle(
 					new Vector2(pos.X, startY),
 					new Vector2(size.X, endY - startY),
 					zone.Color);
-			}
-		}
-
-		private void DrawUnfilledOverlay(FishUI UI, Vector2 pos, Vector2 size, float normalized)
-		{
-			// Draw a semi-transparent dark overlay over the unfilled portion
-			FishColor overlay = new FishColor(0, 0, 0, 150);
-
-			if (Orientation == BarGaugeOrientation.Horizontal)
-			{
-				float fillWidth = size.X * normalized;
-				float unfillStart = pos.X + fillWidth;
-				float unfillWidth = size.X - fillWidth;
-				if (unfillWidth > 0)
-				{
-					UI.Graphics.DrawRectangle(
-						new Vector2(unfillStart, pos.Y),
-						new Vector2(unfillWidth, size.Y),
-						overlay);
-				}
-			}
-			else
-			{
-				float fillHeight = size.Y * normalized;
-				float unfillHeight = size.Y - fillHeight;
-				if (unfillHeight > 0)
-				{
-					UI.Graphics.DrawRectangle(
-						pos,
-						new Vector2(size.X, unfillHeight),
-						overlay);
-				}
 			}
 		}
 
