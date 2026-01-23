@@ -329,7 +329,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-*No uncategorized items*
+- Implement data/images/cursors/*.png cursor images for virtual mouse
 
 ---
 
