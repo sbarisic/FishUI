@@ -554,6 +554,51 @@ namespace FishUISample.Samples
 			tickUp.TooltipText = "Increase value";
 			tickUp.OnButtonPressed += (btn, mbtn, pos) => { tickGauge.Value += 1; };
 			FUI.AddControl(tickUp);
+
+			// === VUMeter ===
+			Label vuLabel = new Label("VUMeter");
+			vuLabel.Position = new Vector2(920, 545);
+			vuLabel.Size = new Vector2(80, 20);
+			vuLabel.Alignment = Align.Left;
+			FUI.AddControl(vuLabel);
+
+			// Continuous VU meter
+			VUMeter vuMeter1 = new VUMeter();
+			vuMeter1.Position = new Vector2(920, 570);
+			vuMeter1.Size = new Vector2(20, 80);
+			vuMeter1.Orientation = VUMeterOrientation.Vertical;
+			vuMeter1.TooltipText = "Continuous VU meter with peak hold";
+			FUI.AddControl(vuMeter1);
+
+			// Segmented VU meter
+			VUMeter vuMeter2 = new VUMeter();
+			vuMeter2.Position = new Vector2(945, 570);
+			vuMeter2.Size = new Vector2(20, 80);
+			vuMeter2.Orientation = VUMeterOrientation.Vertical;
+			vuMeter2.SegmentCount = 10;
+			vuMeter2.TooltipText = "Segmented VU meter (LED style)";
+			FUI.AddControl(vuMeter2);
+
+			// Slider to control VU meters
+			Slider vuSlider = new Slider();
+			vuSlider.Position = new Vector2(970, 570);
+			vuSlider.Size = new Vector2(24, 80);
+			vuSlider.Orientation = SliderOrientation.Vertical;
+			vuSlider.MinValue = 0;
+			vuSlider.MaxValue = 1;
+			vuSlider.Value = 0.5f;
+			vuSlider.Step = 0.01f;
+			vuSlider.TooltipText = "Adjust VU level";
+			vuSlider.OnValueChanged += (slider, val) =>
+			{
+				vuMeter1.SetLevel(val);
+				vuMeter2.SetLevel(val);
+			};
+			FUI.AddControl(vuSlider);
+
+			// Initialize VU meters
+			vuMeter1.SetLevel(0.5f);
+			vuMeter2.SetLevel(0.5f);
 		}
 	}
 }

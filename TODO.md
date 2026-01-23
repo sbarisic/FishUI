@@ -47,6 +47,7 @@ A list of planned features, improvements, and new controls for FishUI.
 | ImageBox | ✅ Complete | N/A |
 | StaticText | ✅ Complete | N/A |
 | BarGauge | ✅ Complete | N/A |
+| VUMeter | ✅ Complete | N/A |
 
 ---
 
@@ -98,11 +99,7 @@ A list of planned features, improvements, and new controls for FishUI.
 
 - [x] ~~**StaticText**~~ - Non-editable text with horizontal/vertical alignment, custom color, optional background
 
-- [ ] **VUMeter** (2 CPX)
-  - Audio level visualization
-  - Horizontal/vertical variants
-  - Peak hold indicator
-  - *GWEN WidgetLook: VUMeter (uses ProgressBar renderer)*
+- [x] ~~**VUMeter**~~ - Audio level visualization with peak hold, green/yellow/red zones, continuous or segmented mode; demo in SampleBasicControls
 
 - [ ] **AnimatedImageBox** (2 CPX)
   - Frame sequences are stored as an array of images
@@ -177,6 +174,8 @@ A list of planned features, improvements, and new controls for FishUI.
 ### NumericUpDown Enhancements
 - [x] ~~Mouse wheel support~~ - Scroll to increment/decrement value
 - [x] ~~Narrower arrow buttons~~ - Reduced ButtonWidth from 20 to 16 for better aspect ratio
+
+### TabControl Enhancements
 - [x] ~~Preserve tab names during serialization~~ - Added TabNames property that syncs with TabPages; names restored in OnDeserialized
 
 ### BarGauge Enhancements
