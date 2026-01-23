@@ -292,13 +292,23 @@ namespace FishUI.Controls
 				totalTabWidth += GetTabWidth(UI, page);
 			}
 
-			// Draw header bar background only for the area not covered by tabs
-			NPatch headerBarImg = UI.Settings.ImgTabHeaderBar;
-			if (headerBarImg != null && totalTabWidth < absSize.X)
+			// Draw a neutral background for the empty header area (after the tabs)
+			// Use the inactive tab background or a simple gray fill
+			if (totalTabWidth < absSize.X)
 			{
 				Vector2 headerPos = new Vector2(absPos.X + totalTabWidth, absPos.Y);
 				Vector2 headerSize = new Vector2(absSize.X - totalTabWidth, TabHeaderHeight);
-				UI.Graphics.DrawNPatch(headerBarImg, headerPos, headerSize, Color);
+				
+				NPatch inactiveTabImg = UI.Settings.ImgTabTopInactive;
+				if (inactiveTabImg != null)
+				{
+					UI.Graphics.DrawNPatch(inactiveTabImg, headerPos, headerSize, Color);
+				}
+				else
+				{
+					// Fallback: draw a neutral gray
+					UI.Graphics.DrawRectangle(headerPos, headerSize, new FishColor(200, 200, 200));
+				}
 			}
 
 			// Draw tabs
