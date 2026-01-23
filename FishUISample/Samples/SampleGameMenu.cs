@@ -1,0 +1,222 @@
+using FishUI;
+using FishUI.Controls;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace FishUISample.Samples
+{
+	/// <summary>
+	/// Demonstrates a game main menu with New Game, Options, and Quit buttons.
+	/// Options opens a window with tabs: Input, Graphics, Gameplay.
+	/// </summary>
+	internal class SampleGameMenu : ISample
+	{
+		FishUI.FishUI FUI;
+		Window OptionsWindow;
+
+		public FishUI.FishUI CreateUI(FishUISettings UISettings, IFishUIGfx Gfx, IFishUIInput Input, IFishUIEvents Events)
+		{
+			FUI = new FishUI.FishUI(UISettings, Gfx, Input, Events);
+			FUI.Init();
+
+			// Load theme
+			FishUITheme theme = UISettings.LoadTheme("data/themes/gwen.yaml", applyImmediately: true);
+
+			return FUI;
+		}
+
+		public void Init()
+		{
+			// Main menu panel (centered)
+			Panel menuPanel = new Panel();
+			menuPanel.Position = new Vector2(100, 150);
+			menuPanel.Size = new Vector2(250, 300);
+			FUI.AddControl(menuPanel);
+
+			// Game title label
+			Label titleLabel = new Label("My Awesome Game");
+			titleLabel.Position = new Vector2(20, 30);
+			menuPanel.AddChild(titleLabel);
+
+			// New Game button
+			Button btnNewGame = new Button();
+			btnNewGame.Text = "New Game";
+			btnNewGame.Position = new Vector2(40, 80);
+			btnNewGame.Size = new Vector2(160, 40);
+			btnNewGame.OnButtonPressed += (ctrl, btn, pos) => OnNewGameClicked();
+			menuPanel.AddChild(btnNewGame);
+
+			// Options button
+			Button btnOptions = new Button();
+			btnOptions.Text = "Options";
+			btnOptions.Position = new Vector2(40, 140);
+			btnOptions.Size = new Vector2(160, 40);
+			btnOptions.OnButtonPressed += (ctrl, btn, pos) => OnOptionsClicked();
+			menuPanel.AddChild(btnOptions);
+
+			// Quit button
+			Button btnQuit = new Button();
+			btnQuit.Text = "Quit";
+			btnQuit.Position = new Vector2(40, 200);
+			btnQuit.Size = new Vector2(160, 40);
+			btnQuit.OnButtonPressed += (ctrl, btn, pos) => OnQuitClicked();
+			menuPanel.AddChild(btnQuit);
+
+			// Create Options window (initially hidden)
+			CreateOptionsWindow();
+		}
+
+		private void CreateOptionsWindow()
+		{
+			OptionsWindow = new Window();
+			OptionsWindow.Title = "Options";
+			OptionsWindow.Position = new Vector2(400, 100);
+			OptionsWindow.Size = new Vector2(450, 400);
+			OptionsWindow.ShowCloseButton = true;
+			OptionsWindow.Visible = false;
+			OptionsWindow.OnClosed += (window) => OptionsWindow.Visible = false;
+			FUI.AddControl(OptionsWindow);
+
+			// TabControl for options categories
+			TabControl tabControl = new TabControl();
+			tabControl.Position = new Vector2(10, 40);
+			tabControl.Size = new Vector2(430, 340);
+			OptionsWindow.AddChild(tabControl);
+
+			// Input tab
+			TabPage inputTab = tabControl.AddTab("Input");
+			CreateInputTabContent(inputTab.Content);
+
+			// Graphics tab
+			TabPage graphicsTab = tabControl.AddTab("Graphics");
+			CreateGraphicsTabContent(graphicsTab.Content);
+
+			// Gameplay tab
+			TabPage gameplayTab = tabControl.AddTab("Gameplay");
+			CreateGameplayTabContent(gameplayTab.Content);
+		}
+
+		private void CreateInputTabContent(Panel content)
+		{
+			Label lblMouseSens = new Label("Mouse Sensitivity:");
+			lblMouseSens.Position = new Vector2(10, 10);
+			content.AddChild(lblMouseSens);
+
+			Slider sliderMouseSens = new Slider();
+			sliderMouseSens.Position = new Vector2(10, 35);
+			sliderMouseSens.Size = new Vector2(200, 20);
+			sliderMouseSens.Value = 0.5f;
+			content.AddChild(sliderMouseSens);
+
+			CheckBox chkInvertY = new CheckBox("Invert Y-Axis");
+			chkInvertY.Position = new Vector2(10, 70);
+			content.AddChild(chkInvertY);
+
+			CheckBox chkVibration = new CheckBox("Controller Vibration");
+			chkVibration.Position = new Vector2(10, 100);
+			chkVibration.Checked = true;
+			content.AddChild(chkVibration);
+		}
+
+		private void CreateGraphicsTabContent(Panel content)
+		{
+			Label lblResolution = new Label("Resolution:");
+			lblResolution.Position = new Vector2(10, 10);
+			content.AddChild(lblResolution);
+
+			DropDown ddResolution = new DropDown();
+			ddResolution.Position = new Vector2(10, 35);
+			ddResolution.Size = new Vector2(180, 25);
+			ddResolution.AddItem("1920x1080");
+			ddResolution.AddItem("1680x1050");
+			ddResolution.AddItem("1280x720");
+			ddResolution.AddItem("800x600");
+			ddResolution.SelectIndex(0);
+			content.AddChild(ddResolution);
+
+			CheckBox chkFullscreen = new CheckBox("Fullscreen");
+			chkFullscreen.Position = new Vector2(10, 75);
+			chkFullscreen.Checked = true;
+			content.AddChild(chkFullscreen);
+
+			CheckBox chkVSync = new CheckBox("V-Sync");
+			chkVSync.Position = new Vector2(10, 105);
+			chkVSync.Checked = true;
+			content.AddChild(chkVSync);
+
+			Label lblQuality = new Label("Graphics Quality:");
+			lblQuality.Position = new Vector2(10, 145);
+			content.AddChild(lblQuality);
+
+			DropDown ddQuality = new DropDown();
+			ddQuality.Position = new Vector2(10, 170);
+			ddQuality.Size = new Vector2(120, 25);
+			ddQuality.AddItem("Low");
+			ddQuality.AddItem("Medium");
+			ddQuality.AddItem("High");
+			ddQuality.AddItem("Ultra");
+			ddQuality.SelectIndex(2);
+			content.AddChild(ddQuality);
+		}
+
+		private void CreateGameplayTabContent(Panel content)
+		{
+			Label lblDifficulty = new Label("Difficulty:");
+			lblDifficulty.Position = new Vector2(10, 10);
+			content.AddChild(lblDifficulty);
+
+			DropDown ddDifficulty = new DropDown();
+			ddDifficulty.Position = new Vector2(10, 35);
+			ddDifficulty.Size = new Vector2(120, 25);
+			ddDifficulty.AddItem("Easy");
+			ddDifficulty.AddItem("Normal");
+			ddDifficulty.AddItem("Hard");
+			ddDifficulty.AddItem("Nightmare");
+			ddDifficulty.SelectIndex(1);
+			content.AddChild(ddDifficulty);
+
+			CheckBox chkTutorial = new CheckBox("Show Tutorials");
+			chkTutorial.Position = new Vector2(10, 75);
+			chkTutorial.Checked = true;
+			content.AddChild(chkTutorial);
+
+			CheckBox chkSubtitles = new CheckBox("Enable Subtitles");
+			chkSubtitles.Position = new Vector2(10, 105);
+			chkSubtitles.Checked = true;
+			content.AddChild(chkSubtitles);
+
+			Label lblVolume = new Label("Master Volume:");
+			lblVolume.Position = new Vector2(10, 145);
+			content.AddChild(lblVolume);
+
+			Slider sliderVolume = new Slider();
+			sliderVolume.Position = new Vector2(10, 170);
+			sliderVolume.Size = new Vector2(200, 20);
+			sliderVolume.Value = 0.8f;
+			content.AddChild(sliderVolume);
+		}
+
+		private void OnNewGameClicked()
+		{
+			// In a real game, this would start a new game
+			Console.WriteLine("New Game clicked!");
+		}
+
+		private void OnOptionsClicked()
+		{
+			// Show the options window
+			OptionsWindow.Visible = true;
+			OptionsWindow.IsActive = true;
+		}
+
+		private void OnQuitClicked()
+		{
+			// In a real game, this would quit the application
+			Console.WriteLine("Quit clicked!");
+		}
+	}
+}

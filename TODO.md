@@ -260,9 +260,9 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
   - Demonstrates runtime theme switching between gwen.yaml and gwen2.yaml
 - [ ] Responsive layout example
 - Show anchor/dock positioning with window resize
-- [ ] Game main menu example ** MEDIUM PRIORITY **
-- New Game, Options, Quit buttons
-- Options shows a window with tabs: Input, Graphics, Gameplay
+- [x] ~~Game main menu example~~ ✅ **COMPLETED** (SampleGameMenu.cs)
+  - New Game, Options, Quit buttons
+  - Options shows a window with tabs: Input, Graphics, Gameplay
 - [ ] Car dashboard example with gauges
 - Requires RadialGauge and BarGauge controls first
 - [ ] MultiLine textbox example (1 CPX)
@@ -301,7 +301,10 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 *No active bugs*
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
-
+- DropDown.cs:130 System.NullReferenceException: 'Object reference not set to an instance of an object.'
+  FishUI.Controls.Control.FishUI.get returned null.
+- Comment on Program.cs:52
+- Add buttons to all examples to take screenshots using AutoScreenshot method in Program.cs (update existing TODO entries, too, to include this)
 ---
 
 ## Notes
