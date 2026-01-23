@@ -226,7 +226,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [ ] **FlowLayout** - Automatic horizontal/vertical flow of children (3 CPX)
 - [ ] **GridLayout** - Grid-based child positioning (3 CPX)
 - [x] ~~**StackLayout**~~ - Vertical/horizontal stacking with spacing and padding
-- [ ] Anchor system for responsive resizing (4 CPX) **HIGH PRIORITY**
+- [x] ~~Anchor system for responsive resizing~~ - Added FishUIAnchor enum; Anchor property on Control with TopLeft/TopRight/BottomLeft/BottomRight/Horizontal/Vertical/All modes; demo in SampleDefault
 - [x] ~~Margin and Padding properties on all controls~~ - Added FishUIMargin struct; Margin/Padding properties on Control; demo in SampleDefault
 - [ ] Auto-sizing controls based on content (3 CPX)
 
@@ -237,7 +237,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [ ] Shadow rendering for windows/popups (2 CPX)
   - *GWEN has: Shadow region*
 - [x] ~~Font system refactoring~~ - Added FontStyle enum, FishUIFontMetrics struct, GetFontMetrics method, IsMonospaced detection, LineHeight property
-- [ ] Rendering images with rotation and scaling (useful for gauges) (TODO: estimate CPX after analysis) **HIGH PRIORITY**
+- [x] ~~Rendering images with rotation and scaling~~ - Already supported via DrawImage(Rot, Scale) and DrawNPatch(Rotation) in IFishUIGfx
 
 ### Accessibility
 - [ ] Keyboard-only navigation (3 CPX)

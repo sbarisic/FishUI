@@ -644,6 +644,68 @@ namespace FishUISample.Samples
 			marginDemoLabel.Alignment = Align.Left;
 			marginPanel.AddChild(marginDemoLabel);
 
+			// === Anchor Demo ===
+			Label anchorLabel = new Label("Anchor Demo (resize window to test)");
+			anchorLabel.Position = new Vector2(920, 840);
+			anchorLabel.Size = new Vector2(300, 20);
+			anchorLabel.Alignment = Align.Left;
+			FUI.AddControl(anchorLabel);
+
+			// Container panel for anchor demos
+			Panel anchorContainer = new Panel();
+			anchorContainer.Position = new Vector2(920, 860);
+			anchorContainer.Size = new Vector2(200, 100);
+			anchorContainer.Variant = PanelVariant.Bright;
+			anchorContainer.BorderStyle = BorderStyle.Solid;
+			anchorContainer.BorderColor = new FishColor(100, 100, 150, 255);
+			anchorContainer.BorderThickness = 1f;
+			FUI.AddControl(anchorContainer);
+
+			// Button anchored to top-left (default) - stays fixed
+			Button anchorTL = new Button();
+			anchorTL.Text = "TL";
+			anchorTL.Position = new Vector2(5, 5);
+			anchorTL.Size = new Vector2(40, 25);
+			anchorTL.Anchor = FishUIAnchor.TopLeft;
+			anchorTL.TooltipText = "Anchor: TopLeft (default)";
+			anchorContainer.AddChild(anchorTL);
+
+			// Button anchored to top-right - moves when parent width changes
+			Button anchorTR = new Button();
+			anchorTR.Text = "TR";
+			anchorTR.Position = new Vector2(155, 5);
+			anchorTR.Size = new Vector2(40, 25);
+			anchorTR.Anchor = FishUIAnchor.TopRight;
+			anchorTR.TooltipText = "Anchor: TopRight";
+			anchorContainer.AddChild(anchorTR);
+
+			// Button anchored to bottom-left - moves when parent height changes
+			Button anchorBL = new Button();
+			anchorBL.Text = "BL";
+			anchorBL.Position = new Vector2(5, 70);
+			anchorBL.Size = new Vector2(40, 25);
+			anchorBL.Anchor = FishUIAnchor.BottomLeft;
+			anchorBL.TooltipText = "Anchor: BottomLeft";
+			anchorContainer.AddChild(anchorBL);
+
+			// Button anchored to bottom-right - moves when parent size changes
+			Button anchorBR = new Button();
+			anchorBR.Text = "BR";
+			anchorBR.Position = new Vector2(155, 70);
+			anchorBR.Size = new Vector2(40, 25);
+			anchorBR.Anchor = FishUIAnchor.BottomRight;
+			anchorBR.TooltipText = "Anchor: BottomRight";
+			anchorContainer.AddChild(anchorBR);
+
+			// Button anchored horizontally - stretches width with parent
+			Button anchorH = new Button();
+			anchorH.Text = "Horizontal";
+			anchorH.Position = new Vector2(50, 35);
+			anchorH.Size = new Vector2(100, 25);
+			anchorH.Anchor = FishUIAnchor.Horizontal;
+			anchorH.TooltipText = "Anchor: Horizontal (stretches)";
+			anchorContainer.AddChild(anchorH);
+
 			// === StackLayout Demo ===
 			// Vertical stack layout
 			StackLayout vStack = new StackLayout();

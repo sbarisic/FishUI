@@ -68,6 +68,33 @@ namespace FishUI.Controls
 		public FishUIMargin Padding;
 
 		/// <summary>
+		/// Anchor settings for responsive resizing. Determines how this control repositions/resizes
+		/// when the parent resizes. Default is TopLeft (fixed position relative to parent origin).
+		/// </summary>
+		[YamlMember]
+		public FishUIAnchor Anchor { get; set; } = FishUIAnchor.TopLeft;
+
+		/// <summary>
+		/// Stores the initial distance from the right edge of parent. Used for right anchor calculations.
+		/// Set automatically when the control is added to a parent.
+		/// </summary>
+		[YamlIgnore]
+		internal float AnchorRight { get; set; }
+
+		/// <summary>
+		/// Stores the initial distance from the bottom edge of parent. Used for bottom anchor calculations.
+		/// Set automatically when the control is added to a parent.
+		/// </summary>
+		[YamlIgnore]
+		internal float AnchorBottom { get; set; }
+
+		/// <summary>
+		/// Stores the initial parent size when anchor offsets were calculated.
+		/// </summary>
+		[YamlIgnore]
+		internal Vector2 AnchorParentSize { get; set; }
+
+		/// <summary>
 		/// Unique identifier for this control. Used for finding controls and layout serialization.
 		/// </summary>
 		[YamlMember]
@@ -193,70 +220,83 @@ namespace FishUI.Controls
 
 		/// <summary>
 		/// Gets the absolute position of this control in screen coordinates.
-		/// Accounts for parent Padding and this control's Margin.
+		/// Accounts for parent Padding, this control's Margin, and Anchor settings.
 		/// </summary>
 		/// <returns>The absolute position in pixels.</returns>
 		public Vector2 GetAbsolutePosition()
 		{
 			// Calculate parent padding offset
 			Vector2 parentPaddingOffset = Vector2.Zero;
+			Vector2 parentPos = Vector2.Zero;
+			Vector2 parentSize = Vector2.Zero;
+
 			if (Parent != null)
 			{
 				parentPaddingOffset = new Vector2(Parent.Padding.Left, Parent.Padding.Top);
+				parentPos = Parent.GetAbsolutePosition();
+				parentSize = Parent.GetAbsoluteSize();
+			}
+			else if (FishUI != null)
+			{
+				parentSize = new Vector2(FishUI.Width, FishUI.Height);
 			}
 
 			// This control's margin offset
 			Vector2 marginOffset = new Vector2(Margin.Left, Margin.Top);
 
+			// Calculate base position
+			Vector2 basePos;
 			if (Position.Mode == PositionMode.Absolute)
 			{
-				return new Vector2(Position.X, Position.Y) + marginOffset;
+				basePos = new Vector2(Position.X, Position.Y) + marginOffset;
 			}
 			else if (Position.Mode == PositionMode.Relative)
 			{
-				Vector2 ParentPos = Vector2.Zero;
-
-				if (Parent != null)
-					ParentPos = Parent.GetAbsolutePosition();
-
-				return ParentPos + parentPaddingOffset + new Vector2(Position.X, Position.Y) + marginOffset;
+				basePos = parentPos + parentPaddingOffset + new Vector2(Position.X, Position.Y) + marginOffset;
 			}
 			else if (Position.Mode == PositionMode.Docked)
 			{
-				Vector2 ParentPos;
-				Vector2 ParentSize;
-
-				if (Parent != null)
-				{
-					ParentPos = Parent.GetAbsolutePosition();
-					ParentSize = Parent.GetAbsoluteSize();
-				}
-				else
-				{
-					// No parent - dock to screen bounds using FishUI dimensions
-					ParentPos = Vector2.Zero;
-					ParentSize = FishUI != null ? new Vector2(FishUI.Width, FishUI.Height) : Size;
-				}
-
-				Vector2 DockedPos = ParentPos + parentPaddingOffset + new Vector2(Position.X, Position.Y) + marginOffset;
+				Vector2 DockedPos = parentPos + parentPaddingOffset + new Vector2(Position.X, Position.Y) + marginOffset;
 
 				if (Position.Dock.HasFlag(DockMode.Left))
 				{
-					DockedPos.X = ParentPos.X + parentPaddingOffset.X + Position.Left + Margin.Left;
+					DockedPos.X = parentPos.X + parentPaddingOffset.X + Position.Left + Margin.Left;
 				}
 
 				if (Position.Dock.HasFlag(DockMode.Top))
 				{
-					DockedPos.Y = ParentPos.Y + parentPaddingOffset.Y + Position.Top + Margin.Top;
+					DockedPos.Y = parentPos.Y + parentPaddingOffset.Y + Position.Top + Margin.Top;
 				}
 
-				return DockedPos;
+				basePos = DockedPos;
 			}
 			else
 			{
 				// Fallback for unknown position modes - treat as absolute position
-				return new Vector2(Position.X, Position.Y) + marginOffset;
+				basePos = new Vector2(Position.X, Position.Y) + marginOffset;
 			}
+
+			// Apply anchor adjustments if parent exists and anchored to right or bottom
+			if (Parent != null && Anchor != FishUIAnchor.None && Anchor != FishUIAnchor.TopLeft)
+			{
+				Vector2 sizeDelta = parentSize - AnchorParentSize;
+
+				// Right anchor: adjust X position based on parent width change
+				if (Anchor.HasFlag(FishUIAnchor.Right) && !Anchor.HasFlag(FishUIAnchor.Left))
+				{
+					// Only right anchor - move with right edge
+					basePos.X += sizeDelta.X;
+				}
+
+				// Bottom anchor: adjust Y position based on parent height change
+				if (Anchor.HasFlag(FishUIAnchor.Bottom) && !Anchor.HasFlag(FishUIAnchor.Top))
+				{
+					// Only bottom anchor - move with bottom edge
+					basePos.Y += sizeDelta.Y;
+				}
+			}
+
+			return basePos;
 		}
 
 		/// <summary>
@@ -270,11 +310,14 @@ namespace FishUI.Controls
 		}
 
 		/// <summary>
-		/// Gets the absolute size of this control, accounting for docked positioning and margins.
+		/// Gets the absolute size of this control, accounting for docked positioning, margins, and anchor stretching.
 		/// </summary>
 		/// <returns>The actual size in pixels.</returns>
 		public Vector2 GetAbsoluteSize()
 		{
+			Vector2 resultSize = Size;
+
+			// Handle docked positioning
 			if (Position.Mode == PositionMode.Docked)
 			{
 				Vector2 ParentPos;
@@ -300,7 +343,6 @@ namespace FishUI.Controls
 				}
 
 				Vector2 MyPos = GetAbsolutePosition();
-				Vector2 MyNewSize = Size;
 
 				float SubX = MyPos.X - ParentPos.X;
 				float SubY = MyPos.Y - ParentPos.Y;
@@ -309,20 +351,37 @@ namespace FishUI.Controls
 				{
 					float FullChildWidth = ParentSize.X - SubX;
 					// Account for parent right padding and this control's right margin
-					MyNewSize.X = FullChildWidth - Position.Right - parentPadding.Right - Margin.Right;
+					resultSize.X = FullChildWidth - Position.Right - parentPadding.Right - Margin.Right;
 				}
 
 				if (Position.Dock.HasFlag(DockMode.Bottom))
 				{
 					float FullChildHeight = ParentSize.Y - SubY;
 					// Account for parent bottom padding and this control's bottom margin
-					MyNewSize.Y = FullChildHeight - Position.Bottom - parentPadding.Bottom - Margin.Bottom;
+					resultSize.Y = FullChildHeight - Position.Bottom - parentPadding.Bottom - Margin.Bottom;
 				}
-
-				return MyNewSize;
 			}
 
-			return Size;
+			// Handle anchor stretching (when anchored to both left+right or top+bottom)
+			if (Parent != null && Anchor != FishUIAnchor.None && Anchor != FishUIAnchor.TopLeft)
+			{
+				Vector2 parentSize = Parent.GetAbsoluteSize();
+				Vector2 sizeDelta = parentSize - AnchorParentSize;
+
+				// Horizontal stretching: anchored to both left and right
+				if (Anchor.HasFlag(FishUIAnchor.Left) && Anchor.HasFlag(FishUIAnchor.Right))
+				{
+					resultSize.X = Size.X + sizeDelta.X;
+				}
+
+				// Vertical stretching: anchored to both top and bottom
+				if (Anchor.HasFlag(FishUIAnchor.Top) && Anchor.HasFlag(FishUIAnchor.Bottom))
+				{
+					resultSize.Y = Size.Y + sizeDelta.Y;
+				}
+			}
+
+			return resultSize;
 		}
 
 		/// <summary>
@@ -368,11 +427,41 @@ namespace FishUI.Controls
 		{
 			Child.Parent = this;
 
+			// Calculate anchor offsets based on current parent size
+			UpdateChildAnchorOffsets(Child);
+
 			// If Children contains Child, skip. It means this function was used to re-parent an existing child on deserialization
 			if (Children.Contains(Child))
 				return;
 
 			Children.Add(Child);
+		}
+
+		/// <summary>
+		/// Updates the anchor offset values for a child control based on current parent size.
+		/// </summary>
+		private void UpdateChildAnchorOffsets(Control Child)
+		{
+			Vector2 parentSize = GetAbsoluteSize();
+			Child.AnchorParentSize = parentSize;
+
+			// Calculate distances from right and bottom edges
+			float childRight = Child.Position.X + Child.Size.X;
+			float childBottom = Child.Position.Y + Child.Size.Y;
+
+			Child.AnchorRight = parentSize.X - childRight;
+			Child.AnchorBottom = parentSize.Y - childBottom;
+		}
+
+		/// <summary>
+		/// Recalculates anchor offsets for all children. Call after parent is resized.
+		/// </summary>
+		public void RecalculateChildAnchors()
+		{
+			foreach (var child in Children)
+			{
+				UpdateChildAnchorOffsets(child);
+			}
 		}
 
 		/// <summary>
