@@ -312,6 +312,10 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Fixed Bugs
 
+- [x] ~~Virtual cursor has wrong pick order~~ - Added ZDepth assignment in Control.AddChild() so children are ordered by insertion order
+
+- [x] ~~DropDown closes when virtual cursor moves to dropdown list~~ - Modified HandleMouseLeave to check if cursor is inside dropdown list before closing
+
 - [x] ~~Virtual cursor renders below controls~~ - Moved VirtualMouse.Draw() inside Draw() method before EndDrawing() so it renders on top
 
 - [x] ~~Virtual cursor not responding to arrow keys~~ - Added automatic arrow key and button input handling in FishUI.Tick() when VirtualMouse.Enabled is true
@@ -329,7 +333,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-- When moving virtual cursor to dropdown menu below, as soon as the cursor leaves the main button, dropdown disappears (probably because mouse leave event is triggered). Need to handle this case so that dropdown remains visible while interacting with it. (2 CPX)
+- I can still click trough the drop down menu on the virtual cursor example
 
 ---
 

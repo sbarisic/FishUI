@@ -454,6 +454,10 @@ namespace FishUI.Controls
 			if (Children.Contains(Child))
 				return;
 
+			// Assign ZDepth based on insertion order (higher = added later = on top)
+			// Use the count of existing children as the ZDepth for proper ordering
+			Child.ZDepth = Children.Count;
+
 			Children.Add(Child);
 		}
 

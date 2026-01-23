@@ -232,10 +232,15 @@ namespace FishUI.Controls
 		public override void HandleMouseLeave(FishUI UI, FishInputState InState)
 		{
 			base.HandleMouseLeave(UI, InState);
-			// Close dropdown when mouse leaves the control entirely
+			// Only close dropdown if mouse is not inside the dropdown list
 			if (IsOpen)
 			{
-				Close();
+				float itemHeight = ListItemHeight > 0 ? ListItemHeight : 18;
+				// Check if cursor moved to the dropdown list (which extends beyond control bounds)
+				if (!IsPointInsideDropdownList(InState.MousePos, itemHeight))
+				{
+					Close();
+				}
 			}
 		}
 
