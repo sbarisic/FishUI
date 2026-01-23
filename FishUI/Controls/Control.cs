@@ -474,6 +474,9 @@ namespace FishUI.Controls
 
 	public virtual void HandleMouseWheel(FishUI UI, FishInputState InState, float WheelDelta)
 		{
+			// By default, propagate mouse wheel events to parent (bubble up)
+			if (Parent != null)
+				Parent.HandleMouseWheel(UI, InState, WheelDelta);
 		}
 	}
 }

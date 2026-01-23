@@ -169,9 +169,8 @@ A list of planned features, improvements, and new controls for FishUI.
 ### Slider Enhancements
 - [x] ~~Mouse wheel support~~ - Scroll to adjust value (uses Step or 1% of range)
 
-### ScrollBar Enhancements **HIGH PRIORITY**
-- [ ] Mouse wheel support for ScrollBar buttons (1 CPX)
-  - Allow scrolling with mouse wheel over ScrollBarV/ScrollBarH button areas
+### ScrollBar Enhancements
+- [x] ~~Mouse wheel support for ScrollBarV/ScrollBarH~~ - Both scroll bars now support mouse wheel scrolling
 
 ### NumericUpDown Enhancements
 - [x] ~~Mouse wheel support~~ - Scroll to increment/decrement value
@@ -306,6 +305,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 *No active bugs*
 
 ### Fixed Bugs
+
+- [x] ~~ScrollBar mouse wheel not working in examples~~ - Mouse wheel events now bubble up to parent controls; child buttons propagate to ScrollBar
 
 - [x] ~~TreeNode.HasChildren deserialization error~~ - Added `[YamlIgnore]` to read-only property
 - [x] ~~TabControl.SelectedTab deserialization error~~ - Added `[YamlIgnore]` to read-only property

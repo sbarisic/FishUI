@@ -165,7 +165,7 @@ namespace FishUI.Controls
 			OnScrollChanged?.Invoke(this, ThumbPosition, -1);
 		}
 
-		public void ScrollRight()
+	public void ScrollRight()
 		{
 			ThumbPosition += ScrollStep;
 
@@ -173,6 +173,14 @@ namespace FishUI.Controls
 				ThumbPosition = 1;
 
 			OnScrollChanged?.Invoke(this, ThumbPosition, 1);
+		}
+
+		public override void HandleMouseWheel(FishUI UI, FishInputState InState, float WheelDelta)
+		{
+			if (WheelDelta > 0)
+				ScrollLeft();
+			else if (WheelDelta < 0)
+				ScrollRight();
 		}
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)

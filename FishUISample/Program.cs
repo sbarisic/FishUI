@@ -13,6 +13,7 @@ namespace FishUISample
 		//static int Ctr = 100;
 		static int Ctr = 10;
 
+		// TODO: Add platform support, on windows take screenshot, on other platforms do nothing (to make the compile warnings go away)
 		// Automatically take a screenshot after a set number of frames
 		static void AutoScreenshot(RaylibGfx Gfx)
 		{
