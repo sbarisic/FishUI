@@ -698,6 +698,47 @@ namespace FishUISample.Samples
 				pingPongCheck.IsChecked = stargateAnim.PingPong;
 			};
 			FUI.AddControl(pingPongBtn);
+
+			// === AnimatedImageBox in Resizable Window (Video Player Style) ===
+			Window videoWindow = new Window();
+			videoWindow.Title = "Animation Viewer";
+			videoWindow.Position = new Vector2(280, 640);
+			videoWindow.Size = new Vector2(300, 180);
+			videoWindow.ShowCloseButton = true;
+			videoWindow.OnClosed += (wnd) => { wnd.Visible = false; };
+			FUI.AddControl(videoWindow);
+
+			// Anchored AnimatedImageBox that resizes with window
+			AnimatedImageBox videoAnim = new AnimatedImageBox();
+			videoAnim.Position = new Vector2(5, 5);
+			videoAnim.Size = new Vector2(290, 145);
+			videoAnim.Anchor = FishUIAnchor.All; // Resize with window
+			videoAnim.ScaleMode = ImageScaleMode.Fit;
+			videoAnim.FrameRate = 10f;
+			videoAnim.Loop = true;
+
+			// Load stargate frames for video player demo
+			for (int j = 0; j <= 27; j++)
+			{
+				string vframePath = $"data/anim_images/stargate/frame_{j:D2}_delay-0.1s.png";
+				ImageRef vframe = FUI.Graphics.LoadImage(vframePath);
+				if (vframe != null)
+					videoAnim.AddFrame(vframe);
+			}
+			videoWindow.AddChild(videoAnim);
+
+			// Button to show/hide video window
+			Button showVideoBtn = new Button();
+			showVideoBtn.Text = "Video Player";
+			showVideoBtn.Position = new Vector2(20, 780);
+			showVideoBtn.Size = new Vector2(100, 25);
+			showVideoBtn.TooltipText = "Show resizable animation viewer window";
+			showVideoBtn.OnButtonPressed += (btn, mbtn, pos) =>
+			{
+				videoWindow.Visible = true;
+				videoWindow.BringToFront();
+			};
+			FUI.AddControl(showVideoBtn);
 		}
 	}
 }
