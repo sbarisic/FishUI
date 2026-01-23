@@ -127,8 +127,12 @@ namespace FishUI.Controls
 		/// <summary>
 		/// Show the tooltip at the specified position.
 		/// </summary>
-		public void Show(Vector2 mousePos)
+	public void Show(Vector2 mousePos)
 		{
+			if (FishUI != null && FishUI.Settings.DebugEnabled)
+			{
+				FishUIDebug.Log($"[Tooltip.Show] Text='{Text}', Pos={mousePos + CursorOffset}");
+			}
 			IsShowing = true;
 			Visible = true;
 			_showTime = 0f;
@@ -139,16 +143,23 @@ namespace FishUI.Controls
 		/// <summary>
 		/// Hide the tooltip.
 		/// </summary>
-		public void Hide()
+	public void Hide()
 		{
+			if (FishUI != null && FishUI.Settings.DebugEnabled)
+			{
+				FishUIDebug.Log($"[Tooltip.Hide] Was showing: {IsShowing}");
+			}
 			IsShowing = false;
 			Visible = false;
 			_showTime = 0f;
 		}
 
-		private void UpdatePosition(FishUI UI, Vector2 mousePos)
+		/// <summary>
+		/// Update the tooltip position to follow the mouse cursor.
+		/// </summary>
+		public void UpdatePosition(FishUI UI, Vector2 mousePos)
 		{
-			Vector2 targetPos = mousePos + CursorOffset;
+		Vector2 targetPos = mousePos + CursorOffset;
 
 			// Clamp to screen bounds
 			Vector2 size = GetAbsoluteSize();
@@ -167,10 +178,21 @@ namespace FishUI.Controls
 			Position = targetPos;
 		}
 
-		public override void DrawControl(FishUI UI, float Dt, float Time)
+	public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
+			if (UI.Settings.DebugEnabled)
+			{
+				FishUIDebug.Log($"[Tooltip.DrawControl] IsShowing={IsShowing}, Text='{Text}'");
+			}
+			
 			if (!IsShowing || string.IsNullOrEmpty(Text))
+			{
+				if (UI.Settings.DebugEnabled)
+				{
+					FishUIDebug.Log($"[Tooltip.DrawControl] Early return - IsShowing={IsShowing}, Text empty={string.IsNullOrEmpty(Text)}");
+				}
 				return;
+			}
 
 			Vector2 absPos = GetAbsolutePosition();
 

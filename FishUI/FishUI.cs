@@ -80,6 +80,7 @@ namespace FishUI
 
 		// Create the global tooltip
 		_activeTooltip = new Controls.Tooltip();
+		_activeTooltip._FishUI = this;
 		}
 
 		public void Init()
@@ -611,58 +612,89 @@ namespace FishUI
 			InLast = InState;
 			}
 
-			private void UpdateTooltip(float dt, Vector2 mousePos)
-			{
+	private void UpdateTooltip(float dt, Vector2 mousePos)
+		{
 			// Find the control under the mouse that has tooltip text
 			Control controlWithTooltip = FindControlWithTooltip(HoveredControl);
+			
+			if (Settings.DebugEnabled)
+			{
+				if (HoveredControl != null && !string.IsNullOrEmpty(HoveredControl.TooltipText))
+				{
+					FishUIDebug.Log($"[Tooltip] Hovering control with tooltip: '{HoveredControl.TooltipText}'");
+				}
+			}
 
 			if (controlWithTooltip != null && !string.IsNullOrEmpty(controlWithTooltip.TooltipText))
 			{
-			if (_tooltipTargetControl == controlWithTooltip)
-			{
-				// Still hovering the same control
-				_tooltipHoverTime += dt;
-
-				if (!_activeTooltip.IsShowing && _tooltipHoverTime >= TooltipShowDelay)
+				if (_tooltipTargetControl == controlWithTooltip)
 				{
-				_activeTooltip.Text = controlWithTooltip.TooltipText;
-				_activeTooltip.Show(mousePos);
+					// Still hovering the same control
+					_tooltipHoverTime += dt;
+
+					if (!_activeTooltip.IsShowing && _tooltipHoverTime >= TooltipShowDelay)
+					{
+						if (Settings.DebugEnabled)
+						{
+							FishUIDebug.Log($"[Tooltip] Showing tooltip: '{controlWithTooltip.TooltipText}' at {mousePos}");
+						}
+						_activeTooltip.Text = controlWithTooltip.TooltipText;
+						_activeTooltip.Show(mousePos);
 				}
 			}
+				else
+				{
+					// Started hovering a new control
+					if (Settings.DebugEnabled)
+					{
+						FishUIDebug.Log($"[Tooltip] New control hovered, resetting timer");
+					}
+					_tooltipTargetControl = controlWithTooltip;
+					_tooltipHoverTime = 0f;
+					_activeTooltip.Hide();
+			}
+			}
 			else
 			{
-				// Started hovering a new control
-				_tooltipTargetControl = controlWithTooltip;
+				// Not hovering any control with tooltip
+				if (_activeTooltip.IsShowing)
+				{
+					if (Settings.DebugEnabled)
+					{
+						FishUIDebug.Log($"[Tooltip] Hiding tooltip - no control with tooltip hovered");
+					}
+					_activeTooltip.Hide();
+				}
+				_tooltipTargetControl = null;
 				_tooltipHoverTime = 0f;
-				_activeTooltip.Hide();
-			}
-			}
-			else
-			{
-			// Not hovering any control with tooltip
-			if (_activeTooltip.IsShowing)
-			{
-				_activeTooltip.Hide();
-			}
-			_tooltipTargetControl = null;
-			_tooltipHoverTime = 0f;
 			}
 
 			// Update tooltip position if showing
 			if (_activeTooltip.IsShowing)
 			{
-			_activeTooltip.UpdateTooltip(this, dt, mousePos, HoveredControl);
+			_activeTooltip.UpdatePosition(this, mousePos);
 			}
 			}
 
-			private Control FindControlWithTooltip(Control control)
-			{
+	private Control FindControlWithTooltip(Control control)
+		{
 			if (control == null)
-			return null;
+				return null;
+
+			if (Settings.DebugEnabled)
+			{
+				FishUIDebug.Log($"[Tooltip] FindControlWithTooltip checking: {control.GetType().Name} ID={control.ID}, TooltipText='{control.TooltipText}'");
+			}
 
 			// Check this control first
 			if (!string.IsNullOrEmpty(control.TooltipText))
-			return control;
+			{
+				if (Settings.DebugEnabled)
+				{
+					FishUIDebug.Log($"[Tooltip] Found control with tooltip: {control.GetType().Name}");
+				}
+				return control;
+			}
 
 			// Check parent chain
 			Control parent = control.GetParent();
@@ -676,15 +708,19 @@ namespace FishUI
 			return null;
 			}
 
-			private void DrawTooltip(float dt, float time)
-			{
+	private void DrawTooltip(float dt, float time)
+		{
 			if (_activeTooltip.IsShowing)
 			{
-			Graphics.BeginDrawing(dt);
-			_activeTooltip.DrawControl(this, dt, time);
-			Graphics.EndDrawing();
+				if (Settings.DebugEnabled)
+				{
+					FishUIDebug.Log($"[Tooltip] Drawing tooltip: '{_activeTooltip.Text}' IsShowing={_activeTooltip.IsShowing}");
+				}
+				Graphics.BeginDrawing(dt);
+				_activeTooltip.DrawControl(this, dt, time);
+				Graphics.EndDrawing();
 			}
-			}
+		}
 
 			/// <summary>
 			/// Called when the UI container is resized.

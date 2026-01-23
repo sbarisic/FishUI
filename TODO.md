@@ -401,6 +401,18 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 *No active bugs*
 
 ### Resolved Bugs
+- [x] **Tooltips shown but immediately hidden** (1 CPX) ✅ Fixed
+  - Tooltip was being shown then Hide() immediately called in same frame
+  - Root cause: `Tooltip.UpdateTooltip()` had duplicate hover detection that conflicted with `FishUI.UpdateTooltip()`
+  - Since `Tooltip.TargetControl` was never set (null), the hover check always failed and called Hide()
+  - Fixed by making `Tooltip.UpdatePosition()` public and calling that instead of `UpdateTooltip()` from FishUI
+  - FishUI already handles all hover detection, so duplicate logic was unnecessary
+
+- [x] **Tooltips don't show up on mouse hover** (1 CPX) ✅ Fixed
+  - Tooltip's `_FishUI` field was never initialized
+  - Fixed by setting `_activeTooltip._FishUI = this` in FishUI constructor
+  - Tooltips now display correctly after hover delay
+
 - [x] **IsModal does not disable close button by default** (1 CPX) ✅ Fixed
   - IsModal was an auto-property that didn't trigger CloseButtonEnabled
   - Fixed by converting IsModal to full property with backing field
@@ -460,7 +472,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] Window children positioning relative to content area
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
-- Tooltips don't show up on mouse hover
+*No uncategorized items*
 
 ---
 
