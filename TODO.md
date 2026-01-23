@@ -13,6 +13,7 @@ A list of planned features, improvements, and new controls for FishUI.
 - First handle the Uncategorized section, if any similar issues already are on the TODO list, increase their priority instead of adding duplicates
 - When Uncategorized section is empty, start by fixing Active Bugs (take one at a time)
 - After Active Bugs the rest of the TODO file by priority and complexity (High priority takes precedance, then CPX points) (take one at a time)
+- Consolidate all completed TODO items by combining similar ones and shortening the descriptions where possible
 
 ---
 
@@ -311,13 +312,13 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Active Bugs
 
-- [ ] **TreeNode.HasChildren causes deserialization error** (1 CPX)
-  - Location: `TreeView.cs:84`
-  - Error: `YamlException: 'Property 'HasChildren' not found on type 'FishUI.Controls.TreeNode'`
-  - Cause: `HasChildren` is a read-only computed property but YamlDotNet tries to set it
-  - Fix: Add `[YamlIgnore]` attribute to `HasChildren` property in `TreeView.cs`
+*No active bugs*
 
 ### Fixed Bugs
+
+- [x] ~~**TreeNode.HasChildren causes deserialization error**~~ ✅ **FIXED**
+  - Location: `TreeView.cs:84`
+  - Fix: Added `[YamlIgnore]` attribute to `HasChildren` read-only property
 
 - [x] ~~**TabControl.SelectedTab causes deserialization error**~~ ✅ **FIXED**
   - Location: `TabControl.cs:83`

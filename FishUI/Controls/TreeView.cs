@@ -81,6 +81,7 @@ namespace FishUI.Controls
 		/// <summary>
 		/// Whether this node has any children or can load children.
 		/// </summary>
+		[YamlIgnore]
 		public bool HasChildren => Children.Count > 0 || HasChildrenToLoad;
 
 		public TreeNode()
