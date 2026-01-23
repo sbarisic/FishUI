@@ -1,11 +1,20 @@
 ﻿using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 
 namespace FishUISample
 {
+    /// <summary>
+    /// Provides screen capture functionality. Windows-only implementation.
+    /// </summary>
     static class ScreenCapture
     {
+        /// <summary>
+        /// Returns true if screen capture is supported on the current platform.
+        /// </summary>
+        public static bool IsSupported => OperatingSystem.IsWindows();
+
         [DllImport("user32")]
         private static extern IntPtr GetForegroundWindow();
 
@@ -24,16 +33,19 @@ namespace FishUISample
         [DllImport("user32")]
         private static extern IntPtr GetWindowRect(IntPtr hWnd, ref Rect rect);
 
+        [SupportedOSPlatform("windows")]
         public static Image CaptureDesktop()
         {
             return CaptureWindow(GetDesktopWindow());
         }
 
+        [SupportedOSPlatform("windows")]
         public static Bitmap CaptureActiveWindow()
         {
             return CaptureWindow(GetForegroundWindow());
         }
 
+        [SupportedOSPlatform("windows")]
         public static Bitmap CaptureWindow(IntPtr handle)
         {
             Rect rect = new Rect();
@@ -47,6 +59,38 @@ namespace FishUISample
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Captures the active window and saves it to a file. Safe to call on any platform.
+        /// </summary>
+        /// <param name="filePath">The file path to save the screenshot to.</param>
+        /// <returns>True if the screenshot was saved successfully, false if not supported.</returns>
+        public static bool TryCaptureActiveWindow(string filePath)
+        {
+            if (!IsSupported)
+            {
+                Console.WriteLine("Screenshot not supported on this platform.");
+                return false;
+            }
+
+            return TryCaptureActiveWindowInternal(filePath);
+        }
+
+        [SupportedOSPlatform("windows")]
+        private static bool TryCaptureActiveWindowInternal(string filePath)
+        {
+            try
+            {
+                using var bitmap = CaptureActiveWindow();
+                bitmap.Save(filePath);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Screenshot failed: {ex.Message}");
+                return false;
+            }
         }
     }
 }

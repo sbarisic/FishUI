@@ -288,10 +288,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ---
 
 ## Code Cleanup & Technical Debt
-- [ ] **ScreenCapture platform compatibility** (2 CPX)
-  - ScreenCapture.cs uses Windows-only APIs (Graphics.FromImage, CopyFromScreen, Bitmap)
-  - Add platform check to skip screenshot on non-Windows or use cross-platform alternative
-  - Resolves CA1416 warnings
+- [x] ~~ScreenCapture platform compatibility~~ - Added IsSupported check, [SupportedOSPlatform] attributes, TryCaptureActiveWindow safe method; resolves CA1416 warnings
 - [x] ~~Audit [YamlIgnore] attributes~~ - Added to FishUIThemeRegion.UsesImageFile and FishUIVirtualMouse read-only properties
 - [x] ~~Standardize naming conventions~~ - Converted fields to properties: CheckBox/RadioButton `Checked`→`IsChecked`, Panel `IsTransparent`, ListBox `ShowScrollBar`
 - [x] ~~Add XML documentation comments to core public APIs~~ - Documented Control, FishUI, FishUISettings, IFishUIGfx, IFishUIInput

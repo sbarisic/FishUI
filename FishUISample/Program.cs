@@ -13,25 +13,36 @@ namespace FishUISample
 		//static int Ctr = 100;
 		static int Ctr = 10;
 
+
 		/// <summary>
 		/// Takes a screenshot and saves it to the screenshots folder.
 		/// </summary>
 		static void TakeScreenshot(RaylibGfx Gfx)
 		{
+			if (!ScreenCapture.IsSupported)
+			{
+				Console.WriteLine("Screenshot not supported on this platform.");
+				return;
+			}
+
 			DateTime Now = DateTime.Now;
 			string FName = $"../../../../screenshots/ss_{Now.ToString("ddMMyyyy_HHmmss")}.png";
 
 			Gfx.FocusWindow();
 			Thread.Sleep(200);
 
-			ScreenCapture.CaptureActiveWindow().Save(FName);
-			Console.WriteLine("Screenshot saved: " + FName);
+			if (ScreenCapture.TryCaptureActiveWindow(FName))
+			{
+				Console.WriteLine("Screenshot saved: " + FName);
+			}
 		}
 
-		// TODO: Add platform support, on windows take screenshot, on other platforms do nothing (to make the compile warnings go away)
-		// Automatically take a screenshot after a set number of frames
+		// Automatically take a screenshot after a set number of frames (Windows only)
 		static void AutoScreenshot(RaylibGfx Gfx)
 		{
+			if (!ScreenCapture.IsSupported)
+				return;
+
 			if (Ctr > 0)
 			{
 				Ctr--;
@@ -46,13 +57,10 @@ namespace FishUISample
 				Gfx.FocusWindow();
 				Thread.Sleep(200);
 
-				ScreenCapture.CaptureActiveWindow().Save(FName);
+				ScreenCapture.TryCaptureActiveWindow(FName);
 
 				Thread.Sleep(200);
 				Environment.Exit(0);
-
-				//Raylib.TakeScreenshot(FName);
-				//Console.WriteLine("Made screenshot " + FName);
 			}
 		}
 
