@@ -401,6 +401,13 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 *No active bugs*
 
 ### Resolved Bugs
+- [x] **Tooltip causes GUI flickering** (1 CPX) ✅ Fixed
+  - Entire GUI was flickering between showing GUI and showing tooltip
+  - Root cause: Tooltip was drawn in separate `BeginDrawing()`/`EndDrawing()` block in `DrawTooltip()` method
+  - Each `BeginDrawing()` clears the framebuffer, so two calls per frame caused alternating display
+  - Fixed by drawing tooltip inside main `Draw()` method after all controls but before `EndDrawing()`
+  - Removed the separate `DrawTooltip()` method
+
 - [x] **Tooltips shown but immediately hidden** (1 CPX) ✅ Fixed
   - Tooltip was being shown then Hide() immediately called in same frame
   - Root cause: `Tooltip.UpdateTooltip()` had duplicate hover detection that conflicted with `FishUI.UpdateTooltip()`

@@ -464,6 +464,17 @@ namespace FishUI
 					Ctl.DrawControlAndChildren(this, Dt, Time);
 				}
 			}
+			
+			// Draw tooltip on top of all controls
+			if (_activeTooltip != null && _activeTooltip.IsShowing)
+			{
+				if (Settings.DebugEnabled)
+				{
+					FishUIDebug.Log($"[Tooltip] Drawing tooltip in main Draw: '{_activeTooltip.Text}' IsShowing={_activeTooltip.IsShowing}");
+				}
+				_activeTooltip.DrawControl(this, Dt, Time);
+			}
+			
 			Graphics.EndDrawing();
 		}
 
@@ -602,9 +613,6 @@ namespace FishUI
 
 			Draw(OrderedControls, Dt, Time);
 
-			// Draw tooltip on top of everything
-			DrawTooltip(Dt, Time);
-
 			// Draw virtual mouse cursor last (on top of everything)
 			VirtualMouse.Draw(Graphics);
 			VirtualMouse.EndFrame();
@@ -706,23 +714,9 @@ namespace FishUI
 			}
 
 			return null;
-			}
-
-	private void DrawTooltip(float dt, float time)
-		{
-			if (_activeTooltip.IsShowing)
-			{
-				if (Settings.DebugEnabled)
-				{
-					FishUIDebug.Log($"[Tooltip] Drawing tooltip: '{_activeTooltip.Text}' IsShowing={_activeTooltip.IsShowing}");
-				}
-				Graphics.BeginDrawing(dt);
-				_activeTooltip.DrawControl(this, dt, time);
-				Graphics.EndDrawing();
-			}
 		}
 
-			/// <summary>
+	/// <summary>
 			/// Called when the UI container is resized.
 		/// Override to handle responsive layout updates.
 		/// </summary>
