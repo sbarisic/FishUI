@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
 using YamlDotNet.Serialization;
@@ -196,7 +196,7 @@ namespace FishUI.Controls
 				}
 			}
 
-		// Draw checkmark if checked
+			// Draw checkmark if checked
 			if (IsCheckable || IsChecked)
 			{
 				if (IsChecked)
@@ -234,7 +234,7 @@ namespace FishUI.Controls
 				{
 					// Fallback: draw arrow character
 					Vector2 arrowPos = new Vector2(pos.X + size.X - 12, pos.Y + (size.Y - UI.Settings.FontDefault.Size) / 2);
-					UI.Graphics.DrawText(UI.Settings.FontDefault, "?", arrowPos);
+					UI.Graphics.DrawText(UI.Settings.FontDefault, "►", arrowPos);
 				}
 			}
 		}

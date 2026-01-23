@@ -34,8 +34,8 @@ namespace FishUISample.Samples
 			return FUI;
 		}
 
-        public void Init()
-        {
+		public void Init()
+		{
 			Textbox Lbl = new Textbox("The quick");
 			Lbl.Position = new Vector2(100, 400);
 			Lbl.ZDepth = 2;
@@ -407,8 +407,8 @@ namespace FishUISample.Samples
 
 			// Show context menu on panel right-click
 			Pnl.OnDragged += (sender, delta) => { }; // Keep existing behavior
-			// Hook into panel to show context menu on right-click
-			// Note: Right-click on the panel area (10,10 to 410,360) will show context menu
+													 // Hook into panel to show context menu on right-click
+													 // Note: Right-click on the panel area (10,10 to 410,360) will show context menu
 
 			// Create a label to instruct users
 			Label contextMenuLabel = new Label("Right-click on panel for context menu");
@@ -737,5 +737,5 @@ namespace FishUISample.Samples
 			nestedProgress.Value = 0.6f;
 			nestedV3.AddChild(nestedProgress);
 		}
-    }
+	}
 }

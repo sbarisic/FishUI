@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace FishUI
 {
+	/// <summary>
+	/// Settings for the FishUI system, including theme configuration, fonts, and control appearances.
+	/// </summary>
 	public class FishUISettings
 	{
 		// Theme support
@@ -23,8 +26,19 @@ namespace FishUI
 		public event Action<FishUITheme> OnThemeChanged;
 
 		// Public settings
+		/// <summary>
+		/// Spacing between font characters.
+		/// </summary>
 		public int FontSpacing { get; set; } = 0;
+
+		/// <summary>
+		/// Default font size in pixels.
+		/// </summary>
 		public int FontSize { get; set; } = 14;
+
+		/// <summary>
+		/// Font size for labels in pixels.
+		/// </summary>
 		public int FontSizeLabel { get; set; } = 14;
 
 
@@ -192,8 +206,8 @@ namespace FishUI
 		/// </summary>
 		public bool DebugLogControlEvents
 		{
-		get => FishUIDebug.LogControlEvents;
-		set => FishUIDebug.LogControlEvents = value;
+			get => FishUIDebug.LogControlEvents;
+			set => FishUIDebug.LogControlEvents = value;
 		}
 
 		/// <summary>

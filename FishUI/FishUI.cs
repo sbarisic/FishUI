@@ -4,17 +4,46 @@ using System.Runtime.CompilerServices;
 
 namespace FishUI
 {
+	/// <summary>
+	/// Main FishUI class that manages the UI system, controls, input handling, and rendering.
+	/// </summary>
 	public class FishUI
 	{
+		/// <summary>
+		/// UI settings including theme, fonts, and control appearance.
+		/// </summary>
 		public FishUISettings Settings;
+
+		/// <summary>
+		/// Graphics backend interface for rendering.
+		/// </summary>
 		public IFishUIGfx Graphics;
+
+		/// <summary>
+		/// Input backend interface for mouse and keyboard input.
+		/// </summary>
 		public IFishUIInput Input;
+
+		/// <summary>
+		/// Events interface for broadcasting control events.
+		/// </summary>
 		public IFishUIEvents Events;
 
 		List<Control> Controls;
+
+		/// <summary>
+		/// Width of the UI area in pixels.
+		/// </summary>
 		public int Width;
+
+		/// <summary>
+		/// Height of the UI area in pixels.
+		/// </summary>
 		public int Height;
 
+		/// <summary>
+		/// The control that currently has input focus.
+		/// </summary>
 		public Control InputActiveControl;
 
 		//
@@ -35,12 +64,12 @@ namespace FishUI
 		/// </summary>
 		public float DoubleClickTime { get; set; } = 0.3f;
 
-	/// <summary>
+		/// <summary>
 		/// Maximum distance between clicks for a double-click (in pixels).
 		/// </summary>
 		public float DoubleClickDistance { get; set; } = 5f;
 
-	/// <summary>
+		/// <summary>
 		/// Manager for global keyboard hotkeys.
 		/// </summary>
 		public FishUIHotkeyManager Hotkeys { get; } = new FishUIHotkeyManager();
@@ -69,20 +98,30 @@ namespace FishUI
 		public float TooltipShowDelay { get; set; } = 0.5f;
 
 
+		/// <summary>
+		/// Creates a new FishUI instance.
+		/// </summary>
+		/// <param name="Settings">UI settings for themes and appearance.</param>
+		/// <param name="Graphics">Graphics backend implementation.</param>
+		/// <param name="Input">Input backend implementation.</param>
+		/// <param name="Events">Events handler for control events.</param>
 		public FishUI(FishUISettings Settings, IFishUIGfx Graphics, IFishUIInput Input, IFishUIEvents Events)
 		{
-		Controls = new List<Control>();
+			Controls = new List<Control>();
 
-		this.Settings = Settings;
-		this.Graphics = Graphics;
-		this.Input = Input;
-		this.Events = Events;
+			this.Settings = Settings;
+			this.Graphics = Graphics;
+			this.Input = Input;
+			this.Events = Events;
 
-		// Create the global tooltip
-		_activeTooltip = new Controls.Tooltip();
-		_activeTooltip._FishUI = this;
+			// Create the global tooltip
+			_activeTooltip = new Controls.Tooltip();
+			_activeTooltip._FishUI = this;
 		}
 
+		/// <summary>
+		/// Initializes the UI system. Must be called before using the UI.
+		/// </summary>
 		public void Init()
 		{
 			Graphics.Init();
@@ -139,13 +178,20 @@ namespace FishUI
 			}
 		}
 
+		/// <summary>
+		/// Adds a control to the UI.
+		/// </summary>
+		/// <param name="C">The control to add.</param>
 		public void AddControl(Control C)
 		{
 			C._FishUI = this;
 			C.ZDepth = GetNextZDepth();
 			Controls.Add(C);
-	}
+		}
 
+		/// <summary>
+		/// Removes all controls from the UI.
+		/// </summary>
 		public void RemoveAllControls()
 		{
 			//Control[] Ctrls = GetOrderedControls();
@@ -164,6 +210,10 @@ namespace FishUI
 			return normal.Concat(alwaysOnTop).ToArray();
 		}
 
+		/// <summary>
+		/// Gets all controls without ordering.
+		/// </summary>
+		/// <returns>Array of all controls.</returns>
 		public Control[] GetAllControls()
 		{
 			return Controls.ToArray();
@@ -184,9 +234,9 @@ namespace FishUI
 				if (c == ModalControl)
 					return true;
 				c = c.GetParent();
-		}
+			}
 			return false;
-	}
+		}
 
 		/// <summary>
 		/// Gets the root-level control that contains the given control.
@@ -220,7 +270,7 @@ namespace FishUI
 			}
 		}
 
-	// Top-down control picking, for mouse events etc
+		// Top-down control picking, for mouse events etc
 		Control PickControl(Control[] Controls, Vector2 GlobalPos)
 		{
 			foreach (Control C in Controls)
@@ -251,7 +301,12 @@ namespace FishUI
 			return null;
 		}
 
-	public Control PickControl(Vector2 GlobalPos)
+		/// <summary>
+		/// Gets the control at the specified screen position.
+		/// </summary>
+		/// <param name="GlobalPos">Position in screen coordinates.</param>
+		/// <returns>The topmost control at the position, or null if none.</returns>
+		public Control PickControl(Vector2 GlobalPos)
 		{
 			// Reverse the order so we check front controls (higher Z-depth) first
 			return PickControl(GetOrderedControls().Reverse().ToArray(), GlobalPos);
@@ -272,6 +327,11 @@ namespace FishUI
 			return null;
 		}
 
+		/// <summary>
+		/// Finds a control by its ID.
+		/// </summary>
+		/// <param name="ID">The ID to search for.</param>
+		/// <returns>The control with the matching ID, or null if not found.</returns>
 		public Control FindControlByID(string ID)
 		{
 			return FindControlByIDEx(Controls.ToArray(), ID);
@@ -291,7 +351,7 @@ namespace FishUI
 				UpdateSingleControl(C, InState, InLast);
 		}
 
-	// Check for mouse press
+		// Check for mouse press
 		// Mouse press gets triggered for the first control under the mouse
 		void CheckMousePress(Control ControlUnderMouse, FishInputState InState, bool BtnPressed, FishMouseButton MBtn, ref Control ClickedControl)
 		{
@@ -309,7 +369,7 @@ namespace FishUI
 			}
 		}
 
-	// Check for mouse release and clicks
+		// Check for mouse release and clicks
 		// Mouse release gets triggered for the first control under the mouse
 		// Mouse click gets triggered only after release if the control under the mouse is the same as the one that was pressed
 		void CheckMouseRelease(Control ControlUnderMouse, FishInputState InState, bool BtnReleased, FishMouseButton MBtn, ref Control ClickedControl, float Time)
@@ -388,7 +448,7 @@ namespace FishUI
 			}
 		}
 
-	void Update(Control[] Controls, FishInputState InState, FishInputState InLast, float Time)
+		void Update(Control[] Controls, FishInputState InState, FishInputState InLast, float Time)
 		{
 			Control ControlUnderMouse = PickControl(InState.MousePos);
 
@@ -426,26 +486,26 @@ namespace FishUI
 				ControlUnderMouse.HandleMouseWheel(this, InState, InState.MouseWheelDelta);
 			}
 
-		// Key press handling
-		FishKey Key = Input.GetKeyPressed();
+			// Key press handling
+			FishKey Key = Input.GetKeyPressed();
 
-		// Process global hotkeys first
-		bool hotkeyHandled = Hotkeys.ProcessKeyPress(Key, Input);
+			// Process global hotkeys first
+			bool hotkeyHandled = Hotkeys.ProcessKeyPress(Key, Input);
 
-		if (!hotkeyHandled)
-		{
-		// Tab key navigation
-		if (Key == FishKey.Tab)
-		{
-		bool shiftHeld = Input.IsKeyDown(FishKey.LeftShift) || Input.IsKeyDown(FishKey.RightShift);
-		FocusNextControl(shiftHeld);
-		}
-		else if (Key != FishKey.None && InputActiveControl != null)
-		{
-		InputActiveControl.HandleKeyPress(this, InState, Key);
-		InputActiveControl.HandleKeyDown(this, InState, (int)Key);
-		}
-		}
+			if (!hotkeyHandled)
+			{
+				// Tab key navigation
+				if (Key == FishKey.Tab)
+				{
+					bool shiftHeld = Input.IsKeyDown(FishKey.LeftShift) || Input.IsKeyDown(FishKey.RightShift);
+					FocusNextControl(shiftHeld);
+				}
+				else if (Key != FishKey.None && InputActiveControl != null)
+				{
+					InputActiveControl.HandleKeyPress(this, InState, Key);
+					InputActiveControl.HandleKeyDown(this, InState, (int)Key);
+				}
+			}
 
 			foreach (Control Ctl in Controls)
 				UpdateSingleControl(Ctl, InState, InLast);
@@ -454,7 +514,7 @@ namespace FishUI
 			InLast = InState;
 		}
 
-	void Draw(Control[] Controls, float Dt, float Time)
+		void Draw(Control[] Controls, float Dt, float Time)
 		{
 			Graphics.BeginDrawing(Dt);
 			foreach (Control Ctl in Controls)
@@ -464,7 +524,7 @@ namespace FishUI
 					Ctl.DrawControlAndChildren(this, Dt, Time);
 				}
 			}
-			
+
 			// Draw tooltip on top of all controls
 			if (_activeTooltip != null && _activeTooltip.IsShowing)
 			{
@@ -474,19 +534,19 @@ namespace FishUI
 				}
 				_activeTooltip.DrawControl(this, Dt, Time);
 			}
-			
+
 			Graphics.EndDrawing();
 		}
 
-	public void FocusControl(Control Ctrl)
+		public void FocusControl(Control Ctrl)
 		{
 			Control previousFocus = InputActiveControl;
-			
+
 			if (previousFocus != null && previousFocus != Ctrl)
 				previousFocus.HandleBlur();
 
 			InputActiveControl = Ctrl;
-			
+
 			if (Ctrl != null)
 				Ctrl.HandleFocus();
 		}
@@ -531,7 +591,7 @@ namespace FishUI
 		public void FocusNextControl(bool reverse = false)
 		{
 			List<Control> focusable = GetFocusableControls();
-			
+
 			if (focusable.Count == 0)
 				return;
 
@@ -555,8 +615,13 @@ namespace FishUI
 			FocusControl(focusable[nextIndex]);
 		}
 
-	FishInputState InLast;
+		FishInputState InLast;
 
+		/// <summary>
+		/// Main update and render method. Call this every frame.
+		/// </summary>
+		/// <param name="Dt">Delta time since last frame in seconds.</param>
+		/// <param name="Time">Total elapsed time in seconds.</param>
 		public void Tick(float Dt, float Time)
 		{
 			Vector2 MousePos = Input.GetMousePosition();
@@ -567,9 +632,9 @@ namespace FishUI
 			// Override with virtual mouse if enabled
 			if (VirtualMouse.Enabled)
 			{
-				VirtualMouse.ClampToScreen(Width > 0 ? Width : Graphics.GetWindowWidth(), 
+				VirtualMouse.ClampToScreen(Width > 0 ? Width : Graphics.GetWindowWidth(),
 					Height > 0 ? Height : Graphics.GetWindowHeight());
-				
+
 				MousePos = VirtualMouse.Position;
 				MouseLeft = VirtualMouse.IsLeftDown;
 				MouseRight = VirtualMouse.IsRightDown;
@@ -618,13 +683,13 @@ namespace FishUI
 			VirtualMouse.EndFrame();
 
 			InLast = InState;
-			}
+		}
 
-	private void UpdateTooltip(float dt, Vector2 mousePos)
+		private void UpdateTooltip(float dt, Vector2 mousePos)
 		{
 			// Find the control under the mouse that has tooltip text
 			Control controlWithTooltip = FindControlWithTooltip(HoveredControl);
-			
+
 			if (Settings.DebugLogTooltips)
 			{
 				if (HoveredControl != null && !string.IsNullOrEmpty(HoveredControl.TooltipText))
@@ -648,8 +713,8 @@ namespace FishUI
 						}
 						_activeTooltip.Text = controlWithTooltip.TooltipText;
 						_activeTooltip.Show(mousePos);
+					}
 				}
-			}
 				else
 				{
 					// Started hovering a new control
@@ -660,7 +725,7 @@ namespace FishUI
 					_tooltipTargetControl = controlWithTooltip;
 					_tooltipHoverTime = 0f;
 					_activeTooltip.Hide();
-			}
+				}
 			}
 			else
 			{
@@ -680,11 +745,11 @@ namespace FishUI
 			// Update tooltip position if showing
 			if (_activeTooltip.IsShowing)
 			{
-			_activeTooltip.UpdatePosition(this, mousePos);
+				_activeTooltip.UpdatePosition(this, mousePos);
 			}
-			}
+		}
 
-	private Control FindControlWithTooltip(Control control)
+		private Control FindControlWithTooltip(Control control)
 		{
 			if (control == null)
 				return null;
@@ -708,21 +773,21 @@ namespace FishUI
 			Control parent = control.GetParent();
 			while (parent != null)
 			{
-			if (!string.IsNullOrEmpty(parent.TooltipText))
-				return parent;
-			parent = parent.GetParent();
+				if (!string.IsNullOrEmpty(parent.TooltipText))
+					return parent;
+				parent = parent.GetParent();
 			}
 
 			return null;
 		}
 
-	/// <summary>
-			/// Called when the UI container is resized.
+		/// <summary>
+		/// Called when the UI container is resized.
 		/// Override to handle responsive layout updates.
 		/// </summary>
 		/// <param name="newWidth">New width of the UI container.</param>
 		/// <param name="newHeight">New height of the UI container.</param>
-	public void Resized(int newWidth, int newHeight)
+		public void Resized(int newWidth, int newHeight)
 		{
 			Width = newWidth;
 			Height = newHeight;

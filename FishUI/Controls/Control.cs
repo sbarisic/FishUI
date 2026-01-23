@@ -6,8 +6,17 @@ using YamlDotNet.Serialization;
 
 namespace FishUI.Controls
 {
+	/// <summary>
+	/// Delegate for control drag events.
+	/// </summary>
+	/// <param name="Sender">The control being dragged.</param>
+	/// <param name="MouseDelta">The mouse movement delta since the last frame.</param>
 	public delegate void OnControlDraggedFunc(Control Sender, Vector2 MouseDelta);
 
+	/// <summary>
+	/// Base class for all FishUI controls. Provides common functionality for positioning,
+	/// sizing, rendering, input handling, and parent-child relationships.
+	/// </summary>
 	public abstract class Control
 	{
 		[YamlIgnore]
@@ -27,18 +36,33 @@ namespace FishUI.Controls
 
 		protected Control Parent;
 
+		/// <summary>
+		/// Child controls contained within this control.
+		/// </summary>
 		[YamlMember]
 		public List<Control> Children = new List<Control>();
 
-	[YamlMember]
+		/// <summary>
+		/// Position of the control. Supports absolute, relative, and docked positioning modes.
+		/// </summary>
+		[YamlMember]
 		public FishUIPosition Position;
 
+		/// <summary>
+		/// Size of the control in pixels.
+		/// </summary>
 		[YamlMember]
 		public Vector2 Size;
 
+		/// <summary>
+		/// Unique identifier for this control. Used for finding controls and layout serialization.
+		/// </summary>
 		[YamlMember]
-	public string ID;
+		public string ID;
 
+		/// <summary>
+		/// Z-depth for rendering order. Higher values are rendered on top.
+		/// </summary>
 		public virtual int ZDepth { get; set; }
 
 		/// <summary>
@@ -46,13 +70,24 @@ namespace FishUI.Controls
 		/// </summary>
 		public virtual bool AlwaysOnTop { get; set; } = false;
 
+		/// <summary>
+		/// If true, this control is disabled and cannot receive input.
+		/// </summary>
 		public virtual bool Disabled { get; set; } = false;
 
+		/// <summary>
+		/// If true, this control is visible and will be rendered.
+		/// </summary>
 		public virtual bool Visible { get; set; } = true;
 
+		/// <summary>
+		/// Tint color applied when rendering this control.
+		/// </summary>
 		public virtual FishColor Color { get; set; } = new FishColor(255, 255, 255, 255);
 
-		// If true, this control can be dragged and repositioned with the mouse, handled in the HandleDrag implementation
+		/// <summary>
+		/// If true, this control can be dragged with the mouse. Fires OnDragged event.
+		/// </summary>
 		public virtual bool Draggable { get; set; } = false;
 
 		/// <summary>
@@ -85,6 +120,9 @@ namespace FishUI.Controls
 		[YamlMember]
 		public virtual string TooltipText { get; set; }
 
+		/// <summary>
+		/// Event fired when this control is dragged with the mouse.
+		/// </summary>
 		public event OnControlDraggedFunc OnDragged;
 
 		/// <summary>
@@ -140,6 +178,10 @@ namespace FishUI.Controls
 			}
 		}
 
+		/// <summary>
+		/// Gets the absolute position of this control in screen coordinates.
+		/// </summary>
+		/// <returns>The absolute position in pixels.</returns>
 		public Vector2 GetAbsolutePosition()
 		{
 			if (Position.Mode == PositionMode.Absolute)
@@ -155,7 +197,7 @@ namespace FishUI.Controls
 
 				return ParentPos + new Vector2(Position.X, Position.Y);
 			}
-		else if (Position.Mode == PositionMode.Docked)
+			else if (Position.Mode == PositionMode.Docked)
 			{
 				Vector2 ParentPos;
 				Vector2 ParentSize;
@@ -193,11 +235,20 @@ namespace FishUI.Controls
 			}
 		}
 
+		/// <summary>
+		/// Converts a global point to local coordinates relative to this control.
+		/// </summary>
+		/// <param name="GlobalPt">Point in screen coordinates.</param>
+		/// <returns>Point in local coordinates relative to this control's position.</returns>
 		public Vector2 GetLocalRelative(Vector2 GlobalPt)
 		{
 			return GlobalPt - GetAbsolutePosition();
 		}
 
+		/// <summary>
+		/// Gets the absolute size of this control, accounting for docked positioning.
+		/// </summary>
+		/// <returns>The actual size in pixels.</returns>
 		public Vector2 GetAbsoluteSize()
 		{
 			if (Position.Mode == PositionMode.Docked)
@@ -243,9 +294,14 @@ namespace FishUI.Controls
 				return MyNewSize;
 			}
 
-		return Size;
+			return Size;
 		}
 
+		/// <summary>
+		/// Checks if a point in screen coordinates is inside this control.
+		/// </summary>
+		/// <param name="GlobalPt">Point in screen coordinates.</param>
+		/// <returns>True if the point is inside the control bounds.</returns>
 		public virtual bool IsPointInside(Vector2 GlobalPt)
 		{
 			Vector2 AbsPos = GetAbsolutePosition();
@@ -253,12 +309,21 @@ namespace FishUI.Controls
 			return Utils.IsInside(AbsPos, AbsSize, GlobalPt);
 		}
 
+		/// <summary>
+		/// True if the mouse is currently over this control.
+		/// </summary>
 		[YamlIgnore]
 		public bool IsMouseInside;
 
+		/// <summary>
+		/// True if the mouse button is currently pressed on this control.
+		/// </summary>
 		[YamlIgnore]
 		public bool IsMousePressed;
 
+		/// <summary>
+		/// Removes this control from its parent.
+		/// </summary>
 		public void Unparent()
 		{
 			if (Parent != null)
@@ -267,6 +332,10 @@ namespace FishUI.Controls
 			}
 		}
 
+		/// <summary>
+		/// Adds a control as a child of this control.
+		/// </summary>
+		/// <param name="Child">The control to add as a child.</param>
 		public void AddChild(Control Child)
 		{
 			Child.Parent = this;
@@ -278,6 +347,11 @@ namespace FishUI.Controls
 			Children.Add(Child);
 		}
 
+		/// <summary>
+		/// Finds the first child control of the specified type.
+		/// </summary>
+		/// <typeparam name="T">The type of control to find.</typeparam>
+		/// <returns>The first matching child control, or null if not found.</returns>
 		public T FindChildByType<T>() where T : Control
 		{
 			foreach (Control Ch in GetAllChildren())
@@ -289,6 +363,11 @@ namespace FishUI.Controls
 			return null;
 		}
 
+		/// <summary>
+		/// Gets all child controls.
+		/// </summary>
+		/// <param name="Order">If true, returns children ordered by ZDepth.</param>
+		/// <returns>Array of child controls.</returns>
 		public Control[] GetAllChildren(bool Order = true)
 		{
 			if (Order)
@@ -297,12 +376,19 @@ namespace FishUI.Controls
 				return Children.ToArray();
 		}
 
+		/// <summary>
+		/// Removes a child control from this control.
+		/// </summary>
+		/// <param name="Child">The child control to remove.</param>
 		public void RemoveChild(Control Child)
 		{
 			Child.Parent = null;
 			Children.Remove(Child);
 		}
 
+		/// <summary>
+		/// Removes all child controls from this control.
+		/// </summary>
 		public void RemoveAllChildren()
 		{
 			Control[] Ch = GetAllChildren(false);
@@ -311,7 +397,10 @@ namespace FishUI.Controls
 				RemoveChild(Ch[i]);
 		}
 
-		// Called once at first draw - for loading resources...
+		/// <summary>
+		/// Called once at first draw for resource initialization.
+		/// </summary>
+		/// <param name="UI">The FishUI instance.</param>
 		public virtual void Init(FishUI UI)
 		{
 		}
@@ -329,13 +418,20 @@ namespace FishUI.Controls
 			}
 		}
 
+		/// <summary>
+		/// Draws all child controls.
+		/// </summary>
+		/// <param name="UI">The FishUI instance.</param>
+		/// <param name="Dt">Delta time since last frame.</param>
+		/// <param name="Time">Total elapsed time.</param>
+		/// <param name="UseScissors">If true, clips children to this control's bounds.</param>
 		public virtual void DrawChildren(FishUI UI, float Dt, float Time, bool UseScissors = true)
 		{
-		// Respect DisableChildScissor property - controls like CheckBox/RadioButton need labels to extend beyond bounds
-		bool applyScissor = UseScissors && !DisableChildScissor;
+			// Respect DisableChildScissor property - controls like CheckBox/RadioButton need labels to extend beyond bounds
+			bool applyScissor = UseScissors && !DisableChildScissor;
 
-		if (applyScissor)
-		UI.Graphics.PushScissor(GetAbsolutePosition(), GetAbsoluteSize());
+			if (applyScissor)
+				UI.Graphics.PushScissor(GetAbsolutePosition(), GetAbsoluteSize());
 
 			Control[] Ch = GetAllChildren().Reverse().ToArray();
 			foreach (var Child in Ch)
@@ -347,9 +443,15 @@ namespace FishUI.Controls
 			}
 
 			if (applyScissor)
-			UI.Graphics.PopScissor();
-			}
+				UI.Graphics.PopScissor();
+		}
 
+		/// <summary>
+		/// Override this method to draw the control's visual appearance.
+		/// </summary>
+		/// <param name="UI">The FishUI instance.</param>
+		/// <param name="Dt">Delta time since last frame.</param>
+		/// <param name="Time">Total elapsed time.</param>
 		public virtual void DrawControl(FishUI UI, float Dt, float Time)
 		{
 			UI.Graphics.DrawRectangle(GetAbsolutePosition(), GetAbsoluteSize(), Color);
@@ -371,27 +473,36 @@ namespace FishUI.Controls
 		[YamlIgnore]
 		bool DrawHasInit = false;
 
-	public void DrawControlAndChildren(FishUI UI, float Dt, float Time)
-	{
-	if (!DrawHasInit)
-	{
-	DrawHasInit = true;
-	Init(UI);
-	}
+		/// <summary>
+		/// Draws this control and all its children.
+		/// </summary>
+		/// <param name="UI">The FishUI instance.</param>
+		/// <param name="Dt">Delta time since last frame.</param>
+		/// <param name="Time">Total elapsed time.</param>
+		public void DrawControlAndChildren(FishUI UI, float Dt, float Time)
+		{
+			if (!DrawHasInit)
+			{
+				DrawHasInit = true;
+				Init(UI);
+			}
 
-	DrawControl(UI, Dt, Time);
+			DrawControl(UI, Dt, Time);
 
-	// Draw debug outline if enabled
-	if (FishUIDebug.DrawControlOutlines)
-	UI.Graphics.DrawRectangleOutline(GetAbsolutePosition(), GetAbsoluteSize(), FishUIDebug.OutlineColor);
+			// Draw debug outline if enabled
+			if (FishUIDebug.DrawControlOutlines)
+				UI.Graphics.DrawRectangleOutline(GetAbsolutePosition(), GetAbsoluteSize(), FishUIDebug.OutlineColor);
 
-	// Draw focus indicator if this control has focus
-	if (FishUIDebug.DrawFocusIndicators && HasFocus && Focusable)
-	UI.Graphics.DrawRectangleOutline(GetAbsolutePosition() - new Vector2(2, 2), GetAbsoluteSize() + new Vector2(4, 4), FishUIDebug.FocusIndicatorColor);
+			// Draw focus indicator if this control has focus
+			if (FishUIDebug.DrawFocusIndicators && HasFocus && Focusable)
+				UI.Graphics.DrawRectangleOutline(GetAbsolutePosition() - new Vector2(2, 2), GetAbsoluteSize() + new Vector2(4, 4), FishUIDebug.FocusIndicatorColor);
 
-	DrawChildren(UI, Dt, Time);
-	}
+			DrawChildren(UI, Dt, Time);
+		}
 
+		/// <summary>
+		/// Called when the control is being dragged with the mouse.
+		/// </summary>
 		public virtual void HandleDrag(FishUI UI, Vector2 StartPos, Vector2 EndPos, FishInputState InState)
 		{
 			if (Draggable)
@@ -404,40 +515,59 @@ namespace FishUI.Controls
 			//	Console.WriteLine($"{GetType().Name}({ID ?? "null"}) - Drag Control");
 		}
 
+		/// <summary>
+		/// Called when the mouse enters this control's bounds.
+		/// </summary>
 		public virtual void HandleMouseEnter(FishUI UI, FishInputState InState)
 		{
 			FishUIDebug.LogControlEvent(GetType().Name, ID, "Mouse Enter");
 		}
 
+		/// <summary>
+		/// Called when the mouse moves within this control's bounds.
+		/// </summary>
 		public virtual void HandleMouseMove(FishUI UI, FishInputState InState, Vector2 Pos)
 		{
-			//if (DebugPrint)
-			//	Console.WriteLine($"{GetType().Name}({ID ?? "null"}) - Mouse Move");
 		}
 
+		/// <summary>
+		/// Called when the mouse leaves this control's bounds.
+		/// </summary>
 		public virtual void HandleMouseLeave(FishUI UI, FishInputState InState)
 		{
 			FishUIDebug.LogControlEvent(GetType().Name, ID, "Mouse Leave");
 		}
 
 
+		/// <summary>
+		/// Called when a mouse button is pressed on this control.
+		/// </summary>
 		public virtual void HandleMousePress(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
 		{
 			FishUIDebug.LogControlEvent(GetType().Name, ID, "Mouse Press", Btn.ToString());
 		}
 
+		/// <summary>
+		/// Called when a mouse button is released on this control.
+		/// </summary>
 		public virtual void HandleMouseRelease(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
 		{
 			FishUIDebug.LogControlEvent(GetType().Name, ID, "Mouse Release", Btn.ToString());
 		}
 
-	public virtual void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
+		/// <summary>
+		/// Called when the mouse is clicked on this control.
+		/// </summary>
+		public virtual void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
 		{
 			FishUIDebug.LogControlEvent(GetType().Name, ID, "Mouse Click", Btn.ToString());
 
 			UI.Events.Broadcast(UI, this, "mouse_click", null);
 		}
 
+		/// <summary>
+		/// Called when the mouse is double-clicked on this control.
+		/// </summary>
 		public virtual void HandleMouseDoubleClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
 		{
 			FishUIDebug.LogControlEvent(GetType().Name, ID, "Mouse Double Click", Btn.ToString());
@@ -445,34 +575,56 @@ namespace FishUI.Controls
 			UI.Events.Broadcast(UI, this, "mouse_double_click", null);
 		}
 
-	public virtual void HandleFocus()
+		/// <summary>
+		/// Called when this control receives input focus.
+		/// </summary>
+		public virtual void HandleFocus()
 		{
 			FishUIDebug.LogControlEvent(GetType().Name, ID, "Focus");
 		}
 
+		/// <summary>
+		/// Called when this control loses input focus.
+		/// </summary>
 		public virtual void HandleBlur()
 		{
 			FishUIDebug.LogControlEvent(GetType().Name, ID, "Blur");
 		}
 
+		/// <summary>
+		/// Called when text is typed while this control has focus.
+		/// </summary>
 		public virtual void HandleTextInput(FishUI UI, FishInputState InState, char Chr)
 		{
 
 		}
 
+		/// <summary>
+		/// Called when a key is pressed while this control has focus.
+		/// </summary>
 		public virtual void HandleKeyPress(FishUI UI, FishInputState InState, FishKey Key)
 		{
 		}
 
+		/// <summary>
+		/// Called when a key is held down while this control has focus.
+		/// </summary>
 		public virtual void HandleKeyDown(FishUI UI, FishInputState InState, int KeyCode)
 		{
 		}
 
+		/// <summary>
+		/// Called when a key is released while this control has focus.
+		/// </summary>
 		public virtual void HandleKeyRelease(FishUI UI, FishInputState InState, FishKey Key)
 		{
 		}
 
-	public virtual void HandleMouseWheel(FishUI UI, FishInputState InState, float WheelDelta)
+		/// <summary>
+		/// Called when the mouse wheel is scrolled over this control.
+		/// By default, propagates to parent control.
+		/// </summary>
+		public virtual void HandleMouseWheel(FishUI UI, FishInputState InState, float WheelDelta)
 		{
 			// By default, propagate mouse wheel events to parent (bubble up)
 			if (Parent != null)

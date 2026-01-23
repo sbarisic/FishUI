@@ -286,10 +286,10 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ---
 
-## Code Cleanup & Technical Debt **HIGH PRIORITY**
+## Code Cleanup & Technical Debt
 - [x] ~~Audit [YamlIgnore] attributes~~ - Added to FishUIThemeRegion.UsesImageFile and FishUIVirtualMouse read-only properties
 - [x] ~~Standardize naming conventions~~ - Converted fields to properties: CheckBox/RadioButton `Checked`→`IsChecked`, Panel `IsTransparent`, ListBox `ShowScrollBar`
-- [ ] Add XML documentation comments to public APIs (2 CPX)
+- [x] ~~Add XML documentation comments to core public APIs~~ - Documented Control, FishUI, FishUISettings, IFishUIGfx, IFishUIInput
 - [x] ~~Add screenshot button to all examples~~ - Added TakeScreenshot to ISample; screenshot buttons with camera icons in all 3 samples
 - [x] ~~Extract TODO comments from code~~ - Moved 4 TODOs to proper sections, removed comments from source
 - [x] ~~Move DebugLogTooltips flag into FishUIDebug~~ - Now forwards to `FishUIDebug.LogTooltips` like other debug flags

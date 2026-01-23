@@ -116,7 +116,7 @@ namespace FishUI.Controls
 			HoveredIndex = PickIndexFromPosition2(UI, LocalPos, UI.Settings.FontDefault.Size + 4);
 		}
 
-	public override void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
+		public override void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
 		{
 			if (HoveredIndex != -1)
 				SelectIndex(HoveredIndex);
