@@ -238,6 +238,36 @@ namespace FishUISample.Samples
 			};
 			Pnl.AddChild(repeatBtn);
 
+			// ImageButton demo (icon-only toolbar buttons)
+			ImageRef iconStar = FUI.Graphics.LoadImage("data/silk_icons/star.png");
+			ImageRef iconHeart = FUI.Graphics.LoadImage("data/silk_icons/heart.png");
+			ImageRef iconCog = FUI.Graphics.LoadImage("data/silk_icons/cog.png");
+
+			Button imgBtn1 = new Button();
+			imgBtn1.Icon = iconStar;
+			imgBtn1.Position = new Vector2(240, 70);
+			imgBtn1.Size = new Vector2(24, 24);
+			imgBtn1.IsImageButton = true;
+			imgBtn1.TooltipText = "Star (ImageButton)";
+			Pnl.AddChild(imgBtn1);
+
+			Button imgBtn2 = new Button();
+			imgBtn2.Icon = iconHeart;
+			imgBtn2.Position = new Vector2(270, 70);
+			imgBtn2.Size = new Vector2(24, 24);
+			imgBtn2.IsImageButton = true;
+			imgBtn2.IsToggleButton = true;
+			imgBtn2.TooltipText = "Favorite (toggle ImageButton)";
+			Pnl.AddChild(imgBtn2);
+
+			Button imgBtn3 = new Button();
+			imgBtn3.Icon = iconCog;
+			imgBtn3.Position = new Vector2(300, 70);
+			imgBtn3.Size = new Vector2(24, 24);
+			imgBtn3.IsImageButton = true;
+			imgBtn3.TooltipText = "Settings (ImageButton)";
+			Pnl.AddChild(imgBtn3);
+
 			// === NEW CONTROLS DEMO ===
 
 			// Window / Dialog demo

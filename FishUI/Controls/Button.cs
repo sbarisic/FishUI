@@ -33,6 +33,7 @@ namespace FishUI.Controls
 
 		public string Text;
 
+
 		/// <summary>
 		/// Icon image to display on the button. When set, the icon is rendered alongside or instead of text.
 		/// </summary>
@@ -73,6 +74,21 @@ namespace FishUI.Controls
 		/// Interval between repeat fires (in seconds). Only applicable when IsRepeatButton is true.
 		/// </summary>
 		public float RepeatInterval { get; set; } = 0.1f;
+
+		/// <summary>
+		/// If true, this button only displays the icon (no background). Use for toolbar-style buttons.
+		/// </summary>
+		public bool IsImageButton { get; set; } = false;
+
+		/// <summary>
+		/// Tint color applied to the icon when the button is hovered. Only used when IsImageButton is true.
+		/// </summary>
+		public FishColor ImageButtonHoverTint { get; set; } = new FishColor(220, 220, 220, 255);
+
+		/// <summary>
+		/// Tint color applied to the icon when the button is pressed. Only used when IsImageButton is true.
+		/// </summary>
+		public FishColor ImageButtonPressedTint { get; set; } = new FishColor(180, 180, 180, 255);
 
 		// Internal state for repeat timing
 		private float _repeatTimer = 0f;
@@ -169,6 +185,24 @@ namespace FishUI.Controls
 			}
 
 			//base.Draw(UI, Dt, Time);
+
+			// ImageButton mode - only draw the icon with state-based tinting
+			if (IsImageButton && Icon != null)
+			{
+				FishColor iconTint = FishColor.White;
+				if (Disabled)
+					iconTint = new FishColor(128, 128, 128, 128);
+				else if (IsMousePressed || (IsToggleButton && IsToggled))
+					iconTint = ImageButtonPressedTint;
+				else if (IsMouseInside)
+					iconTint = ImageButtonHoverTint;
+
+				Vector2 iconSize = new Vector2(Icon.Width, Icon.Height);
+				Vector2 imgBtnCenter = GetAbsolutePosition() + GetAbsoluteSize() / 2;
+				Vector2 iconPos = imgBtnCenter - iconSize / 2;
+				UI.Graphics.DrawImage(Icon, iconPos, 0f, 1f, iconTint);
+				return;
+			}
 
 			NPatch NNormal = ImgNormal ?? UI.Settings.ImgButtonNormal;
 			NPatch NDisabled = ImgDisabled ?? UI.Settings.ImgButtonDisabled;
