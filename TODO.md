@@ -388,6 +388,11 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] Remove unused `using` statements
 - [x] Fix `Utils.Union` scissor intersection calculation (was commented out)
 - [x] Fix `RaylibGfx` scissor stack management
+- [x] Add separate debug flag for tooltip logging (1 CPX) ✅ Completed
+  - Added `DebugLogTooltips` property to `FishUISettings` (default: false)
+  - Tooltips update every frame and produce excessive log output
+  - All tooltip-related debug logging now checks `DebugLogTooltips` instead of `DebugEnabled`
+  - Regular debug logging with `DebugEnabled` remains unaffected
 
 ### Remaining Cleanup
 - [ ] Standardize naming conventions across all controls (1 CPX)

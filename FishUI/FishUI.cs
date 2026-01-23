@@ -468,7 +468,7 @@ namespace FishUI
 			// Draw tooltip on top of all controls
 			if (_activeTooltip != null && _activeTooltip.IsShowing)
 			{
-				if (Settings.DebugEnabled)
+				if (Settings.DebugLogTooltips)
 				{
 					FishUIDebug.Log($"[Tooltip] Drawing tooltip in main Draw: '{_activeTooltip.Text}' IsShowing={_activeTooltip.IsShowing}");
 				}
@@ -625,7 +625,7 @@ namespace FishUI
 			// Find the control under the mouse that has tooltip text
 			Control controlWithTooltip = FindControlWithTooltip(HoveredControl);
 			
-			if (Settings.DebugEnabled)
+			if (Settings.DebugLogTooltips)
 			{
 				if (HoveredControl != null && !string.IsNullOrEmpty(HoveredControl.TooltipText))
 				{
@@ -642,7 +642,7 @@ namespace FishUI
 
 					if (!_activeTooltip.IsShowing && _tooltipHoverTime >= TooltipShowDelay)
 					{
-						if (Settings.DebugEnabled)
+						if (Settings.DebugLogTooltips)
 						{
 							FishUIDebug.Log($"[Tooltip] Showing tooltip: '{controlWithTooltip.TooltipText}' at {mousePos}");
 						}
@@ -653,7 +653,7 @@ namespace FishUI
 				else
 				{
 					// Started hovering a new control
-					if (Settings.DebugEnabled)
+					if (Settings.DebugLogTooltips)
 					{
 						FishUIDebug.Log($"[Tooltip] New control hovered, resetting timer");
 					}
@@ -667,7 +667,7 @@ namespace FishUI
 				// Not hovering any control with tooltip
 				if (_activeTooltip.IsShowing)
 				{
-					if (Settings.DebugEnabled)
+					if (Settings.DebugLogTooltips)
 					{
 						FishUIDebug.Log($"[Tooltip] Hiding tooltip - no control with tooltip hovered");
 					}
@@ -689,7 +689,7 @@ namespace FishUI
 			if (control == null)
 				return null;
 
-			if (Settings.DebugEnabled)
+			if (Settings.DebugLogTooltips)
 			{
 				FishUIDebug.Log($"[Tooltip] FindControlWithTooltip checking: {control.GetType().Name} ID={control.ID}, TooltipText='{control.TooltipText}'");
 			}
@@ -697,7 +697,7 @@ namespace FishUI
 			// Check this control first
 			if (!string.IsNullOrEmpty(control.TooltipText))
 			{
-				if (Settings.DebugEnabled)
+				if (Settings.DebugLogTooltips)
 				{
 					FishUIDebug.Log($"[Tooltip] Found control with tooltip: {control.GetType().Name}");
 				}

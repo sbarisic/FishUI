@@ -129,7 +129,7 @@ namespace FishUI.Controls
 		/// </summary>
 	public void Show(Vector2 mousePos)
 		{
-			if (FishUI != null && FishUI.Settings.DebugEnabled)
+			if (FishUI != null && FishUI.Settings.DebugLogTooltips)
 			{
 				FishUIDebug.Log($"[Tooltip.Show] Text='{Text}', Pos={mousePos + CursorOffset}");
 			}
@@ -145,7 +145,7 @@ namespace FishUI.Controls
 		/// </summary>
 	public void Hide()
 		{
-			if (FishUI != null && FishUI.Settings.DebugEnabled)
+			if (FishUI != null && FishUI.Settings.DebugLogTooltips)
 			{
 				FishUIDebug.Log($"[Tooltip.Hide] Was showing: {IsShowing}");
 			}
@@ -180,14 +180,14 @@ namespace FishUI.Controls
 
 	public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
-			if (UI.Settings.DebugEnabled)
+			if (UI.Settings.DebugLogTooltips)
 			{
 				FishUIDebug.Log($"[Tooltip.DrawControl] IsShowing={IsShowing}, Text='{Text}'");
 			}
 			
 			if (!IsShowing || string.IsNullOrEmpty(Text))
 			{
-				if (UI.Settings.DebugEnabled)
+				if (UI.Settings.DebugLogTooltips)
 				{
 					FishUIDebug.Log($"[Tooltip.DrawControl] Early return - IsShowing={IsShowing}, Text empty={string.IsNullOrEmpty(Text)}");
 				}

@@ -189,9 +189,16 @@ namespace FishUI
 		/// </summary>
 		public bool DebugLogControlEvents
 		{
-			get => FishUIDebug.LogControlEvents;
-			set => FishUIDebug.LogControlEvents = value;
+		get => FishUIDebug.LogControlEvents;
+		set => FishUIDebug.LogControlEvents = value;
 		}
+
+		// TODO: Move this flag into FishUIDebug, like the rest above
+		/// <summary>
+		/// Enables or disables logging of tooltip-related events.
+		/// Tooltips update every frame and can produce excessive log output.
+		/// </summary>
+		public bool DebugLogTooltips { get; set; } = false;
 
 		/// <summary>
 		/// Enables or disables drawing debug outlines on panels.
