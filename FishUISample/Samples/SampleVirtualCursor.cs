@@ -264,19 +264,27 @@ namespace FishUISample.Samples
 
 		/// <summary>
 		/// Called every frame. Handles hybrid mode - when checkbox is unchecked, 
-		/// sync virtual cursor with real mouse position.
+		/// sync virtual cursor with real mouse position and clicks.
 		/// </summary>
 		public void Update(float dt)
 		{
 			// Update position label
 			positionLabel.Text = $"Position: ({FUI.VirtualMouse.Position.X:F0}, {FUI.VirtualMouse.Position.Y:F0})";
 
-			// Hybrid mode: when keyboard control is unchecked, follow real mouse
+			// Hybrid mode: when keyboard control is unchecked, follow real mouse position and clicks
 			if (!enabledCheckbox.IsChecked)
 			{
-				// Sync virtual cursor with real mouse position
+				// Disable keyboard input handling in virtual mouse
+				FUI.VirtualMouse.UseKeyboardInput = false;
+				// Sync virtual cursor with real mouse position and button states
 				FUI.VirtualMouse.SyncWithRealMouse(InputRef);
-				statusLabel.Text = "Status: Hybrid mode (following real mouse)";
+				FUI.VirtualMouse.SyncButtonsWithRealMouse(InputRef);
+				statusLabel.Text = "Status: Hybrid mode (following real mouse + clicks)";
+			}
+			else
+			{
+				// Enable keyboard input handling
+				FUI.VirtualMouse.UseKeyboardInput = true;
 			}
 		}
 

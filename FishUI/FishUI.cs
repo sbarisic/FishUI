@@ -641,33 +641,12 @@ namespace FishUI
 			bool MouseRight = Input.IsMouseDown(FishMouseButton.Right);
 			float MouseWheel = Input.GetMouseWheelMove();
 
-			// Override with virtual mouse if enabled
+			// Update virtual mouse if enabled
 			if (VirtualMouse.Enabled)
 			{
-				// Handle arrow key input for virtual mouse movement
-				Vector2 moveDirection = Vector2.Zero;
-				if (Input.IsKeyDown(FishKey.Up))
-					moveDirection.Y -= 1;
-				if (Input.IsKeyDown(FishKey.Down))
-					moveDirection.Y += 1;
-				if (Input.IsKeyDown(FishKey.Left))
-					moveDirection.X -= 1;
-				if (Input.IsKeyDown(FishKey.Right))
-					moveDirection.X += 1;
-
-				VirtualMouse.Move(moveDirection, Dt);
-				VirtualMouse.ClampToScreen(Width > 0 ? Width : Graphics.GetWindowWidth(),
-					Height > 0 ? Height : Graphics.GetWindowHeight());
-
-				// Handle virtual mouse button input (Space/Enter for left click, RightShift for right click)
-				if (Input.IsKeyPressed(FishKey.Space) || Input.IsKeyPressed(FishKey.Enter))
-					VirtualMouse.PressLeft();
-				if (Input.IsKeyReleased(FishKey.Space) || Input.IsKeyReleased(FishKey.Enter))
-					VirtualMouse.ReleaseLeft();
-				if (Input.IsKeyPressed(FishKey.RightShift))
-					VirtualMouse.PressRight();
-				if (Input.IsKeyReleased(FishKey.RightShift))
-					VirtualMouse.ReleaseRight();
+				int screenWidth = Width > 0 ? Width : Graphics.GetWindowWidth();
+				int screenHeight = Height > 0 ? Height : Graphics.GetWindowHeight();
+				VirtualMouse.Update(Input, Dt, screenWidth, screenHeight);
 
 				MousePos = VirtualMouse.Position;
 				MouseLeft = VirtualMouse.IsLeftDown;

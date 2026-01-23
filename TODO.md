@@ -245,6 +245,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Virtual Cursor
 - [x] ~~Direct position setting~~ - Added SetPositionFromInput and SyncWithRealMouse methods for touch/mouse mapping
+- [x] ~~**Refactor virtual mouse input mapping**~~ - Moved keyboard handling into FishUIVirtualMouse.Update(); added configurable key bindings (MoveUpKeys, MoveDownKeys, MoveLeftKeys, MoveRightKeys, LeftClickKeys, RightClickKeys); UseKeyboardInput flag for hybrid mode
+- [x] ~~**Hybrid mode click passthrough**~~ - Added SyncButtonsWithRealMouse() method; SampleVirtualCursor now passes through real mouse clicks in hybrid mode
 
 ### Serialization
 - [x] ~~LayoutFormat TypeMapping~~ - Added all implemented controls for layout save/load
@@ -345,7 +347,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-- Refactor virtual mouse click events, they do not make sense in FishUI.Tick, modify virtual mouse example so when in hybrid mode, mouse clicks get passed trough, too
+*No uncategorized items*
 
 ---
 

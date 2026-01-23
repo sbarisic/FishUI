@@ -16,6 +16,12 @@ namespace FishUI
 		public bool Enabled { get; set; } = false;
 
 		/// <summary>
+		/// Whether to process keyboard input automatically in Update().
+		/// Set to false for hybrid mode where you manually control position/buttons.
+		/// </summary>
+		public bool UseKeyboardInput { get; set; } = true;
+
+		/// <summary>
 		/// Current position of the virtual mouse cursor.
 		/// </summary>
 		public Vector2 Position { get; set; }
@@ -60,6 +66,40 @@ namespace FishUI
 		/// </summary>
 		public ImageRef CursorImage { get; set; }
 
+		#region Configurable Key Bindings
+
+		/// <summary>
+		/// Keys that move the cursor up.
+		/// </summary>
+		public FishKey[] MoveUpKeys { get; set; } = new[] { FishKey.Up };
+
+		/// <summary>
+		/// Keys that move the cursor down.
+		/// </summary>
+		public FishKey[] MoveDownKeys { get; set; } = new[] { FishKey.Down };
+
+		/// <summary>
+		/// Keys that move the cursor left.
+		/// </summary>
+		public FishKey[] MoveLeftKeys { get; set; } = new[] { FishKey.Left };
+
+		/// <summary>
+		/// Keys that move the cursor right.
+		/// </summary>
+		public FishKey[] MoveRightKeys { get; set; } = new[] { FishKey.Right };
+
+		/// <summary>
+		/// Keys that trigger a left click.
+		/// </summary>
+		public FishKey[] LeftClickKeys { get; set; } = new[] { FishKey.Space, FishKey.Enter };
+
+		/// <summary>
+		/// Keys that trigger a right click.
+		/// </summary>
+		public FishKey[] RightClickKeys { get; set; } = new[] { FishKey.RightShift };
+
+		#endregion
+
 		// Internal state
 		private Vector2 _velocity;
 		private float _accelerationTimer;
@@ -76,6 +116,101 @@ namespace FishUI
 		public void Initialize(int screenWidth, int screenHeight)
 		{
 			Position = new Vector2(screenWidth / 2f, screenHeight / 2f);
+		}
+
+		/// <summary>
+		/// Updates the virtual mouse state. Call this once per frame when Enabled is true.
+		/// Handles keyboard input for movement and clicks based on configured key bindings.
+		/// </summary>
+		/// <param name="input">The input interface to read keyboard state from.</param>
+		/// <param name="deltaTime">Time since last frame in seconds.</param>
+		/// <param name="screenWidth">Screen width for clamping cursor position.</param>
+		/// <param name="screenHeight">Screen height for clamping cursor position.</param>
+		public void Update(IFishUIInput input, float deltaTime, int screenWidth, int screenHeight)
+		{
+			if (!Enabled)
+				return;
+
+			if (UseKeyboardInput)
+			{
+				// Handle movement based on configured keys
+				Vector2 moveDirection = Vector2.Zero;
+
+				foreach (var key in MoveUpKeys)
+					if (input.IsKeyDown(key)) { moveDirection.Y -= 1; break; }
+				foreach (var key in MoveDownKeys)
+					if (input.IsKeyDown(key)) { moveDirection.Y += 1; break; }
+				foreach (var key in MoveLeftKeys)
+					if (input.IsKeyDown(key)) { moveDirection.X -= 1; break; }
+				foreach (var key in MoveRightKeys)
+					if (input.IsKeyDown(key)) { moveDirection.X += 1; break; }
+
+				Move(moveDirection, deltaTime);
+
+				// Handle left click based on configured keys
+				foreach (var key in LeftClickKeys)
+				{
+					if (input.IsKeyPressed(key))
+					{
+						PressLeft();
+						break;
+					}
+				}
+				foreach (var key in LeftClickKeys)
+				{
+					if (input.IsKeyReleased(key))
+					{
+						ReleaseLeft();
+						break;
+					}
+				}
+
+				// Handle right click based on configured keys
+				foreach (var key in RightClickKeys)
+				{
+					if (input.IsKeyPressed(key))
+					{
+						PressRight();
+						break;
+					}
+				}
+				foreach (var key in RightClickKeys)
+				{
+					if (input.IsKeyReleased(key))
+					{
+						ReleaseRight();
+						break;
+					}
+				}
+			}
+
+			ClampToScreen(screenWidth, screenHeight);
+		}
+
+		/// <summary>
+		/// Syncs the virtual mouse button states with the real mouse.
+		/// Call this in hybrid mode to pass through real mouse clicks.
+		/// </summary>
+		/// <param name="input">The input interface to read real mouse state from.</param>
+		public void SyncButtonsWithRealMouse(IFishUIInput input)
+		{
+			if (input == null)
+				return;
+
+			bool realLeftDown = input.IsMouseDown(FishMouseButton.Left);
+			bool realRightDown = input.IsMouseDown(FishMouseButton.Right);
+
+			// Handle left button
+			if (realLeftDown && !_leftButtonDown)
+				PressLeft();
+			else if (!realLeftDown && _leftButtonDown)
+				ReleaseLeft();
+
+			// Handle right button
+			if (realRightDown && !_rightButtonDown)
+				PressRight();
+			else if (!realRightDown && _rightButtonDown)
+				ReleaseRight();
 		}
 
 		/// <summary>
