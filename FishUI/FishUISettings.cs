@@ -128,6 +128,52 @@ namespace FishUI
 		public NPatch ImgToggleSwitchTrackOff { get; set; }
 		public NPatch ImgToggleSwitchThumb { get; set; }
 
+		// Window / Dialog
+		public NPatch ImgWindowHeadNormal { get; set; }
+		public NPatch ImgWindowHeadInactive { get; set; }
+		public NPatch ImgWindowMiddleNormal { get; set; }
+		public NPatch ImgWindowMiddleInactive { get; set; }
+		public NPatch ImgWindowBottomNormal { get; set; }
+		public NPatch ImgWindowBottomInactive { get; set; }
+		public NPatch ImgWindowCloseNormal { get; set; }
+		public NPatch ImgWindowCloseHover { get; set; }
+		public NPatch ImgWindowClosePressed { get; set; }
+		public NPatch ImgWindowCloseDisabled { get; set; }
+
+		// Tab Control
+		public NPatch ImgTabHeaderBar { get; set; }
+		public NPatch ImgTabControlBackground { get; set; }
+		public NPatch ImgTabTopActive { get; set; }
+		public NPatch ImgTabTopInactive { get; set; }
+
+		// GroupBox
+		public NPatch ImgGroupBoxNormal { get; set; }
+
+		// Tooltip
+		public NPatch ImgTooltipNormal { get; set; }
+
+		// Menu
+		public NPatch ImgMenuStrip { get; set; }
+		public NPatch ImgMenuBackground { get; set; }
+		public NPatch ImgMenuHover { get; set; }
+		public NPatch ImgMenuRightArrow { get; set; }
+		public NPatch ImgMenuLeftArrow { get; set; }
+
+		// Tree
+		public NPatch ImgTreeBackground { get; set; }
+		public NPatch ImgTreePlus { get; set; }
+		public NPatch ImgTreeMinus { get; set; }
+
+		// NumericUpDown
+		public NPatch ImgNumericUpDownUpNormal { get; set; }
+		public NPatch ImgNumericUpDownUpHover { get; set; }
+		public NPatch ImgNumericUpDownUpPressed { get; set; }
+		public NPatch ImgNumericUpDownUpDisabled { get; set; }
+		public NPatch ImgNumericUpDownDownNormal { get; set; }
+		public NPatch ImgNumericUpDownDownHover { get; set; }
+		public NPatch ImgNumericUpDownDownPressed { get; set; }
+		public NPatch ImgNumericUpDownDownDisabled { get; set; }
+
 		// Debug settings
 		/// <summary>
 		/// Enables or disables all debug logging in FishUI.
@@ -525,6 +571,84 @@ namespace FishUI
 			if (np != null) ImgToggleSwitchTrackOff = np;
 			np = themeLoader.CreateNPatch(theme, "ToggleSwitch", "Thumb");
 			if (np != null) ImgToggleSwitchThumb = np;
+
+			// Window / Dialog
+			np = themeLoader.CreateNPatch(theme, "Window", "HeadNormal");
+			if (np != null) ImgWindowHeadNormal = np;
+			np = themeLoader.CreateNPatch(theme, "Window", "HeadInactive");
+			if (np != null) ImgWindowHeadInactive = np;
+			np = themeLoader.CreateNPatch(theme, "Window", "MiddleNormal");
+			if (np != null) ImgWindowMiddleNormal = np;
+			np = themeLoader.CreateNPatch(theme, "Window", "MiddleInactive");
+			if (np != null) ImgWindowMiddleInactive = np;
+			np = themeLoader.CreateNPatch(theme, "Window", "BottomNormal");
+			if (np != null) ImgWindowBottomNormal = np;
+			np = themeLoader.CreateNPatch(theme, "Window", "BottomInactive");
+			if (np != null) ImgWindowBottomInactive = np;
+			np = themeLoader.CreateNPatch(theme, "Window", "CloseNormal");
+			if (np != null) ImgWindowCloseNormal = np;
+			np = themeLoader.CreateNPatch(theme, "Window", "CloseHover");
+			if (np != null) ImgWindowCloseHover = np;
+			np = themeLoader.CreateNPatch(theme, "Window", "ClosePressed");
+			if (np != null) ImgWindowClosePressed = np;
+			np = themeLoader.CreateNPatch(theme, "Window", "CloseDisabled");
+			if (np != null) ImgWindowCloseDisabled = np;
+
+			// Tab Control
+			np = themeLoader.CreateNPatch(theme, "Tab", "HeaderBar");
+			if (np != null) ImgTabHeaderBar = np;
+			np = themeLoader.CreateNPatch(theme, "Tab", "ControlBackground");
+			if (np != null) ImgTabControlBackground = np;
+			np = themeLoader.CreateNPatch(theme, "Tab", "TopActive");
+			if (np != null) ImgTabTopActive = np;
+			np = themeLoader.CreateNPatch(theme, "Tab", "TopInactive");
+			if (np != null) ImgTabTopInactive = np;
+
+			// GroupBox
+			np = themeLoader.CreateNPatch(theme, "GroupBox", "Normal");
+			if (np != null) ImgGroupBoxNormal = np;
+
+			// Tooltip
+			np = themeLoader.CreateNPatch(theme, "Tooltip", "Normal");
+			if (np != null) ImgTooltipNormal = np;
+
+			// Menu
+			np = themeLoader.CreateNPatch(theme, "Menu", "Strip");
+			if (np != null) ImgMenuStrip = np;
+			np = themeLoader.CreateNPatch(theme, "Menu", "Background");
+			if (np != null) ImgMenuBackground = np;
+			np = themeLoader.CreateNPatch(theme, "Menu", "Hover");
+			if (np != null) ImgMenuHover = np;
+			np = themeLoader.CreateNPatch(theme, "Menu", "RightArrow");
+			if (np != null) ImgMenuRightArrow = np;
+			np = themeLoader.CreateNPatch(theme, "Menu", "LeftArrow");
+			if (np != null) ImgMenuLeftArrow = np;
+
+			// Tree
+			np = themeLoader.CreateNPatch(theme, "Tree", "Background");
+			if (np != null) ImgTreeBackground = np;
+			np = themeLoader.CreateNPatch(theme, "Tree", "Plus");
+			if (np != null) ImgTreePlus = np;
+			np = themeLoader.CreateNPatch(theme, "Tree", "Minus");
+			if (np != null) ImgTreeMinus = np;
+
+			// NumericUpDown
+			np = themeLoader.CreateNPatch(theme, "NumericUpDown", "UpNormal");
+			if (np != null) ImgNumericUpDownUpNormal = np;
+			np = themeLoader.CreateNPatch(theme, "NumericUpDown", "UpHover");
+			if (np != null) ImgNumericUpDownUpHover = np;
+			np = themeLoader.CreateNPatch(theme, "NumericUpDown", "UpPressed");
+			if (np != null) ImgNumericUpDownUpPressed = np;
+			np = themeLoader.CreateNPatch(theme, "NumericUpDown", "UpDisabled");
+			if (np != null) ImgNumericUpDownUpDisabled = np;
+			np = themeLoader.CreateNPatch(theme, "NumericUpDown", "DownNormal");
+			if (np != null) ImgNumericUpDownDownNormal = np;
+			np = themeLoader.CreateNPatch(theme, "NumericUpDown", "DownHover");
+			if (np != null) ImgNumericUpDownDownHover = np;
+			np = themeLoader.CreateNPatch(theme, "NumericUpDown", "DownPressed");
+			if (np != null) ImgNumericUpDownDownPressed = np;
+			np = themeLoader.CreateNPatch(theme, "NumericUpDown", "DownDisabled");
+			if (np != null) ImgNumericUpDownDownDisabled = np;
 		}
 
 		/// <summary>

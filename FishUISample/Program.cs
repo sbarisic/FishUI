@@ -1,4 +1,4 @@
-﻿using FishUI;
+using FishUI;
 using FishUI.Controls;
 using Raylib_cs;
 using System.Diagnostics;
@@ -54,7 +54,7 @@ namespace FishUISample
 			// Enable debug logging to diagnose theme loading
 			UISettings.DebugEnabled = true;
 
-			FishUITheme theme = UISettings.LoadTheme("data/themes/gwen2.yaml", applyImmediately: false);
+			FishUITheme theme = UISettings.LoadTheme("data/themes/gwen.yaml", applyImmediately: false);
 			UISettings.ApplyTheme(theme);
 			UISettings.OnThemeChanged += (theme) => { /* handle theme change */ };
 			FishUIColorPalette colors = UISettings.GetColorPalette();
@@ -223,6 +223,116 @@ namespace FishUISample
 			RBut.Position = new Vector2(5, 40);
 			RBut.Size = new Vector2(15, 15);
 			Pnl.AddChild(RBut);
+
+			// === NEW CONTROLS DEMO ===
+
+			// Window / Dialog demo
+			Window window1 = new Window("Sample Window");
+			window1.Position = new Vector2(600, 100);
+			window1.Size = new Vector2(350, 250);
+			window1.ZDepth = 10;
+			window1.OnClosing += (sender, e) =>
+			{
+				Console.WriteLine("Window closing...");
+				// Set e.Cancel = true to prevent closing
+			};
+			window1.OnClosed += (w) => Console.WriteLine("Window closed");
+			FUI.AddControl(window1);
+
+			// Add a button inside the window
+			Button windowBtn = new Button();
+			windowBtn.Text = "Window Button";
+			windowBtn.Position = new Vector2(10, 10);
+			windowBtn.Size = new Vector2(120, 30);
+			window1.AddChild(windowBtn);
+
+			// Add a label inside the window
+			Label windowLabel = new Label("This is a draggable, resizable window!");
+			windowLabel.Position = new Vector2(10, 50);
+			window1.AddChild(windowLabel);
+
+			// TabControl demo
+			TabControl tabControl = new TabControl();
+			tabControl.Position = new Vector2(600, 380);
+			tabControl.Size = new Vector2(400, 250);
+			tabControl.ZDepth = 5;
+			FUI.AddControl(tabControl);
+
+			// Add tabs
+			TabPage tab1 = tabControl.AddTab("General");
+			TabPage tab2 = tabControl.AddTab("Settings");
+			TabPage tab3 = tabControl.AddTab("About");
+
+			// Add content to first tab
+			Button tab1Btn = new Button();
+			tab1Btn.Text = "Tab 1 Button";
+			tab1Btn.Position = new Vector2(10, 10);
+			tab1Btn.Size = new Vector2(100, 30);
+			tab1.Content.AddChild(tab1Btn);
+
+			Label tab1Label = new Label("Content of the General tab");
+			tab1Label.Position = new Vector2(10, 50);
+			tab1.Content.AddChild(tab1Label);
+
+			// Add content to second tab
+			CheckBox tab2Check = new CheckBox("Enable feature");
+			tab2Check.Position = new Vector2(10, 10);
+			tab2.Content.AddChild(tab2Check);
+
+			ToggleSwitch tab2Toggle = new ToggleSwitch();
+			tab2Toggle.Position = new Vector2(10, 40);
+			tab2Toggle.Size = new Vector2(50, 24);
+			tab2.Content.AddChild(tab2Toggle);
+
+			// Add content to third tab
+			Label tab3Label = new Label("FishUI - A lightweight UI framework\nVersion 1.0");
+			tab3Label.Position = new Vector2(10, 10);
+			tab3.Content.AddChild(tab3Label);
+
+			// GroupBox demo
+			GroupBox groupBox = new GroupBox("Options");
+			groupBox.Position = new Vector2(1050, 100);
+			groupBox.Size = new Vector2(200, 120);
+			groupBox.ZDepth = 5;
+			FUI.AddControl(groupBox);
+
+			CheckBox groupCheck1 = new CheckBox("Option 1");
+			groupCheck1.Position = new Vector2(10, 25);
+			groupBox.AddChild(groupCheck1);
+
+			CheckBox groupCheck2 = new CheckBox("Option 2");
+			groupCheck2.Position = new Vector2(10, 50);
+			groupBox.AddChild(groupCheck2);
+
+			CheckBox groupCheck3 = new CheckBox("Option 3");
+			groupCheck3.Position = new Vector2(10, 75);
+			groupBox.AddChild(groupCheck3);
+
+			// Second Window (modal example - not blocking in demo)
+			Window window2 = new Window("Dialog");
+			window2.Position = new Vector2(1050, 250);
+			window2.Size = new Vector2(250, 150);
+			window2.ZDepth = 15;
+			window2.IsResizable = false; // Fixed size dialog
+			FUI.AddControl(window2);
+
+			Label dialogLabel = new Label("Are you sure?");
+			dialogLabel.Position = new Vector2(20, 20);
+			window2.AddChild(dialogLabel);
+
+			Button dialogOk = new Button();
+			dialogOk.Text = "OK";
+			dialogOk.Position = new Vector2(20, 60);
+			dialogOk.Size = new Vector2(80, 30);
+			dialogOk.OnButtonPressed += (btn, mbtn, pos) => window2.Close();
+			window2.AddChild(dialogOk);
+
+			Button dialogCancel = new Button();
+			dialogCancel.Text = "Cancel";
+			dialogCancel.Position = new Vector2(110, 60);
+			dialogCancel.Size = new Vector2(80, 30);
+			dialogCancel.OnButtonPressed += (btn, mbtn, pos) => window2.Close();
+			window2.AddChild(dialogCancel);
 		}
 	}
 }
