@@ -284,9 +284,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ---
 
 ## Code Cleanup & Technical Debt **HIGH PRIORITY**
-- [ ] Audit all controls for missing `[YamlIgnore]` attributes (2 CPX)
-  - Check read-only properties that could cause deserialization errors
-  - Similar to fixed bugs: TreeNode.HasChildren, TabControl.SelectedTab
+- [x] ~~Audit [YamlIgnore] attributes~~ - Added to FishUIThemeRegion.UsesImageFile and FishUIVirtualMouse read-only properties
 - [x] ~~Standardize naming conventions~~ - Converted fields to properties: CheckBox/RadioButton `Checked`→`IsChecked`, Panel `IsTransparent`, ListBox `ShowScrollBar`
 - [ ] Add XML documentation comments to public APIs (2 CPX)
 - [ ] Add screenshot button to all examples (2 CPX)
@@ -311,10 +309,10 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] ~~DropDown.SelectIndex NullReferenceException~~ - Added null check before `FishUI.Events.Broadcast()`
 - [x] ~~Make Invisible/Visible buttons broken~~ - Changed `Panel` cast to `Control` in EvtHandler after Panel→Window conversion
 - [x] ~~ContextMenu submenu text overlapping~~ - Added `DrawChildren` override in MenuItem to prevent rendering submenu item data as visual children
+- [x] ~~Layout save/load breaks Window and TabControl~~ - Added `OnDeserialized` virtual method to Control, overridden in Window and TabControl to reinitialize internal state
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
-
-*No uncategorized items*
+- TabControl tab names are not preserved during serialization because TabPages is marked [YamlIgnore]. This could be improved in a future enhancement by serializing TabPage data.
 
 ---
 

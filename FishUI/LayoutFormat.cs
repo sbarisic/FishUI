@@ -1,4 +1,4 @@
-﻿using FishUI.Controls;
+using FishUI.Controls;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -106,6 +106,7 @@ namespace FishUI
 				if (Obj is Control C)
 				{
 					LinkParents(C);
+					C.OnDeserialized();
 					UI.AddControl(C);
 				}
 			}

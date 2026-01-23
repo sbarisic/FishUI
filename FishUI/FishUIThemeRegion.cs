@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using YamlDotNet.Serialization;
 
 namespace FishUI
 {
@@ -118,6 +119,7 @@ namespace FishUI
 		/// <summary>
 		/// Returns true if this region uses an individual image file instead of atlas coordinates.
 		/// </summary>
+		[YamlIgnore]
 		public bool UsesImageFile => !string.IsNullOrEmpty(ImagePath);
 	}
 }

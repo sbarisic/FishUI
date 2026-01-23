@@ -358,5 +358,37 @@ namespace FishUI.Controls
 				x += tabWidth;
 			}
 		}
+
+		/// <summary>
+		/// Called after deserialization to rebuild the TabPages list from children.
+		/// Note: Tab names are lost during serialization - they will show as "Tab N".
+		/// </summary>
+		public override void OnDeserialized()
+		{
+			// Clear and rebuild TabPages from child panels
+			TabPages.Clear();
+			int tabIndex = 0;
+
+			foreach (var child in Children)
+			{
+				if (child is Panel panel)
+				{
+					var page = new TabPage($"Tab {tabIndex + 1}", panel);
+					TabPages.Add(page);
+					tabIndex++;
+				}
+			}
+
+			// Reset selected index if needed
+			if (_selectedIndex >= TabPages.Count)
+			{
+				_selectedIndex = TabPages.Count > 0 ? 0 : -1;
+			}
+
+			UpdateContentVisibility();
+
+			// Call base to handle children recursively
+			base.OnDeserialized();
+		}
 	}
 }

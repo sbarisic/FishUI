@@ -316,6 +316,19 @@ namespace FishUI.Controls
 		{
 		}
 
+		/// <summary>
+		/// Called after this control and its children have been deserialized from a layout file.
+		/// Override this to reinitialize internal state that depends on child controls.
+		/// </summary>
+		public virtual void OnDeserialized()
+		{
+			// Call OnDeserialized on all children
+			foreach (var child in Children)
+			{
+				child.OnDeserialized();
+			}
+		}
+
 		public virtual void DrawChildren(FishUI UI, float Dt, float Time, bool UseScissors = true)
 		{
 		// Respect DisableChildScissor property - controls like CheckBox/RadioButton need labels to extend beyond bounds

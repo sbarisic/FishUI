@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using YamlDotNet.Serialization;
 
 namespace FishUI
 {
@@ -192,31 +193,37 @@ namespace FishUI
 		/// <summary>
 		/// Gets whether the left button is currently down.
 		/// </summary>
+		[YamlIgnore]
 		public bool IsLeftDown => _leftButtonDown;
 
 		/// <summary>
 		/// Gets whether the right button is currently down.
 		/// </summary>
+		[YamlIgnore]
 		public bool IsRightDown => _rightButtonDown;
 
 		/// <summary>
 		/// Gets whether the left button was just pressed this frame.
 		/// </summary>
+		[YamlIgnore]
 		public bool IsLeftPressed => _leftButtonPressed;
 
 		/// <summary>
 		/// Gets whether the right button was just pressed this frame.
 		/// </summary>
+		[YamlIgnore]
 		public bool IsRightPressed => _rightButtonPressed;
 
 		/// <summary>
 		/// Gets whether the left button was just released this frame.
 		/// </summary>
+		[YamlIgnore]
 		public bool IsLeftReleased => _leftButtonReleased;
 
 		/// <summary>
 		/// Gets whether the right button was just released this frame.
 		/// </summary>
+		[YamlIgnore]
 		public bool IsRightReleased => _rightButtonReleased;
 
 		/// <summary>

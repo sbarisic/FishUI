@@ -463,5 +463,39 @@ namespace FishUI.Controls
 				UI.Graphics.DrawRectangle(bottomPos, bottomSize, new FishColor(100, 100, 100));
 			}
 		}
+
+		/// <summary>
+		/// Called after deserialization to reinitialize internal references.
+		/// </summary>
+		public override void OnDeserialized()
+		{
+			// Find the titlebar and content panel in children
+			_titlebar = null;
+			_contentPanel = null;
+
+			foreach (var child in Children)
+			{
+				if (child is Titlebar tb && _titlebar == null)
+				{
+					_titlebar = tb;
+					// Rewire event handlers
+					_titlebar.OnCloseClicked += (t) => Close();
+					_titlebar.OnTitlebarDragged += (t, delta) => { Position += delta; };
+				}
+				else if (child is Panel p && _contentPanel == null)
+				{
+					_contentPanel = p;
+				}
+			}
+
+			// If not found (shouldn't happen), recreate them
+			if (_titlebar == null || _contentPanel == null)
+			{
+				CreateInternalControls();
+			}
+
+			// Call base to handle children recursively
+			base.OnDeserialized();
+		}
 	}
 }
