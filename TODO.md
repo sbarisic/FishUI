@@ -175,6 +175,14 @@ A list of planned features, improvements, and new controls for FishUI.
 - [ ] Vertical progress bar mode (1 CPX)
   - *GWEN has: VProgressBar regions for vertical variant*
 
+### Slider Enhancements
+- [ ] Mouse wheel support (1 CPX)
+  - Scroll up/down to adjust slider value
+
+### ScrollBar Enhancements
+- [ ] Mouse wheel support for ScrollBar buttons (1 CPX)
+  - Allow scrolling with mouse wheel over ScrollBarV/ScrollBarH button areas
+
 ### NumericUpDown Enhancements
 - [x] ~~Mouse wheel support~~ ✅ **COMPLETED**
   - Scroll up to increment, scroll down to decrement value
@@ -303,17 +311,25 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Active Bugs
 
-*No active bugs*
+- [ ] **TreeNode.HasChildren causes deserialization error** (1 CPX)
+  - Location: `TreeView.cs:84`
+  - Error: `YamlException: 'Property 'HasChildren' not found on type 'FishUI.Controls.TreeNode'`
+  - Cause: `HasChildren` is a read-only computed property but YamlDotNet tries to set it
+  - Fix: Add `[YamlIgnore]` attribute to `HasChildren` property in `TreeView.cs`
 
 ### Fixed Bugs
+
+- [x] ~~**TabControl.SelectedTab causes deserialization error**~~ ✅ **FIXED**
+  - Location: `TabControl.cs:83`
+  - Fix: Added `[YamlIgnore]` attribute to `SelectedTab` read-only property
 
 - [x] ~~**DropDown.SelectIndex crashes with NullReferenceException**~~ ✅ **FIXED**
   - Location: `DropDown.cs:130`
   - Fix: Added null check before calling `FishUI.Events.Broadcast()` to handle case when control is not yet connected to FishUI
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
-- Add scroll wheel support to Slider controls and to ScrollBar Button controls
-- LayoutFormat:98 YamlDotNet.Core.YamlException: 'Property 'SelectedTab' not found on type 'FishUI.Controls.TabControl'.'
+
+*No uncategorized items*
 
 ---
 

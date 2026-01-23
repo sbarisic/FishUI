@@ -80,6 +80,7 @@ namespace FishUI.Controls
 		/// <summary>
 		/// Gets the currently selected tab page, or null if none selected.
 		/// </summary>
+		[YamlIgnore]
 		public TabPage SelectedTab => _selectedIndex >= 0 && _selectedIndex < TabPages.Count 
 			? TabPages[_selectedIndex] 
 			: null;
