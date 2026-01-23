@@ -259,9 +259,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ## Sample Application
 
 - [x] ~~**Split SampleDefault into multiple smaller samples**~~ - Created SampleBasicControls, SampleButtonVariants, SampleLayoutSystem; refocused SampleDefault to Windows/Dialogs only
-- [ ] **Sample runner loop back to chooser** (2 CPX) **HIGH PRIORITY**
-  - When game window closes, return to sample chooser instead of exiting application
-  - Allows testing multiple samples without restarting
+- [x] ~~**Sample runner loop back to chooser**~~ - Window close returns to sample chooser instead of exiting
 - [ ] Examples should be implemented in FishUISample project, using the ISample interface (2 CPX each)
 - [x] ~~Implement sample chooser system in Program.cs~~ - Added ChooseSample() with console menu and --sample/-s CLI args; added Name property to ISample
 - [x] ~~Theme switcher example~~ (SampleThemeSwitcher.cs)

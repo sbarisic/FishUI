@@ -68,38 +68,50 @@ namespace FishUISample
 				new SampleGameMenu()        // Game main menu example
 			};
 
-			// Sample chooser - select which sample to run
-			ISample Cur = ChooseSample(Samples, args);
-
-			FishUISettings UISettings = new FishUISettings();
-			RaylibGfx Gfx = new RaylibGfx(1920, 1080, "FishUI - " + Cur.Name);
-			IFishUIInput Input = new RaylibInput();
-			IFishUIEvents Events = new EvtHandler();
-
-			// Set up screenshot action for the sample
-			Cur.TakeScreenshot = () => TakeScreenshot(Gfx);
-
-			FishUI.FishUI FUI = Cur.CreateUI(UISettings, Gfx, Input, Events);
-			Cur.Init();
-
-			Stopwatch SWatch = Stopwatch.StartNew();
-			Stopwatch RuntimeWatch = Stopwatch.StartNew();
-
-			while (!Raylib.WindowShouldClose())
+			// Loop back to chooser when window closes
+			while (true)
 			{
-				float Dt = SWatch.ElapsedMilliseconds / 1000.0f;
-				SWatch.Restart();
+				// Sample chooser - select which sample to run
+				ISample Cur = ChooseSample(Samples, args);
+				
+				// Clear any previous command-line sample selection after first run
+				// so subsequent iterations show the chooser menu
+				args = Array.Empty<string>();
 
-				if (Raylib.IsWindowResized())
+				FishUISettings UISettings = new FishUISettings();
+				RaylibGfx Gfx = new RaylibGfx(1920, 1080, "FishUI - " + Cur.Name);
+				IFishUIInput Input = new RaylibInput();
+				IFishUIEvents Events = new EvtHandler();
+
+				// Set up screenshot action for the sample
+				Cur.TakeScreenshot = () => TakeScreenshot(Gfx);
+
+				FishUI.FishUI FUI = Cur.CreateUI(UISettings, Gfx, Input, Events);
+				Cur.Init();
+
+				Stopwatch SWatch = Stopwatch.StartNew();
+				Stopwatch RuntimeWatch = Stopwatch.StartNew();
+
+				while (!Raylib.WindowShouldClose())
 				{
-					FUI.Resized(Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
+					float Dt = SWatch.ElapsedMilliseconds / 1000.0f;
+					SWatch.Restart();
+
+					if (Raylib.IsWindowResized())
+					{
+						FUI.Resized(Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
+					}
+
+					FUI.Tick(Dt, (float)RuntimeWatch.Elapsed.TotalSeconds);
+					//AutoScreenshot(Gfx as RaylibGfx);
 				}
 
-				FUI.Tick(Dt, (float)RuntimeWatch.Elapsed.TotalSeconds);
-				//AutoScreenshot(Gfx as RaylibGfx);
+				Raylib.CloseWindow();
+				
+				Console.WriteLine();
+				Console.WriteLine("Window closed. Returning to sample chooser...");
+				Console.WriteLine();
 			}
-
-			Raylib.CloseWindow();
 		}
 
 		/// <summary>
