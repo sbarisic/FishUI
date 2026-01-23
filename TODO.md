@@ -48,6 +48,7 @@ A list of planned features, improvements, and new controls for FishUI.
 | StaticText | ✅ Complete | N/A |
 | BarGauge | ✅ Complete | N/A |
 | VUMeter | ✅ Complete | N/A |
+| AnimatedImageBox | ✅ Complete | N/A |
 
 ---
 
@@ -101,11 +102,7 @@ A list of planned features, improvements, and new controls for FishUI.
 
 - [x] ~~**VUMeter**~~ - Audio level visualization with peak hold, green/yellow/red zones, continuous or segmented mode; demo in SampleBasicControls
 
-- [ ] **AnimatedImageBox** (2 CPX)
-  - Frame sequences are stored as an array of images
-  - Configurable frame rate
-  - Ability to pause animation display static frame
-  - Play/pause control
+- [x] ~~**AnimatedImageBox**~~ - Frame-based animation with configurable frame rate, loop/reverse/ping-pong modes, play/pause control
 
 - [ ] **DateTimePicker** (4 CPX)
   - Calendar popup for date selection
@@ -118,7 +115,7 @@ A list of planned features, improvements, and new controls for FishUI.
 
 - [x] ~~**MenuItem**~~ - Individual menu item with text, shortcut display, checkbox states (implemented with ContextMenu)
 
-- [ ] **RadialGauge** (3 CPX)
+- [ ] **RadialGauge** (3 CPX) **HIGH PRIORITY**
   - Circular gauge display (e.g., RPM, speedometer)
   - Configurable min/max values and range angle
   - Needle/pointer rendering
@@ -127,7 +124,7 @@ A list of planned features, improvements, and new controls for FishUI.
 
 - [x] ~~**BarGauge**~~ - Linear gauge with min/max values, color zones (temperature/fuel presets), ticks, labels; demo in SampleBasicControls
 
-- [ ] **PropertyGrid** (4 CPX)
+- [ ] **PropertyGrid** (4 CPX) **HIGH PRIORITY**
   - Windows Forms-like property editor control
   - Displays object properties in categorized/alphabetical list
   - Supports editing of common types (string, int, float, bool, enum, color)
@@ -324,7 +321,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-*No uncategorized items*
+- Add example for virtual cursor **HIGH PRIORITY**
+- Use /data/anim_images/stargate/* images for AnimatedImageBox example **HIGH PRIORITY**
 
 ---
 

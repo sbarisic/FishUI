@@ -57,7 +57,8 @@ namespace FishUI
 		{ "!ImageBox", typeof(ImageBox) },
 		{ "!StaticText", typeof(StaticText) },
 		{ "!BarGauge", typeof(BarGauge) },
-		{ "!VUMeter", typeof(VUMeter) }
+		{ "!VUMeter", typeof(VUMeter) },
+		{ "!AnimatedImageBox", typeof(AnimatedImageBox) }
 	};
 
 		public static string Serialize(FishUI UI)
