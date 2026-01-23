@@ -336,19 +336,17 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ## Known Issues / Bugs
 
 ### Active Bugs
-- [ ] **CheckBox/RadioButton labels clipped by scissor** (2 CPX)
-  - Labels extend beyond the control's Size bounds (15x15 for the icon)
-  - DrawChildren applies scissor at control bounds, clipping the label text
-  - Affects all CheckBox/RadioButton controls when used as children
-  - *Workaround: None currently*
-  - *Fix options: Disable scissor for controls with external labels, or expand control Size to include label*
-
-- [ ] **Label default Alignment causes clipping in containers** (1 CPX)
-  - Label default is `Align.Center` which centers text within Label.Size
-  - When text is wider than Size, it extends past the left edge and gets scissor-clipped
-  - *Workaround: Set `Alignment = Align.Left` explicitly for labels in containers*
+*No active bugs*
 
 ### Resolved Bugs
+- [x] **CheckBox/RadioButton labels clipped by scissor** (2 CPX) ? Fixed
+  - Added `DisableChildScissor` property to Control base class
+  - CheckBox and RadioButton set this to true so labels can extend beyond icon bounds
+
+- [x] **Label default Alignment causes clipping in containers** (1 CPX) ? Fixed
+  - Changed Label default Alignment from `Align.Center` to `Align.Left`
+  - Prevents text from extending past the left edge and getting scissor-clipped
+
 - [x] DropDown doesn't close on outside click
 - [x] Textbox cursor styling and blinking
 - [x] ScrollBarV thumb position calculation

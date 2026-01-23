@@ -8,9 +8,14 @@ namespace FishUI.Controls
 {
 	public class CheckBox : Control
 	{
-		public bool Checked;
+	public bool Checked;
 
-		public CheckBox()
+	/// <summary>
+	/// CheckBox disables child scissor so labels can extend beyond the checkbox icon bounds.
+	/// </summary>
+	public override bool DisableChildScissor { get; set; } = true;
+
+	public CheckBox()
 		{
 		}
 

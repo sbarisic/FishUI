@@ -8,9 +8,14 @@ namespace FishUI.Controls
 {
 	public class RadioButton : Control
 	{
-		public bool Checked;
+	public bool Checked;
 
-		public RadioButton()
+	/// <summary>
+	/// RadioButton disables child scissor so labels can extend beyond the radio button icon bounds.
+	/// </summary>
+	public override bool DisableChildScissor { get; set; } = true;
+
+	public RadioButton()
 		{
 		}
 

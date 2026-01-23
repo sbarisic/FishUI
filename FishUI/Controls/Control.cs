@@ -67,6 +67,12 @@ namespace FishUI.Controls
 		[YamlIgnore]
 		public bool HasFocus => FishUI?.InputActiveControl == this;
 
+		/// <summary>
+		/// If true, children are drawn without scissor clipping to parent bounds.
+		/// Useful for controls like CheckBox/RadioButton where labels extend beyond the control.
+		/// </summary>
+		public virtual bool DisableChildScissor { get; set; } = false;
+
 		public event OnControlDraggedFunc OnDragged;
 
 		public Vector2 GetAbsolutePosition()
@@ -247,8 +253,11 @@ namespace FishUI.Controls
 
 		public virtual void DrawChildren(FishUI UI, float Dt, float Time, bool UseScissors = true)
 		{
-			if (UseScissors)
-				UI.Graphics.PushScissor(GetAbsolutePosition(), GetAbsoluteSize());
+		// Respect DisableChildScissor property - controls like CheckBox/RadioButton need labels to extend beyond bounds
+		bool applyScissor = UseScissors && !DisableChildScissor;
+
+		if (applyScissor)
+		UI.Graphics.PushScissor(GetAbsolutePosition(), GetAbsoluteSize());
 
 			Control[] Ch = GetAllChildren().Reverse().ToArray();
 			foreach (var Child in Ch)
@@ -259,9 +268,9 @@ namespace FishUI.Controls
 				Child.DrawControlAndChildren(UI, Dt, Time);
 			}
 
-			if (UseScissors)
-				UI.Graphics.PopScissor();
-		}
+			if (applyScissor)
+			UI.Graphics.PopScissor();
+			}
 
 		public virtual void DrawControl(FishUI UI, float Dt, float Time)
 		{

@@ -16,11 +16,14 @@ namespace FishUI.Controls
 
 	public class Label : Control
 	{
-		public string Text;
+	public string Text;
 
-		public Align Alignment = Align.Center;
+	/// <summary>
+	/// Text alignment within the label bounds. Default is Left to prevent clipping in containers.
+	/// </summary>
+	public Align Alignment = Align.Left;
 
-		public Label()
+	public Label()
 		{
 		}
 
