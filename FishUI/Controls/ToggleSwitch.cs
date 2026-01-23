@@ -72,7 +72,7 @@ namespace FishUI.Controls
 		/// Label text color
 		/// </summary>
 		[YamlMember]
-		public FishColor LabelColor { get; set; } = new FishColor(255, 255, 255, 255);
+		public FishColor LabelColor { get; set; } = new FishColor(0, 0, 0, 255);
 
 		/// <summary>
 		/// Animation speed for the toggle transition (0 = instant, higher = slower)
@@ -129,9 +129,9 @@ namespace FishUI.Controls
 
 		private FishColor GetLabelColor(FishUI UI)
 		{
-			if (UseThemeColors && UI.Settings.CurrentTheme != null)
-				return FishColor.White;
-			return LabelColor;
+		if (UseThemeColors && UI.Settings.CurrentTheme != null)
+		return UI.Settings.GetColorPalette().Foreground;
+		return LabelColor;
 		}
 
 		public override void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
