@@ -462,6 +462,122 @@ namespace FishUISample.Samples
 			iconBtnLabel.Alignment = Align.Left;
 			FUI.AddControl(iconBtnLabel);
 
+			// === Panel Variants Demo ===
+			Label panelVariantsLabel = new Label("Panel Variants & Border Styles");
+			panelVariantsLabel.Position = new Vector2(600, 700);
+			panelVariantsLabel.Size = new Vector2(300, 20);
+			panelVariantsLabel.Alignment = Align.Left;
+			FUI.AddControl(panelVariantsLabel);
+
+			// Normal panel
+			Panel panelNormal = new Panel();
+			panelNormal.Position = new Vector2(600, 720);
+			panelNormal.Size = new Vector2(70, 50);
+			panelNormal.Variant = PanelVariant.Normal;
+			FUI.AddControl(panelNormal);
+
+			Label labelNormal = new Label("Normal");
+			labelNormal.Position = new Vector2(5, 15);
+			labelNormal.Alignment = Align.Left;
+			panelNormal.AddChild(labelNormal);
+
+			// Bright panel
+			Panel panelBright = new Panel();
+			panelBright.Position = new Vector2(680, 720);
+			panelBright.Size = new Vector2(70, 50);
+			panelBright.Variant = PanelVariant.Bright;
+			FUI.AddControl(panelBright);
+
+			Label labelBright = new Label("Bright");
+			labelBright.Position = new Vector2(5, 15);
+			labelBright.Alignment = Align.Left;
+			panelBright.AddChild(labelBright);
+
+			// Dark panel
+			Panel panelDark = new Panel();
+			panelDark.Position = new Vector2(760, 720);
+			panelDark.Size = new Vector2(70, 50);
+			panelDark.Variant = PanelVariant.Dark;
+			FUI.AddControl(panelDark);
+
+			Label labelDark = new Label("Dark");
+			labelDark.Position = new Vector2(5, 15);
+			labelDark.Alignment = Align.Left;
+			panelDark.AddChild(labelDark);
+
+			// Highlight panel
+			Panel panelHighlight = new Panel();
+			panelHighlight.Position = new Vector2(840, 720);
+			panelHighlight.Size = new Vector2(80, 50);
+			panelHighlight.Variant = PanelVariant.Highlight;
+			FUI.AddControl(panelHighlight);
+
+			Label labelHighlight = new Label("Highlight");
+			labelHighlight.Position = new Vector2(5, 15);
+			labelHighlight.Alignment = Align.Left;
+			panelHighlight.AddChild(labelHighlight);
+
+			// Border style demos
+			// Solid border
+			Panel panelSolidBorder = new Panel();
+			panelSolidBorder.Position = new Vector2(600, 780);
+			panelSolidBorder.Size = new Vector2(70, 50);
+			panelSolidBorder.IsTransparent = true;
+			panelSolidBorder.BorderStyle = BorderStyle.Solid;
+			panelSolidBorder.BorderColor = new FishColor(100, 100, 100, 255);
+			panelSolidBorder.BorderThickness = 2f;
+			FUI.AddControl(panelSolidBorder);
+
+			Label labelSolid = new Label("Solid");
+			labelSolid.Position = new Vector2(5, 15);
+			labelSolid.Alignment = Align.Left;
+			panelSolidBorder.AddChild(labelSolid);
+
+			// Inset border
+			Panel panelInsetBorder = new Panel();
+			panelInsetBorder.Position = new Vector2(680, 780);
+			panelInsetBorder.Size = new Vector2(70, 50);
+			panelInsetBorder.IsTransparent = true;
+			panelInsetBorder.BorderStyle = BorderStyle.Inset;
+			panelInsetBorder.BorderColor = new FishColor(150, 150, 150, 255);
+			panelInsetBorder.BorderThickness = 2f;
+			FUI.AddControl(panelInsetBorder);
+
+			Label labelInset = new Label("Inset");
+			labelInset.Position = new Vector2(5, 15);
+			labelInset.Alignment = Align.Left;
+			panelInsetBorder.AddChild(labelInset);
+
+			// Outset border
+			Panel panelOutsetBorder = new Panel();
+			panelOutsetBorder.Position = new Vector2(760, 780);
+			panelOutsetBorder.Size = new Vector2(70, 50);
+			panelOutsetBorder.IsTransparent = true;
+			panelOutsetBorder.BorderStyle = BorderStyle.Outset;
+			panelOutsetBorder.BorderColor = new FishColor(150, 150, 150, 255);
+			panelOutsetBorder.BorderThickness = 2f;
+			FUI.AddControl(panelOutsetBorder);
+
+			Label labelOutset = new Label("Outset");
+			labelOutset.Position = new Vector2(5, 15);
+			labelOutset.Alignment = Align.Left;
+			panelOutsetBorder.AddChild(labelOutset);
+
+			// Combined: variant + border
+			Panel panelCombined = new Panel();
+			panelCombined.Position = new Vector2(840, 780);
+			panelCombined.Size = new Vector2(80, 50);
+			panelCombined.Variant = PanelVariant.Bright;
+			panelCombined.BorderStyle = BorderStyle.Outset;
+			panelCombined.BorderColor = new FishColor(120, 120, 180, 255);
+			panelCombined.BorderThickness = 2f;
+			FUI.AddControl(panelCombined);
+
+			Label labelCombined = new Label("Combined");
+			labelCombined.Position = new Vector2(5, 15);
+			labelCombined.Alignment = Align.Left;
+			panelCombined.AddChild(labelCombined);
+
 			// === StackLayout Demo ===
 			// Vertical stack layout
 			StackLayout vStack = new StackLayout();

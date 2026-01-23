@@ -159,11 +159,8 @@ A list of planned features, improvements, and new controls for FishUI.
 - [ ] ImageButton variant (icon-only button) (1 CPX)
   - *GWEN WidgetLook: ImageButton*
 
-### Panel Enhancements **HIGH PRIORITY**
-- [ ] Border styles (1 CPX)
-- [ ] Panel variants (Normal, Bright, Dark, Highlight) (1 CPX)
-  - *GWEN has: Panel.Normal, Panel.Bright, Panel.Dark, Panel.Highlight*
-- [ ] Add to examples
+### Panel Enhancements
+- [x] ~~Border styles, Panel variants (Normal, Bright, Dark, Highlight), examples~~ - Added PanelVariant enum, BorderStyle enum (None, Solid, Inset, Outset), theme regions, and SampleDefault demo
 
 ### ProgressBar Enhancements
 - [ ] Vertical progress bar mode (1 CPX)

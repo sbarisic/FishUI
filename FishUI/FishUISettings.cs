@@ -51,6 +51,9 @@ namespace FishUI
 		// Panel
 		public NPatch ImgPanel { get; set; }
 		public NPatch ImgPanelDisabled { get; set; }
+		public NPatch ImgPanelBright { get; set; }
+		public NPatch ImgPanelDark { get; set; }
+		public NPatch ImgPanelHighlight { get; set; }
 
 		// Radio button
 		public NPatch ImgRadioButtonChecked { get; set; }
@@ -435,6 +438,12 @@ namespace FishUI
 			if (np != null) ImgPanel = np;
 			np = themeLoader.CreateNPatch(theme, "Panel", "Disabled");
 			if (np != null) ImgPanelDisabled = np;
+			np = themeLoader.CreateNPatch(theme, "Panel", "Bright");
+			if (np != null) ImgPanelBright = np;
+			np = themeLoader.CreateNPatch(theme, "Panel", "Dark");
+			if (np != null) ImgPanelDark = np;
+			np = themeLoader.CreateNPatch(theme, "Panel", "Highlight");
+			if (np != null) ImgPanelHighlight = np;
 
 			// Checkbox
 			np = themeLoader.CreateNPatch(theme, "Checkbox", "Checked");

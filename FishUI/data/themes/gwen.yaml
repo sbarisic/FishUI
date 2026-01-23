@@ -94,6 +94,33 @@ regions:
       bottom: 4
       left: 4
       right: 4
+    Bright:
+      x: 320
+      y: 0
+      width: 63
+      height: 63
+      top: 4
+      bottom: 4
+      left: 4
+      right: 4
+    Dark:
+      x: 256
+      y: 64
+      width: 63
+      height: 63
+      top: 4
+      bottom: 4
+      left: 4
+      right: 4
+    Highlight:
+      x: 320
+      y: 64
+      width: 63
+      height: 63
+      top: 4
+      bottom: 4
+      left: 4
+      right: 4
 
   Checkbox:
     Unchecked:
