@@ -312,6 +312,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Fixed Bugs
 
+- [x] ~~Virtual cursor renders below controls~~ - Moved VirtualMouse.Draw() inside Draw() method before EndDrawing() so it renders on top
+
 - [x] ~~Virtual cursor not responding to arrow keys~~ - Added automatic arrow key and button input handling in FishUI.Tick() when VirtualMouse.Enabled is true
 
 - [x] ~~ImageBox examples overlap in SampleBasicControls~~ - Moved ImageBox controls 100 units right (X: 500→600, 590→690)
@@ -327,7 +329,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-- Virtual cursor draws below all controls. It should be the top most thing rendered
+*No uncategorized items*
 
 ---
 

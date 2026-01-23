@@ -535,6 +535,9 @@ namespace FishUI
 				_activeTooltip.DrawControl(this, Dt, Time);
 			}
 
+			// Draw virtual mouse cursor last (on top of everything, before EndDrawing)
+			VirtualMouse.Draw(Graphics);
+
 			Graphics.EndDrawing();
 		}
 
@@ -700,8 +703,7 @@ namespace FishUI
 
 			Draw(OrderedControls, Dt, Time);
 
-			// Draw virtual mouse cursor last (on top of everything)
-			VirtualMouse.Draw(Graphics);
+			// Clear virtual mouse one-frame states
 			VirtualMouse.EndFrame();
 
 			InLast = InState;
