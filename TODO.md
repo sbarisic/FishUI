@@ -262,10 +262,19 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] ~~**Sample runner loop back to chooser**~~ - Window close returns to sample chooser instead of exiting
 - [ ] Examples should be implemented in FishUISample project, using the ISample interface (2 CPX each)
 - [x] ~~Implement sample chooser system in Program.cs~~ - Added ChooseSample() with console menu and --sample/-s CLI args; added Name property to ISample
+- [ ] **GUI-based sample chooser** (3 CPX)
+  - Replace console menu with FishUI-based sample selector window
+  - Display available samples as clickable buttons or list
+  - Return to GUI selector when sample window is closed
+  - Self-dogfooding: uses FishUI to demonstrate FishUI
 - [x] ~~Theme switcher example~~ (SampleThemeSwitcher.cs)
 - [x] ~~Game main menu example~~ (SampleGameMenu.cs) - Buttons + Options window with tabs
+- [ ] **Move gauge controls to dedicated sample page** (2 CPX)
+  - Move RadialGauge and BarGauge from SampleBasicControls to new SampleGauges
+  - Include VUMeter in the gauges sample
+  - Add interactive controls for all gauges
 - [ ] Car dashboard example with gauges (2 CPX)
-- RadialGauge and BarGauge controls now available
+  - RadialGauge and BarGauge controls now available
 - [x] ~~ImageBox example~~ - Added to SampleBasicControls with all scaling modes and click event demo
 - [ ] **ImageBox example improvements** (2 CPX)
   - Use images from data/images/ folder instead of silk_icons
@@ -346,8 +355,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] ~~Layout save/load breaks Window and TabControl~~ - Added `OnDeserialized` virtual method to Control, overridden in Window and TabControl to reinitialize internal state
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
-- Move radial and bar gauge controls to separate example page
-- Create a GUI for example selection instead of console menu, when currently running example is closed it should return to the GUI menu for selection
+
+*No uncategorized items*
 
 ---
 
