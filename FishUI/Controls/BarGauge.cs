@@ -119,7 +119,7 @@ namespace FishUI.Controls
 		/// Color of tick marks.
 		/// </summary>
 		[YamlMember]
-		public FishColor TickColor { get; set; } = new FishColor(255, 255, 255, 255);
+		public FishColor TickColor { get; set; } = new FishColor(0, 0, 0, 255);
 
 		/// <summary>
 		/// Length of tick marks in pixels.
