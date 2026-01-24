@@ -223,9 +223,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-- Make window resize regions wider, it is hard to pick them by mouse like this
-- Scroll bars on scrollable panes seem to be rendering behind other controls
-- Scroll pane content seems to go into the window title bar region, and i can click buttons trough the title bar
+*No uncategorized items*
 
 ---
 
@@ -281,5 +279,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - Serialization: TreeNode/TabControl YamlIgnore, Window/TabControl OnDeserialized
 - PropertyGrid: Inline editors sync values, auto-focus, fixed indentation and int conversion
 - MenuBar: Dropdown menus now properly added to FishUI root for correct rendering
-- ScrollablePane: Content scrolling and scrollbar positioning via GetChildPositionOffset
+- ScrollablePane: Content scrolling via GetChildPositionOffset, DrawChildren override for proper scissoring
+- ScrollBarV/H: Button positions now updated on resize in DrawControl
+- Window: Increased resize handle size from 6px to 10px for easier resizing
+- ScrollablePane: Input restricted to visible area via ShouldChildReceiveInput, prevents click-through
 - Misc: ImageBox overlap, ScrollBar mouse wheel, ContextMenu submenu overlap

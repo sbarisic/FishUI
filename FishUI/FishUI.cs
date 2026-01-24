@@ -271,17 +271,21 @@ namespace FishUI
 		}
 
 		// Top-down control picking, for mouse events etc
-		Control PickControl(Control[] Controls, Vector2 GlobalPos)
+		Control PickControl(Control[] Controls, Vector2 GlobalPos, Control Parent = null)
 		{
 			foreach (Control C in Controls)
 			{
 				if (!C.Visible)
 					continue;
 
+				// Check if parent allows this child to receive input at this position
+				if (Parent != null && !Parent.ShouldChildReceiveInput(C, GlobalPos))
+					continue;
+
 				// First, check children even if parent's IsPointInside is false
 				// This handles cases where children extend beyond parent bounds (e.g., DropDown list)
 				Control[] children = C.GetAllChildren().Reverse().ToArray();
-				Control CPicked = PickControl(children, GlobalPos);
+				Control CPicked = PickControl(children, GlobalPos, C);
 
 				if (CPicked != null)
 				{

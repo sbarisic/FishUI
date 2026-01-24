@@ -507,6 +507,18 @@ namespace FishUI.Controls
 		}
 
 		/// <summary>
+		/// Determines if a child control should receive input at the specified point.
+		/// Override in container controls like ScrollablePane to restrict input to visible area.
+		/// </summary>
+		/// <param name="child">The child control to check.</param>
+		/// <param name="globalPoint">The point in screen coordinates.</param>
+		/// <returns>True if the child should receive input at this point.</returns>
+		public virtual bool ShouldChildReceiveInput(Control child, Vector2 globalPoint)
+		{
+			return true; // By default, all children can receive input
+		}
+
+		/// <summary>
 		/// Finds the first child control of the specified type.
 		/// </summary>
 		/// <typeparam name="T">The type of control to find.</typeparam>

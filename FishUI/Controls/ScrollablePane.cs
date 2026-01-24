@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Numerics;
 using YamlDotNet.Serialization;
 
@@ -293,6 +294,7 @@ namespace FishUI.Controls
 			}
 		}
 
+
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
 			CalculateContentSizeFromChildren();
@@ -300,25 +302,49 @@ namespace FishUI.Controls
 
 			Vector2 absPos = GetAbsolutePosition();
 			Vector2 absSize = GetAbsoluteSize();
-			Vector2 visibleArea = GetVisibleArea();
 
 			// Draw background
 			UI.Graphics.DrawRectangle(absPos, absSize, BackgroundColor);
-
-			// Begin scissor for content area
-			UI.Graphics.PushScissor(absPos, visibleArea);
-
-			// Draw children with scroll offset applied
-			// Note: Children positions are relative, scroll offset is applied via parent transform
-			// The actual offset is handled by child controls checking GetAbsolutePosition()
-
-			UI.Graphics.PopScissor();
 
 			// Draw border
 			if (ShowBorder)
 			{
 				UI.Graphics.DrawRectangleOutline(absPos, absSize, BorderColor);
 			}
+		}
+
+		/// <summary>
+		/// Override DrawChildren to apply proper scissoring.
+		/// Content children are clipped to visible area, scrollbars are drawn without clipping.
+		/// </summary>
+		public override void DrawChildren(FishUI UI, float Dt, float Time, bool UseScissors = true)
+		{
+			Vector2 absPos = GetAbsolutePosition();
+			Vector2 visibleArea = GetVisibleArea();
+
+			// Draw content children with scissor to visible area (not full control bounds)
+			UI.Graphics.PushScissor(absPos, visibleArea);
+
+			foreach (var child in Children.AsEnumerable().Reverse())
+			{
+				if (!child.Visible)
+					continue;
+
+				// Skip scrollbars - they'll be drawn after
+				if (child == _scrollBarV || child == _scrollBarH)
+					continue;
+
+				child.DrawControlAndChildren(UI, Dt, Time);
+			}
+
+			UI.Graphics.PopScissor();
+
+			// Draw scrollbars without scissor clipping (they should always be fully visible)
+			if (_scrollBarV != null && _scrollBarV.Visible)
+				_scrollBarV.DrawControlAndChildren(UI, Dt, Time);
+
+			if (_scrollBarH != null && _scrollBarH.Visible)
+				_scrollBarH.DrawControlAndChildren(UI, Dt, Time);
 		}
 
 		/// <summary>
@@ -359,6 +385,28 @@ namespace FishUI.Controls
 			if (childPos.Y + childSize.Y < 0) return false;
 			if (childPos.X > visibleArea.X) return false;
 			if (childPos.Y > visibleArea.Y) return false;
+
+			return true;
+		}
+
+		/// <summary>
+		/// Override to restrict child input to the visible area.
+		/// Prevents clicking on buttons that are scrolled out of view.
+		/// </summary>
+		public override bool ShouldChildReceiveInput(Control child, Vector2 globalPoint)
+		{
+			// Scrollbars should always receive input
+			if (child == _scrollBarV || child == _scrollBarH)
+				return true;
+
+			// Check if the point is within the visible content area
+			Vector2 absPos = GetAbsolutePosition();
+			Vector2 visibleArea = GetVisibleArea();
+
+			if (globalPoint.X < absPos.X || globalPoint.X > absPos.X + visibleArea.X)
+				return false;
+			if (globalPoint.Y < absPos.Y || globalPoint.Y > absPos.Y + visibleArea.Y)
+				return false;
 
 			return true;
 		}

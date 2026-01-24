@@ -133,7 +133,7 @@ namespace FishUI.Controls
 		/// <summary>
 		/// The resize handle size in pixels (for edge detection).
 		/// </summary>
-		public float ResizeHandleSize { get; set; } = 6;
+		public float ResizeHandleSize { get; set; } = 10;
 
 		/// <summary>
 		/// Event raised when the window is about to close. Can be cancelled.

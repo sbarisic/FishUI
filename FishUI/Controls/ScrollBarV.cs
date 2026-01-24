@@ -198,11 +198,25 @@ namespace FishUI.Controls
 			CreateChildControls(UI);
 
 			Vector2 GlobalPos = GetAbsolutePosition();
+			Vector2 size = GetAbsoluteSize();
+
+			// Update button positions for size changes
+			if (BtnDown != null)
+			{
+				BtnDown.Position = new Vector2(0, 0);
+				BtnDown.Size = ButtonSize;
+			}
+
+			if (BtnUp != null)
+			{
+				BtnUp.Position = new Vector2(0, size.Y - ButtonSize.Y);
+				BtnUp.Size = ButtonSize;
+			}
 
 			// Draw background
-			UI.Graphics.DrawNPatch(UI.Settings.ImgSBVBarBackground, GlobalPos, GetAbsoluteSize(), Color);
+			UI.Graphics.DrawNPatch(UI.Settings.ImgSBVBarBackground, GlobalPos, size, Color);
 
-		CalculateThumb(out Vector2 thumbSize, out Vector2 thumbPos);
+			CalculateThumb(out Vector2 thumbSize, out Vector2 thumbPos);
 			if (BtnThumb != null)
 			{
 				BtnThumb.Position = GetLocalRelative(thumbPos);
