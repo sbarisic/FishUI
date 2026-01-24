@@ -133,7 +133,7 @@ namespace FishUI.Controls
 		/// <summary>
 		/// The resize handle size in pixels (for edge detection).
 		/// </summary>
-		public float ResizeHandleSize { get; set; } = 20;
+		public float ResizeHandleSize { get; set; } = 6;
 
 		/// <summary>
 		/// Event raised when the window is about to close. Can be cancelled.
@@ -187,7 +187,7 @@ namespace FishUI.Controls
 			UpdateInternalSizes();
 		}
 
-		private void CreateInternalControls()
+	private void CreateInternalControls()
 		{
 		// Create titlebar
 		_titlebar = new Titlebar(_title)
@@ -208,10 +208,13 @@ namespace FishUI.Controls
 			base.AddChild(_titlebar);
 
 			// Create content panel for child controls
+			// Use ResizeHandleSize for margins so resize handles are outside client area
+			float sideMargin = Math.Max(SideBorderWidth, ResizeHandleSize);
+			float bottomMargin = Math.Max(BottomBorderHeight, ResizeHandleSize);
 			_contentPanel = new Panel
 			{
-				Position = new Vector2(SideBorderWidth, TitlebarHeight),
-				Size = new Vector2(Size.X - SideBorderWidth * 2, Size.Y - TitlebarHeight - BottomBorderHeight),
+				Position = new Vector2(sideMargin, TitlebarHeight),
+				Size = new Vector2(Size.X - sideMargin * 2, Size.Y - TitlebarHeight - bottomMargin),
 				IsTransparent = true
 			};
 
@@ -226,8 +229,11 @@ namespace FishUI.Controls
 
 			if (_contentPanel != null)
 			{
-				_contentPanel.Position = new Vector2(SideBorderWidth, TitlebarHeight);
-				_contentPanel.Size = new Vector2(Size.X - SideBorderWidth * 2, Size.Y - TitlebarHeight - BottomBorderHeight);
+				// Use ResizeHandleSize for margins so resize handles are outside client area
+				float sideMargin = Math.Max(SideBorderWidth, ResizeHandleSize);
+				float bottomMargin = Math.Max(BottomBorderHeight, ResizeHandleSize);
+				_contentPanel.Position = new Vector2(sideMargin, TitlebarHeight);
+				_contentPanel.Size = new Vector2(Size.X - sideMargin * 2, Size.Y - TitlebarHeight - bottomMargin);
 			}
 		}
 
@@ -251,11 +257,12 @@ namespace FishUI.Controls
 		}
 
 		/// <summary>
-		/// Gets the content area of the window (excluding titlebar and borders).
+		/// Gets the content area of the window (excluding titlebar and resize handles).
 		/// </summary>
 		public Vector2 GetContentPosition()
 		{
-			return GetAbsolutePosition() + new Vector2(SideBorderWidth, TitlebarHeight);
+			float sideMargin = Math.Max(SideBorderWidth, ResizeHandleSize);
+			return GetAbsolutePosition() + new Vector2(sideMargin, TitlebarHeight);
 		}
 
 		/// <summary>
@@ -263,7 +270,9 @@ namespace FishUI.Controls
 		/// </summary>
 		public Vector2 GetContentSize()
 		{
-			return new Vector2(Size.X - SideBorderWidth * 2, Size.Y - TitlebarHeight - BottomBorderHeight);
+			float sideMargin = Math.Max(SideBorderWidth, ResizeHandleSize);
+			float bottomMargin = Math.Max(BottomBorderHeight, ResizeHandleSize);
+			return new Vector2(Size.X - sideMargin * 2, Size.Y - TitlebarHeight - bottomMargin);
 		}
 
 		/// <summary>

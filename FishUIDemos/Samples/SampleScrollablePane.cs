@@ -64,11 +64,11 @@ namespace FishUIDemos
 			FUI.AddControl(scrollWindow);
 
 			// Create ScrollablePane to fill the window content area
-			// Window content area = Size - titlebar (24) - bottom border (4) - side borders (4*2)
-			// Position is relative to content panel which starts at (SideBorderWidth, TitlebarHeight)
+			// Window content area = Size - titlebar (24) - resize handle margin (20) on sides and bottom
+			// Position is relative to content panel which starts at (ResizeHandleSize, TitlebarHeight)
 			ScrollablePane scrollPane = new ScrollablePane();
 			scrollPane.Position = new Vector2(0, 0);
-			scrollPane.Size = new Vector2(292, 372); // Content area size
+			scrollPane.Size = scrollWindow.GetContentSize();
 			scrollPane.Anchor = FishUIAnchor.All;
 			scrollWindow.AddChild(scrollPane);
 
@@ -106,7 +106,7 @@ namespace FishUIDemos
 
 			ScrollablePane horizPane = new ScrollablePane();
 			horizPane.Position = new Vector2(0, 0);
-			horizPane.Size = new Vector2(392, 122); // 400-8, 150-24-4
+			horizPane.Size = horizWindow.GetContentSize();
 			horizPane.Anchor = FishUIAnchor.All;
 			horizPane.ShowVerticalScrollBar = false;
 			horizWindow.AddChild(horizPane);
@@ -136,7 +136,7 @@ namespace FishUIDemos
 
 			ScrollablePane gridPane = new ScrollablePane();
 			gridPane.Position = new Vector2(0, 0);
-			gridPane.Size = new Vector2(292, 202); // 300-8, 230-24-4
+			gridPane.Size = gridWindow.GetContentSize();
 			gridPane.Anchor = FishUIAnchor.All;
 			gridWindow.AddChild(gridPane);
 
