@@ -425,10 +425,48 @@ namespace FishUIDemos
 			opacitySlider.ShowValueLabel = true;
 			opacitySlider.TooltipText = "Adjust button opacity";
 			opacitySlider.OnValueChanged += (slider, val) =>
-			{
+		{
 				opacityButton.Opacity = val;
 			};
 			FUI.AddControl(opacitySlider);
+
+			// === Color Overrides Demo ===
+			Label colorOverrideLabel = new Label("Color Overrides:");
+			colorOverrideLabel.Position = new Vector2(780, 310);
+			colorOverrideLabel.Size = new Vector2(150, 16);
+			colorOverrideLabel.Alignment = Align.Left;
+			FUI.AddControl(colorOverrideLabel);
+
+			// Labels with different text colors
+			Label redLabel = new Label("Red Text");
+			redLabel.Position = new Vector2(780, 335);
+			redLabel.Size = new Vector2(80, 20);
+			redLabel.SetColorOverride("Text", new FishColor(220, 50, 50, 255));
+			redLabel.TooltipText = "SetColorOverride(\"Text\", red)";
+			FUI.AddControl(redLabel);
+
+			Label greenLabel = new Label("Green Text");
+			greenLabel.Position = new Vector2(870, 335);
+			greenLabel.Size = new Vector2(80, 20);
+			greenLabel.SetColorOverride("Text", new FishColor(50, 180, 50, 255));
+			greenLabel.TooltipText = "SetColorOverride(\"Text\", green)";
+			FUI.AddControl(greenLabel);
+
+			Label blueLabel = new Label("Blue Text");
+			blueLabel.Position = new Vector2(780, 360);
+			blueLabel.Size = new Vector2(80, 20);
+			blueLabel.SetColorOverride("Text", new FishColor(50, 100, 220, 255));
+			blueLabel.TooltipText = "SetColorOverride(\"Text\", blue)";
+			FUI.AddControl(blueLabel);
+
+			// Buttons with custom text colors
+			Button colorBtn1 = new Button();
+			colorBtn1.Text = "Custom";
+			colorBtn1.Position = new Vector2(870, 360);
+			colorBtn1.Size = new Vector2(80, 25);
+			colorBtn1.SetColorOverride("Text", new FishColor(150, 50, 200, 255));
+			colorBtn1.TooltipText = "Button with purple text override";
+			FUI.AddControl(colorBtn1);
 
 			// === CheckBox and RadioButton ===
 			Label checkLabel = new Label("CheckBox & RadioButton");

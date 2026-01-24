@@ -123,7 +123,6 @@ A list of planned features, improvements, and new controls for FishUI.
 - [ ] Theme inheritance / base themes (3 CPX)
   - Allow theme YAML files to inherit from other themes (e.g., `gwen2.yaml` inherits from `gwen.yaml`)
   - Child themes only need to override specific regions, inheriting all others from parent
-- [ ] Per-control color overrides (2 CPX)
 
 ### Theme Assets Available in gwen.png (from CEGUI imageset)
 The following regions are defined in the CEGUI imageset but may not be fully utilized:
@@ -249,6 +248,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - ProgressBar: Vertical orientation mode
 - ListBox: Alternating row colors, multi-select mode (Ctrl+click, Shift+click)
 - DropDown: Search/filter functionality with type-to-filter support
+- Per-control color overrides: ColorOverrides dictionary with GetColorOverride/SetColorOverride methods
 - Input controls: Mouse wheel support for Slider, ScrollBars, NumericUpDown
 - NumericUpDown: Narrower buttons, TabControl serialization, BarGauge styling
 - BarGauge: Black tick marks, dashboard styling (larger size, range labels)

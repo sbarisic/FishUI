@@ -263,8 +263,9 @@ namespace FishUI.Controls
 						break;
 				}
 
-				UI.Graphics.DrawImage(Icon, iconPos, 0f, 1f, FishColor.White);
-				UI.Graphics.DrawText(UI.Settings.FontDefault, Txt, textPos);
+			UI.Graphics.DrawImage(Icon, iconPos, 0f, 1f, FishColor.White);
+				FishColor textColor = GetColorOverride("Text", FishColor.Black);
+				UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Txt, textPos, textColor);
 			}
 			else if (hasIcon)
 			{
@@ -277,7 +278,8 @@ namespace FishUI.Controls
 			{
 				// Text-only mode (original behavior)
 				Vector2 TxtSz = UI.Graphics.MeasureText(UI.Settings.FontDefault, Txt);
-				UI.Graphics.DrawText(UI.Settings.FontDefault, Txt, center - TxtSz / 2);
+				FishColor textColor = GetColorOverride("Text", FishColor.Black);
+				UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Txt, center - TxtSz / 2, textColor);
 			}
 
 			//DrawChildren(UI, Dt, Time);

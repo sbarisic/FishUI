@@ -57,7 +57,7 @@ namespace FishUI.Controls
 
 				Vector2 Pos = Vector2.Zero;
 
-				switch (Alignment)
+			switch (Alignment)
 				{
 					case Align.None:
 						Pos = GetAbsolutePosition();
@@ -79,8 +79,9 @@ namespace FishUI.Controls
 						throw new NotImplementedException();
 				}
 
-
-				UI.Graphics.DrawText(UI.Settings.FontLabel, Txt, Pos);
+				// Use color override if set, otherwise use default black
+				FishColor textColor = GetColorOverride("Text", FishColor.Black);
+				UI.Graphics.DrawTextColor(UI.Settings.FontLabel, Txt, Pos, textColor);
 			}
 
 			//DrawChildren(UI, Dt, Time);

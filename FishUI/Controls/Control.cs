@@ -134,16 +134,65 @@ namespace FishUI.Controls
 		public virtual float Opacity { get; set; } = 1.0f;
 
 		/// <summary>
+		/// Per-control color overrides. Allows overriding specific theme colors for this control instance.
+		/// Common keys: "Text", "Background", "Border", "Hover", "Pressed", "Disabled"
+		/// Use GetColorOverride() to retrieve colors with fallback to theme defaults.
+		/// </summary>
+		[YamlMember]
+		public Dictionary<string, FishColor> ColorOverrides { get; set; } = null;
+
+		/// <summary>
+		/// Gets a color override if set, otherwise returns the fallback color.
+		/// </summary>
+		/// <param name="key">Color key (e.g., "Text", "Background", "Border")</param>
+		/// <param name="fallback">Fallback color if override is not set</param>
+		/// <returns>The override color if set, otherwise the fallback</returns>
+		public FishColor GetColorOverride(string key, FishColor fallback)
+		{
+		if (ColorOverrides != null && ColorOverrides.TryGetValue(key, out var color))
+		return color;
+		return fallback;
+		}
+
+		/// <summary>
+		/// Sets a color override for this control.
+		/// </summary>
+		/// <param name="key">Color key (e.g., "Text", "Background", "Border")</param>
+		/// <param name="color">The color value to set</param>
+		public void SetColorOverride(string key, FishColor color)
+		{
+		ColorOverrides ??= new Dictionary<string, FishColor>();
+		ColorOverrides[key] = color;
+		}
+
+		/// <summary>
+		/// Clears a specific color override.
+		/// </summary>
+		/// <param name="key">Color key to clear</param>
+		public void ClearColorOverride(string key)
+		{
+		ColorOverrides?.Remove(key);
+		}
+
+		/// <summary>
+		/// Clears all color overrides for this control.
+		/// </summary>
+		public void ClearAllColorOverrides()
+		{
+		ColorOverrides?.Clear();
+		}
+
+		/// <summary>
 		/// Gets the effective color for rendering, combining Color with Opacity.
 		/// </summary>
 		[YamlIgnore]
 		public FishColor EffectiveColor
 		{
-			get
-			{
-				byte effectiveAlpha = (byte)(Color.A * Math.Clamp(Opacity, 0f, 1f));
-				return new FishColor(Color.R, Color.G, Color.B, effectiveAlpha);
-			}
+		get
+		{
+		byte effectiveAlpha = (byte)(Color.A * Math.Clamp(Opacity, 0f, 1f));
+		return new FishColor(Color.R, Color.G, Color.B, effectiveAlpha);
+		}
 		}
 
 		/// <summary>
