@@ -70,8 +70,6 @@ namespace FishUIDemos
 			scrollPane.Position = new Vector2(0, 0);
 			scrollPane.Size = new Vector2(292, 372); // Content area size
 			scrollPane.Anchor = FishUIAnchor.All;
-			scrollPane.BackgroundColor = new FishColor(50, 50, 55, 255);
-			scrollPane.ShowBorder = true;
 			scrollWindow.AddChild(scrollPane);
 
 			// Add 20 buttons stacked vertically
@@ -110,7 +108,6 @@ namespace FishUIDemos
 			horizPane.Position = new Vector2(0, 0);
 			horizPane.Size = new Vector2(392, 122); // 400-8, 150-24-4
 			horizPane.Anchor = FishUIAnchor.All;
-			horizPane.BackgroundColor = new FishColor(55, 50, 50, 255);
 			horizPane.ShowVerticalScrollBar = false;
 			horizWindow.AddChild(horizPane);
 
@@ -141,7 +138,6 @@ namespace FishUIDemos
 			gridPane.Position = new Vector2(0, 0);
 			gridPane.Size = new Vector2(292, 202); // 300-8, 230-24-4
 			gridPane.Anchor = FishUIAnchor.All;
-			gridPane.BackgroundColor = new FishColor(50, 55, 50, 255);
 			gridWindow.AddChild(gridPane);
 
 			// Add a grid of buttons

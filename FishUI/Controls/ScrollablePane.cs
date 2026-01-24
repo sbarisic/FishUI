@@ -55,16 +55,16 @@ namespace FishUI.Controls
 		public Vector2 ScrollOffset { get; private set; } = Vector2.Zero;
 
 		/// <summary>
-		/// Background color of the scrollable area.
+		/// Visual variant of the panel background (Normal, Bright, Dark, Highlight).
 		/// </summary>
 		[YamlMember]
-		public FishColor BackgroundColor { get; set; } = new FishColor(40, 40, 40, 255);
+		public PanelVariant Variant { get; set; } = PanelVariant.Normal;
 
 		/// <summary>
 		/// Whether to draw a border around the control.
 		/// </summary>
 		[YamlMember]
-		public bool ShowBorder { get; set; } = true;
+		public bool ShowBorder { get; set; } = false;
 
 		/// <summary>
 		/// Border color.
@@ -295,6 +295,7 @@ namespace FishUI.Controls
 		}
 
 
+
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
 			CalculateContentSizeFromChildren();
@@ -303,8 +304,20 @@ namespace FishUI.Controls
 			Vector2 absPos = GetAbsolutePosition();
 			Vector2 absSize = GetAbsoluteSize();
 
-			// Draw background
-			UI.Graphics.DrawRectangle(absPos, absSize, BackgroundColor);
+			// Select panel image based on variant (same as Panel control)
+			NPatch panelImage = Variant switch
+			{
+				PanelVariant.Bright => UI.Settings.ImgPanelBright ?? UI.Settings.ImgPanel,
+				PanelVariant.Dark => UI.Settings.ImgPanelDark ?? UI.Settings.ImgPanel,
+				PanelVariant.Highlight => UI.Settings.ImgPanelHighlight ?? UI.Settings.ImgPanel,
+				_ => UI.Settings.ImgPanel
+			};
+
+			// Draw background using panel texture
+			if (panelImage != null)
+			{
+				UI.Graphics.DrawNPatch(panelImage, absPos, absSize, Color);
+			}
 
 			// Draw border
 			if (ShowBorder)
