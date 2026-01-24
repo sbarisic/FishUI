@@ -127,6 +127,13 @@ A list of planned features, improvements, and new controls for FishUI.
   - Display vectors as separate editable X, Y, Z fields
   - Currently vectors fall through to text editor which doesn't work
 
+### BarGauge Enhancements
+- [ ] Black tick marks for better visibility (1 CPX)
+- [ ] Car dashboard styling improvements (2 CPX)
+  - Larger default size
+  - Range step labels (RPM, speed, etc.)
+  - More authentic dashboard appearance
+
 ---
 
 ## Theme System
@@ -230,8 +237,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-- Make bar gauge ticks black
-- Change bar gauge look to more match car dashboards, make them bigger by default, add the ability to display range steps (like RPM or Vehicle speed)
+*No uncategorized items*
 
 ---
 
