@@ -127,12 +127,6 @@ A list of planned features, improvements, and new controls for FishUI.
   - Display vectors as separate editable X, Y, Z fields
   - Currently vectors fall through to text editor which doesn't work
 
-### BarGauge Enhancements
-- [ ] Car dashboard styling improvements (2 CPX)
-  - Larger default size
-  - Range step labels (RPM, speed, etc.)
-  - More authentic dashboard appearance
-
 ---
 
 ## Theme System
@@ -266,7 +260,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - ListBox: Alternating row colors
 - Input controls: Mouse wheel support for Slider, ScrollBars, NumericUpDown
 - NumericUpDown: Narrower buttons, TabControl serialization, BarGauge styling
-- BarGauge: Black tick marks for better visibility
+- BarGauge: Black tick marks, dashboard styling (larger size, range labels)
 
 ### Core Framework
 - StackLayout, Anchor, Margin/Padding - Layout infrastructure

@@ -157,9 +157,33 @@ namespace FishUI.Controls
 		[YamlIgnore]
 		public List<GaugeColorZone> ColorZones { get; set; } = new List<GaugeColorZone>();
 
+		/// <summary>
+		/// Whether to show range labels at min/max positions (e.g., "E" and "F" for fuel).
+		/// </summary>
+		[YamlMember]
+		public bool ShowRangeLabels { get; set; } = false;
+
+		/// <summary>
+		/// Label to display at minimum value position (e.g., "E" for empty, "0" for RPM).
+		/// </summary>
+		[YamlMember]
+		public string MinLabel { get; set; } = "";
+
+		/// <summary>
+		/// Label to display at maximum value position (e.g., "F" for full, "8" for RPM x1000).
+		/// </summary>
+		[YamlMember]
+		public string MaxLabel { get; set; } = "";
+
+		/// <summary>
+		/// Color for range labels.
+		/// </summary>
+		[YamlMember]
+		public FishColor RangeLabelColor { get; set; } = new FishColor(255, 255, 255, 255);
+
 		public BarGauge()
 		{
-			Size = new Vector2(200, 30);
+			Size = new Vector2(250, 35);
 		}
 
 		/// <summary>
@@ -289,6 +313,12 @@ namespace FishUI.Controls
 				DrawLabels(UI, gaugePos, gaugeSize);
 			}
 
+			// Draw range labels (E/F, 0/8, etc.)
+			if (ShowRangeLabels)
+			{
+				DrawRangeLabels(UI, gaugePos, gaugeSize);
+			}
+
 			// Draw current value
 			if (ShowValue)
 			{
@@ -403,6 +433,53 @@ namespace FishUI.Controls
 			// Center the value text on the gauge
 			Vector2 textPos = pos + size / 2 - textSize / 2;
 			UI.Graphics.DrawTextColor(UI.Settings.FontDefault, valueText, textPos, FishColor.White);
+		}
+
+		private void DrawRangeLabels(FishUI UI, Vector2 pos, Vector2 size)
+		{
+			if (string.IsNullOrEmpty(MinLabel) && string.IsNullOrEmpty(MaxLabel))
+				return;
+
+			if (Orientation == BarGaugeOrientation.Horizontal)
+			{
+				// Min label on the left
+				if (!string.IsNullOrEmpty(MinLabel))
+				{
+					Vector2 minTextSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, MinLabel);
+					float minX = pos.X - minTextSize.X - 4;
+					float minY = pos.Y + (size.Y - minTextSize.Y) / 2;
+					UI.Graphics.DrawTextColor(UI.Settings.FontDefault, MinLabel, new Vector2(minX, minY), RangeLabelColor);
+				}
+
+				// Max label on the right
+				if (!string.IsNullOrEmpty(MaxLabel))
+				{
+					Vector2 maxTextSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, MaxLabel);
+					float maxX = pos.X + size.X + 4;
+					float maxY = pos.Y + (size.Y - maxTextSize.Y) / 2;
+					UI.Graphics.DrawTextColor(UI.Settings.FontDefault, MaxLabel, new Vector2(maxX, maxY), RangeLabelColor);
+				}
+			}
+			else
+			{
+				// Min label at the bottom
+				if (!string.IsNullOrEmpty(MinLabel))
+				{
+					Vector2 minTextSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, MinLabel);
+					float minX = pos.X + (size.X - minTextSize.X) / 2;
+					float minY = pos.Y + size.Y + 4;
+					UI.Graphics.DrawTextColor(UI.Settings.FontDefault, MinLabel, new Vector2(minX, minY), RangeLabelColor);
+				}
+
+				// Max label at the top
+				if (!string.IsNullOrEmpty(MaxLabel))
+				{
+					Vector2 maxTextSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, MaxLabel);
+					float maxX = pos.X + (size.X - maxTextSize.X) / 2;
+					float maxY = pos.Y - maxTextSize.Y - 4;
+					UI.Graphics.DrawTextColor(UI.Settings.FontDefault, MaxLabel, new Vector2(maxX, maxY), RangeLabelColor);
+				}
+			}
 		}
 	}
 }
