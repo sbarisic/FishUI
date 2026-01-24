@@ -84,10 +84,11 @@ A list of planned features, improvements, and new controls for FishUI.
   - *GWEN atlas regions available: ListHeaderSegment, ListHeader*
 
 - [ ] **SpreadsheetGrid** (5 CPX)
+  - Spreadsheet cell is a separate control, grid is made of cells
   - Excel-like table control with cell editing
   - X-axis (column) and Y-axis (row) headers
   - Cell selection and navigation
-  - Configurable cell types (text, number, dropdown)
+  - ~~Configurable cell types (text, number, dropdown)~~ Text only cell type for now
   - *Use case: Data entry forms, configuration editors*
 
 - [ ] **MultiLineEditbox / TextArea** (3 CPX)
