@@ -56,6 +56,7 @@ A list of planned features, improvements, and new controls for FishUI.
 | RadialGauge | ✅ Complete | N/A |
 | PropertyGrid | ✅ Complete | N/A |
 | MenuBar | ✅ Complete | ✅ Atlas |
+| ScrollablePane | ✅ Complete | N/A |
 
 ---
 
@@ -67,10 +68,7 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ### Medium Priority
 
-- [ ] **ScrollablePane** (3 CPX)
-  - Container with automatic scrollbars
-  - Virtual scrolling for large content
-  - *GWEN atlas regions: Uses existing ScrollBarV/ScrollBarH*
+*All medium priority controls have been implemented*
 
 ### Lower Priority
 
@@ -247,6 +245,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - MenuBar - Horizontal menu strip with dropdown menus, hover switching, submenus
 - ImageBox, StaticText, VUMeter, AnimatedImageBox - Display controls
 - MenuItem, RadialGauge, BarGauge - Menu items and gauge controls
+- ScrollablePane - Container with automatic scrollbars and virtual scrolling
 
 ### Control Improvements
 - Button: Icon, Toggle, Repeat, ImageButton modes
