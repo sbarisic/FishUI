@@ -55,6 +55,7 @@ A list of planned features, improvements, and new controls for FishUI.
 | AnimatedImageBox | ✅ Complete | N/A |
 | RadialGauge | ✅ Complete | N/A |
 | PropertyGrid | ✅ Complete | N/A |
+| MenuBar | ✅ Complete | ✅ Atlas |
 
 ---
 
@@ -65,13 +66,6 @@ A list of planned features, improvements, and new controls for FishUI.
 *All high priority controls have been implemented*
 
 ### Medium Priority
-
-- [ ] **MenuBar** (3 CPX)
-  - Horizontal menu strip
-  - Dropdown submenus
-  - Keyboard shortcuts display
-  - Separator items
-  - *GWEN atlas regions available: Menu.Strip, Menu.Background, Menu.Hover*
 
 - [ ] **ScrollablePane** (3 CPX)
   - Container with automatic scrollbars
@@ -247,7 +241,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-*No uncategorized items*
+- Clicking on menu items in the menu bar sample does not show any kind of context menu or action
 
 ---
 
@@ -266,6 +260,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ### Controls
 - PropertyGrid - Windows Forms-like property editor with categorization, reflection-based editing
 - ContextMenu / PopupMenu - Right-click menus with submenus, keyboard navigation
+- MenuBar - Horizontal menu strip with dropdown menus, hover switching, submenus
 - ImageBox, StaticText, VUMeter, AnimatedImageBox - Display controls
 - MenuItem, RadialGauge, BarGauge - Menu items and gauge controls
 

@@ -53,6 +53,8 @@ namespace FishUI
 		{ "!Tooltip", typeof(Tooltip) },
 		{ "!ContextMenu", typeof(ContextMenu) },
 		{ "!MenuItem", typeof(MenuItem) },
+		{ "!MenuBar", typeof(MenuBar) },
+		{ "!MenuBarItem", typeof(MenuBarItem) },
 		{ "!StackLayout", typeof(StackLayout) },
 		{ "!ImageBox", typeof(ImageBox) },
 		{ "!StaticText", typeof(StaticText) },
