@@ -240,6 +240,17 @@ namespace FishUI.Controls
 		}
 
 		/// <summary>
+		/// Gets an additional position offset to apply to child controls.
+		/// Override in container controls like ScrollablePane to implement scrolling.
+		/// </summary>
+		/// <param name="child">The child control requesting the offset.</param>
+		/// <returns>The offset to apply to the child's position.</returns>
+		public virtual Vector2 GetChildPositionOffset(Control child)
+		{
+			return Vector2.Zero;
+		}
+
+		/// <summary>
 		/// Gets the absolute position of this control in screen coordinates.
 		/// Accounts for parent Padding, this control's Margin, and Anchor settings.
 		/// </summary>
@@ -315,6 +326,12 @@ namespace FishUI.Controls
 					// Only bottom anchor - move with bottom edge
 					basePos.Y += sizeDelta.Y;
 				}
+			}
+
+			// Apply parent's child position offset (used for scrolling containers)
+			if (Parent != null)
+			{
+				basePos += Parent.GetChildPositionOffset(this);
 			}
 
 			return basePos;

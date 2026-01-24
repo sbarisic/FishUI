@@ -322,6 +322,19 @@ namespace FishUI.Controls
 		}
 
 		/// <summary>
+		/// Returns the scroll offset to apply to child controls.
+		/// Scrollbars are excluded from scrolling (they stay in place).
+		/// </summary>
+		public override Vector2 GetChildPositionOffset(Control child)
+		{
+			// Don't scroll the scrollbars themselves
+			if (child == _scrollBarV || child == _scrollBarH)
+				return Vector2.Zero;
+
+			return -ScrollOffset;
+		}
+
+		/// <summary>
 		/// Gets the scroll-adjusted position for child controls.
 		/// </summary>
 		public Vector2 GetScrollAdjustedChildPosition(Control child)
