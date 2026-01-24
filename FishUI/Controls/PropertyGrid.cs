@@ -488,6 +488,18 @@ namespace FishUI.Controls
 				// Focus the internal textbox so user can type immediately
 				UI.FocusControl(numericUpDown.InternalTextbox);
 			}
+			else if (propType == typeof(Vector2))
+			{
+				CreateVectorEditor(UI, item, x, y, width, height, 2, currentValue);
+			}
+			else if (propType == typeof(Vector3))
+			{
+				CreateVectorEditor(UI, item, x, y, width, height, 3, currentValue);
+			}
+			else if (propType == typeof(Vector4))
+			{
+				CreateVectorEditor(UI, item, x, y, width, height, 4, currentValue);
+			}
 			else // string and other types
 			{
 				var textbox = new Textbox();
@@ -505,6 +517,105 @@ namespace FishUI.Controls
 				// Focus the textbox so user can type immediately
 				UI.FocusControl(textbox);
 			}
+		}
+
+		private void CreateVectorEditor(FishUI UI, PropertyGridItem item, float x, float y, float width, float height, int componentCount, object currentValue)
+		{
+			// Create a panel to hold the vector component editors
+			var panel = new Panel();
+			panel.Position = new Vector2(x, y);
+			panel.Size = new Vector2(width, height);
+			panel.IsTransparent = true;
+			AddChild(panel);
+			_activeEditor = panel;
+
+			// Calculate component width with labels
+			float labelWidth = 12f;
+			float spacing = 2f;
+			float totalLabelWidth = componentCount * labelWidth;
+			float totalSpacing = (componentCount - 1) * spacing;
+			float componentWidth = (width - totalLabelWidth - totalSpacing) / componentCount;
+
+			string[] labels = { "X", "Y", "Z", "W" };
+			float[] values = new float[4];
+
+			// Extract current values
+			if (currentValue is Vector2 v2)
+			{
+				values[0] = v2.X;
+				values[1] = v2.Y;
+			}
+			else if (currentValue is Vector3 v3)
+			{
+				values[0] = v3.X;
+				values[1] = v3.Y;
+				values[2] = v3.Z;
+			}
+			else if (currentValue is Vector4 v4)
+			{
+				values[0] = v4.X;
+				values[1] = v4.Y;
+				values[2] = v4.Z;
+				values[3] = v4.W;
+			}
+
+			// Store references to NumericUpDown controls for value updates
+			NumericUpDown[] numericControls = new NumericUpDown[componentCount];
+
+			float currentX = 0;
+			for (int i = 0; i < componentCount; i++)
+			{
+				int componentIndex = i; // Capture for closure
+
+				// Label
+				var label = new Label(labels[i]);
+				label.Position = new Vector2(currentX, 2);
+				label.Size = new Vector2(labelWidth, height - 4);
+				label.Alignment = Align.Center;
+				panel.AddChild(label);
+				currentX += labelWidth;
+
+				// NumericUpDown
+				var numeric = new NumericUpDown();
+				numeric.Position = new Vector2(currentX, 0);
+				numeric.Size = new Vector2(componentWidth, height);
+				numeric.DecimalPlaces = 2;
+				numeric.MinValue = float.MinValue;
+				numeric.MaxValue = float.MaxValue;
+				numeric.Value = values[i];
+				numeric.OnValueChanged += (sender, value) =>
+				{
+					var oldValue = item.GetValue();
+					object newValue = null;
+
+					// Get current values from all components
+					float[] currentVals = new float[componentCount];
+					for (int j = 0; j < componentCount; j++)
+						currentVals[j] = numericControls[j].Value;
+
+					// Update the changed component
+					currentVals[componentIndex] = value;
+
+					// Create the new vector
+					if (componentCount == 2)
+						newValue = new Vector2(currentVals[0], currentVals[1]);
+					else if (componentCount == 3)
+						newValue = new Vector3(currentVals[0], currentVals[1], currentVals[2]);
+					else if (componentCount == 4)
+						newValue = new Vector4(currentVals[0], currentVals[1], currentVals[2], currentVals[3]);
+
+					if (newValue != null && item.SetValue(newValue))
+						OnPropertyValueChanged?.Invoke(this, item, oldValue, newValue);
+				};
+				panel.AddChild(numeric);
+				numericControls[i] = numeric;
+
+				currentX += componentWidth + spacing;
+			}
+
+			// Focus the first component
+			if (numericControls.Length > 0)
+				UI.FocusControl(numericControls[0].InternalTextbox);
 		}
 
 		private void UpdateVisibleItems()

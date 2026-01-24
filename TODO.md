@@ -122,11 +122,6 @@ A list of planned features, improvements, and new controls for FishUI.
 - [ ] Custom item templates (2 CPX)
 - [ ] Drag and drop reordering (3 CPX)
 
-### PropertyGrid Enhancements
-- [ ] Vector2/Vector3/Vector4 component editors (2 CPX)
-  - Display vectors as separate editable X, Y, Z fields
-  - Currently vectors fall through to text editor which doesn't work
-
 ---
 
 ## Theme System
@@ -262,6 +257,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - NumericUpDown: Narrower buttons, TabControl serialization, BarGauge styling
 - BarGauge: Black tick marks, dashboard styling (larger size, range labels)
 - RadialGauge: Black text/ticks, wider draw angle (~260° sweep)
+- PropertyGrid: Vector2/Vector3/Vector4 component editors with X/Y/Z/W fields
 
 ### Core Framework
 - StackLayout, Anchor, Margin/Padding - Layout infrastructure
