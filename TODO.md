@@ -179,6 +179,14 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
   - Add single line and multi line 
   - Requires multi-line textbox mode implementation
 
+### Sample Refactoring
+- [ ] Move DropDown demos from SampleBasicControls into separate SampleDropDown demo (2 CPX)
+- [ ] Move ListBox demos from SampleBasicControls into separate SampleListBox demo (2 CPX)
+- [ ] Review and split remaining SampleBasicControls into focused demos (2 CPX)
+
+### Sample Chooser Improvements
+- [ ] Replace button grid with ListBox in sample chooser for better scalability (2 CPX)
+
 ---
 
 ## Documentation
@@ -206,11 +214,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-- Move all images from SampleBasicControls into separate demo
-- Move all drop down related code from SampleBasicControls into separate demo
-- Review SampleBasicControls for any other controls that can be moved into separate demos
-- Change the main sample chooser to use a listbox instead of buttons for better scalability
-- Modify sample chooser to use reflection to get all ISample implementations automatically
+*No uncategorized items*
 
 ---
 
@@ -263,6 +267,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - GUI sample chooser: FishUI-based sample selector replacing console menu (self-dogfooding)
 - Control demos: ImageBox, BarGauge, VirtualCursor, AnimatedImageBox, StaticText
 - SampleGauges: Dedicated gauge demo with RadialGauge, BarGauge, VUMeter, car dashboard preview
+- Sample auto-discovery via reflection (SampleDiscovery class)
+- SampleImageBox: Dedicated ImageBox/AnimatedImageBox demo split from SampleBasicControls
 
 ### Code Cleanup
 - ScreenCapture platform compatibility, YamlIgnore audit, naming conventions, XML docs, screenshot buttons, TODO extraction, debug flags refactor

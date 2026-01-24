@@ -67,21 +67,15 @@ namespace FishUISample
 
 		static void Main(string[] args)
 		{
-			ISample[] Samples = new ISample[]
+			// Auto-discover all ISample implementations using reflection
+			ISample[] Samples = SampleDiscovery.DiscoverSamples();
+
+			Console.WriteLine($"Discovered {Samples.Length} samples:");
+			for (int i = 0; i < Samples.Length; i++)
 			{
-			new SampleDefault(),        // Windows, Dialogs, TabControl, TreeView, ContextMenu
-			new SampleBasicControls(),  // Textbox, ListBox, DropDown, ScrollBars, ProgressBars, Sliders, etc.
-			new SampleButtonVariants(), // Toggle, Repeat, ImageButton, Icon buttons
-		new SampleLayoutSystem(),   // Margin, Padding, Anchors, StackLayout, Panel variants
-			new SampleThemeSwitcher(),  // Runtime theme switching
-			new SampleGameMenu(),       // Game main menu example
-			new SampleVirtualCursor(),  // Virtual cursor/mouse for keyboard/gamepad navigation
-			new SamplePropertyGrid(),   // PropertyGrid control demo
-			new SampleMenuBar(),        // MenuBar with dropdown menus
-			new SampleGauges(),         // RadialGauge, BarGauge, VUMeter controls
-			new SampleScrollablePane(), // ScrollablePane with automatic scrollbars
-			new SampleItemListbox()     // ItemListbox with custom widget items
-			};
+				Console.WriteLine($"  {i}: {Samples[i].Name}");
+			}
+			Console.WriteLine();
 
 			// Loop back to chooser when window closes
 			while (true)
