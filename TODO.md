@@ -60,7 +60,12 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ### High Priority
 
-*All high priority controls have been implemented*
+- [ ] **PropertyGrid** (4 CPX)
+  - Windows Forms-like property editor control
+  - Displays object properties in categorized/alphabetical list
+  - Supports editing of common types (string, int, float, bool, enum, color)
+  - Expandable nested objects
+  - *Use case: In-game editors, debug panels, configuration UIs*
 
 ### Medium Priority
 
@@ -101,13 +106,7 @@ A list of planned features, improvements, and new controls for FishUI.
   - Vertical scrollbar integration
   - *GWEN atlas regions: Uses TextBox regions*
 
-- [x] ~~**ImageBox / StaticImage**~~ - Image display with scaling modes (None, Stretch, Fit, Fill) and click events
-
-- [x] ~~**StaticText**~~ - Non-editable text with horizontal/vertical alignment, custom color, optional background
-
-- [x] ~~**VUMeter**~~ - Audio level visualization with peak hold, green/yellow/red zones, continuous or segmented mode; demo in SampleBasicControls
-
-- [x] ~~**AnimatedImageBox**~~ - Frame-based animation with configurable frame rate, loop/reverse/ping-pong modes, play/pause control
+- [x] ~~**ImageBox, StaticText, VUMeter, AnimatedImageBox**~~ - Display controls with scaling, alignment, animation support
 
 - [ ] **DateTimePicker** (4 CPX)
   - Calendar popup for date selection
@@ -118,18 +117,7 @@ A list of planned features, improvements, and new controls for FishUI.
   - Listbox with custom item widgets
   - *GWEN WidgetLook: ItemListbox*
 
-- [x] ~~**MenuItem**~~ - Individual menu item with text, shortcut display, checkbox states (implemented with ContextMenu)
-
-- [x] ~~**RadialGauge**~~ - Circular gauge with configurable angles, needle, tick marks, labels, color zones (RPM/speedometer presets); demo in SampleBasicControls
-
-- [x] ~~**BarGauge**~~ - Linear gauge with min/max values, color zones (temperature/fuel presets), ticks, labels; demo in SampleBasicControls
-
-- [ ] **PropertyGrid** (4 CPX) **HIGH PRIORITY**
-  - Windows Forms-like property editor control
-  - Displays object properties in categorized/alphabetical list
-  - Supports editing of common types (string, int, float, bool, enum, color)
-  - Expandable nested objects
-  - *Use case: In-game editors, debug panels, configuration UIs*
+- [x] ~~**MenuItem, RadialGauge, BarGauge**~~ - Menu items and gauge controls with color zones, ticks, labels
 
 ---
 
@@ -151,10 +139,7 @@ A list of planned features, improvements, and new controls for FishUI.
 - [x] ~~Even/odd row alternating colors~~ - Added AlternatingRowColors, EvenRowColor, OddRowColor properties; demo in SampleBasicControls
 
 ### Button Enhancements
-- [x] ~~Icon support (image + text), add to examples~~ - Added Icon, IconPosition, IconSpacing properties; SampleDefault has icon button demo
-- [x] ~~Toggle button mode~~ - Added IsToggleButton, IsToggled properties, OnToggled event; demo in SampleDefault
-- [x] ~~Repeat button mode (fires while held)~~ - Added IsRepeatButton, RepeatDelay, RepeatInterval properties; demo in SampleDefault
-- [x] ~~ImageButton variant (icon-only button)~~ - Added IsImageButton, ImageButtonHoverTint, ImageButtonPressedTint; demo in SampleDefault
+- [x] ~~Icon, Toggle, Repeat, ImageButton modes~~ - Full button variants with icons, toggle state, repeat firing, image-only modes
 
 ### Panel Enhancements
 - [x] ~~Border styles, Panel variants (Normal, Bright, Dark, Highlight), examples~~ - Added PanelVariant enum, BorderStyle enum (None, Solid, Inset, Outset), theme regions, and SampleDefault demo
@@ -162,21 +147,11 @@ A list of planned features, improvements, and new controls for FishUI.
 ### ProgressBar Enhancements
 - [x] ~~Vertical progress bar mode~~ - Already implemented via Orientation property; added demo in SampleDefault
 
-### Slider Enhancements
-- [x] ~~Mouse wheel support~~ - Scroll to adjust value (uses Step or 1% of range)
-
-### ScrollBar Enhancements
-- [x] ~~Mouse wheel support for ScrollBarV/ScrollBarH~~ - Both scroll bars now support mouse wheel scrolling
-
-### NumericUpDown Enhancements
-- [x] ~~Mouse wheel support~~ - Scroll to increment/decrement value
-- [x] ~~Narrower arrow buttons~~ - Reduced ButtonWidth from 20 to 16 for better aspect ratio
-
-### TabControl Enhancements
-- [x] ~~Preserve tab names during serialization~~ - Added TabNames property that syncs with TabPages; names restored in OnDeserialized
-
-### BarGauge Enhancements
-- [x] ~~Visual styling improvements~~ - Brighter tick marks (white), gray background for unfilled area, color zones only on filled portion
+### Input Control Enhancements (Completed)
+- [x] ~~Mouse wheel support~~ - Added to Slider, ScrollBarV/H, NumericUpDown
+- [x] ~~NumericUpDown narrower buttons~~ - Reduced ButtonWidth for better aspect ratio
+- [x] ~~TabControl serialization~~ - Tab names preserved across save/load
+- [x] ~~BarGauge styling~~ - Improved tick marks and color zones
 
 ---
 
@@ -225,75 +200,53 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ### Layout System
 - [ ] **FlowLayout** - Automatic horizontal/vertical flow of children (3 CPX)
 - [ ] **GridLayout** - Grid-based child positioning (3 CPX)
-- [x] ~~**StackLayout**~~ - Vertical/horizontal stacking with spacing and padding
-- [x] ~~Anchor system for responsive resizing~~ - Added FishUIAnchor enum; Anchor property on Control with TopLeft/TopRight/BottomLeft/BottomRight/Horizontal/Vertical/All modes; demo in SampleDefault
-- [x] ~~Margin and Padding properties on all controls~~ - Added FishUIMargin struct; Margin/Padding properties on Control; demo in SampleDefault
 - [ ] Auto-sizing controls based on content (3 CPX)
+- [x] ~~StackLayout, Anchor, Margin/Padding~~ - Layout infrastructure complete
 
 ### Rendering
-- [x] ~~Control opacity/transparency~~ - Added Opacity property (0.0-1.0) and EffectiveColor; updated Panel, Button, ImageBox; demo in SampleBasicControls
 - [ ] Animation system for transitions (4 CPX)
 - [ ] Anti-aliased rendering option (2 CPX)
 - [ ] Shadow rendering for windows/popups (2 CPX)
   - *GWEN has: Shadow region*
-- [x] ~~Font system refactoring~~ - Added FontStyle enum, FishUIFontMetrics struct, GetFontMetrics method, IsMonospaced detection, LineHeight property
-- [x] ~~Rendering images with rotation and scaling~~ - Already supported via DrawImage(Rot, Scale) and DrawNPatch(Rotation) in IFishUIGfx
+- [x] ~~Opacity, fonts, image rotation/scaling~~ - Rendering features complete
 
 ### Accessibility
 - [ ] Keyboard-only navigation (3 CPX)
 - [ ] Scalable UI for different DPI (4 CPX)
 
 ### Virtual Cursor
-- [x] ~~Direct position setting~~ - Added SetPositionFromInput and SyncWithRealMouse methods for touch/mouse mapping
-- [x] ~~**Refactor virtual mouse input mapping**~~ - Moved keyboard handling into FishUIVirtualMouse.Update(); added configurable key bindings (MoveUpKeys, MoveDownKeys, MoveLeftKeys, MoveRightKeys, LeftClickKeys, RightClickKeys); UseKeyboardInput flag for hybrid mode
-- [x] ~~**Hybrid mode click passthrough**~~ - Added SyncButtonsWithRealMouse() method; SampleVirtualCursor now passes through real mouse clicks in hybrid mode
+- [x] ~~Position setting, input mapping, hybrid mode~~ - SetPositionFromInput, SyncWithRealMouse, configurable key bindings, click passthrough
 
 ### Serialization
-- [x] ~~LayoutFormat TypeMapping~~ - Added all implemented controls for layout save/load
 - [ ] Image reference serialization (3 CPX)
   - Icons/images (Button.Icon, etc.) not preserved across Save/Load Layout
   - Need mechanism to reference images by file path or ID in layout files
+- [x] ~~LayoutFormat TypeMapping~~ - All controls registered for save/load
 
 ---
 
 ## Sample Application
 
-- [x] ~~**Split SampleDefault into multiple smaller samples**~~ - Created SampleBasicControls, SampleButtonVariants, SampleLayoutSystem; refocused SampleDefault to Windows/Dialogs only
-- [x] ~~**Sample runner loop back to chooser**~~ - Window close returns to sample chooser instead of exiting
+- [x] ~~Sample infrastructure~~ - Split samples, runner loop, console chooser with CLI args, theme switcher, game menu
+- [x] ~~Control demos~~ - ImageBox, BarGauge interactive, VirtualCursor with custom images/hybrid mode, AnimatedImageBox, StaticText
 - [ ] Examples should be implemented in FishUISample project, using the ISample interface (2 CPX each)
-- [x] ~~Implement sample chooser system in Program.cs~~ - Added ChooseSample() with console menu and --sample/-s CLI args; added Name property to ISample
 - [ ] **GUI-based sample chooser** (3 CPX)
   - Replace console menu with FishUI-based sample selector window
   - Display available samples as clickable buttons or list
   - Return to GUI selector when sample window is closed
   - Self-dogfooding: uses FishUI to demonstrate FishUI
-- [x] ~~Theme switcher example~~ (SampleThemeSwitcher.cs)
-- [x] ~~Game main menu example~~ (SampleGameMenu.cs) - Buttons + Options window with tabs
 - [ ] **Move gauge controls to dedicated sample page** (2 CPX)
   - Move RadialGauge and BarGauge from SampleBasicControls to new SampleGauges
   - Include VUMeter in the gauges sample
   - Add interactive controls for all gauges
 - [ ] Car dashboard example with gauges (2 CPX)
   - RadialGauge and BarGauge controls now available
-- [x] ~~ImageBox example~~ - Added to SampleBasicControls with all scaling modes and click event demo
 - [ ] **ImageBox example improvements** (2 CPX)
   - Use images from data/images/ folder instead of silk_icons
   - Add pixelated (nearest-neighbor) rendering mode to ImageBox
-- [x] ~~BarGauge example interactive controls~~ - Added +/- repeat buttons for all gauges in SampleBasicControls
-- [x] ~~Virtual cursor example~~ - SampleVirtualCursor demonstrates keyboard/gamepad cursor navigation
-- [x] ~~Virtual cursor custom images~~ - Added cursor image dropdown to SampleVirtualCursor; loads from data/images/cursors/
-- [x] ~~Virtual cursor hybrid mode demo~~ - When checkbox unchecked, sync virtual cursor with real mouse; demonstrates SyncWithRealMouse method
-- [x] ~~AnimatedImageBox example with stargate images~~ - Added to SampleBasicControls with play/pause, stop, FPS slider, ping-pong toggle
-- [x] ~~AnimatedImageBox resizable window example~~ - "Animation Viewer" window with anchored AnimatedImageBox that scales with window resize
-- [x] ~~StaticText example~~ - Added to SampleBasicControls with alignment and color demos
 - [ ] MultiLine textbox example (1 CPX)
   - Add below existing single-line textbox sample
   - Requires multi-line textbox mode implementation
-
-### SampleDefault Improvements
-- [x] ~~Replace main Panel with Window control~~ - Changed `panel1` from Panel to Window with hidden close button
-- [x] ~~Add context menu to SampleDefault~~ - Demonstrates ContextMenu with items, separators, checkable items, and submenus
-- [x] ~~Expand StackLayout demo~~ - Added nested stacks (horizontal containing 3 vertical stacks with mixed controls)
 
 ---
 
@@ -309,13 +262,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ---
 
 ## Code Cleanup & Technical Debt
-- [x] ~~ScreenCapture platform compatibility~~ - Added IsSupported check, [SupportedOSPlatform] attributes, TryCaptureActiveWindow safe method; resolves CA1416 warnings
-- [x] ~~Audit [YamlIgnore] attributes~~ - Added to FishUIThemeRegion.UsesImageFile and FishUIVirtualMouse read-only properties
-- [x] ~~Standardize naming conventions~~ - Converted fields to properties: CheckBox/RadioButton `Checked`→`IsChecked`, Panel `IsTransparent`, ListBox `ShowScrollBar`
-- [x] ~~Add XML documentation comments to core public APIs~~ - Documented Control, FishUI, FishUISettings, IFishUIGfx, IFishUIInput
-- [x] ~~Add screenshot button to all examples~~ - Added TakeScreenshot to ISample; screenshot buttons with camera icons in all 3 samples
-- [x] ~~Extract TODO comments from code~~ - Moved 4 TODOs to proper sections, removed comments from source
-- [x] ~~Move DebugLogTooltips flag into FishUIDebug~~ - Now forwards to `FishUIDebug.LogTooltips` like other debug flags
+- [x] ~~Completed~~ - ScreenCapture platform compatibility, YamlIgnore audit, naming conventions, XML docs, screenshot buttons, TODO extraction, debug flags refactor
 
 ---
 
