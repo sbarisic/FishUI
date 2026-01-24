@@ -73,6 +73,30 @@ namespace FishUI.Controls
 		public int MaxVisibleItems { get; set; } = 8;
 
 		/// <summary>
+		/// Whether to show a search/filter textbox when the dropdown is open.
+		/// </summary>
+		[YamlMember]
+		public bool Searchable { get; set; } = false;
+
+		/// <summary>
+		/// Height of the search textbox when Searchable is enabled.
+		/// </summary>
+		[YamlIgnore]
+		private float SearchBoxHeight = 24;
+
+		/// <summary>
+		/// Current search/filter text.
+		/// </summary>
+		[YamlIgnore]
+		private string SearchText = "";
+
+		/// <summary>
+		/// Filtered items based on search text.
+		/// </summary>
+		[YamlIgnore]
+		private List<int> FilteredIndices = new List<int>();
+
+		/// <summary>
 		/// Height of the dropdown button
 		/// </summary>
 		[YamlIgnore]
@@ -102,6 +126,9 @@ namespace FishUI.Controls
 		public void Open()
 		{
 			IsOpen = true;
+			// Reset search filter when opening
+			SearchText = "";
+			UpdateFilteredItems();
 			// Bring dropdown to front and make it always on top while open
 			// This ensures the dropdown list appears above other controls
 			AlwaysOnTop = true;
@@ -115,10 +142,41 @@ namespace FishUI.Controls
 		{
 			IsOpen = false;
 			HoveredIndex = -1;
+			// Clear search filter when closing
+			SearchText = "";
+			FilteredIndices.Clear();
 			// Restore normal Z-order behavior
 			AlwaysOnTop = false;
 			// Remove from overlay tracking
 			OpenDropdowns.Remove(this);
+		}
+
+		/// <summary>
+		/// Updates the filtered item indices based on the current search text.
+		/// </summary>
+		private void UpdateFilteredItems()
+		{
+			FilteredIndices.Clear();
+
+			if (string.IsNullOrEmpty(SearchText))
+			{
+				// No filter - show all items
+				for (int i = 0; i < Items.Count; i++)
+					FilteredIndices.Add(i);
+			}
+			else
+			{
+				// Filter items by search text (case-insensitive contains)
+				string searchLower = SearchText.ToLowerInvariant();
+				for (int i = 0; i < Items.Count; i++)
+				{
+					if (Items[i].Text.ToLowerInvariant().Contains(searchLower))
+						FilteredIndices.Add(i);
+				}
+			}
+
+			// Reset hovered index when filter changes
+			HoveredIndex = -1;
 		}
 
 		public void Toggle()
@@ -172,8 +230,12 @@ namespace FishUI.Controls
 
 		Vector2 GetDropdownListSize(float itemHeight)
 		{
-			int visibleCount = MaxVisibleItems > 0 ? Math.Min(Items.Count, MaxVisibleItems) : Items.Count;
+			int itemCount = FilteredIndices.Count > 0 ? FilteredIndices.Count : Items.Count;
+			int visibleCount = MaxVisibleItems > 0 ? Math.Min(itemCount, MaxVisibleItems) : itemCount;
 			float listHeight = visibleCount * itemHeight + 4;
+			// Add space for search box if searchable
+			if (Searchable)
+				listHeight += SearchBoxHeight;
 			return new Vector2(Size.X, listHeight);
 		}
 
@@ -190,12 +252,44 @@ namespace FishUI.Controls
 
 		int PickIndexFromPosition(Vector2 LocalPos, float ItemHeight)
 		{
-			int Index = (int)((LocalPos.Y - 2) / ItemHeight);
+			// Adjust for search box height
+			float yOffset = Searchable ? SearchBoxHeight : 0;
+			int Index = (int)((LocalPos.Y - 2 - yOffset) / ItemHeight);
 
-			if (Index < 0 || Index >= Items.Count)
+			int itemCount = FilteredIndices.Count > 0 ? FilteredIndices.Count : Items.Count;
+			if (Index < 0 || Index >= itemCount)
 				return -1;
 
 			return Index;
+		}
+
+		/// <summary>
+		/// Converts a filtered display index to the actual item index.
+		/// </summary>
+		private int FilteredIndexToItemIndex(int filteredIndex)
+		{
+		if (filteredIndex < 0)
+		return -1;
+		if (FilteredIndices.Count > 0 && filteredIndex < FilteredIndices.Count)
+		return FilteredIndices[filteredIndex];
+		if (filteredIndex < Items.Count)
+		return filteredIndex;
+		return -1;
+		}
+
+		/// <summary>
+		/// Checks if a global position is inside the search box area.
+		/// </summary>
+		private bool IsPointInsideSearchBox(Vector2 GlobalPos)
+		{
+		if (!Searchable || !IsOpen)
+		return false;
+
+		Vector2 listPos = GetDropdownListPosition();
+		Vector2 searchPos = listPos + new Vector2(2, 2);
+		Vector2 searchSize = new Vector2(Size.X - 4, SearchBoxHeight - 4);
+
+		return Utils.IsInside(searchPos, searchSize, GlobalPos);
 		}
 
 		public override void HandleMouseMove(FishUI UI, FishInputState InState, Vector2 Pos)
@@ -219,30 +313,40 @@ namespace FishUI.Controls
 
 		public override void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
 		{
-			if (Btn != FishMouseButton.Left)
-				return;
+		if (Btn != FishMouseButton.Left)
+		return;
 
-			float itemHeight = UI.Settings.FontDefault.Size + 4;
+		float itemHeight = UI.Settings.FontDefault.Size + 4;
 
-			// Check if clicking on the button area
-			Vector2 absPos = GetAbsolutePosition();
-			Vector2 buttonSize = new Vector2(Size.X, ButtonHeight);
+		// Check if clicking on the button area
+		Vector2 absPos = GetAbsolutePosition();
+		Vector2 buttonSize = new Vector2(Size.X, ButtonHeight);
 
-			if (Utils.IsInside(absPos, buttonSize, Pos))
-			{
-				Toggle();
-				return;
-			}
+		if (Utils.IsInside(absPos, buttonSize, Pos))
+		{
+		Toggle();
+		return;
+		}
 
-			// Check if clicking on the dropdown list
-			if (IsOpen && IsPointInsideDropdownList(Pos, itemHeight))
-			{
-				if (HoveredIndex >= 0 && HoveredIndex < Items.Count)
-				{
-					SelectIndex(HoveredIndex);
-				}
-				return;
-			}
+		// Check if clicking on the dropdown list
+		if (IsOpen && IsPointInsideDropdownList(Pos, itemHeight))
+		{
+		// Check if clicking in search box area - don't close/select
+		if (Searchable && IsPointInsideSearchBox(Pos))
+		{
+		// Just absorb the click, keep dropdown open for typing
+		return;
+		}
+
+		int itemCount = FilteredIndices.Count > 0 ? FilteredIndices.Count : Items.Count;
+		if (HoveredIndex >= 0 && HoveredIndex < itemCount)
+		{
+		int actualIndex = FilteredIndexToItemIndex(HoveredIndex);
+		if (actualIndex >= 0)
+			SelectIndex(actualIndex);
+		}
+		return;
+		}
 		}
 
 		public override void HandleMouseLeave(FishUI UI, FishInputState InState)
@@ -295,6 +399,25 @@ namespace FishUI.Controls
 			{
 				if (HoveredIndex >= 0 && HoveredIndex < Items.Count)
 					SelectIndex(HoveredIndex);
+			}
+			else if (Key == FishKey.Backspace && Searchable)
+			{
+				// Handle backspace for search
+				if (SearchText.Length > 0)
+				{
+					SearchText = SearchText.Substring(0, SearchText.Length - 1);
+					UpdateFilteredItems();
+				}
+			}
+		}
+
+		public override void HandleTextInput(FishUI UI, FishInputState InState, char Character)
+		{
+			// Handle text input for search when dropdown is open and searchable
+			if (IsOpen && Searchable && !char.IsControl(Character))
+			{
+				SearchText += Character;
+				UpdateFilteredItems();
 			}
 		}
 
@@ -360,50 +483,80 @@ namespace FishUI.Controls
 		/// </summary>
 		internal void DrawDropdownListOverlay(FishUI UI)
 		{
-			if (!IsOpen || Items.Count == 0)
-				return;
+		if (!IsOpen || Items.Count == 0)
+			return;
 
-			float itemHeight = UI.Settings.FontDefault.Size + 4;
-			Vector2 listPos = GetDropdownListPosition();
-			Vector2 listSize = GetDropdownListSize(itemHeight);
+		float itemHeight = UI.Settings.FontDefault.Size + 4;
+		Vector2 listPos = GetDropdownListPosition();
+		Vector2 listSize = GetDropdownListSize(itemHeight);
 
-			// Draw list background
-			NPatch listBg = UI.Settings.ImgListBoxNormal;
-			UI.Graphics.DrawNPatch(listBg, listPos, listSize, Color);
+		// Draw list background
+		NPatch listBg = UI.Settings.ImgListBoxNormal;
+		UI.Graphics.DrawNPatch(listBg, listPos, listSize, Color);
 
-			// Draw items
-			UI.Graphics.PushScissor(listPos + new Vector2(2, 2), listSize - new Vector2(4, 4));
+		float yOffset = 0;
 
-			int visibleCount = MaxVisibleItems > 0 ? Math.Min(Items.Count, MaxVisibleItems) : Items.Count;
+		// Draw search box if searchable
+		if (Searchable)
+		{
+			// Draw search box background
+			NPatch searchBg = UI.Settings.ImgTextboxNormal;
+			Vector2 searchPos = listPos + new Vector2(2, 2);
+			Vector2 searchSize = new Vector2(listSize.X - 4, SearchBoxHeight - 4);
+			UI.Graphics.DrawNPatch(searchBg, searchPos, searchSize, Color);
 
-			for (int i = 0; i < visibleCount; i++)
+			// Draw search text or placeholder
+			string displayText = string.IsNullOrEmpty(SearchText) ? "Type to filter..." : SearchText;
+			FishColor textColor = string.IsNullOrEmpty(SearchText) ? new FishColor(128, 128, 128, 255) : FishColor.Black;
+			UI.Graphics.DrawTextColor(UI.Settings.FontDefault, displayText, searchPos + new Vector2(4, 2), textColor);
+
+			yOffset = SearchBoxHeight;
+		}
+
+		// Get items to display (filtered or all)
+		List<int> displayIndices = FilteredIndices.Count > 0 ? FilteredIndices : Enumerable.Range(0, Items.Count).ToList();
+		int itemCount = displayIndices.Count;
+		int visibleCount = MaxVisibleItems > 0 ? Math.Min(itemCount, MaxVisibleItems) : itemCount;
+
+		// Draw items
+		UI.Graphics.PushScissor(listPos + new Vector2(2, 2 + yOffset), listSize - new Vector2(4, 4 + yOffset));
+
+		for (int i = 0; i < visibleCount; i++)
+		{
+			int actualIndex = displayIndices[i];
+			bool isSelected = (actualIndex == SelectedIndex);
+			bool isHovered = (i == HoveredIndex);
+
+			float y = listPos.Y + 2 + yOffset + i * itemHeight;
+
+			NPatch itemBg = null;
+			FishColor txtColor = FishColor.Black;
+
+			if (isHovered)
 			{
-				bool isSelected = (i == SelectedIndex);
-				bool isHovered = (i == HoveredIndex);
-
-				float y = listPos.Y + 2 + i * itemHeight;
-
-				NPatch itemBg = null;
-				FishColor txtColor = FishColor.Black;
-
-				if (isHovered)
-				{
-					itemBg = UI.Settings.ImgSelectionBoxNormal;
-				}
-				else if (isSelected)
-				{
-					itemBg = UI.Settings.ImgListBoxItmSelected;
-				}
-
-				if (itemBg != null)
-				{
-					UI.Graphics.DrawNPatch(itemBg, new Vector2(listPos.X + 2, y) + ScrollOffset, new Vector2(listSize.X - 4, itemHeight), Color);
-				}
-
-				UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Items[i].Text, new Vector2(listPos.X + 4, y) + ScrollOffset + StartOffset, txtColor);
+			itemBg = UI.Settings.ImgSelectionBoxNormal;
+			}
+			else if (isSelected)
+			{
+			itemBg = UI.Settings.ImgListBoxItmSelected;
 			}
 
-			UI.Graphics.PopScissor();
+			if (itemBg != null)
+			{
+			UI.Graphics.DrawNPatch(itemBg, new Vector2(listPos.X + 2, y) + ScrollOffset, new Vector2(listSize.X - 4, itemHeight), Color);
+			}
+
+			UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Items[actualIndex].Text, new Vector2(listPos.X + 4, y) + ScrollOffset + StartOffset, txtColor);
 		}
-	}
-}
+
+		UI.Graphics.PopScissor();
+
+		// Show "no results" message if filter has no matches
+		if (Searchable && !string.IsNullOrEmpty(SearchText) && displayIndices.Count == 0)
+		{
+			float y = listPos.Y + 2 + yOffset;
+			UI.Graphics.DrawTextColor(UI.Settings.FontDefault, "No matching items", new Vector2(listPos.X + 4, y) + StartOffset, new FishColor(128, 128, 128, 255));
+		}
+		}
+		}
+		}

@@ -77,7 +77,7 @@ namespace FishUIDemos
 			for (int i = 0; i < 15; i++)
 				listBox.AddItem($"Item {i + 1}");
 
-			// === DropDown ===
+		// === DropDown ===
 			Label dropLabel = new Label("DropDown");
 			dropLabel.Position = new Vector2(420, 60);
 			dropLabel.Alignment = Align.Left;
@@ -88,8 +88,29 @@ namespace FishUIDemos
 			dropDown.Size = new Vector2(150, 30);
 			FUI.AddControl(dropDown);
 
-		for (int i = 0; i < 10; i++)
+			for (int i = 0; i < 10; i++)
 				dropDown.AddItem($"Option {i + 1}");
+
+		// === Searchable DropDown ===
+			Label searchDropLabel = new Label("Searchable DropDown");
+			searchDropLabel.Position = new Vector2(780, 220);
+			searchDropLabel.Alignment = Align.Left;
+			FUI.AddControl(searchDropLabel);
+
+			DropDown searchDropDown = new DropDown();
+			searchDropDown.Position = new Vector2(780, 245);
+			searchDropDown.Size = new Vector2(180, 30);
+			searchDropDown.Searchable = true;
+			searchDropDown.TooltipText = "Click to open, then type to filter";
+			FUI.AddControl(searchDropDown);
+
+			// Add various items to search through
+			string[] countries = { "Australia", "Austria", "Belgium", "Brazil", "Canada", 
+				"China", "Denmark", "Finland", "France", "Germany", "India", "Italy", 
+				"Japan", "Mexico", "Netherlands", "Norway", "Poland", "Spain", "Sweden", 
+				"Switzerland", "United Kingdom", "United States" };
+			foreach (var country in countries)
+				searchDropDown.AddItem(country);
 
 			// === Multi-Select ListBox ===
 			Label multiSelectLabel = new Label("Multi-Select ListBox");
