@@ -3,12 +3,12 @@ using FishUI.Controls;
 using System;
 using System.Numerics;
 
-namespace FishUISample.Samples
+namespace FishUIDemos
 {
 	/// <summary>
 	/// Demonstrates the MenuBar control with dropdown menus, submenus, and separators.
 	/// </summary>
-	internal class SampleMenuBar : ISample
+	public class SampleMenuBar : ISample
 	{
 		FishUI.FishUI FUI;
 		Label statusLabel;

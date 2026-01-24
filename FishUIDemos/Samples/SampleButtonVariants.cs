@@ -3,12 +3,12 @@ using FishUI.Controls;
 using System;
 using System.Numerics;
 
-namespace FishUISample.Samples
+namespace FishUIDemos
 {
 	/// <summary>
 	/// Demonstrates button variants: Toggle, Repeat, ImageButton, Icon positions.
 	/// </summary>
-	internal class SampleButtonVariants : ISample
+	public class SampleButtonVariants : ISample
 	{
 		FishUI.FishUI FUI;
 

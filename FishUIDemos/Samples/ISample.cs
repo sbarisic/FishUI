@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FishUISample.Samples
+namespace FishUIDemos
 {
-	internal interface ISample
+	public interface ISample
 	{
 		/// <summary>
 		/// Display name of the sample.

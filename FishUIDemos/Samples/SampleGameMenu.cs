@@ -7,13 +7,13 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FishUISample.Samples
+namespace FishUIDemos
 {
 	/// <summary>
 	/// Demonstrates a game main menu with New Game, Options, and Quit buttons.
 	/// Options opens a window with tabs: Input, Graphics, Gameplay.
 	/// </summary>
-	internal class SampleGameMenu : ISample
+	public class SampleGameMenu : ISample
 	{
 		FishUI.FishUI FUI;
 		Window OptionsWindow;

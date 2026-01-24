@@ -4,7 +4,7 @@ using System;
 using System.ComponentModel;
 using System.Numerics;
 
-namespace FishUISample.Samples
+namespace FishUIDemos
 {
 	/// <summary>
 	/// Sample object with various property types for PropertyGrid testing.
@@ -68,7 +68,7 @@ namespace FishUISample.Samples
 	/// <summary>
 	/// Demonstrates the PropertyGrid control with various property types.
 	/// </summary>
-	internal class SamplePropertyGrid : ISample
+	public class SamplePropertyGrid : ISample
 	{
 		FishUI.FishUI FUI;
 		PropertyGrid propertyGrid;

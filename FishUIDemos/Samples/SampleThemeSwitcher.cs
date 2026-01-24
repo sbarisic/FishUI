@@ -7,12 +7,12 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FishUISample.Samples
+namespace FishUIDemos
 {
 	/// <summary>
 	/// Demonstrates runtime theme switching between gwen.yaml and gwen2.yaml themes.
 	/// </summary>
-	internal class SampleThemeSwitcher : ISample
+	public class SampleThemeSwitcher : ISample
 	{
 		FishUI.FishUI FUI;
 		FishUISettings UISettings;

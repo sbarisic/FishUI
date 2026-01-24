@@ -3,13 +3,13 @@ using FishUI.Controls;
 using System;
 using System.Numerics;
 
-namespace FishUISample.Samples
+namespace FishUIDemos
 {
 	/// <summary>
 	/// Demonstrates basic input controls: Textbox, ListBox, DropDown, ScrollBars, 
 	/// ProgressBars, Sliders, NumericUpDown, ToggleSwitch.
 	/// </summary>
-	internal class SampleBasicControls : ISample
+	public class SampleBasicControls : ISample
 	{
 		FishUI.FishUI FUI;
 

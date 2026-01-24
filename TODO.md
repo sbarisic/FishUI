@@ -196,11 +196,6 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ## Sample Application
 
 - [ ] Examples should be implemented in FishUISample project, using the ISample interface (2 CPX each)
-- [ ] **GUI-based sample chooser** (3 CPX) ** HIGH PRIORITY**
-  - Replace console menu with FishUI-based sample selector window
-  - Display available samples as clickable buttons or list
-  - Return to GUI selector when sample window is closed
-  - Self-dogfooding: uses FishUI to demonstrate FishUI
 - [ ] **Move gauge controls to dedicated sample page** (combine with car dashboard example entry) (2 CPX) ** MEDIUM PRIORITY**
   - Move RadialGauge and BarGauge from SampleBasicControls to new SampleGauges
   - Include VUMeter in the gauges sample
@@ -279,7 +274,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - LayoutFormat TypeMapping - All controls registered
 
 ### Samples
-- Sample infrastructure: Split samples, runner loop, console chooser, theme switcher, game menu
+- Sample infrastructure: Split samples, runner loop, GUI-based chooser, theme switcher, game menu
+- GUI sample chooser: FishUI-based sample selector replacing console menu (self-dogfooding)
 - Control demos: ImageBox, BarGauge, VirtualCursor, AnimatedImageBox, StaticText
 
 ### Code Cleanup

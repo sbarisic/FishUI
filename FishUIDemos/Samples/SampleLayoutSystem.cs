@@ -3,12 +3,12 @@ using FishUI.Controls;
 using System;
 using System.Numerics;
 
-namespace FishUISample.Samples
+namespace FishUIDemos
 {
 	/// <summary>
 	/// Demonstrates layout system features: Margin, Padding, Anchors, StackLayout, Panel variants.
 	/// </summary>
-	internal class SampleLayoutSystem : ISample
+	public class SampleLayoutSystem : ISample
 	{
 		FishUI.FishUI FUI;
 

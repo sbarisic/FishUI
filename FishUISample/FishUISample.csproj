@@ -8,16 +8,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="screenshots\**" />
+    <EmbeddedResource Remove="screenshots\**" />
+    <None Remove="screenshots\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Raylib-cs" Version="7.0.2" />
     <PackageReference Include="System.Drawing.Common" Version="10.0.2" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FishUIDemos\FishUIDemos.csproj" />
     <ProjectReference Include="..\FishUI\FishUI.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="screenshots\" />
   </ItemGroup>
 
 </Project>

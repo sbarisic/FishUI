@@ -3,13 +3,13 @@ using FishUI.Controls;
 using System;
 using System.Numerics;
 
-namespace FishUISample.Samples
+namespace FishUIDemos
 {
 	/// <summary>
 	/// Demonstrates the virtual cursor/mouse functionality for keyboard/gamepad UI navigation.
 	/// Use Arrow keys to move cursor, Space/Enter for left click, Right Shift for right click.
 	/// </summary>
-	internal class SampleVirtualCursor : ISample
+	public class SampleVirtualCursor : ISample
 	{
 		FishUI.FishUI FUI;
 		IFishUIInput InputRef;
