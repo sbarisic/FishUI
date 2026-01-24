@@ -196,12 +196,6 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ## Sample Application
 
 - [ ] Examples should be implemented in FishUISample project, using the ISample interface (2 CPX each)
-- [ ] **Move gauge controls to dedicated sample page** (combine with car dashboard example entry) (2 CPX) ** MEDIUM PRIORITY**
-  - Move RadialGauge and BarGauge from SampleBasicControls to new SampleGauges
-  - Include VUMeter in the gauges sample
-  - Add interactive controls for all gauges
-- [ ] Car dashboard example with gauges (2 CPX)
-  - RadialGauge and BarGauge controls now available
 - [ ] **ImageBox example improvements** (2 CPX)
   - Use images from data/images/ folder instead of silk_icons
   - Add pixelated (nearest-neighbor) rendering mode to ImageBox
@@ -236,7 +230,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-*No uncategorized items*
+- Make bar gauge ticks black
+- Change bar gauge look to more match car dashboards, make them bigger by default, add the ability to display range steps (like RPM or Vehicle speed)
 
 ---
 
@@ -277,6 +272,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - Sample infrastructure: Split samples, runner loop, GUI-based chooser, theme switcher, game menu
 - GUI sample chooser: FishUI-based sample selector replacing console menu (self-dogfooding)
 - Control demos: ImageBox, BarGauge, VirtualCursor, AnimatedImageBox, StaticText
+- SampleGauges: Dedicated gauge demo with RadialGauge, BarGauge, VUMeter, car dashboard preview
 
 ### Code Cleanup
 - ScreenCapture platform compatibility, YamlIgnore audit, naming conventions, XML docs, screenshot buttons, TODO extraction, debug flags refactor

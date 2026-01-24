@@ -77,7 +77,8 @@ namespace FishUISample
 			new SampleGameMenu(),       // Game main menu example
 			new SampleVirtualCursor(),  // Virtual cursor/mouse for keyboard/gamepad navigation
 			new SamplePropertyGrid(),   // PropertyGrid control demo
-			new SampleMenuBar()         // MenuBar with dropdown menus
+			new SampleMenuBar(),        // MenuBar with dropdown menus
+			new SampleGauges()          // RadialGauge, BarGauge, VUMeter controls
 			};
 
 			// Loop back to chooser when window closes
