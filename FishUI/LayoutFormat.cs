@@ -63,7 +63,8 @@ namespace FishUI
 		{ "!AnimatedImageBox", typeof(AnimatedImageBox) },
 		{ "!RadialGauge", typeof(RadialGauge) },
 		{ "!PropertyGrid", typeof(PropertyGrid) },
-		{ "!ScrollablePane", typeof(ScrollablePane) }
+		{ "!ScrollablePane", typeof(ScrollablePane) },
+		{ "!ItemListbox", typeof(ItemListbox) }
 		};
 
 		public static string Serialize(FishUI UI)

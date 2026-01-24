@@ -57,6 +57,7 @@ A list of planned features, improvements, and new controls for FishUI.
 | PropertyGrid | ✅ Complete | N/A |
 | MenuBar | ✅ Complete | ✅ Atlas |
 | ScrollablePane | ✅ Complete | N/A |
+| ItemListbox | ✅ Complete | ✅ Atlas |
 
 ---
 
@@ -97,10 +98,6 @@ A list of planned features, improvements, and new controls for FishUI.
   - Calendar popup for date selection
   - Optional time selection spinner
   - Configurable date formats
-
-- [ ] **ItemListbox** (2 CPX)
-  - Listbox with custom item widgets
-  - *GWEN WidgetLook: ItemListbox*
 
 ---
 
@@ -246,6 +243,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - ImageBox, StaticText, VUMeter, AnimatedImageBox - Display controls
 - MenuItem, RadialGauge, BarGauge - Menu items and gauge controls
 - ScrollablePane - Container with automatic scrollbars and virtual scrolling
+- ItemListbox - Listbox with custom item widgets
 
 ### Control Improvements
 - Button: Icon, Toggle, Repeat, ImageButton modes
