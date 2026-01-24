@@ -125,34 +125,46 @@ namespace FishUI.Controls
 		/// </summary>
 		internal void OpenDropdown()
 		{
-			if (_dropdownMenu == null || _dropdownMenu.Children.Count == 0)
-				return;
+		if (_dropdownMenu == null || _dropdownMenu.Children.Count == 0)
+		return;
 
-			IsOpen = true;
+		if (FishUI == null)
+		return;
 
-			// Position dropdown below this item
-			Vector2 absPos = GetAbsolutePosition();
-			Vector2 absSize = GetAbsoluteSize();
-			Vector2 dropdownPos = new Vector2(absPos.X, absPos.Y + absSize.Y);
+		IsOpen = true;
 
-			// Add dropdown as child of this item for proper rendering
-			AddChild(_dropdownMenu);
+		// Position dropdown below this item
+		Vector2 absPos = GetAbsolutePosition();
+		Vector2 absSize = GetAbsoluteSize();
+		Vector2 dropdownPos = new Vector2(absPos.X, absPos.Y + absSize.Y);
 
-			_dropdownMenu.Show(dropdownPos);
-			OnOpened?.Invoke(this);
+		// Add dropdown to FishUI root for proper rendering (not as child)
+		if (!_dropdownAddedToRoot)
+		{
+		FishUI.AddControl(_dropdownMenu);
+		_dropdownAddedToRoot = true;
 		}
+
+		_dropdownMenu.Show(dropdownPos);
+		OnOpened?.Invoke(this);
+		}
+
+		/// <summary>
+		/// Whether the dropdown has been added to the FishUI root.
+		/// </summary>
+		private bool _dropdownAddedToRoot = false;
 
 		/// <summary>
 		/// Closes the dropdown menu.
 		/// </summary>
 		internal void CloseDropdown()
 		{
-			if (_dropdownMenu != null && IsOpen)
-			{
-				_dropdownMenu.CloseThis();
-				IsOpen = false;
-				OnClosed?.Invoke(this);
-			}
+		if (_dropdownMenu != null && IsOpen)
+		{
+		_dropdownMenu.CloseThis();
+		IsOpen = false;
+		OnClosed?.Invoke(this);
+		}
 		}
 
 		/// <summary>

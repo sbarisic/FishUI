@@ -196,12 +196,12 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ## Sample Application
 
 - [ ] Examples should be implemented in FishUISample project, using the ISample interface (2 CPX each)
-- [ ] **GUI-based sample chooser** (3 CPX)
+- [ ] **GUI-based sample chooser** (3 CPX) ** HIGH PRIORITY**
   - Replace console menu with FishUI-based sample selector window
   - Display available samples as clickable buttons or list
   - Return to GUI selector when sample window is closed
   - Self-dogfooding: uses FishUI to demonstrate FishUI
-- [ ] **Move gauge controls to dedicated sample page** (2 CPX)
+- [ ] **Move gauge controls to dedicated sample page** (combine with car dashboard example entry) (2 CPX) ** MEDIUM PRIORITY**
   - Move RadialGauge and BarGauge from SampleBasicControls to new SampleGauges
   - Include VUMeter in the gauges sample
   - Add interactive controls for all gauges
@@ -210,8 +210,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [ ] **ImageBox example improvements** (2 CPX)
   - Use images from data/images/ folder instead of silk_icons
   - Add pixelated (nearest-neighbor) rendering mode to ImageBox
-- [ ] MultiLine textbox example (1 CPX)
-  - Add below existing single-line textbox sample
+- [ ] MultiLine textbox example (separate demo)
+  - Add single line and multi line 
   - Requires multi-line textbox mode implementation
 
 ---
@@ -241,7 +241,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-- Clicking on menu items in the menu bar sample does not show any kind of context menu or action
+*No uncategorized items*
 
 ---
 
@@ -290,4 +290,5 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - Virtual cursor: Pick order, rendering order, arrow key handling
 - Serialization: TreeNode/TabControl YamlIgnore, Window/TabControl OnDeserialized
 - PropertyGrid: Inline editors sync values, auto-focus, fixed indentation and int conversion
+- MenuBar: Dropdown menus now properly added to FishUI root for correct rendering
 - Misc: ImageBox overlap, ScrollBar mouse wheel, ContextMenu submenu overlap
