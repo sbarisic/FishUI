@@ -67,6 +67,12 @@ namespace FishUI.Controls
 		/// </summary>
 		public event NumericValueChangedFunc OnValueChanged;
 
+		/// <summary>
+		/// Gets the internal textbox control for focus management.
+		/// </summary>
+		[YamlIgnore]
+		public Textbox InternalTextbox => _textbox;
+
 		private Textbox _textbox;
 		private bool _upButtonHovered = false;
 		private bool _upButtonPressed = false;

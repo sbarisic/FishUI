@@ -14,7 +14,7 @@ A list of planned features, improvements, and new controls for FishUI.
 - Consolidate all completed TODO items by combining similar ones and shortening the descriptions where possible
 
 > How TODO file should be iterated:
-- First handle the Uncategorized section, if any similar issues already are on the TODO list, increase their priority instead of adding duplicates (take one at a time)
+- First handle the Uncategorized section, if any similar issues already are on the TODO list, increase their priority instead of adding duplicates (categorize all at once)
 - When Uncategorized section is empty, start by fixing Active Bugs (take one at a time)
 - After Active Bugs, handle the rest of the TODO file by priority and complexity (High priority takes precedance, then CPX points) (take one at a time).
 
@@ -242,7 +242,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-- Changing value in textbox of NumericUpDown does not update the value in the PropertyGrid demo
+- PropertyGrid demo count and speed aren't hooked up to any changes, they do not change object values 
 
 ---
 
@@ -289,5 +289,5 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - DropDown: Overlay rendering, click-through fixes, AlwaysOnTop handling, mouse leave behavior
 - Virtual cursor: Pick order, rendering order, arrow key handling
 - Serialization: TreeNode/TabControl YamlIgnore, Window/TabControl OnDeserialized
-- PropertyGrid: Inline editors (CheckBox, NumericUpDown) now properly sync values via events
+- PropertyGrid: Inline editors now properly sync values; editors auto-focus on creation
 - Misc: ImageBox overlap, ScrollBar mouse wheel, ContextMenu submenu overlap

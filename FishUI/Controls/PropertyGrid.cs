@@ -461,42 +461,46 @@ namespace FishUI.Controls
 			}
 			else if (propType == typeof(int) || propType == typeof(float) || propType == typeof(double))
 			{
-				var numericUpDown = new NumericUpDown();
-				numericUpDown.Position = new Vector2(x, y);
-				numericUpDown.Size = new Vector2(width, height);
-				numericUpDown.DecimalPlaces = propType == typeof(int) ? 0 : 2;
-				numericUpDown.MinValue = float.MinValue;
-				numericUpDown.MaxValue = float.MaxValue;
-				if (currentValue != null)
-					numericUpDown.Value = Convert.ToSingle(currentValue);
-				numericUpDown.OnValueChanged += (sender, value) =>
-				{
-					var oldValue = item.GetValue();
-					object newValue = propType == typeof(int) ? (int)value :
-									  propType == typeof(float) ? value :
-									  (double)value;
-					if (item.SetValue(newValue))
-						OnPropertyValueChanged?.Invoke(this, item, oldValue, newValue);
-				};
-				AddChild(numericUpDown);
-				_activeEditor = numericUpDown;
+			var numericUpDown = new NumericUpDown();
+			numericUpDown.Position = new Vector2(x, y);
+			numericUpDown.Size = new Vector2(width, height);
+			numericUpDown.DecimalPlaces = propType == typeof(int) ? 0 : 2;
+			numericUpDown.MinValue = float.MinValue;
+			numericUpDown.MaxValue = float.MaxValue;
+			if (currentValue != null)
+			numericUpDown.Value = Convert.ToSingle(currentValue);
+			numericUpDown.OnValueChanged += (sender, value) =>
+			{
+			var oldValue = item.GetValue();
+			object newValue = propType == typeof(int) ? (int)value :
+					propType == typeof(float) ? value :
+					(double)value;
+			if (item.SetValue(newValue))
+			OnPropertyValueChanged?.Invoke(this, item, oldValue, newValue);
+			};
+			AddChild(numericUpDown);
+			_activeEditor = numericUpDown;
+			// Focus the internal textbox so user can type immediately
+			UI.FocusControl(numericUpDown.InternalTextbox);
 			}
 			else // string and other types
 			{
-				var textbox = new Textbox();
-				textbox.Position = new Vector2(x, y);
-				textbox.Size = new Vector2(width, height);
-				textbox.Text = currentValue?.ToString() ?? "";
-				textbox.OnTextChanged += (sender, text) =>
-				{
-					var oldValue = item.GetValue();
-					if (item.SetValue(text))
-						OnPropertyValueChanged?.Invoke(this, item, oldValue, text);
-				};
-				AddChild(textbox);
-				_activeEditor = textbox;
+			var textbox = new Textbox();
+			textbox.Position = new Vector2(x, y);
+			textbox.Size = new Vector2(width, height);
+			textbox.Text = currentValue?.ToString() ?? "";
+			textbox.OnTextChanged += (sender, text) =>
+			{
+			var oldValue = item.GetValue();
+			if (item.SetValue(text))
+				OnPropertyValueChanged?.Invoke(this, item, oldValue, text);
+			};
+			AddChild(textbox);
+			_activeEditor = textbox;
+			// Focus the textbox so user can type immediately
+			UI.FocusControl(textbox);
 			}
-		}
+			}
 
 		private void UpdateVisibleItems()
 		{
