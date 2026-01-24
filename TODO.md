@@ -261,6 +261,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - Input controls: Mouse wheel support for Slider, ScrollBars, NumericUpDown
 - NumericUpDown: Narrower buttons, TabControl serialization, BarGauge styling
 - BarGauge: Black tick marks, dashboard styling (larger size, range labels)
+- RadialGauge: Black text/ticks, wider draw angle (~260° sweep)
 
 ### Core Framework
 - StackLayout, Anchor, Margin/Padding - Layout infrastructure

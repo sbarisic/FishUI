@@ -36,17 +36,17 @@ namespace FishUI.Controls
 
 		/// <summary>
 		/// Start angle of the gauge in degrees (0 = right, 90 = down, 180 = left, 270 = up).
-		/// Default is 225 degrees (lower-left).
+		/// Default is 230 degrees (lower-left) for realistic dashboard appearance.
 		/// </summary>
 		[YamlMember]
-		public float StartAngle { get; set; } = 225f;
+		public float StartAngle { get; set; } = 140f;
 
 		/// <summary>
 		/// End angle of the gauge in degrees.
-		/// Default is 315 degrees (-45 or lower-right), giving a 270-degree sweep.
+		/// Default is 40 degrees, giving a ~260-degree sweep for realistic dashboard appearance.
 		/// </summary>
 		[YamlMember]
-		public float EndAngle { get; set; } = -45f;
+		public float EndAngle { get; set; } = 40f;
 
 		/// <summary>
 		/// Background color of the gauge arc.
@@ -130,7 +130,7 @@ namespace FishUI.Controls
 		/// Color of tick marks.
 		/// </summary>
 		[YamlMember]
-		public FishColor TickColor { get; set; } = new FishColor(200, 200, 200, 255);
+		public FishColor TickColor { get; set; } = new FishColor(0, 0, 0, 255);
 
 		/// <summary>
 		/// Whether to show labels at major tick positions.
@@ -142,7 +142,7 @@ namespace FishUI.Controls
 		/// Color of the labels.
 		/// </summary>
 		[YamlMember]
-		public FishColor LabelColor { get; set; } = new FishColor(220, 220, 220, 255);
+		public FishColor LabelColor { get; set; } = new FishColor(0, 0, 0, 255);
 
 		/// <summary>
 		/// Whether to show the current value in the center.
@@ -451,7 +451,7 @@ namespace FishUI.Controls
 			{
 				Vector2 unitSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, UnitSuffix);
 				Vector2 unitPos = center + new Vector2(-unitSize.X / 2f, radius * 0.25f + textSize.Y + 2f);
-				UI.Graphics.DrawTextColor(UI.Settings.FontDefault, UnitSuffix, unitPos, new FishColor(150, 150, 150, 255));
+				UI.Graphics.DrawTextColor(UI.Settings.FontDefault, UnitSuffix, unitPos, new FishColor(60, 60, 60, 255));
 			}
 		}
 	}
