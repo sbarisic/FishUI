@@ -10,6 +10,18 @@ namespace FishUI.Controls
 {
 	public delegate void ListBoxItemSelectedFunc(ListBox ListBox, int Idx, ListBoxItem Itm);
 
+	/// <summary>
+	/// Delegate for custom item rendering in ListBox.
+	/// </summary>
+	/// <param name="ui">The FishUI instance</param>
+	/// <param name="item">The item being rendered</param>
+	/// <param name="index">Index of the item in the list</param>
+	/// <param name="position">Position to render at</param>
+	/// <param name="size">Size of the item area</param>
+	/// <param name="isSelected">Whether item is currently selected</param>
+	/// <param name="isHovered">Whether item is currently hovered</param>
+	public delegate void ListBoxItemRenderFunc(FishUI ui, ListBoxItem item, int index, Vector2 position, Vector2 size, bool isSelected, bool isHovered);
+
 	public class ListBoxItem
 	{
 		public string Text;
@@ -101,6 +113,19 @@ namespace FishUI.Controls
 		int SelectionAnchor = -1;
 
 		public event ListBoxItemSelectedFunc OnItemSelected;
+
+		/// <summary>
+		/// Custom item renderer. When set, this delegate is called to render each list item
+		/// instead of the default text rendering. Allows icons, colors, or complex layouts per item.
+		/// </summary>
+		[YamlIgnore]
+		public ListBoxItemRenderFunc CustomItemRenderer { get; set; }
+
+		/// <summary>
+		/// Custom height for items when using CustomItemRenderer. Set to 0 to use default font-based height.
+		/// </summary>
+		[YamlMember]
+		public float CustomItemHeight { get; set; } = 0;
 
 		public ListBox()
 		{
@@ -206,8 +231,9 @@ namespace FishUI.Controls
 
 		public override void HandleMouseMove(FishUI UI, FishInputState InState, Vector2 Pos)
 		{
-			Vector2 LocalPos = GetLocalRelative(Pos);
-			HoveredIndex = PickIndexFromPosition2(UI, LocalPos, UI.Settings.FontDefault.Size + 4);
+		Vector2 LocalPos = GetLocalRelative(Pos);
+		float itemHeight = CustomItemHeight > 0 ? CustomItemHeight : UI.Settings.FontDefault.Size + 4;
+		HoveredIndex = PickIndexFromPosition2(UI, LocalPos, itemHeight);
 		}
 
 		public override void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
@@ -241,21 +267,21 @@ namespace FishUI.Controls
 		}
 		else
 		{
-		// Normal click: Clear selection and select only clicked item
-		SelectedIndices.Clear();
-		SelectedIndices.Add(HoveredIndex);
-		SelectionAnchor = HoveredIndex;
-		SelectIndex(HoveredIndex);
-		}
+				// Normal click: Clear selection and select only clicked item
+					SelectedIndices.Clear();
+					SelectedIndices.Add(HoveredIndex);
+					SelectionAnchor = HoveredIndex;
+					SelectIndex(HoveredIndex);
+				}
 
-		FishUI.Events.Broadcast(FishUI, this, "selection_changed", new object[] { GetSelectedIndices() });
-		}
-		else
-		{
-		SelectIndex(HoveredIndex);
-		}
+				FishUI.Events.Broadcast(FishUI, this, "selection_changed", new object[] { GetSelectedIndices() });
+			}
+			else
+			{
+				SelectIndex(HoveredIndex);
+			}
 
-		FishUIDebug.LogListBoxSelectionChange(SelectedIndex);
+			FishUIDebug.LogListBoxSelectionChange(SelectedIndex);
 		}
 
 		public override void HandleKeyPress(FishUI UI, FishInputState InState, FishKey Key)
@@ -326,32 +352,31 @@ namespace FishUI.Controls
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
-			if (ShowScrollBar)
-				CreateScrollBar(UI);
-			else if (ScrollBar != null)
-			{
-				RemoveChild(ScrollBar);
-				ScrollBar = null;
-			}
+		if (ShowScrollBar)
+		CreateScrollBar(UI);
+		else if (ScrollBar != null)
+		{
+		RemoveChild(ScrollBar);
+		ScrollBar = null;
+		}
 
-			float ItemHeight = UI.Settings.FontDefault.Size + 4;
-			ListItemHeight = ItemHeight;
+		// Use custom item height if set, otherwise use font-based height
+		float ItemHeight = CustomItemHeight > 0 ? CustomItemHeight : UI.Settings.FontDefault.Size + 4;
+		ListItemHeight = ItemHeight;
 
-			if (Size.Y == 0)
-				AutoResizeHeight();
+		if (Size.Y == 0)
+		AutoResizeHeight();
 
-			NPatch Cur = UI.Settings.ImgListBoxNormal;
-			UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), Color);
+		NPatch Cur = UI.Settings.ImgListBoxNormal;
+		UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), Color);
 
-
-
-			bool ShowSBar = false;
+		bool ShowSBar = false;
 
 		UI.Graphics.PushScissor(GetAbsolutePosition() + new Vector2(2, 2), GetAbsoluteSize() - new Vector2(4, 4));
-			for (int i = 0; i < Items.Count; i++)
-			{
-				bool IsSelected = IsIndexSelected(i);
-				bool IsHovered = (i == HoveredIndex);
+		for (int i = 0; i < Items.Count; i++)
+		{
+		bool IsSelected = IsIndexSelected(i);
+		bool IsHovered = (i == HoveredIndex);
 
 				float Y = Position.Y + 2 + i * ListItemHeight;
 
@@ -368,7 +393,7 @@ namespace FishUI.Controls
 				{
 					FishColor rowColor = (i % 2 == 0) ? EvenRowColor : OddRowColor;
 					UI.Graphics.DrawRectangle(
-						new Vector2(Position.X + 2, Y) + ScrollOffset,
+					new Vector2(Position.X + 2, Y) + ScrollOffset,
 						new Vector2(GetAbsoluteSize().X - 4 - ScrollBarW, ListItemHeight),
 						rowColor);
 				}
@@ -391,12 +416,23 @@ namespace FishUI.Controls
 					TxtColor = FishColor.White;
 				}
 
+				Vector2 itemPos = new Vector2(Position.X + 2, Y) + ScrollOffset;
+				Vector2 itemSize = new Vector2(GetAbsoluteSize().X - 4 - ScrollBarW, ListItemHeight);
+
 				if (Cur != null)
 				{
-					UI.Graphics.DrawNPatch(Cur, new Vector2(Position.X + 2, Y) + ScrollOffset, new Vector2(GetAbsoluteSize().X - 4 - (ScrollBarW), ListItemHeight), Color);
+					UI.Graphics.DrawNPatch(Cur, itemPos, itemSize, Color);
 				}
 
-				UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Items[i].Text, new Vector2(Position.X + 4, Y) + ScrollOffset + StartOffset, TxtColor);
+				// Use custom renderer if set, otherwise default text rendering
+				if (CustomItemRenderer != null)
+				{
+					CustomItemRenderer(UI, Items[i], i, itemPos + new Vector2(2, 0), itemSize - new Vector2(4, 0), IsSelected, IsHovered);
+				}
+				else
+				{
+					UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Items[i].Text, itemPos + new Vector2(2, 0) + StartOffset, TxtColor);
+				}
 
 				if (!ShowScrollBar)
 					ShowSBar = false;

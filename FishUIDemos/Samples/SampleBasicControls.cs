@@ -174,11 +174,55 @@ namespace FishUIDemos
 			for (int i = 0; i < 10; i++)
 				multiSelectListBox.AddItem($"Entry {i + 1}");
 
-			// Update selection count label when selection changes
+		// Update selection count label when selection changes
 			multiSelectListBox.OnItemSelected += (lb, idx, item) =>
 			{
 				int count = multiSelectListBox.GetSelectedIndices().Length;
 				multiSelectInfo.Text = $"Selected: {count} item{(count != 1 ? "s" : "")}";
+			};
+
+		// === Custom Rendered ListBox ===
+			Label customListLabel = new Label("Custom ListBox Items");
+			customListLabel.Position = new Vector2(780, 490);
+			customListLabel.Alignment = Align.Left;
+			FUI.AddControl(customListLabel);
+
+			ListBox customListBox = new ListBox();
+			customListBox.Position = new Vector2(780, 510);
+			customListBox.Size = new Vector2(180, 140);
+			customListBox.CustomItemHeight = 28;
+			customListBox.ShowScrollBar = true;
+			customListBox.TooltipText = "ListBox with custom item rendering";
+			FUI.AddControl(customListBox);
+
+			// Add items with priority data
+			customListBox.AddItem(new ListBoxItem("Critical Issue", 1));
+			customListBox.AddItem(new ListBoxItem("High Priority", 2));
+			customListBox.AddItem(new ListBoxItem("Medium Task", 3));
+			customListBox.AddItem(new ListBoxItem("Low Priority", 4));
+			customListBox.AddItem(new ListBoxItem("Backlog Item", 5));
+
+			// Set custom renderer that draws priority indicators
+			customListBox.CustomItemRenderer = (ui, item, index, pos, size, isSelected, isHovered) =>
+			{
+				// Draw priority indicator based on UserData
+				FishColor priorityColor = new FishColor(128, 128, 128, 255);
+				if (item.UserData is int priority)
+				{
+					priorityColor = priority switch
+					{
+						1 => new FishColor(220, 50, 50, 255),   // Critical - Red
+						2 => new FishColor(255, 150, 50, 255),  // High - Orange
+						3 => new FishColor(220, 200, 50, 255),  // Medium - Yellow
+						4 => new FishColor(100, 180, 100, 255), // Low - Green
+						_ => new FishColor(128, 128, 128, 255)  // Backlog - Gray
+					};
+				}
+				ui.Graphics.DrawRectangle(pos + new Vector2(2, 6), new Vector2(12, 12), priorityColor);
+
+				// Draw text with offset
+				FishColor textColor = isSelected ? FishColor.White : FishColor.Black;
+				ui.Graphics.DrawTextColor(ui.Settings.FontDefault, item.Text, pos + new Vector2(18, 6), textColor);
 			};
 
 			// === ScrollBars ===
