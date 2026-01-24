@@ -10,6 +10,7 @@ A list of planned features, improvements, and new controls for FishUI.
 > - **5** - Large feature spanning multiple components and subsystems, major architecture changes
 
 > Instructions for the TODO list:
+- Move all completed items into separate Completed section
 - Consolidate all completed TODO items by combining similar ones and shortening the descriptions where possible
 
 > How TODO file should be iterated:
@@ -53,6 +54,7 @@ A list of planned features, improvements, and new controls for FishUI.
 | VUMeter | ✅ Complete | N/A |
 | AnimatedImageBox | ✅ Complete | N/A |
 | RadialGauge | ✅ Complete | N/A |
+| PropertyGrid | ✅ Complete | N/A |
 
 ---
 
@@ -60,12 +62,7 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ### High Priority
 
-- [ ] **PropertyGrid** (4 CPX)
-  - Windows Forms-like property editor control
-  - Displays object properties in categorized/alphabetical list
-  - Supports editing of common types (string, int, float, bool, enum, color)
-  - Expandable nested objects
-  - *Use case: In-game editors, debug panels, configuration UIs*
+- [x] ~~**PropertyGrid**~~ - Windows Forms-like property editor with categorization, reflection-based editing, support for string/int/float/bool/enum types; demo in SamplePropertyGrid
 
 ### Medium Priority
 

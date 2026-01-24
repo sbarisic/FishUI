@@ -59,8 +59,9 @@ namespace FishUI
 		{ "!BarGauge", typeof(BarGauge) },
 		{ "!VUMeter", typeof(VUMeter) },
 		{ "!AnimatedImageBox", typeof(AnimatedImageBox) },
-		{ "!RadialGauge", typeof(RadialGauge) }
-	};
+		{ "!RadialGauge", typeof(RadialGauge) },
+		{ "!PropertyGrid", typeof(PropertyGrid) }
+		};
 
 		public static string Serialize(FishUI UI)
 		{
