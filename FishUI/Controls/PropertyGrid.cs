@@ -423,8 +423,12 @@ namespace FishUI.Controls
 				checkBox.IsChecked = currentValue is bool b && b;
 				checkBox.Position = new Vector2(x + 2, y + 2);
 				checkBox.Size = new Vector2(height - 4, height - 4);
-				checkBox.HandleMouseClick(UI, default, FishMouseButton.Left, Vector2.Zero); // Toggle to test
-				// Note: CheckBox toggles on click, we'll handle value sync via polling
+				checkBox.OnCheckedChanged += (sender, isChecked) =>
+				{
+					var oldValue = item.GetValue();
+					if (item.SetValue(isChecked))
+						OnPropertyValueChanged?.Invoke(this, item, oldValue, isChecked);
+				};
 				AddChild(checkBox);
 				_activeEditor = checkBox;
 			}
@@ -434,10 +438,13 @@ namespace FishUI.Controls
 				dropdown.Position = new Vector2(x, y);
 				dropdown.Size = new Vector2(width, height);
 				var values = Enum.GetValues(propType);
+
 				foreach (var val in values)
 					dropdown.AddItem(val.ToString());
+
 				if (currentValue != null)
 					dropdown.SelectIndex(Array.IndexOf(values, currentValue));
+
 				dropdown.OnItemSelected += (sender, ddItem) =>
 				{
 					var oldValue = item.GetValue();
@@ -516,7 +523,7 @@ namespace FishUI.Controls
 
 			// Get font if not cached
 			if (_font == null)
-			_font = UI.Settings.FontDefault;
+				_font = UI.Settings.FontDefault;
 
 			// Draw background
 			gfx.DrawRectangle(absPos, absSize, BackgroundColor);
@@ -548,7 +555,7 @@ namespace FishUI.Controls
 				{
 					// Draw category header
 					gfx.DrawRectangle(new Vector2(absPos.X, itemY), new Vector2(contentWidth, RowHeight), CategoryColor);
-					
+
 					// Draw expand/collapse indicator and text
 					string indicator = item.IsExpanded ? "- " : "+ ";
 					gfx.DrawTextColor(_font, indicator + item.Name, new Vector2(absPos.X + 4, itemY + 3), CategoryTextColor);
@@ -557,7 +564,7 @@ namespace FishUI.Controls
 				{
 					// Draw property row
 					FishColor rowColor = visibleIndex % 2 == 0 ? EvenRowColor : OddRowColor;
-					
+
 					if (item == _selectedItem)
 						rowColor = SelectionColor;
 					else if (item == _hoveredItem)
@@ -567,7 +574,7 @@ namespace FishUI.Controls
 
 					// Name column background
 					gfx.DrawRectangle(new Vector2(absPos.X, itemY), new Vector2(nameColumnWidth, RowHeight), NameColumnColor);
-					
+
 					// Value column background
 					gfx.DrawRectangle(new Vector2(absPos.X + nameColumnWidth, itemY), new Vector2(contentWidth - nameColumnWidth, RowHeight), rowColor);
 

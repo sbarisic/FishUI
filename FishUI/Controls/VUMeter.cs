@@ -189,6 +189,7 @@ namespace FishUI.Controls
 			else if (_peakValue > Value)
 			{
 				_peakValue -= PeakDecaySpeed * Dt;
+
 				if (_peakValue < Value)
 					_peakValue = Value;
 			}
@@ -231,8 +232,10 @@ namespace FishUI.Controls
 			{
 				// Draw each color zone up to the current value
 				DrawColorZoneHorizontal(UI, pos, size, 0, Math.Min(Value, GreenZoneEnd), GreenColor);
+
 				if (Value > GreenZoneEnd)
 					DrawColorZoneHorizontal(UI, pos, size, GreenZoneEnd, Math.Min(Value, YellowZoneEnd), YellowColor);
+
 				if (Value > YellowZoneEnd)
 					DrawColorZoneHorizontal(UI, pos, size, YellowZoneEnd, Value, RedColor);
 			}
@@ -240,8 +243,10 @@ namespace FishUI.Controls
 			{
 				// Vertical - draw from bottom up
 				DrawColorZoneVertical(UI, pos, size, 0, Math.Min(Value, GreenZoneEnd), GreenColor);
+
 				if (Value > GreenZoneEnd)
 					DrawColorZoneVertical(UI, pos, size, GreenZoneEnd, Math.Min(Value, YellowZoneEnd), YellowColor);
+
 				if (Value > YellowZoneEnd)
 					DrawColorZoneVertical(UI, pos, size, YellowZoneEnd, Value, RedColor);
 			}
@@ -251,6 +256,7 @@ namespace FishUI.Controls
 		{
 			float startX = pos.X + size.X * start;
 			float endX = pos.X + size.X * end;
+
 			UI.Graphics.DrawRectangle(
 				new Vector2(startX, pos.Y),
 				new Vector2(endX - startX, size.Y),
@@ -261,6 +267,7 @@ namespace FishUI.Controls
 		{
 			float startY = pos.Y + size.Y * (1f - end);
 			float endY = pos.Y + size.Y * (1f - start);
+
 			UI.Graphics.DrawRectangle(
 				new Vector2(pos.X, startY),
 				new Vector2(size.X, endY - startY),
@@ -303,9 +310,12 @@ namespace FishUI.Controls
 
 					bool lit = Value >= segmentEnd;
 					FishColor color = GetColorAtPosition(segmentPos);
-					if (!lit) color = new FishColor((byte)(color.R / 4), (byte)(color.G / 4), (byte)(color.B / 4), color.A);
+
+					if (!lit)
+						color = new FishColor((byte)(color.R / 4), (byte)(color.G / 4), (byte)(color.B / 4), color.A);
 
 					float y = pos.Y + size.Y - (i + 1) * segmentHeight - i * SegmentGap;
+
 					UI.Graphics.DrawRectangle(
 						new Vector2(pos.X, y),
 						new Vector2(size.X, segmentHeight),
@@ -319,18 +329,13 @@ namespace FishUI.Controls
 			if (Orientation == VUMeterOrientation.Horizontal)
 			{
 				float peakX = pos.X + size.X * _peakValue;
-				UI.Graphics.DrawRectangle(
-					new Vector2(peakX - PeakThickness / 2, pos.Y),
-					new Vector2(PeakThickness, size.Y),
-					PeakColor);
+				UI.Graphics.DrawRectangle(new Vector2(peakX - PeakThickness / 2, pos.Y), new Vector2(PeakThickness, size.Y), PeakColor);
 			}
 			else
 			{
 				float peakY = pos.Y + size.Y * (1f - _peakValue);
-				UI.Graphics.DrawRectangle(
-					new Vector2(pos.X, peakY - PeakThickness / 2),
-					new Vector2(size.X, PeakThickness),
-					PeakColor);
+
+				UI.Graphics.DrawRectangle(new Vector2(pos.X, peakY - PeakThickness / 2), new Vector2(size.X, PeakThickness), PeakColor);
 			}
 		}
 	}

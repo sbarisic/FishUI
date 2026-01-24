@@ -219,11 +219,20 @@ namespace FishUISample.Samples
 
 		private void UpdateValuesDisplay()
 		{
-			if (nameValueLabel != null) nameValueLabel.Text = $"Name: {sampleObject.Name}";
-			if (enabledValueLabel != null) enabledValueLabel.Text = $"Enabled: {sampleObject.Enabled}";
-			if (countValueLabel != null) countValueLabel.Text = $"Count: {sampleObject.Count}";
-			if (speedValueLabel != null) speedValueLabel.Text = $"Speed: {sampleObject.Speed:F2}";
-			if (alignValueLabel != null) alignValueLabel.Text = $"Alignment: {sampleObject.TextAlignment}";
+			if (nameValueLabel != null)
+				nameValueLabel.Text = $"Name: {sampleObject.Name}";
+
+			if (enabledValueLabel != null)
+				enabledValueLabel.Text = $"Enabled: {sampleObject.Enabled}";
+
+			if (countValueLabel != null)
+				countValueLabel.Text = $"Count: {sampleObject.Count}";
+
+			if (speedValueLabel != null)
+				speedValueLabel.Text = $"Speed: {sampleObject.Speed:F2}";
+
+			if (alignValueLabel != null)
+				alignValueLabel.Text = $"Alignment: {sampleObject.TextAlignment}";
 		}
 
 		public void Update(float dt)

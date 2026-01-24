@@ -62,11 +62,9 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ### High Priority
 
-- [x] ~~**PropertyGrid**~~ - Windows Forms-like property editor with categorization, reflection-based editing, support for string/int/float/bool/enum types; demo in SamplePropertyGrid
+*All high priority controls have been implemented*
 
 ### Medium Priority
-
-- [x] ~~**ContextMenu / PopupMenu**~~ - Right-click context menus with submenu support, keyboard navigation, check marks
 
 - [ ] **MenuBar** (3 CPX)
   - Horizontal menu strip
@@ -94,7 +92,7 @@ A list of planned features, improvements, and new controls for FishUI.
   - Excel-like table control with cell editing
   - X-axis (column) and Y-axis (row) headers
   - Cell selection and navigation
-  - ~~Configurable cell types (text, number, dropdown)~~ Text only cell type for now
+  - Text only cell type for now
   - *Use case: Data entry forms, configuration editors*
 
 - [ ] **MultiLineEditbox / TextArea** (3 CPX)
@@ -102,8 +100,6 @@ A list of planned features, improvements, and new controls for FishUI.
   - Word wrap support
   - Vertical scrollbar integration
   - *GWEN atlas regions: Uses TextBox regions*
-
-- [x] ~~**ImageBox, StaticText, VUMeter, AnimatedImageBox**~~ - Display controls with scaling, alignment, animation support
 
 - [ ] **DateTimePicker** (4 CPX)
   - Calendar popup for date selection
@@ -113,8 +109,6 @@ A list of planned features, improvements, and new controls for FishUI.
 - [ ] **ItemListbox** (2 CPX)
   - Listbox with custom item widgets
   - *GWEN WidgetLook: ItemListbox*
-
-- [x] ~~**MenuItem, RadialGauge, BarGauge**~~ - Menu items and gauge controls with color zones, ticks, labels
 
 ---
 
@@ -133,22 +127,6 @@ A list of planned features, improvements, and new controls for FishUI.
 - [ ] Virtual scrolling for large lists (3 CPX)
 - [ ] Custom item templates (2 CPX)
 - [ ] Drag and drop reordering (3 CPX)
-- [x] ~~Even/odd row alternating colors~~ - Added AlternatingRowColors, EvenRowColor, OddRowColor properties; demo in SampleBasicControls
-
-### Button Enhancements
-- [x] ~~Icon, Toggle, Repeat, ImageButton modes~~ - Full button variants with icons, toggle state, repeat firing, image-only modes
-
-### Panel Enhancements
-- [x] ~~Border styles, Panel variants (Normal, Bright, Dark, Highlight), examples~~ - Added PanelVariant enum, BorderStyle enum (None, Solid, Inset, Outset), theme regions, and SampleDefault demo
-
-### ProgressBar Enhancements
-- [x] ~~Vertical progress bar mode~~ - Already implemented via Orientation property; added demo in SampleDefault
-
-### Input Control Enhancements (Completed)
-- [x] ~~Mouse wheel support~~ - Added to Slider, ScrollBarV/H, NumericUpDown
-- [x] ~~NumericUpDown narrower buttons~~ - Reduced ButtonWidth for better aspect ratio
-- [x] ~~TabControl serialization~~ - Tab names preserved across save/load
-- [x] ~~BarGauge styling~~ - Improved tick marks and color zones
 
 ---
 
@@ -198,34 +176,26 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [ ] **FlowLayout** - Automatic horizontal/vertical flow of children (3 CPX)
 - [ ] **GridLayout** - Grid-based child positioning (3 CPX)
 - [ ] Auto-sizing controls based on content (3 CPX)
-- [x] ~~StackLayout, Anchor, Margin/Padding~~ - Layout infrastructure complete
 
 ### Rendering
 - [ ] Animation system for transitions (4 CPX)
 - [ ] Anti-aliased rendering option (2 CPX)
 - [ ] Shadow rendering for windows/popups (2 CPX)
   - *GWEN has: Shadow region*
-- [x] ~~Opacity, fonts, image rotation/scaling~~ - Rendering features complete
 
 ### Accessibility
 - [ ] Keyboard-only navigation (3 CPX)
 - [ ] Scalable UI for different DPI (4 CPX)
 
-### Virtual Cursor
-- [x] ~~Position setting, input mapping, hybrid mode~~ - SetPositionFromInput, SyncWithRealMouse, configurable key bindings, click passthrough
-
 ### Serialization
 - [ ] Image reference serialization (3 CPX)
   - Icons/images (Button.Icon, etc.) not preserved across Save/Load Layout
   - Need mechanism to reference images by file path or ID in layout files
-- [x] ~~LayoutFormat TypeMapping~~ - All controls registered for save/load
 
 ---
 
 ## Sample Application
 
-- [x] ~~Sample infrastructure~~ - Split samples, runner loop, console chooser with CLI args, theme switcher, game menu
-- [x] ~~Control demos~~ - ImageBox, BarGauge interactive, VirtualCursor with custom images/hybrid mode, AnimatedImageBox, StaticText
 - [ ] Examples should be implemented in FishUISample project, using the ISample interface (2 CPX each)
 - [ ] **GUI-based sample chooser** (3 CPX)
   - Replace console menu with FishUI-based sample selector window
@@ -259,7 +229,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ---
 
 ## Code Cleanup & Technical Debt
-- [x] ~~Completed~~ - ScreenCapture platform compatibility, YamlIgnore audit, naming conventions, XML docs, screenshot buttons, TODO extraction, debug flags refactor
+
+*All code cleanup items have been completed - see Completed section*
 
 ---
 
@@ -269,38 +240,9 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 *No active bugs*
 
-### Fixed Bugs
-
-- [x] ~~DropDown list renders behind other controls~~ - Added overlay rendering: dropdown lists now drawn after all controls via static OpenDropdowns list and DrawDropdownListOverlay method
-
-- [x] ~~DropDown list click-through in SampleVirtualCursor~~ - Modified GetAllChildren to handle AlwaysOnTop like GetOrderedControls; dropdown with AlwaysOnTop=true is now checked first
-
-- [x] ~~DropDown list still doesn't block virtual cursor clicks~~ - Modified PickControl to check children first, before checking parent's IsPointInside; fixes controls that extend beyond parent bounds
-
-- [x] ~~DropDown list doesn't block clicks to controls behind it~~ - Set AlwaysOnTop=true and BringToFront() when dropdown opens, restore on close
-
-- [x] ~~Virtual cursor has wrong pick order~~ - Added ZDepth assignment in Control.AddChild() so children are ordered by insertion order
-
-- [x] ~~DropDown closes when virtual cursor moves to dropdown list~~ - Modified HandleMouseLeave to check if cursor is inside dropdown list before closing
-
-- [x] ~~Virtual cursor renders below controls~~ - Moved VirtualMouse.Draw() inside Draw() method before EndDrawing() so it renders on top
-
-- [x] ~~Virtual cursor not responding to arrow keys~~ - Added automatic arrow key and button input handling in FishUI.Tick() when VirtualMouse.Enabled is true
-
-- [x] ~~ImageBox examples overlap in SampleBasicControls~~ - Moved ImageBox controls 100 units right (X: 500→600, 590→690)
-
-- [x] ~~ScrollBar mouse wheel not working in examples~~ - Mouse wheel events now bubble up to parent controls; child buttons propagate to ScrollBar
-
-- [x] ~~TreeNode.HasChildren deserialization error~~ - Added `[YamlIgnore]` to read-only property
-- [x] ~~TabControl.SelectedTab deserialization error~~ - Added `[YamlIgnore]` to read-only property
-- [x] ~~DropDown.SelectIndex NullReferenceException~~ - Added null check before `FishUI.Events.Broadcast()`
-- [x] ~~Make Invisible/Visible buttons broken~~ - Changed `Panel` cast to `Control` in EvtHandler after Panel→Window conversion
-- [x] ~~ContextMenu submenu text overlapping~~ - Added `DrawChildren` override in MenuItem to prevent rendering submenu item data as visual children
-- [x] ~~Layout save/load breaks Window and TabControl~~ - Added `OnDeserialized` virtual method to Control, overridden in Window and TabControl to reinitialize internal state
-
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-*No uncategorized items*
+- Changing value in textbox of NumericUpDown does not update the value in the PropertyGrid demo
 
 ---
 
@@ -311,3 +253,41 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - Backend implementations should remain in separate sample projects
 - CEGUI theme files in `data/cegui_theme/` provide reference for accurate atlas coordinates
 - The GWEN skin atlas (gwen.png) contains 512x512 pixels of UI elements
+
+---
+
+## Completed
+
+### Controls
+- PropertyGrid - Windows Forms-like property editor with categorization, reflection-based editing
+- ContextMenu / PopupMenu - Right-click menus with submenus, keyboard navigation
+- ImageBox, StaticText, VUMeter, AnimatedImageBox - Display controls
+- MenuItem, RadialGauge, BarGauge - Menu items and gauge controls
+
+### Control Improvements
+- Button: Icon, Toggle, Repeat, ImageButton modes
+- Panel: Border styles and variants (Normal, Bright, Dark, Highlight)
+- ProgressBar: Vertical orientation mode
+- ListBox: Alternating row colors
+- Input controls: Mouse wheel support for Slider, ScrollBars, NumericUpDown
+- NumericUpDown: Narrower buttons, TabControl serialization, BarGauge styling
+
+### Core Framework
+- StackLayout, Anchor, Margin/Padding - Layout infrastructure
+- Opacity, fonts, image rotation/scaling - Rendering features
+- Virtual cursor: Position setting, input mapping, hybrid mode
+- LayoutFormat TypeMapping - All controls registered
+
+### Samples
+- Sample infrastructure: Split samples, runner loop, console chooser, theme switcher, game menu
+- Control demos: ImageBox, BarGauge, VirtualCursor, AnimatedImageBox, StaticText
+
+### Code Cleanup
+- ScreenCapture platform compatibility, YamlIgnore audit, naming conventions, XML docs, screenshot buttons, TODO extraction, debug flags refactor
+
+### Fixed Bugs
+- DropDown: Overlay rendering, click-through fixes, AlwaysOnTop handling, mouse leave behavior
+- Virtual cursor: Pick order, rendering order, arrow key handling
+- Serialization: TreeNode/TabControl YamlIgnore, Window/TabControl OnDeserialized
+- PropertyGrid: Inline editors (CheckBox, NumericUpDown) now properly sync values via events
+- Misc: ImageBox overlap, ScrollBar mouse wheel, ContextMenu submenu overlap

@@ -66,24 +66,24 @@ namespace FishUISample
 
 		static void Main(string[] args)
 		{
-		ISample[] Samples = new ISample[] 
-		{ 
-		new SampleDefault(),        // Windows, Dialogs, TabControl, TreeView, ContextMenu
-		new SampleBasicControls(),  // Textbox, ListBox, DropDown, ScrollBars, ProgressBars, Sliders, etc.
-		new SampleButtonVariants(), // Toggle, Repeat, ImageButton, Icon buttons
-		new SampleLayoutSystem(),   // Margin, Padding, Anchors, StackLayout, Panel variants
-		new SampleThemeSwitcher(),  // Runtime theme switching
-		new SampleGameMenu(),       // Game main menu example
-		new SampleVirtualCursor(),  // Virtual cursor/mouse for keyboard/gamepad navigation
-		new SamplePropertyGrid()    // PropertyGrid control demo
-		};
+			ISample[] Samples = new ISample[]
+			{
+				new SampleDefault(),        // Windows, Dialogs, TabControl, TreeView, ContextMenu
+				new SampleBasicControls(),  // Textbox, ListBox, DropDown, ScrollBars, ProgressBars, Sliders, etc.
+				new SampleButtonVariants(), // Toggle, Repeat, ImageButton, Icon buttons
+				new SampleLayoutSystem(),   // Margin, Padding, Anchors, StackLayout, Panel variants
+				new SampleThemeSwitcher(),  // Runtime theme switching
+				new SampleGameMenu(),       // Game main menu example
+				new SampleVirtualCursor(),  // Virtual cursor/mouse for keyboard/gamepad navigation
+				new SamplePropertyGrid()    // PropertyGrid control demo
+			};
 
 			// Loop back to chooser when window closes
 			while (true)
 			{
 				// Sample chooser - select which sample to run
 				ISample Cur = ChooseSample(Samples, args);
-				
+
 				// Clear any previous command-line sample selection after first run
 				// so subsequent iterations show the chooser menu
 				args = Array.Empty<string>();
@@ -120,7 +120,7 @@ namespace FishUISample
 				}
 
 				Raylib.CloseWindow();
-				
+
 				Console.WriteLine();
 				Console.WriteLine("Window closed. Returning to sample chooser...");
 				Console.WriteLine();
@@ -137,10 +137,10 @@ namespace FishUISample
 			for (int i = 0; i < args.Length - 1; i++)
 			{
 				if (args[i].Equals("--sample", StringComparison.OrdinalIgnoreCase) ||
-				    args[i].Equals("-s", StringComparison.OrdinalIgnoreCase))
+					args[i].Equals("-s", StringComparison.OrdinalIgnoreCase))
 				{
-					if (int.TryParse(args[i + 1], out int sampleIndex) && 
-					    sampleIndex >= 0 && sampleIndex < samples.Length)
+					if (int.TryParse(args[i + 1], out int sampleIndex) &&
+						sampleIndex >= 0 && sampleIndex < samples.Length)
 					{
 						Console.WriteLine($"Starting sample {sampleIndex}: {samples[sampleIndex].Name}");
 						return samples[sampleIndex];
@@ -152,19 +152,19 @@ namespace FishUISample
 			Console.WriteLine("??????????????????????????????????????????");
 			Console.WriteLine("?         FishUI Sample Chooser          ?");
 			Console.WriteLine("??????????????????????????????????????????");
-			
+
 			for (int i = 0; i < samples.Length; i++)
 			{
 				Console.WriteLine($"?  [{i}] {samples[i].Name,-32} ?");
 			}
-			
+
 			Console.WriteLine("??????????????????????????????????????????");
 			Console.WriteLine("?  Enter number or press Enter for [0]   ?");
 			Console.WriteLine("??????????????????????????????????????????");
 			Console.Write("> ");
 
 			string input = Console.ReadLine() ?? "";
-			
+
 			if (string.IsNullOrWhiteSpace(input))
 			{
 				Console.WriteLine($"Starting default sample: {samples[0].Name}");

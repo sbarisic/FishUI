@@ -224,10 +224,10 @@ namespace FishUI
 			{
 				_accelerationTimer += deltaTime;
 				float speedMult = Math.Min(1f + (_accelerationTimer * Acceleration), MaxSpeedMultiplier);
-				
+
 				if (direction.LengthSquared() > 1f)
 					direction = Vector2.Normalize(direction);
-				
+
 				_velocity = direction * Speed * speedMult;
 			}
 			else

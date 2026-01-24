@@ -6,13 +6,32 @@ using YamlDotNet.Serialization;
 
 namespace FishUI.Controls
 {
+	public delegate void CheckBoxCheckedChangedFunc(CheckBox Sender, bool IsChecked);
+
 	public class CheckBox : Control
 	{
 		/// <summary>
-		/// Whether the checkbox is currently IsChecked.
+		/// Whether the checkbox is currently checked.
 		/// </summary>
 		[YamlMember]
-		public bool IsChecked { get; set; }
+		public bool IsChecked
+		{
+			get => _isChecked;
+			set
+			{
+				if (_isChecked != value)
+				{
+					_isChecked = value;
+					OnCheckedChanged?.Invoke(this, _isChecked);
+				}
+			}
+		}
+		private bool _isChecked;
+
+		/// <summary>
+		/// Event fired when the checked state changes.
+		/// </summary>
+		public event CheckBoxCheckedChangedFunc OnCheckedChanged;
 
 		/// <summary>
 		/// CheckBox disables child scissor so labels can extend beyond the checkbox icon bounds.
