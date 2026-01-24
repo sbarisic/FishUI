@@ -281,6 +281,6 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - MenuBar: Dropdown menus now properly added to FishUI root for correct rendering
 - ScrollablePane: Content scrolling via GetChildPositionOffset, DrawChildren override for proper scissoring
 - ScrollBarV/H: Button positions now updated on resize in DrawControl
-- Window: Increased resize handle size from 6px to 10px for easier resizing
-- ScrollablePane: Input restricted to visible area via ShouldChildReceiveInput, prevents click-through
+- Window: Increased resize handle size, content panel recalculates child anchors on size change
+- ScrollablePane: Input restricted to visible area intersection with parent bounds
 - Misc: ImageBox overlap, ScrollBar mouse wheel, ContextMenu submenu overlap

@@ -218,15 +218,24 @@ namespace FishUI.Controls
 			base.AddChild(_contentPanel);
 		}
 
-		private void UpdateInternalSizes()
+	private void UpdateInternalSizes()
 		{
 			if (_titlebar != null)
 				_titlebar.Size = new Vector2(Size.X, TitlebarHeight);
 
 			if (_contentPanel != null)
 			{
+				Vector2 newSize = new Vector2(Size.X - SideBorderWidth * 2, Size.Y - TitlebarHeight - BottomBorderHeight);
+				bool sizeChanged = _contentPanel.Size != newSize;
+
 				_contentPanel.Position = new Vector2(SideBorderWidth, TitlebarHeight);
-				_contentPanel.Size = new Vector2(Size.X - SideBorderWidth * 2, Size.Y - TitlebarHeight - BottomBorderHeight);
+				_contentPanel.Size = newSize;
+
+				// Recalculate child anchor offsets when content panel size changes
+				if (sizeChanged)
+				{
+					_contentPanel.RecalculateChildAnchors();
+				}
 			}
 		}
 

@@ -63,10 +63,12 @@ namespace FishUIDemos
 			scrollWindow.ShowCloseButton = false;
 			FUI.AddControl(scrollWindow);
 
-			// Create ScrollablePane docked to fill the window
+			// Create ScrollablePane to fill the window content area
+			// Window content area = Size - titlebar (24) - bottom border (4) - side borders (4*2)
+			// Position is relative to content panel which starts at (SideBorderWidth, TitlebarHeight)
 			ScrollablePane scrollPane = new ScrollablePane();
-			scrollPane.Position = new Vector2(5, 5);
-			scrollPane.Size = new Vector2(290, 365);
+			scrollPane.Position = new Vector2(0, 0);
+			scrollPane.Size = new Vector2(292, 372); // Content area size
 			scrollPane.Anchor = FishUIAnchor.All;
 			scrollPane.BackgroundColor = new FishColor(50, 50, 55, 255);
 			scrollPane.ShowBorder = true;
@@ -105,8 +107,8 @@ namespace FishUIDemos
 			FUI.AddControl(horizWindow);
 
 			ScrollablePane horizPane = new ScrollablePane();
-			horizPane.Position = new Vector2(5, 5);
-			horizPane.Size = new Vector2(390, 115);
+			horizPane.Position = new Vector2(0, 0);
+			horizPane.Size = new Vector2(392, 122); // 400-8, 150-24-4
 			horizPane.Anchor = FishUIAnchor.All;
 			horizPane.BackgroundColor = new FishColor(55, 50, 50, 255);
 			horizPane.ShowVerticalScrollBar = false;
@@ -136,8 +138,8 @@ namespace FishUIDemos
 			FUI.AddControl(gridWindow);
 
 			ScrollablePane gridPane = new ScrollablePane();
-			gridPane.Position = new Vector2(5, 5);
-			gridPane.Size = new Vector2(290, 195);
+			gridPane.Position = new Vector2(0, 0);
+			gridPane.Size = new Vector2(292, 202); // 300-8, 230-24-4
 			gridPane.Anchor = FishUIAnchor.All;
 			gridPane.BackgroundColor = new FishColor(50, 55, 50, 255);
 			gridWindow.AddChild(gridPane);

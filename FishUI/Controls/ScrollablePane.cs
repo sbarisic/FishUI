@@ -391,22 +391,51 @@ namespace FishUI.Controls
 
 		/// <summary>
 		/// Override to restrict child input to the visible area.
-		/// Prevents clicking on buttons that are scrolled out of view.
+		/// Prevents clicking on buttons that are scrolled out of view or outside parent bounds.
 		/// </summary>
 		public override bool ShouldChildReceiveInput(Control child, Vector2 globalPoint)
 		{
-			// Scrollbars should always receive input
+			// Scrollbars should always receive input (but still within our bounds)
 			if (child == _scrollBarV || child == _scrollBarH)
+			{
+				// Still check if point is within the ScrollablePane bounds
+				Vector2 absPos = GetAbsolutePosition();
+				Vector2 absSize = GetAbsoluteSize();
+				if (globalPoint.X < absPos.X || globalPoint.X > absPos.X + absSize.X)
+					return false;
+				if (globalPoint.Y < absPos.Y || globalPoint.Y > absPos.Y + absSize.Y)
+					return false;
 				return true;
+			}
 
 			// Check if the point is within the visible content area
-			Vector2 absPos = GetAbsolutePosition();
+			Vector2 visiblePos = GetAbsolutePosition();
 			Vector2 visibleArea = GetVisibleArea();
 
-			if (globalPoint.X < absPos.X || globalPoint.X > absPos.X + visibleArea.X)
-				return false;
-			if (globalPoint.Y < absPos.Y || globalPoint.Y > absPos.Y + visibleArea.Y)
-				return false;
+			// Also restrict to parent bounds if parent exists
+			if (Parent != null)
+			{
+				Vector2 parentPos = Parent.GetAbsolutePosition();
+				Vector2 parentSize = Parent.GetAbsoluteSize();
+
+				// Intersect with parent bounds
+				float left = Math.Max(visiblePos.X, parentPos.X);
+				float top = Math.Max(visiblePos.Y, parentPos.Y);
+				float right = Math.Min(visiblePos.X + visibleArea.X, parentPos.X + parentSize.X);
+				float bottom = Math.Min(visiblePos.Y + visibleArea.Y, parentPos.Y + parentSize.Y);
+
+				if (globalPoint.X < left || globalPoint.X > right)
+					return false;
+				if (globalPoint.Y < top || globalPoint.Y > bottom)
+					return false;
+			}
+			else
+			{
+				if (globalPoint.X < visiblePos.X || globalPoint.X > visiblePos.X + visibleArea.X)
+					return false;
+				if (globalPoint.Y < visiblePos.Y || globalPoint.Y > visiblePos.Y + visibleArea.Y)
+					return false;
+			}
 
 			return true;
 		}
