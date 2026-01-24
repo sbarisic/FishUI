@@ -128,6 +128,11 @@ A list of planned features, improvements, and new controls for FishUI.
 - [ ] Custom item templates (2 CPX)
 - [ ] Drag and drop reordering (3 CPX)
 
+### PropertyGrid Enhancements
+- [ ] Vector2/Vector3/Vector4 component editors (2 CPX)
+  - Display vectors as separate editable X, Y, Z fields
+  - Currently vectors fall through to text editor which doesn't work
+
 ---
 
 ## Theme System
@@ -242,7 +247,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-- PropertyGrid demo count and speed aren't hooked up to any changes, they do not change object values 
+*No uncategorized items*
 
 ---
 
@@ -289,5 +294,5 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - DropDown: Overlay rendering, click-through fixes, AlwaysOnTop handling, mouse leave behavior
 - Virtual cursor: Pick order, rendering order, arrow key handling
 - Serialization: TreeNode/TabControl YamlIgnore, Window/TabControl OnDeserialized
-- PropertyGrid: Inline editors now properly sync values; editors auto-focus on creation
+- PropertyGrid: Inline editors sync values, auto-focus, fixed indentation and int conversion
 - Misc: ImageBox overlap, ScrollBar mouse wheel, ContextMenu submenu overlap

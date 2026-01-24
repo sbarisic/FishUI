@@ -472,9 +472,14 @@ namespace FishUI.Controls
 			numericUpDown.OnValueChanged += (sender, value) =>
 			{
 			var oldValue = item.GetValue();
-			object newValue = propType == typeof(int) ? (int)value :
-					propType == typeof(float) ? value :
-					(double)value;
+			object newValue;
+			if (propType == typeof(int))
+			newValue = (int)Math.Round(value);
+			else if (propType == typeof(float))
+			newValue = value;
+			else // double
+			newValue = (double)value;
+					
 			if (item.SetValue(newValue))
 			OnPropertyValueChanged?.Invoke(this, item, oldValue, newValue);
 			};
