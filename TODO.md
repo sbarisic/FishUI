@@ -112,7 +112,6 @@ A list of planned features, improvements, and new controls for FishUI.
 - [ ] Search/filter functionality (2 CPX)
 
 ### ListBox Enhancements
-- [ ] Multi-select mode (Ctrl+click, Shift+click) (2 CPX)
 - [ ] Virtual scrolling for large lists (3 CPX)
 - [ ] Custom item templates (2 CPX)
 - [ ] Drag and drop reordering (3 CPX)
@@ -249,7 +248,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - Button: Icon, Toggle, Repeat, ImageButton modes
 - Panel: Border styles and variants (Normal, Bright, Dark, Highlight)
 - ProgressBar: Vertical orientation mode
-- ListBox: Alternating row colors
+- ListBox: Alternating row colors, multi-select mode (Ctrl+click, Shift+click)
 - Input controls: Mouse wheel support for Slider, ScrollBars, NumericUpDown
 - NumericUpDown: Narrower buttons, TabControl serialization, BarGauge styling
 - BarGauge: Black tick marks, dashboard styling (larger size, range labels)

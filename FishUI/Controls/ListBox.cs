@@ -82,6 +82,24 @@ namespace FishUI.Controls
 		[YamlMember]
 		public FishColor OddRowColor { get; set; } = new FishColor(0, 0, 0, 20);
 
+		/// <summary>
+		/// Whether to allow multiple item selection using Ctrl+click and Shift+click.
+		/// </summary>
+		[YamlMember]
+		public bool MultiSelect { get; set; } = false;
+
+		/// <summary>
+		/// Set of currently selected indices when MultiSelect is enabled.
+		/// </summary>
+		[YamlIgnore]
+		HashSet<int> SelectedIndices = new HashSet<int>();
+
+		/// <summary>
+		/// Anchor index for Shift+click range selection.
+		/// </summary>
+		[YamlIgnore]
+		int SelectionAnchor = -1;
+
 		public event ListBoxItemSelectedFunc OnItemSelected;
 
 		public ListBox()
@@ -109,8 +127,66 @@ namespace FishUI.Controls
 			if (LastSelectedIndex != SelectedIndex)
 			{
 				FishUI.Events.Broadcast(FishUI, this, "item_selected", new object[] { SelectedIndex, Items[SelectedIndex] });
-				OnItemSelected?.Invoke(this, SelectedIndex, Items[SelectedIndex]);
+			OnItemSelected?.Invoke(this, SelectedIndex, Items[SelectedIndex]);
 			}
+		}
+
+		/// <summary>
+		/// Gets all currently selected indices. In single-select mode, returns only the SelectedIndex.
+		/// </summary>
+		public int[] GetSelectedIndices()
+		{
+			if (MultiSelect)
+				return SelectedIndices.OrderBy(i => i).ToArray();
+			else if (SelectedIndex >= 0)
+				return new int[] { SelectedIndex };
+			else
+				return Array.Empty<int>();
+		}
+
+		/// <summary>
+		/// Gets all currently selected items.
+		/// </summary>
+		public ListBoxItem[] GetSelectedItems()
+		{
+			return GetSelectedIndices().Where(i => i >= 0 && i < Items.Count).Select(i => Items[i]).ToArray();
+		}
+
+		/// <summary>
+		/// Clears all selections.
+		/// </summary>
+		public void ClearSelection()
+		{
+			SelectedIndices.Clear();
+			SelectedIndex = -1;
+			SelectionAnchor = -1;
+		}
+
+		/// <summary>
+		/// Selects all items (only works when MultiSelect is enabled).
+		/// </summary>
+		public void SelectAll()
+		{
+			if (!MultiSelect)
+				return;
+
+			SelectedIndices.Clear();
+			for (int i = 0; i < Items.Count; i++)
+				SelectedIndices.Add(i);
+
+			if (Items.Count > 0)
+				SelectedIndex = 0;
+		}
+
+		/// <summary>
+		/// Returns true if the given index is selected.
+		/// </summary>
+		public bool IsIndexSelected(int index)
+		{
+			if (MultiSelect)
+				return SelectedIndices.Contains(index);
+			else
+				return index == SelectedIndex;
 		}
 
 		int PickIndexFromPosition(FishUI UI, Vector2 LocalPos, float ItemHeight)
@@ -136,10 +212,50 @@ namespace FishUI.Controls
 
 		public override void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
 		{
-			if (HoveredIndex != -1)
-				SelectIndex(HoveredIndex);
+		if (HoveredIndex == -1)
+		return;
 
-			FishUIDebug.LogListBoxSelectionChange(SelectedIndex);
+		if (MultiSelect)
+		{
+		if (InState.CtrlDown)
+		{
+		// Ctrl+click: Toggle selection of clicked item
+		if (SelectedIndices.Contains(HoveredIndex))
+			SelectedIndices.Remove(HoveredIndex);
+		else
+			SelectedIndices.Add(HoveredIndex);
+
+		SelectionAnchor = HoveredIndex;
+		SelectedIndex = HoveredIndex;
+		}
+		else if (InState.ShiftDown && SelectionAnchor >= 0)
+		{
+		// Shift+click: Select range from anchor to clicked item
+		SelectedIndices.Clear();
+		int start = Math.Min(SelectionAnchor, HoveredIndex);
+		int end = Math.Max(SelectionAnchor, HoveredIndex);
+		for (int i = start; i <= end; i++)
+			SelectedIndices.Add(i);
+
+		SelectedIndex = HoveredIndex;
+		}
+		else
+		{
+		// Normal click: Clear selection and select only clicked item
+		SelectedIndices.Clear();
+		SelectedIndices.Add(HoveredIndex);
+		SelectionAnchor = HoveredIndex;
+		SelectIndex(HoveredIndex);
+		}
+
+		FishUI.Events.Broadcast(FishUI, this, "selection_changed", new object[] { GetSelectedIndices() });
+		}
+		else
+		{
+		SelectIndex(HoveredIndex);
+		}
+
+		FishUIDebug.LogListBoxSelectionChange(SelectedIndex);
 		}
 
 		public override void HandleKeyPress(FishUI UI, FishInputState InState, FishKey Key)
@@ -231,10 +347,10 @@ namespace FishUI.Controls
 
 			bool ShowSBar = false;
 
-			UI.Graphics.PushScissor(GetAbsolutePosition() + new Vector2(2, 2), GetAbsoluteSize() - new Vector2(4, 4));
+		UI.Graphics.PushScissor(GetAbsolutePosition() + new Vector2(2, 2), GetAbsoluteSize() - new Vector2(4, 4));
 			for (int i = 0; i < Items.Count; i++)
 			{
-				bool IsSelected = (i == SelectedIndex);
+				bool IsSelected = IsIndexSelected(i);
 				bool IsHovered = (i == HoveredIndex);
 
 				float Y = Position.Y + 2 + i * ListItemHeight;

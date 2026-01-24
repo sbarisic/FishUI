@@ -88,8 +88,44 @@ namespace FishUIDemos
 			dropDown.Size = new Vector2(150, 30);
 			FUI.AddControl(dropDown);
 
-			for (int i = 0; i < 10; i++)
+		for (int i = 0; i < 10; i++)
 				dropDown.AddItem($"Option {i + 1}");
+
+			// === Multi-Select ListBox ===
+			Label multiSelectLabel = new Label("Multi-Select ListBox");
+			multiSelectLabel.Position = new Vector2(420, 125);
+			multiSelectLabel.Alignment = Align.Left;
+			FUI.AddControl(multiSelectLabel);
+
+			Label multiSelectHint = new Label("Ctrl+click: toggle, Shift+click: range");
+			multiSelectHint.Position = new Vector2(420, 145);
+			multiSelectHint.Size = new Vector2(180, 16);
+			multiSelectHint.Alignment = Align.Left;
+			FUI.AddControl(multiSelectHint);
+
+			Label multiSelectInfo = new Label("Selected: 0 items");
+			multiSelectInfo.Position = new Vector2(420, 265);
+			multiSelectInfo.Size = new Vector2(150, 20);
+			multiSelectInfo.Alignment = Align.Left;
+			FUI.AddControl(multiSelectInfo);
+
+			ListBox multiSelectListBox = new ListBox();
+			multiSelectListBox.Position = new Vector2(420, 165);
+			multiSelectListBox.Size = new Vector2(150, 95);
+			multiSelectListBox.MultiSelect = true;
+			multiSelectListBox.AlternatingRowColors = true;
+			multiSelectListBox.TooltipText = "Multi-select enabled";
+			FUI.AddControl(multiSelectListBox);
+
+			for (int i = 0; i < 10; i++)
+				multiSelectListBox.AddItem($"Entry {i + 1}");
+
+			// Update selection count label when selection changes
+			multiSelectListBox.OnItemSelected += (lb, idx, item) =>
+			{
+				int count = multiSelectListBox.GetSelectedIndices().Length;
+				multiSelectInfo.Text = $"Selected: {count} item{(count != 1 ? "s" : "")}";
+			};
 
 			// === ScrollBars ===
 			Label scrollLabel = new Label("ScrollBars");
