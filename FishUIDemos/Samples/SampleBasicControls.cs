@@ -92,27 +92,57 @@ namespace FishUIDemos
 				dropDown.AddItem($"Option {i + 1}");
 
 	// === Searchable DropDown ===
-			Label searchDropLabel = new Label("Searchable DropDown");
-			searchDropLabel.Position = new Vector2(780, 220);
-			searchDropLabel.Alignment = Align.Left;
-			FUI.AddControl(searchDropLabel);
+	Label searchDropLabel = new Label("Searchable DropDown");
+	searchDropLabel.Position = new Vector2(780, 220);
+	searchDropLabel.Alignment = Align.Left;
+	FUI.AddControl(searchDropLabel);
 
-			DropDown searchDropDown = new DropDown();
-			searchDropDown.Position = new Vector2(780, 245);
-			searchDropDown.Size = new Vector2(180, 30);
-			searchDropDown.Searchable = true;
-			searchDropDown.TooltipText = "Click to open, then type to filter";
-			FUI.AddControl(searchDropDown);
+	DropDown searchDropDown = new DropDown();
+	searchDropDown.Position = new Vector2(780, 245);
+	searchDropDown.Size = new Vector2(180, 30);
+	searchDropDown.Searchable = true;
+	searchDropDown.TooltipText = "Click to open, then type to filter";
+	FUI.AddControl(searchDropDown);
 
-			// Add various items to search through
-			string[] countries = { "Australia", "Austria", "Belgium", "Brazil", "Canada", 
-				"China", "Denmark", "Finland", "France", "Germany", "India", "Italy", 
-				"Japan", "Mexico", "Netherlands", "Norway", "Poland", "Spain", "Sweden", 
-				"Switzerland", "United Kingdom", "United States" };
-			foreach (var country in countries)
-				searchDropDown.AddItem(country);
+	// Add various items to search through
+	string[] countries = { "Australia", "Austria", "Belgium", "Brazil", "Canada", 
+	"China", "Denmark", "Finland", "France", "Germany", "India", "Italy", 
+	"Japan", "Mexico", "Netherlands", "Norway", "Poland", "Spain", "Sweden", 
+	"Switzerland", "United Kingdom", "United States" };
+	foreach (var country in countries)
+	searchDropDown.AddItem(country);
 
-		// === Custom Rendered DropDown ===
+		// === Multi-Select DropDown ===
+			Label multiDropLabel = new Label("Multi-Select DropDown");
+			multiDropLabel.Position = new Vector2(600, 580);
+			multiDropLabel.Alignment = Align.Left;
+			FUI.AddControl(multiDropLabel);
+
+			Label multiDropInfo = new Label("Selected: 0");
+			multiDropInfo.Position = new Vector2(600, 600);
+			multiDropInfo.Size = new Vector2(150, 20);
+			multiDropInfo.Alignment = Align.Left;
+			FUI.AddControl(multiDropInfo);
+
+			DropDown multiDropDown = new DropDown();
+			multiDropDown.Position = new Vector2(600, 625);
+			multiDropDown.Size = new Vector2(170, 30);
+			multiDropDown.MultiSelect = true;
+			multiDropDown.TooltipText = "Click items to toggle selection";
+			FUI.AddControl(multiDropDown);
+
+			// Add items for multi-select
+			string[] options = { "Option A", "Option B", "Option C", "Option D", "Option E", "Option F" };
+			foreach (var opt in options)
+				multiDropDown.AddItem(opt);
+
+			// Update info label when selection changes
+			multiDropDown.OnMultiSelectionChanged += (dd, indices) =>
+			{
+				multiDropInfo.Text = $"Selected: {indices.Length}";
+			};
+
+			// === Custom Rendered DropDown ===
 			Label customDropLabel = new Label("Custom Item Rendering");
 			customDropLabel.Position = new Vector2(780, 400);
 			customDropLabel.Alignment = Align.Left;

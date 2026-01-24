@@ -128,13 +128,31 @@ namespace FishUI.Controls
 		[YamlMember]
 		public float CustomItemHeight { get; set; } = 0;
 
+		/// <summary>
+		/// Whether to allow multiple item selection with checkboxes.
+		/// When enabled, clicking an item toggles its selection instead of closing the dropdown.
+		/// </summary>
+		[YamlMember]
+		public bool MultiSelect { get; set; } = false;
+
+		/// <summary>
+		/// Set of currently selected indices when MultiSelect is enabled.
+		/// </summary>
+		[YamlIgnore]
+		private HashSet<int> SelectedIndices = new HashSet<int>();
+
+		/// <summary>
+		/// Event fired when selection changes in MultiSelect mode.
+		/// </summary>
+		public event Action<DropDown, int[]> OnMultiSelectionChanged;
+
 		[YamlIgnore]
 		Button DDButton;
 
 		public DropDown()
 		{
 			Size = new Vector2(200, 19);
-		}
+	}
 
 		public void AddItem(DropDownItem Itm)
 		{
@@ -145,6 +163,79 @@ namespace FishUI.Controls
 		{
 			Items.Clear();
 			SelectedIndex = -1;
+			SelectedIndices.Clear();
+		}
+
+		/// <summary>
+		/// Gets all currently selected indices in MultiSelect mode.
+		/// </summary>
+		public int[] GetSelectedIndices()
+		{
+			if (MultiSelect)
+				return SelectedIndices.OrderBy(i => i).ToArray();
+			else if (SelectedIndex >= 0)
+				return new int[] { SelectedIndex };
+			else
+				return Array.Empty<int>();
+		}
+
+		/// <summary>
+		/// Gets all currently selected items in MultiSelect mode.
+		/// </summary>
+		public DropDownItem[] GetSelectedItems()
+		{
+			return GetSelectedIndices().Where(i => i >= 0 && i < Items.Count).Select(i => Items[i]).ToArray();
+		}
+
+		/// <summary>
+		/// Checks if an item at the given index is selected (works for both single and multi-select).
+		/// </summary>
+		public bool IsItemSelected(int index)
+		{
+			if (MultiSelect)
+				return SelectedIndices.Contains(index);
+			else
+				return index == SelectedIndex;
+		}
+
+		/// <summary>
+		/// Toggles the selection state of an item in MultiSelect mode.
+		/// </summary>
+		public void ToggleItemSelection(int index)
+		{
+			if (!MultiSelect || index < 0 || index >= Items.Count)
+				return;
+
+			if (SelectedIndices.Contains(index))
+				SelectedIndices.Remove(index);
+			else
+				SelectedIndices.Add(index);
+
+			OnMultiSelectionChanged?.Invoke(this, GetSelectedIndices());
+		}
+
+		/// <summary>
+		/// Selects all items in MultiSelect mode.
+		/// </summary>
+		public void SelectAll()
+		{
+			if (!MultiSelect)
+				return;
+
+			for (int i = 0; i < Items.Count; i++)
+				SelectedIndices.Add(i);
+
+			OnMultiSelectionChanged?.Invoke(this, GetSelectedIndices());
+		}
+
+		/// <summary>
+		/// Clears all selections in MultiSelect mode.
+		/// </summary>
+		public void ClearSelection()
+		{
+			SelectedIndices.Clear();
+			if (MultiSelect)
+				OnMultiSelectionChanged?.Invoke(this, GetSelectedIndices());
 		}
 
 		public void Open()
@@ -353,7 +444,7 @@ namespace FishUI.Controls
 				return;
 			}
 
-			// Check if clicking on the dropdown list
+		// Check if clicking on the dropdown list
 			if (IsOpen && IsPointInsideDropdownList(Pos, itemHeight))
 			{
 				// Check if clicking in search box area - don't close/select
@@ -369,7 +460,17 @@ namespace FishUI.Controls
 				{
 					int actualIndex = FilteredIndexToItemIndex(HoveredIndex);
 					if (actualIndex >= 0)
-						SelectIndex(actualIndex);
+					{
+						if (MultiSelect)
+						{
+							// Toggle selection, don't close dropdown
+							ToggleItemSelection(actualIndex);
+						}
+						else
+						{
+							SelectIndex(actualIndex);
+						}
+					}
 				}
 				return;
 			}
@@ -492,10 +593,23 @@ namespace FishUI.Controls
 			{
 				DDButton.Size = new Vector2(Size.X, ButtonHeight);
 
-				// Draw selected item text on the button
+			// Draw selected item text on the button
 				string selectedText = "";
-				if (SelectedIndex >= 0 && SelectedIndex < Items.Count)
+				if (MultiSelect)
+				{
+					// Show count of selected items in multi-select mode
+					int count = SelectedIndices.Count;
+					if (count == 0)
+						selectedText = "";
+					else if (count == 1)
+						selectedText = Items[SelectedIndices.First()].Text;
+					else
+						selectedText = $"{count} items selected";
+				}
+				else if (SelectedIndex >= 0 && SelectedIndex < Items.Count)
+				{
 					selectedText = Items[SelectedIndex].Text;
+				}
 
 				DDButton.Text = selectedText;
 			}
@@ -548,10 +662,10 @@ namespace FishUI.Controls
 			// Draw items
 			UI.Graphics.PushScissor(listPos + new Vector2(2, 2 + yOffset), listSize - new Vector2(4, 4 + yOffset));
 
-			for (int i = 0; i < visibleCount; i++)
+		for (int i = 0; i < visibleCount; i++)
 			{
 				int actualIndex = displayIndices[i];
-				bool isSelected = (actualIndex == SelectedIndex);
+				bool isSelected = MultiSelect ? SelectedIndices.Contains(actualIndex) : (actualIndex == SelectedIndex);
 				bool isHovered = (i == HoveredIndex);
 
 				float y = listPos.Y + 2 + yOffset + i * itemHeight;
@@ -562,21 +676,44 @@ namespace FishUI.Controls
 				NPatch itemBg = null;
 				if (isHovered)
 					itemBg = UI.Settings.ImgSelectionBoxNormal;
-				else if (isSelected)
+				else if (isSelected && !MultiSelect)
 					itemBg = UI.Settings.ImgListBoxItmSelected;
 
 				if (itemBg != null)
 					UI.Graphics.DrawNPatch(itemBg, itemPos, itemSize, Color);
 
+				// Calculate text offset (checkbox takes space in multi-select mode)
+				float textXOffset = MultiSelect ? 20 : 2;
+
+				// Draw checkbox in multi-select mode
+				if (MultiSelect)
+				{
+					float checkSize = 14;
+					float checkY = itemPos.Y + (itemHeight - checkSize) / 2;
+					Vector2 checkPos = new Vector2(itemPos.X + 2, checkY);
+
+				// Draw checkbox background
+					NPatch checkBg = isSelected ? UI.Settings.ImgCheckboxChecked : UI.Settings.ImgCheckboxUnchecked;
+					if (checkBg != null)
+						UI.Graphics.DrawNPatch(checkBg, checkPos, new Vector2(checkSize, checkSize), Color);
+					else
+					{
+						// Fallback: draw simple checkbox
+						UI.Graphics.DrawRectangle(checkPos, new Vector2(checkSize, checkSize), new FishColor(200, 200, 200, 255));
+						if (isSelected)
+							UI.Graphics.DrawRectangle(checkPos + new Vector2(3, 3), new Vector2(checkSize - 6, checkSize - 6), new FishColor(50, 120, 200, 255));
+					}
+				}
+
 				// Use custom renderer if set, otherwise default text rendering
 				if (CustomItemRenderer != null)
 				{
-					CustomItemRenderer(UI, Items[actualIndex], itemPos + new Vector2(2, 0), itemSize - new Vector2(4, 0), isSelected, isHovered);
+					CustomItemRenderer(UI, Items[actualIndex], itemPos + new Vector2(textXOffset, 0), itemSize - new Vector2(textXOffset + 2, 0), isSelected, isHovered);
 				}
 				else
 				{
 					FishColor txtColor = FishColor.Black;
-					UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Items[actualIndex].Text, itemPos + new Vector2(2, 0) + StartOffset, txtColor);
+					UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Items[actualIndex].Text, itemPos + new Vector2(textXOffset, 0) + StartOffset, txtColor);
 				}
 			}
 
