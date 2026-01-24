@@ -91,7 +91,7 @@ namespace FishUIDemos
 			for (int i = 0; i < 10; i++)
 				dropDown.AddItem($"Option {i + 1}");
 
-		// === Searchable DropDown ===
+	// === Searchable DropDown ===
 			Label searchDropLabel = new Label("Searchable DropDown");
 			searchDropLabel.Position = new Vector2(780, 220);
 			searchDropLabel.Alignment = Align.Left;
@@ -111,6 +111,39 @@ namespace FishUIDemos
 				"Switzerland", "United Kingdom", "United States" };
 			foreach (var country in countries)
 				searchDropDown.AddItem(country);
+
+		// === Custom Rendered DropDown ===
+			Label customDropLabel = new Label("Custom Item Rendering");
+			customDropLabel.Position = new Vector2(780, 400);
+			customDropLabel.Alignment = Align.Left;
+			FUI.AddControl(customDropLabel);
+
+			DropDown customDropDown = new DropDown();
+			customDropDown.Position = new Vector2(780, 425);
+			customDropDown.Size = new Vector2(180, 30);
+			customDropDown.CustomItemHeight = 24;
+			customDropDown.TooltipText = "Dropdown with custom colored items";
+			FUI.AddControl(customDropDown);
+
+			// Add items with color data
+			customDropDown.AddItem(new DropDownItem("Error - Red", new FishColor(220, 60, 60, 255)));
+			customDropDown.AddItem(new DropDownItem("Warning - Orange", new FishColor(255, 150, 50, 255)));
+			customDropDown.AddItem(new DropDownItem("Success - Green", new FishColor(60, 180, 60, 255)));
+			customDropDown.AddItem(new DropDownItem("Info - Blue", new FishColor(60, 120, 220, 255)));
+			customDropDown.AddItem(new DropDownItem("Debug - Gray", new FishColor(128, 128, 128, 255)));
+
+			// Set custom renderer that draws colored indicators
+			customDropDown.CustomItemRenderer = (ui, item, pos, size, isSelected, isHovered) =>
+			{
+				// Draw color indicator square
+				if (item.UserData is FishColor color)
+				{
+					ui.Graphics.DrawRectangle(pos + new Vector2(2, 4), new Vector2(16, 16), color);
+				}
+				// Draw text with offset for the color indicator
+				FishColor textColor = isSelected || isHovered ? FishColor.Black : FishColor.Black;
+				ui.Graphics.DrawTextColor(ui.Settings.FontDefault, item.Text, pos + new Vector2(22, 4), textColor);
+			};
 
 			// === Multi-Select ListBox ===
 			Label multiSelectLabel = new Label("Multi-Select ListBox");

@@ -108,10 +108,8 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ### DropDown Enhancements
 - [ ] Multi-select mode (checkbox icon per item) (2 CPX)
-- [ ] Custom item rendering (2 CPX)
 
 ### ListBox Enhancements
-- [ ] Virtual scrolling for large lists (3 CPX)
 - [ ] Custom item templates (2 CPX)
 - [ ] Drag and drop reordering (3 CPX)
 
@@ -249,6 +247,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - ListBox: Alternating row colors, multi-select mode (Ctrl+click, Shift+click)
 - DropDown: Search/filter functionality with type-to-filter support
 - Per-control color overrides: ColorOverrides dictionary with GetColorOverride/SetColorOverride methods
+- DropDown: Custom item rendering via CustomItemRenderer delegate
 - Input controls: Mouse wheel support for Slider, ScrollBars, NumericUpDown
 - NumericUpDown: Narrower buttons, TabControl serialization, BarGauge styling
 - BarGauge: Black tick marks, dashboard styling (larger size, range labels)

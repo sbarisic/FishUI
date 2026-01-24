@@ -10,6 +10,17 @@ namespace FishUI.Controls
 {
 	public delegate void DropDownItemSelectedFunc(DropDown DD, DropDownItem Itm);
 
+	/// <summary>
+	/// Delegate for custom item rendering in DropDown.
+	/// </summary>
+	/// <param name="ui">The FishUI instance</param>
+	/// <param name="item">The item being rendered</param>
+	/// <param name="position">Position to render at</param>
+	/// <param name="size">Size of the item area</param>
+	/// <param name="isSelected">Whether item is currently selected</param>
+	/// <param name="isHovered">Whether item is currently hovered</param>
+	public delegate void DropDownItemRenderFunc(FishUI ui, DropDownItem item, Vector2 position, Vector2 size, bool isSelected, bool isHovered);
+
 	public class DropDownItem
 	{
 		public string Text;
@@ -103,6 +114,19 @@ namespace FishUI.Controls
 		private float ButtonHeight = 19;
 
 		public event DropDownItemSelectedFunc OnItemSelected;
+
+		/// <summary>
+		/// Custom item renderer. When set, this delegate is called to render each dropdown item
+		/// instead of the default text rendering. Allows icons, colors, or complex layouts per item.
+		/// </summary>
+		[YamlIgnore]
+		public DropDownItemRenderFunc CustomItemRenderer { get; set; }
+
+		/// <summary>
+		/// Custom height for items when using CustomItemRenderer. Set to 0 to use default font-based height.
+		/// </summary>
+		[YamlMember]
+		public float CustomItemHeight { get; set; } = 0;
 
 		[YamlIgnore]
 		Button DDButton;
@@ -294,21 +318,21 @@ namespace FishUI.Controls
 
 		public override void HandleMouseMove(FishUI UI, FishInputState InState, Vector2 Pos)
 		{
-			if (IsOpen)
-			{
-				float itemHeight = UI.Settings.FontDefault.Size + 4;
-				Vector2 listPos = GetDropdownListPosition();
+		if (IsOpen)
+		{
+		float itemHeight = CustomItemHeight > 0 ? CustomItemHeight : UI.Settings.FontDefault.Size + 4;
+		Vector2 listPos = GetDropdownListPosition();
 
-				if (IsPointInsideDropdownList(Pos, itemHeight))
-				{
-					Vector2 localPos = Pos - listPos;
-					HoveredIndex = PickIndexFromPosition(localPos - ScrollOffset, itemHeight);
-				}
-				else
-				{
-					HoveredIndex = -1;
-				}
-			}
+		if (IsPointInsideDropdownList(Pos, itemHeight))
+		{
+		Vector2 localPos = Pos - listPos;
+		HoveredIndex = PickIndexFromPosition(localPos - ScrollOffset, itemHeight);
+		}
+		else
+		{
+		HoveredIndex = -1;
+		}
+		}
 		}
 
 		public override void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
@@ -316,52 +340,52 @@ namespace FishUI.Controls
 		if (Btn != FishMouseButton.Left)
 		return;
 
-		float itemHeight = UI.Settings.FontDefault.Size + 4;
+		float itemHeight = CustomItemHeight > 0 ? CustomItemHeight : UI.Settings.FontDefault.Size + 4;
 
 		// Check if clicking on the button area
-		Vector2 absPos = GetAbsolutePosition();
-		Vector2 buttonSize = new Vector2(Size.X, ButtonHeight);
+			Vector2 absPos = GetAbsolutePosition();
+			Vector2 buttonSize = new Vector2(Size.X, ButtonHeight);
 
-		if (Utils.IsInside(absPos, buttonSize, Pos))
-		{
-		Toggle();
-		return;
-		}
+			if (Utils.IsInside(absPos, buttonSize, Pos))
+			{
+				Toggle();
+				return;
+			}
 
-		// Check if clicking on the dropdown list
-		if (IsOpen && IsPointInsideDropdownList(Pos, itemHeight))
-		{
-		// Check if clicking in search box area - don't close/select
-		if (Searchable && IsPointInsideSearchBox(Pos))
-		{
-		// Just absorb the click, keep dropdown open for typing
-		return;
-		}
+			// Check if clicking on the dropdown list
+			if (IsOpen && IsPointInsideDropdownList(Pos, itemHeight))
+			{
+				// Check if clicking in search box area - don't close/select
+				if (Searchable && IsPointInsideSearchBox(Pos))
+				{
+					// Just absorb the click, keep dropdown open for typing
+					return;
+				}
 
-		int itemCount = FilteredIndices.Count > 0 ? FilteredIndices.Count : Items.Count;
-		if (HoveredIndex >= 0 && HoveredIndex < itemCount)
-		{
-		int actualIndex = FilteredIndexToItemIndex(HoveredIndex);
-		if (actualIndex >= 0)
-			SelectIndex(actualIndex);
-		}
-		return;
-		}
+				int itemCount = FilteredIndices.Count > 0 ? FilteredIndices.Count : Items.Count;
+				if (HoveredIndex >= 0 && HoveredIndex < itemCount)
+				{
+					int actualIndex = FilteredIndexToItemIndex(HoveredIndex);
+					if (actualIndex >= 0)
+						SelectIndex(actualIndex);
+				}
+				return;
+			}
 		}
 
 		public override void HandleMouseLeave(FishUI UI, FishInputState InState)
 		{
-			base.HandleMouseLeave(UI, InState);
-			// Only close dropdown if mouse is not inside the dropdown list
-			if (IsOpen)
-			{
-				float itemHeight = ListItemHeight > 0 ? ListItemHeight : 18;
-				// Check if cursor moved to the dropdown list (which extends beyond control bounds)
-				if (!IsPointInsideDropdownList(InState.MousePos, itemHeight))
-				{
-					Close();
-				}
-			}
+		base.HandleMouseLeave(UI, InState);
+		// Only close dropdown if mouse is not inside the dropdown list
+		if (IsOpen)
+		{
+		float itemHeight = CustomItemHeight > 0 ? CustomItemHeight : (ListItemHeight > 0 ? ListItemHeight : 18);
+		// Check if cursor moved to the dropdown list (which extends beyond control bounds)
+		if (!IsPointInsideDropdownList(InState.MousePos, itemHeight))
+		{
+		Close();
+		}
+		}
 		}
 
 		public override void HandleKeyPress(FishUI UI, FishInputState InState, FishKey Key)
@@ -486,7 +510,8 @@ namespace FishUI.Controls
 		if (!IsOpen || Items.Count == 0)
 			return;
 
-		float itemHeight = UI.Settings.FontDefault.Size + 4;
+		// Use custom item height if set, otherwise use font-based height
+		float itemHeight = CustomItemHeight > 0 ? CustomItemHeight : UI.Settings.FontDefault.Size + 4;
 		Vector2 listPos = GetDropdownListPosition();
 		Vector2 listSize = GetDropdownListSize(itemHeight);
 
@@ -528,25 +553,29 @@ namespace FishUI.Controls
 			bool isHovered = (i == HoveredIndex);
 
 			float y = listPos.Y + 2 + yOffset + i * itemHeight;
+			Vector2 itemPos = new Vector2(listPos.X + 2, y) + ScrollOffset;
+			Vector2 itemSize = new Vector2(listSize.X - 4, itemHeight);
 
+			// Draw selection/hover background
 			NPatch itemBg = null;
-			FishColor txtColor = FishColor.Black;
-
 			if (isHovered)
-			{
 			itemBg = UI.Settings.ImgSelectionBoxNormal;
-			}
 			else if (isSelected)
-			{
 			itemBg = UI.Settings.ImgListBoxItmSelected;
-			}
 
 			if (itemBg != null)
-			{
-			UI.Graphics.DrawNPatch(itemBg, new Vector2(listPos.X + 2, y) + ScrollOffset, new Vector2(listSize.X - 4, itemHeight), Color);
-			}
+			UI.Graphics.DrawNPatch(itemBg, itemPos, itemSize, Color);
 
-			UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Items[actualIndex].Text, new Vector2(listPos.X + 4, y) + ScrollOffset + StartOffset, txtColor);
+			// Use custom renderer if set, otherwise default text rendering
+			if (CustomItemRenderer != null)
+			{
+			CustomItemRenderer(UI, Items[actualIndex], itemPos + new Vector2(2, 0), itemSize - new Vector2(4, 0), isSelected, isHovered);
+			}
+			else
+			{
+			FishColor txtColor = FishColor.Black;
+			UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Items[actualIndex].Text, itemPos + new Vector2(2, 0) + StartOffset, txtColor);
+			}
 		}
 
 		UI.Graphics.PopScissor();
