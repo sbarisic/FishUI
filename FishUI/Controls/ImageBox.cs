@@ -33,6 +33,22 @@ namespace FishUI.Controls
 	}
 
 	/// <summary>
+	/// Filter mode for image rendering.
+	/// </summary>
+	public enum ImageFilterMode
+	{
+		/// <summary>
+		/// Smooth filtering (bilinear/trilinear) - good for photos and smooth graphics.
+		/// </summary>
+		Smooth,
+
+		/// <summary>
+		/// Pixelated filtering (nearest-neighbor/point) - good for pixel art and retro graphics.
+		/// </summary>
+		Pixelated
+	}
+
+	/// <summary>
 	/// A control that displays an image with configurable scaling modes.
 	/// </summary>
 	public class ImageBox : Control
@@ -47,6 +63,11 @@ namespace FishUI.Controls
 		/// How the image should be scaled within the control bounds.
 		/// </summary>
 		public ImageScaleMode ScaleMode { get; set; } = ImageScaleMode.Stretch;
+
+		/// <summary>
+		/// Filter mode for image rendering. Use Pixelated for pixel art / retro graphics.
+		/// </summary>
+		public ImageFilterMode FilterMode { get; set; } = ImageFilterMode.Smooth;
 
 		/// <summary>
 		/// Event fired when the ImageBox is clicked.
@@ -67,7 +88,8 @@ namespace FishUI.Controls
 			}
 		}
 
-		public override void DrawControl(FishUI UI, float Dt, float Time)
+
+	public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
 			if (Image == null)
 				return;
@@ -75,6 +97,9 @@ namespace FishUI.Controls
 			Vector2 pos = GetAbsolutePosition();
 			Vector2 size = GetAbsoluteSize();
 			FishColor drawColor = EffectiveColor;
+
+			// Apply filter mode before drawing
+			UI.Graphics.SetImageFilter(Image, FilterMode == ImageFilterMode.Pixelated);
 
 			switch (ScaleMode)
 			{

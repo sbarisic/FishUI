@@ -140,10 +140,17 @@ namespace FishUI
 		/// </summary>
 		public void DrawText(FontRef Fn, string Text, Vector2 Pos);
 
-		/// <summary>
+	/// <summary>
 		/// Draws text with a custom color.
 		/// </summary>
 		public void DrawTextColor(FontRef Fn, string Text, Vector2 Pos, FishColor Color);
+
+		/// <summary>
+		/// Sets the texture filter mode for an image. Call before drawing to change filtering.
+		/// </summary>
+		/// <param name="Img">The image to set the filter for.</param>
+		/// <param name="pixelated">True for nearest-neighbor (pixelated), false for smooth (bilinear/trilinear).</param>
+		public void SetImageFilter(ImageRef Img, bool pixelated);
 
 	}
 }

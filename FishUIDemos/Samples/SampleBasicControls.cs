@@ -369,7 +369,7 @@ namespace FishUIDemos
 			numUpDown2.TooltipText = "Decimal (0.0-1.0)";
 			FUI.AddControl(numUpDown2);
 
-			// === ImageBox ===
+		// === ImageBox ===
 			Label imageBoxLabel = new Label("ImageBox Scaling Modes");
 			imageBoxLabel.Position = new Vector2(600, 60);
 			imageBoxLabel.Size = new Vector2(200, 20);
@@ -377,7 +377,7 @@ namespace FishUIDemos
 			FUI.AddControl(imageBoxLabel);
 
 			// Load a sample image for demonstration
-			ImageRef sampleImage = FUI.Graphics.LoadImage("data/silk_icons/picture.png");
+			ImageRef sampleImage = FUI.Graphics.LoadImage("data/images/win95_small.png");
 
 			// None - original size, centered
 			Label noneLabel = new Label("None");
@@ -407,8 +407,8 @@ namespace FishUIDemos
 			imgStretch.TooltipText = "ScaleMode.Stretch - Fills bounds (may distort)";
 			FUI.AddControl(imgStretch);
 
-			// Fit - maintains aspect ratio, fits within bounds
-			Label fitLabel = new Label("Fit");
+			// Fit - maintains aspect ratio, fits within bounds (smooth)
+			Label fitLabel = new Label("Smooth");
 			fitLabel.Position = new Vector2(600, 195);
 			fitLabel.Size = new Vector2(80, 16);
 			fitLabel.Alignment = Align.Left;
@@ -416,13 +416,14 @@ namespace FishUIDemos
 
 			ImageBox imgFit = new ImageBox(sampleImage);
 			imgFit.Position = new Vector2(600, 215);
-			imgFit.Size = new Vector2(80, 50);
-			imgFit.ScaleMode = ImageScaleMode.Fit;
-			imgFit.TooltipText = "ScaleMode.Fit - Fits within bounds (maintains aspect)";
+			imgFit.Size = new Vector2(80, 80);
+			imgFit.ScaleMode = ImageScaleMode.Stretch;
+			imgFit.FilterMode = ImageFilterMode.Smooth;
+			imgFit.TooltipText = "FilterMode.Smooth - Bilinear filtering";
 			FUI.AddControl(imgFit);
 
-			// Fill - maintains aspect ratio, fills bounds (may crop)
-			Label fillLabel = new Label("Fill");
+			// Fill - pixelated filter mode for pixel art
+			Label fillLabel = new Label("Pixelated");
 			fillLabel.Position = new Vector2(690, 195);
 			fillLabel.Size = new Vector2(80, 16);
 			fillLabel.Alignment = Align.Left;
@@ -430,9 +431,10 @@ namespace FishUIDemos
 
 			ImageBox imgFill = new ImageBox(sampleImage);
 			imgFill.Position = new Vector2(690, 215);
-			imgFill.Size = new Vector2(80, 50);
-			imgFill.ScaleMode = ImageScaleMode.Fill;
-			imgFill.TooltipText = "ScaleMode.Fill - Fills bounds (may crop, maintains aspect)";
+			imgFill.Size = new Vector2(80, 80);
+			imgFill.ScaleMode = ImageScaleMode.Stretch;
+			imgFill.FilterMode = ImageFilterMode.Pixelated;
+			imgFill.TooltipText = "FilterMode.Pixelated - Nearest-neighbor (pixel art)";
 			FUI.AddControl(imgFill);
 
 			// Clickable ImageBox demo

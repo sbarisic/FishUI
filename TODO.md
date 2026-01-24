@@ -106,8 +106,6 @@ A list of planned features, improvements, and new controls for FishUI.
 ### Textbox Enhancements
 - [ ] Multi-line mode with character wrap (3 CPX)
 
-### ListBox Enhancements
-- [ ] Drag and drop reordering (3 CPX)
 
 ---
 
@@ -177,9 +175,6 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ## Sample Application
 
 - [ ] Examples should be implemented in FishUISample project, using the ISample interface (2 CPX each)
-- [ ] **ImageBox example improvements** (2 CPX)
-  - Use images from data/images/ folder instead of silk_icons
-  - Add pixelated (nearest-neighbor) rendering mode to ImageBox
 - [ ] MultiLine textbox example (separate demo)
   - Add single line and multi line 
   - Requires multi-line textbox mode implementation
@@ -211,7 +206,11 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-*No uncategorized items*
+- Move all images from SampleBasicControls into separate demo
+- Move all drop down related code from SampleBasicControls into separate demo
+- Review SampleBasicControls for any other controls that can be moved into separate demos
+- Change the main sample chooser to use a listbox instead of buttons for better scalability
+- Modify sample chooser to use reflection to get all ISample implementations automatically
 
 ---
 
@@ -246,6 +245,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - DropDown: Custom item rendering via CustomItemRenderer delegate
 - ListBox: Custom item rendering via CustomItemRenderer delegate
 - DropDown: Multi-select mode with checkbox icons per item
+- ImageBox: Pixelated (nearest-neighbor) filter mode for pixel art
 - Input controls: Mouse wheel support for Slider, ScrollBars, NumericUpDown
 - NumericUpDown: Narrower buttons, TabControl serialization, BarGauge styling
 - BarGauge: Black tick marks, dashboard styling (larger size, range labels)

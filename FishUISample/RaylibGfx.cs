@@ -304,6 +304,15 @@ namespace FishUISample
             Raylib.DrawTextEx(F, Text, Pos.Round(), Fn.Size, Fn.Spacing, new Color(Color.R, Color.G, Color.B, Color.A));
         }
 
+        public void SetImageFilter(ImageRef Img, bool pixelated)
+        {
+            if (Img == null || Img.Userdata == null)
+                return;
+
+            Texture2D Tex = (Texture2D)Img.Userdata;
+            Raylib.SetTextureFilter(Tex, pixelated ? TextureFilter.Point : TextureFilter.Trilinear);
+        }
+
         public Vector2 MeasureText(FontRef Fn, string Text)
         {
             Font F = (Font)Fn.Userdata;
