@@ -555,6 +555,77 @@ namespace FishUISample.Samples
 			tickUp.OnButtonPressed += (btn, mbtn, pos) => { tickGauge.Value += 1; };
 			FUI.AddControl(tickUp);
 
+			// === RadialGauge ===
+			Label radialLabel = new Label("RadialGauge (use +/- buttons)");
+			radialLabel.Position = new Vector2(20, 130);
+			radialLabel.Size = new Vector2(220, 20);
+			radialLabel.Alignment = Align.Left;
+			FUI.AddControl(radialLabel);
+
+			// RPM gauge
+			RadialGauge rpmGauge = new RadialGauge(0, 8000);
+			rpmGauge.Position = new Vector2(20, 155);
+			rpmGauge.Size = new Vector2(120, 120);
+			rpmGauge.Value = 3500;
+			rpmGauge.SetupRPMZones();
+			rpmGauge.UnitSuffix = "RPM";
+			rpmGauge.ValueFormat = "F0";
+			rpmGauge.TooltipText = "RPM gauge with redline zone";
+			FUI.AddControl(rpmGauge);
+
+			// RPM gauge controls
+			Button rpmDown = new Button();
+			rpmDown.Text = "-";
+			rpmDown.Position = new Vector2(145, 200);
+			rpmDown.Size = new Vector2(25, 25);
+			rpmDown.IsRepeatButton = true;
+			rpmDown.RepeatInterval = 0.03f;
+			rpmDown.TooltipText = "Decrease RPM";
+			rpmDown.OnButtonPressed += (btn, mbtn, pos) => { rpmGauge.Value -= 100; };
+			FUI.AddControl(rpmDown);
+
+			Button rpmUp = new Button();
+			rpmUp.Text = "+";
+			rpmUp.Position = new Vector2(175, 200);
+			rpmUp.Size = new Vector2(25, 25);
+			rpmUp.IsRepeatButton = true;
+			rpmUp.RepeatInterval = 0.03f;
+			rpmUp.TooltipText = "Increase RPM";
+			rpmUp.OnButtonPressed += (btn, mbtn, pos) => { rpmGauge.Value += 100; };
+			FUI.AddControl(rpmUp);
+
+			// Speedometer gauge
+			RadialGauge speedGauge = new RadialGauge(0, 200);
+			speedGauge.Position = new Vector2(20, 285);
+			speedGauge.Size = new Vector2(120, 120);
+			speedGauge.Value = 85;
+			speedGauge.SetupSpeedZones();
+			speedGauge.UnitSuffix = "km/h";
+			speedGauge.MajorTickCount = 8;
+			speedGauge.TooltipText = "Speedometer with color zones";
+			FUI.AddControl(speedGauge);
+
+			// Speed gauge controls
+			Button speedDown = new Button();
+			speedDown.Text = "-";
+			speedDown.Position = new Vector2(145, 330);
+			speedDown.Size = new Vector2(25, 25);
+			speedDown.IsRepeatButton = true;
+			speedDown.RepeatInterval = 0.03f;
+			speedDown.TooltipText = "Decrease speed";
+			speedDown.OnButtonPressed += (btn, mbtn, pos) => { speedGauge.Value -= 5; };
+			FUI.AddControl(speedDown);
+
+			Button speedUp = new Button();
+			speedUp.Text = "+";
+			speedUp.Position = new Vector2(175, 330);
+			speedUp.Size = new Vector2(25, 25);
+			speedUp.IsRepeatButton = true;
+			speedUp.RepeatInterval = 0.03f;
+			speedUp.TooltipText = "Increase speed";
+			speedUp.OnButtonPressed += (btn, mbtn, pos) => { speedGauge.Value += 5; };
+			FUI.AddControl(speedUp);
+
 			// === VUMeter ===
 			Label vuLabel = new Label("VUMeter");
 			vuLabel.Position = new Vector2(920, 545);

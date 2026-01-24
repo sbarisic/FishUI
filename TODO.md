@@ -9,10 +9,13 @@ A list of planned features, improvements, and new controls for FishUI.
 > - **4** - Multi-file control/component with multiple dependencies and significant logic, possible minor architecture changes
 > - **5** - Large feature spanning multiple components and subsystems, major architecture changes
 
-> How TODO file should be iterated
-- After Active Bugs the rest of the TODO file by priority and complexity (High priority takes precedance, then CPX points) (take one at a time). Consolidate all completed TODO items by combining similar ones and shortening the descriptions where possible
-- First handle the Uncategorized section, if any similar issues already are on the TODO list, increase their priority instead of adding duplicates
+> Instructions for the TODO list:
+- Consolidate all completed TODO items by combining similar ones and shortening the descriptions where possible
+
+> How TODO file should be iterated:
+- First handle the Uncategorized section, if any similar issues already are on the TODO list, increase their priority instead of adding duplicates (take one at a time)
 - When Uncategorized section is empty, start by fixing Active Bugs (take one at a time)
+- After Active Bugs, handle the rest of the TODO file by priority and complexity (High priority takes precedance, then CPX points) (take one at a time).
 
 ---
 
@@ -49,6 +52,7 @@ A list of planned features, improvements, and new controls for FishUI.
 | BarGauge | ✅ Complete | N/A |
 | VUMeter | ✅ Complete | N/A |
 | AnimatedImageBox | ✅ Complete | N/A |
+| RadialGauge | ✅ Complete | N/A |
 
 ---
 
@@ -116,12 +120,7 @@ A list of planned features, improvements, and new controls for FishUI.
 
 - [x] ~~**MenuItem**~~ - Individual menu item with text, shortcut display, checkbox states (implemented with ContextMenu)
 
-- [ ] **RadialGauge** (3 CPX) **HIGH PRIORITY**
-  - Circular gauge display (e.g., RPM, speedometer)
-  - Configurable min/max values and range angle
-  - Needle/pointer rendering
-  - Tick marks and labels
-  - *Use case: Dashboard-style data visualization*
+- [x] ~~**RadialGauge**~~ - Circular gauge with configurable angles, needle, tick marks, labels, color zones (RPM/speedometer presets); demo in SampleBasicControls
 
 - [x] ~~**BarGauge**~~ - Linear gauge with min/max values, color zones (temperature/fuel presets), ticks, labels; demo in SampleBasicControls
 
@@ -265,8 +264,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] ~~Implement sample chooser system in Program.cs~~ - Added ChooseSample() with console menu and --sample/-s CLI args; added Name property to ISample
 - [x] ~~Theme switcher example~~ (SampleThemeSwitcher.cs)
 - [x] ~~Game main menu example~~ (SampleGameMenu.cs) - Buttons + Options window with tabs
-- [ ] Car dashboard example with gauges
-  - Requires RadialGauge and BarGauge controls first
+- [ ] Car dashboard example with gauges (2 CPX)
+- RadialGauge and BarGauge controls now available
 - [x] ~~ImageBox example~~ - Added to SampleBasicControls with all scaling modes and click event demo
 - [ ] **ImageBox example improvements** (2 CPX)
   - Use images from data/images/ folder instead of silk_icons
@@ -347,8 +346,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [x] ~~Layout save/load breaks Window and TabControl~~ - Added `OnDeserialized` virtual method to Control, overridden in Window and TabControl to reinitialize internal state
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
-
-*No uncategorized items*
+- Move radial and bar gauge controls to separate example page
+- Create a GUI for example selection instead of console menu, when currently running example is closed it should return to the GUI menu for selection
 
 ---
 
