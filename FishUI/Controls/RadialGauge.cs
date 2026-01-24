@@ -76,7 +76,7 @@ namespace FishUI.Controls
 		/// Thickness of the gauge arc in pixels.
 		/// </summary>
 		[YamlMember]
-		public float ArcThickness { get; set; } = 15f;
+		public float ArcThickness { get; set; } = 8f;
 
 		/// <summary>
 		/// Width of the needle at its base.
@@ -304,10 +304,9 @@ namespace FishUI.Controls
 
 		private void DrawBackgroundArc(FishUI UI, Vector2 center, float radius)
 		{
-			// Draw arc segments to approximate the background
-			int segments = 32;
-			float outerRadius = radius;
-			float innerRadius = radius - ArcThickness;
+			// Draw arc as connected thick line segments
+			int segments = 64;
+			float arcRadius = radius - ArcThickness / 2f;
 
 			for (int i = 0; i < segments; i++)
 			{
@@ -316,17 +315,20 @@ namespace FishUI.Controls
 				float angle1 = NormalizedToAngle(t1);
 				float angle2 = NormalizedToAngle(t2);
 
-				DrawArcQuad(UI, center, innerRadius, outerRadius, angle1, angle2, BackgroundColor);
+				Vector2 p1 = center + new Vector2(MathF.Cos(angle1), MathF.Sin(angle1)) * arcRadius;
+				Vector2 p2 = center + new Vector2(MathF.Cos(angle2), MathF.Sin(angle2)) * arcRadius;
+
+				UI.Graphics.DrawLine(p1, p2, ArcThickness, BackgroundColor);
 			}
 		}
 
 		private void DrawArcSegment(FishUI UI, Vector2 center, float radius, float startNorm, float endNorm, FishColor color)
 		{
-			int segments = (int)(32 * (endNorm - startNorm));
-			segments = Math.Max(segments, 4);
+			// Calculate number of segments based on arc length
+			int segments = (int)(64 * (endNorm - startNorm));
+			segments = Math.Max(segments, 8);
 
-			float outerRadius = radius;
-			float innerRadius = radius - ArcThickness;
+			float arcRadius = radius - ArcThickness / 2f;
 
 			for (int i = 0; i < segments; i++)
 			{
@@ -335,23 +337,11 @@ namespace FishUI.Controls
 				float angle1 = NormalizedToAngle(t1);
 				float angle2 = NormalizedToAngle(t2);
 
-				DrawArcQuad(UI, center, innerRadius, outerRadius, angle1, angle2, color);
+				Vector2 p1 = center + new Vector2(MathF.Cos(angle1), MathF.Sin(angle1)) * arcRadius;
+				Vector2 p2 = center + new Vector2(MathF.Cos(angle2), MathF.Sin(angle2)) * arcRadius;
+
+				UI.Graphics.DrawLine(p1, p2, ArcThickness, color);
 			}
-		}
-
-		private void DrawArcQuad(FishUI UI, Vector2 center, float innerRadius, float outerRadius, float angle1, float angle2, FishColor color)
-		{
-			// Calculate the four corners of the arc segment
-			Vector2 inner1 = center + new Vector2(MathF.Cos(angle1), MathF.Sin(angle1)) * innerRadius;
-			Vector2 outer1 = center + new Vector2(MathF.Cos(angle1), MathF.Sin(angle1)) * outerRadius;
-			Vector2 inner2 = center + new Vector2(MathF.Cos(angle2), MathF.Sin(angle2)) * innerRadius;
-			Vector2 outer2 = center + new Vector2(MathF.Cos(angle2), MathF.Sin(angle2)) * outerRadius;
-
-			// Draw as two triangles using lines (approximation)
-			UI.Graphics.DrawLine(inner1, outer1, ArcThickness * 0.5f, color);
-			UI.Graphics.DrawLine(inner2, outer2, ArcThickness * 0.5f, color);
-			UI.Graphics.DrawLine(outer1, outer2, 2f, color);
-			UI.Graphics.DrawLine(inner1, inner2, 2f, color);
 		}
 
 		private void DrawTicks(FishUI UI, Vector2 center, float radius)
@@ -406,12 +396,28 @@ namespace FishUI.Controls
 			float needleLen = radius * NeedleLength;
 			Vector2 tip = center + new Vector2(MathF.Cos(angle), MathF.Sin(angle)) * needleLen;
 
-			// Draw needle as a thick line
-			UI.Graphics.DrawLine(center, tip, NeedleWidth, NeedleColor);
+			// Calculate perpendicular direction for triangle base
+			float perpAngle = angle + MathF.PI / 2f;
+			Vector2 perpDir = new Vector2(MathF.Cos(perpAngle), MathF.Sin(perpAngle));
 
-			// Draw a small circle at the tip for visibility
-			float tipRadius = NeedleWidth * 0.75f;
-			DrawFilledCircle(UI, tip, tipRadius, NeedleColor);
+			// Triangle base points (at center, spread by NeedleWidth)
+			float baseWidth = NeedleWidth * 1.5f;
+			Vector2 baseLeft = center + perpDir * baseWidth;
+			Vector2 baseRight = center - perpDir * baseWidth;
+
+			// Draw triangular needle using lines from base corners to tip
+			UI.Graphics.DrawLine(baseLeft, tip, 2f, NeedleColor);
+			UI.Graphics.DrawLine(baseRight, tip, 2f, NeedleColor);
+			UI.Graphics.DrawLine(baseLeft, baseRight, 2f, NeedleColor);
+
+			// Fill the triangle by drawing lines from base to tip
+			int fillSegments = (int)(baseWidth * 2);
+			for (int i = 0; i <= fillSegments; i++)
+			{
+				float t = (float)i / fillSegments;
+				Vector2 basePoint = Vector2.Lerp(baseLeft, baseRight, t);
+				UI.Graphics.DrawLine(basePoint, tip, 1.5f, NeedleColor);
+			}
 		}
 
 		private void DrawHub(FishUI UI, Vector2 center, float radius)
