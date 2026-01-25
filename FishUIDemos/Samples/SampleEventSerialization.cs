@@ -37,14 +37,12 @@ namespace FishUIDemos
 			FUI.EventHandlers.Register("OnSaveClicked", (sender, args) =>
 			{
 				Log($"Save button clicked! (Control ID: {sender.ID})");
-				// Serialize current layout to show YAML output
 				SerializeCurrentLayout();
 			});
 
 			FUI.EventHandlers.Register("OnLoadClicked", (sender, args) =>
 			{
 				Log($"Load button clicked! (Control ID: {sender.ID})");
-				// Reload layout from YAML file
 				LoadLayoutFromYaml();
 			});
 
@@ -86,13 +84,121 @@ namespace FishUIDemos
 			});
 		}
 
+		public void Init()
+		{
+			// Try to load the layout from YAML file
+			bool loadedFromYaml = false;
+			try
+			{
+				// Load the layout - this clears all controls and loads from YAML
+				LayoutFormat.DeserializeFromFile(FUI, "data/layouts/event_demo.yaml");
+
+				// Populate the ListBox items (not stored in YAML for this demo)
+				var themeList = FUI.FindControlByID<ListBox>("themeList");
+				if (themeList != null)
+				{
+					themeList.AddItem("Default");
+					themeList.AddItem("Dark");
+					themeList.AddItem("Light");
+					themeList.AddItem("Blue");
+				}
+
+				loadedFromYaml = true;
+			}
+			catch (Exception)
+			{
+				// YAML loading failed, create controls in code
+				CreateControlsInCode();
+			}
+
+			// Build the static UI (title, log, labels) - always after loading
+			RebuildStaticUI();
+
+			if (loadedFromYaml)
+				Log("Layout loaded from YAML! Event handlers are connected.");
+			else
+				Log("Created controls in code (YAML file not found).");
+		}
+
+		private void CreateControlsInCode()
+		{
+			// Fallback: create controls in code if YAML loading fails
+			Button saveBtn = new Button();
+			saveBtn.ID = "saveButton";
+			saveBtn.Text = "Save";
+			saveBtn.Position = new Vector2(20, 85);
+			saveBtn.Size = new Vector2(80, 28);
+			saveBtn.OnClickHandler = "OnSaveClicked";
+			FUI.AddControl(saveBtn);
+
+			Button loadBtn = new Button();
+			loadBtn.ID = "loadButton";
+			loadBtn.Text = "Load";
+			loadBtn.Position = new Vector2(110, 85);
+			loadBtn.Size = new Vector2(80, 28);
+			loadBtn.OnClickHandler = "OnLoadClicked";
+			FUI.AddControl(loadBtn);
+
+			Button deleteBtn = new Button();
+			deleteBtn.ID = "deleteButton";
+			deleteBtn.Text = "Delete";
+			deleteBtn.Position = new Vector2(200, 85);
+			deleteBtn.Size = new Vector2(80, 28);
+			deleteBtn.OnClickHandler = "OnDeleteClicked";
+			FUI.AddControl(deleteBtn);
+
+			Slider volumeSlider = new Slider();
+			volumeSlider.ID = "volumeSlider";
+			volumeSlider.Position = new Vector2(85, 125);
+			volumeSlider.Size = new Vector2(150, 24);
+			volumeSlider.MinValue = 0;
+			volumeSlider.MaxValue = 100;
+			volumeSlider.Value = 50;
+			volumeSlider.OnValueChangedHandler = "OnSliderChanged";
+			FUI.AddControl(volumeSlider);
+
+			CheckBox enableSoundCb = new CheckBox();
+			enableSoundCb.ID = "enableSound";
+			enableSoundCb.Position = new Vector2(20, 160);
+			enableSoundCb.Size = new Vector2(20, 20);
+			enableSoundCb.OnCheckedChangedHandler = "OnCheckboxToggled";
+			FUI.AddControl(enableSoundCb);
+
+			CheckBox enableMusicCb = new CheckBox();
+			enableMusicCb.ID = "enableMusic";
+			enableMusicCb.Position = new Vector2(160, 160);
+			enableMusicCb.Size = new Vector2(20, 20);
+			enableMusicCb.IsChecked = true;
+			enableMusicCb.OnCheckedChangedHandler = "OnCheckboxToggled";
+			FUI.AddControl(enableMusicCb);
+
+			ListBox themeList = new ListBox();
+			themeList.ID = "themeList";
+			themeList.Position = new Vector2(20, 217);
+			themeList.Size = new Vector2(150, 80);
+			themeList.AddItem("Default");
+			themeList.AddItem("Dark");
+			themeList.AddItem("Light");
+			themeList.AddItem("Blue");
+			themeList.OnSelectionChangedHandler = "OnItemSelected";
+			FUI.AddControl(themeList);
+
+			Textbox usernameBox = new Textbox();
+			usernameBox.ID = "usernameBox";
+			usernameBox.Position = new Vector2(190, 217);
+			usernameBox.Size = new Vector2(150, 24);
+			usernameBox.Placeholder = "Enter username";
+			usernameBox.OnTextChangedHandler = "OnTextEdited";
+			FUI.AddControl(usernameBox);
+		}
+
 		private void SerializeCurrentLayout()
 		{
 			// Serialize current controls to YAML
 			string yaml = LayoutFormat.Serialize(FUI);
 			Log("Layout serialized to YAML:");
 
-			// Show first few lines of YAML in the yaml preview
+			// Show first few lines of YAML in the log
 			string[] lines = yaml.Split('\n');
 			int linesToShow = Math.Min(8, lines.Length);
 			for (int i = 0; i < linesToShow; i++)
@@ -108,19 +214,12 @@ namespace FishUIDemos
 		{
 			try
 			{
-				// Store references to controls we don't want to reload
-				var logBox = _logBox;
-				var statusLabel = _statusLabel;
-
 				Log("Reloading layout from YAML file...");
 
-				// Load the layout - this will deserialize controls with their OnXxxHandler properties
+				// Load the layout - this clears all controls and loads from YAML
 				LayoutFormat.DeserializeFromFile(FUI, "data/layouts/event_demo.yaml");
 
-				// Re-add the static UI elements (title, log, etc.)
-				RebuildStaticUI();
-
-				// Populate the ListBox items (not stored in YAML for this demo)
+				// Populate the ListBox items
 				var themeList = FUI.FindControlByID<ListBox>("themeList");
 				if (themeList != null)
 				{
@@ -130,7 +229,10 @@ namespace FishUIDemos
 					themeList.AddItem("Blue");
 				}
 
-				Log("Layout loaded! Event handlers are automatically connected.");
+				// Re-add the static UI elements
+				RebuildStaticUI();
+
+				Log("Layout reloaded! Event handlers are automatically connected.");
 			}
 			catch (Exception ex)
 			{
@@ -218,12 +320,6 @@ namespace FishUIDemos
 			yamlLabel.Size = new Vector2(400, 20);
 			yamlLabel.Alignment = Align.Left;
 			FUI.AddControl(yamlLabel);
-		}
-
-		public void Init()
-		{
-			// Load the layout from YAML file - controls have OnXxxHandler properties set
-			LoadLayoutFromYaml();
 		}
 
 		private void Log(string message)
