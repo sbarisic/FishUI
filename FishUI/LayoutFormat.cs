@@ -70,7 +70,8 @@ namespace FishUI
 			{ "!FlowLayout", typeof(FlowLayout) },
 			{ "!GridLayout", typeof(GridLayout) },
 			{ "!LineChart", typeof(LineChart) },
-			{ "!Timeline", typeof(Timeline) }
+			{ "!Timeline", typeof(Timeline) },
+			{ "!MultiLineEditbox", typeof(MultiLineEditbox) }
 		};
 
 		public static string Serialize(FishUI UI)

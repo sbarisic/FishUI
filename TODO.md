@@ -62,6 +62,7 @@ A list of planned features, improvements, and new controls for FishUI.
 | GridLayout | ✅ Complete | N/A |
 | LineChart | ✅ Complete | N/A |
 | Timeline | ✅ Complete | N/A |
+| MultiLineEditbox | ✅ Complete | ✅ Atlas |
 
 ---
 
@@ -73,11 +74,7 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ### Medium Priority
 
-- [ ] **MultiLineEditbox / TextArea** (3 CPX)
-  - Multi-line text input
-  - Word wrap support
-  - Vertical scrollbar integration
-  - *GWEN atlas regions: Uses TextBox regions*
+*All medium priority controls have been implemented*
 
 ### Lower Priority
 
@@ -87,6 +84,8 @@ A list of planned features, improvements, and new controls for FishUI.
   - Column resizing
   - Row selection
   - *GWEN atlas regions available: ListHeaderSegment, ListHeader*
+
+
 
 - [ ] **SpreadsheetGrid** (5 CPX)
   - Spreadsheet cell is a separate control, grid is made of cells
@@ -105,9 +104,7 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ## Control Improvements
 
-### Textbox Enhancements
-- [ ] Multi-line mode with character wrap (3 CPX)
-
+*All control improvement items have been completed - see Completed section*
 
 ---
 
@@ -166,9 +163,6 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ## Sample Application
 
 - [ ] Examples should be implemented in FishUISample project, using the ISample interface (2 CPX each)
-- [ ] MultiLine textbox example (separate demo)
-  - Add single line and multi line 
-  - Requires multi-line textbox mode implementation
 
 ---
 
@@ -224,6 +218,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - MenuBar - Horizontal menu strip with dropdown menus, hover switching, submenus
 - ImageBox, StaticText, VUMeter, AnimatedImageBox - Display controls
 - Timeline - Time range navigation control with draggable view window, pan/resize, LineChart companion
+- MultiLineEditbox - Multi-line text editor with line numbers, scrolling, cursor navigation, read-only mode
 - MenuItem, RadialGauge, BarGauge - Menu items and gauge controls
 - ScrollablePane - Container with automatic scrollbars and virtual scrolling
 - ItemListbox - Listbox with custom item widgets
@@ -277,6 +272,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - SampleBasicControls refactored: Focused on input controls (Textbox, Sliders, NumericUpDown, etc.)
 - Sample chooser: Replaced button grid with ListBox for better scalability
 - SampleLineChart: Real-time data visualization with multiple series, sine wave, noise, temperature monitor, 4th slow series (1.5s interval), wider chart layout
+- SampleMultiLineEditbox: Multi-line text editor demo with editable editor, read-only log viewer, simple editor examples
 
 ### Code Cleanup
 - ScreenCapture platform compatibility, YamlIgnore audit, naming conventions, XML docs, screenshot buttons, TODO extraction, debug flags refactor
