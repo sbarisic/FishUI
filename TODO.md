@@ -65,6 +65,7 @@ A list of planned features, improvements, and new controls for FishUI.
 | MultiLineEditbox | ✅ Complete | ✅ Atlas |
 | DatePicker | ✅ Complete | ✅ Atlas |
 | TimePicker | ✅ Complete | ✅ Atlas |
+| DataGrid | ✅ Complete | ✅ Atlas |
 
 ---
 
@@ -79,15 +80,6 @@ A list of planned features, improvements, and new controls for FishUI.
 *All medium priority controls have been implemented*
 
 ### Lower Priority
-
-- [ ] **MultiColumnList / DataGrid** (4 CPX)
-  - Tabular data display with multiple columns
-  - Column headers with sorting
-  - Column resizing
-  - Row selection
-  - *GWEN atlas regions available: ListHeaderSegment, ListHeader*
-
-
 
 - [ ] **SpreadsheetGrid** (5 CPX)
   - Spreadsheet cell is a separate control, grid is made of cells
@@ -221,6 +213,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - LineChart - Real-time line chart with multiple data series, configurable time window, grid, and axis labels
 - DatePicker - Calendar popup with month/year navigation, date format configuration, min/max date range
 - TimePicker - Time selection with hour/minute/second spinners, 12/24-hour format, mouse wheel support
+- DataGrid - Multi-column list with sortable headers, resizable columns, single/multi row selection, scrolling
 
 ### Control Improvements
 - Button: Icon, Toggle, Repeat, ImageButton modes
@@ -278,6 +271,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - SampleSerialization: Layout serialization demo showing IconPath/ImagePath properties for image preservation
 - SampleDatePicker: DatePicker demo with date formats, range restrictions, quick-set buttons
 - SampleTimePicker: TimePicker demo with 12/24-hour formats, seconds display, quick-set buttons
+- SampleDataGrid: DataGrid demo with employee database, multi-select, sorting, column resize
 
 ### Code Cleanup
 - ScreenCapture platform compatibility, YamlIgnore audit, naming conventions, XML docs, screenshot buttons, TODO extraction, debug flags refactor
