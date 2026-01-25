@@ -101,7 +101,7 @@ namespace FishUI.Controls
 		/// </summary>
 		public event ButtonToggledFunc OnToggled;
 
-	public Button()
+		public Button()
 		{
 			Focusable = true;
 		}
@@ -112,6 +112,68 @@ namespace FishUI.Controls
 			ImgDisabled = Disabled;
 			ImgPressed = Pressed;
 			ImgHover = Hovered;
+		}
+
+		/// <summary>
+		/// Gets the preferred size based on text and icon content.
+		/// </summary>
+		public override Vector2 GetPreferredSize(FishUI UI)
+		{
+			if (UI?.Graphics == null)
+				return Size;
+
+			float width = 0;
+			float height = 0;
+
+			// Measure text if present
+			Vector2 textSize = Vector2.Zero;
+			if (!string.IsNullOrEmpty(Text))
+			{
+				textSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, Text);
+				if (float.IsNaN(textSize.X)) textSize.X = 0;
+				if (float.IsNaN(textSize.Y)) textSize.Y = 0;
+			}
+
+			// Measure icon if present
+			Vector2 iconSize = Vector2.Zero;
+			if (Icon != null)
+			{
+				iconSize = new Vector2(Icon.Width, Icon.Height);
+			}
+
+			// Calculate total size based on icon position
+			if (Icon != null && !string.IsNullOrEmpty(Text))
+			{
+				switch (IconPosition)
+				{
+					case IconPosition.Left:
+					case IconPosition.Right:
+						width = iconSize.X + IconSpacing + textSize.X;
+						height = Math.Max(iconSize.Y, textSize.Y);
+						break;
+					case IconPosition.Top:
+					case IconPosition.Bottom:
+						width = Math.Max(iconSize.X, textSize.X);
+						height = iconSize.Y + IconSpacing + textSize.Y;
+						break;
+				}
+			}
+			else if (Icon != null)
+			{
+				width = iconSize.X;
+				height = iconSize.Y;
+			}
+			else if (!string.IsNullOrEmpty(Text))
+			{
+				width = textSize.X;
+				height = textSize.Y;
+			}
+
+			// Add default button padding (8px horizontal, 4px vertical)
+			width += 16;
+			height += 8;
+
+			return new Vector2(width, height);
 		}
 
 		public override void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
@@ -158,6 +220,9 @@ namespace FishUI.Controls
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
+			// Update auto-size if enabled
+			UpdateAutoSize(UI);
+
 			// Handle repeat button timing
 			if (IsRepeatButton && IsMousePressed && !Disabled)
 			{
@@ -218,7 +283,7 @@ namespace FishUI.Controls
 			else if (IsMouseInside)
 				Cur = NHover;
 
-		UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), EffectiveColor);
+			UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), EffectiveColor);
 
 			string Txt = Text;
 			bool hasText = !string.IsNullOrEmpty(Txt);
@@ -263,7 +328,7 @@ namespace FishUI.Controls
 						break;
 				}
 
-			UI.Graphics.DrawImage(Icon, iconPos, 0f, 1f, FishColor.White);
+				UI.Graphics.DrawImage(Icon, iconPos, 0f, 1f, FishColor.White);
 				FishColor textColor = GetColorOverride("Text", FishColor.Black);
 				UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Txt, textPos, textColor);
 			}

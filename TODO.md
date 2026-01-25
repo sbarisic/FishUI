@@ -150,10 +150,6 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ## Core Framework Features
 
-### Layout System **HIGH PRIORITY**
-- [ ] Auto-sizing controls based on content (3 CPX)
-  - Should work in tandem with Docking/Anchoring
-
 ### Rendering **HIGH PRIORITY**
 - [ ] Animation system for transitions (4 CPX)
 
@@ -246,6 +242,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - PropertyGrid: Vector2/Vector3/Vector4 component editors with X/Y/Z/W fields
 
 ### Core Framework
+- Auto-sizing controls - AutoSizeMode (None/Width/Height/Both), GetPreferredSize, Min/MaxSize constraints
 - GridLayout - Grid-based child positioning with configurable columns, spacing, and stretch options
 - FlowLayout - Automatic horizontal/vertical flow with wrapping (4 directions, 3 wrap modes)
 - StackLayout, Anchor, Margin/Padding - Layout infrastructure

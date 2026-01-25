@@ -16,14 +16,14 @@ namespace FishUI.Controls
 
 	public class Label : Control
 	{
-	public string Text;
+		public string Text;
 
-	/// <summary>
-	/// Text alignment within the label bounds. Default is Left to prevent clipping in containers.
-	/// </summary>
-	public Align Alignment = Align.Left;
+		/// <summary>
+		/// Text alignment within the label bounds. Default is Left to prevent clipping in containers.
+		/// </summary>
+		public Align Alignment = Align.Left;
 
-	public Label()
+		public Label()
 		{
 		}
 
@@ -34,8 +34,28 @@ namespace FishUI.Controls
 			Size = new Vector2(200, 16);
 		}
 
+		/// <summary>
+		/// Gets the preferred size based on the text content.
+		/// </summary>
+		public override Vector2 GetPreferredSize(FishUI UI)
+		{
+			if (string.IsNullOrEmpty(Text) || UI?.Graphics == null)
+				return Size;
+
+			Vector2 textSize = UI.Graphics.MeasureText(UI.Settings.FontLabel, Text);
+
+			// Handle NaN values
+			if (float.IsNaN(textSize.X)) textSize.X = 0;
+			if (float.IsNaN(textSize.Y)) textSize.Y = 0;
+
+			return textSize;
+		}
+
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
+			// Update auto-size if enabled
+			UpdateAutoSize(UI);
+
 			//base.Draw(UI, Dt, Time);
 
 			string Txt = Text;
@@ -57,7 +77,7 @@ namespace FishUI.Controls
 
 				Vector2 Pos = Vector2.Zero;
 
-			switch (Alignment)
+				switch (Alignment)
 				{
 					case Align.None:
 						Pos = GetAbsolutePosition();

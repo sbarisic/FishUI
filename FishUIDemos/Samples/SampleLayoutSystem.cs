@@ -497,6 +497,62 @@ namespace FishUIDemos
 				iconBtn.Text = c.ToString();
 				grid4Col.AddChild(iconBtn);
 			}
+
+			// === Auto-Sizing ===
+			Label autoSizeLabel = new Label("Auto-Sizing");
+			autoSizeLabel.Position = new Vector2(650, 525);
+			autoSizeLabel.Alignment = Align.Left;
+			FUI.AddControl(autoSizeLabel);
+
+			// Auto-size Label (width only)
+			Label autoLabel1 = new Label("Short");
+			autoLabel1.Position = new Vector2(650, 550);
+			autoLabel1.AutoSize = AutoSizeMode.Both;
+			autoLabel1.AutoSizePadding = new Vector2(4, 2);
+			FUI.AddControl(autoLabel1);
+
+			Label autoLabel2 = new Label("A much longer label text");
+			autoLabel2.Position = new Vector2(700, 550);
+			autoLabel2.AutoSize = AutoSizeMode.Both;
+			autoLabel2.AutoSizePadding = new Vector2(4, 2);
+			FUI.AddControl(autoLabel2);
+
+			// Auto-size Buttons
+			Button autoBtn1 = new Button();
+			autoBtn1.Text = "OK";
+			autoBtn1.Position = new Vector2(650, 575);
+			autoBtn1.Size = new Vector2(50, 25); // Initial size, will auto-resize
+			autoBtn1.AutoSize = AutoSizeMode.Both;
+			FUI.AddControl(autoBtn1);
+
+			Button autoBtn2 = new Button();
+			autoBtn2.Text = "Cancel";
+			autoBtn2.Position = new Vector2(710, 575);
+			autoBtn2.Size = new Vector2(50, 25);
+			autoBtn2.AutoSize = AutoSizeMode.Both;
+			FUI.AddControl(autoBtn2);
+
+			Button autoBtn3 = new Button();
+			autoBtn3.Text = "Apply Changes";
+			autoBtn3.Position = new Vector2(780, 575);
+			autoBtn3.Size = new Vector2(50, 25);
+			autoBtn3.AutoSize = AutoSizeMode.Both;
+			FUI.AddControl(autoBtn3);
+
+			// Auto-size with constraints
+			Label constraintLabel = new Label("With Min/Max:");
+			constraintLabel.Position = new Vector2(650, 610);
+			constraintLabel.Alignment = Align.Left;
+			FUI.AddControl(constraintLabel);
+
+			Button constrainedBtn = new Button();
+			constrainedBtn.Text = "Constrained Button";
+			constrainedBtn.Position = new Vector2(750, 605);
+			constrainedBtn.Size = new Vector2(50, 25);
+			constrainedBtn.AutoSize = AutoSizeMode.Width;
+			constrainedBtn.MinSize = new Vector2(80, 0);
+			constrainedBtn.MaxSize = new Vector2(120, 0);
+			FUI.AddControl(constrainedBtn);
 		}
 	}
 }
