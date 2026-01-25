@@ -1,4 +1,4 @@
-# FishUI
+﻿# FishUI
 
 A dependency-free, immediate-mode-inspired GUI library for .NET applications with backend-agnostic rendering.
 
@@ -383,22 +383,22 @@ For the sample application:
 
 ```
 FishUI/
-??? FishUI/                 # Core library
-?   ??? Controls/           # All UI controls
-?   ??? FishUI.cs           # Main UI manager
-?   ??? FishUISettings.cs   # Settings and theme loading
-?   ??? IFishUIGfx.cs       # Graphics interface
-?   ??? IFishUIInput.cs     # Input interface
-?   ??? LayoutFormat.cs     # YAML serialization
-??? FishUIDemos/            # Sample implementations
-?   ??? Samples/            # ISample implementations
-??? FishUISample/           # Raylib-based runner
-?   ??? RaylibGfx.cs        # IFishUIGfx implementation
-?   ??? RaylibInput.cs      # IFishUIInput implementation
-?   ??? SampleChooser.cs    # GUI sample selector
-??? data/                   # Assets
-    ??? themes/             # YAML theme files
-    ??? images/             # Sample images
+├── FishUI/                 # Core library
+│   ├── Controls/           # All UI controls
+│   ├── FishUI.cs           # Main UI manager
+│   ├── FishUISettings.cs   # Settings and theme loading
+│   ├── IFishUIGfx.cs       # Graphics interface
+│   ├── IFishUIInput.cs     # Input interface
+│   └── LayoutFormat.cs     # YAML serialization
+├── FishUIDemos/            # Sample implementations
+│   └── Samples/            # ISample implementations
+├── FishUISample/           # Raylib-based runner
+│   ├── RaylibGfx.cs        # IFishUIGfx implementation
+│   ├── RaylibInput.cs      # IFishUIInput implementation
+│   └── SampleChooser.cs    # GUI sample selector
+└── data/                   # Assets
+    ├── themes/             # YAML theme files
+    └── images/             # Sample images
 ```
 
 ## License
