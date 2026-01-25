@@ -34,7 +34,7 @@ namespace FishUI
 		/// Set to a custom IFishUIFileSystem implementation to use virtual file systems,
 		/// embedded resources, or game engine asset systems.
 		/// </summary>
-		public IFishUIFileSystem FileSystem = new DefaultFishUIFileSystem();
+		public IFishUIFileSystem FileSystem;
 
 		List<Control> Controls;
 
@@ -117,14 +117,18 @@ namespace FishUI
 		/// <param name="Graphics">Graphics backend implementation.</param>
 		/// <param name="Input">Input backend implementation.</param>
 		/// <param name="Events">Events handler for control events.</param>
-		public FishUI(FishUISettings Settings, IFishUIGfx Graphics, IFishUIInput Input, IFishUIEvents Events)
+		public FishUI(FishUISettings Settings, IFishUIGfx Graphics, IFishUIInput Input, IFishUIEvents Events, IFishUIFileSystem FS = null)
 		{
 			Controls = new List<Control>();
+
+			if (FS == null)
+				FS = new DefaultFishUIFileSystem();
 
 			this.Settings = Settings;
 			this.Graphics = Graphics;
 			this.Input = Input;
 			this.Events = Events;
+			this.FileSystem = FS;
 
 			// Create the global tooltip
 			_activeTooltip = new Controls.Tooltip();
