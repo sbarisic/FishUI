@@ -167,9 +167,6 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [ ] MultiLine textbox example (separate demo)
   - Add single line and multi line 
   - Requires multi-line textbox mode implementation
-- [ ] SampleLayoutSystem: Use Window controls instead of Panels for demos (1 CPX) **HIGH PRIORITY**
-  - Update existing layout system sample to use Window controls
-  - Demonstrate layout features with real controls
 
 ---
 
@@ -276,6 +273,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - Theme inheritance: Themes can inherit from parent themes via `inherits` property, child themes only override specific values
 
 ### Samples
+- SampleLayoutSystem: Updated to use Window controls for Anchors, StackLayout, FlowLayout, and GridLayout demos
 - SampleUIScaling: UI scaling demo with interactive scale slider, preset buttons, various controls
 - SampleAnimations: Animation system demo with fade, slide, scale, easing comparisons
 - Sample infrastructure: Split samples, runner loop, GUI-based chooser, theme switcher, game menu

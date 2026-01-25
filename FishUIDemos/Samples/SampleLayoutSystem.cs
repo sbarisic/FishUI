@@ -6,7 +6,8 @@ using System.Numerics;
 namespace FishUIDemos
 {
 	/// <summary>
-	/// Demonstrates layout system features: Margin, Padding, Anchors, StackLayout, Panel variants.
+	/// Demonstrates layout system features: Margin, Padding, Anchors, StackLayout, FlowLayout, GridLayout.
+	/// Uses Window controls as containers to show real-world usage.
 	/// </summary>
 	public class SampleLayoutSystem : ISample
 	{
@@ -184,19 +185,17 @@ namespace FishUIDemos
 			marginPanel.AddChild(marginNote);
 
 			// === Anchor System ===
-			Label anchorLabel = new Label("Anchor System (resize container to test)");
+			Label anchorLabel = new Label("Anchor System (resize window to test)");
 			anchorLabel.Position = new Vector2(20, 365);
 			anchorLabel.Alignment = Align.Left;
 			FUI.AddControl(anchorLabel);
 
-			Panel anchorContainer = new Panel();
-			anchorContainer.Position = new Vector2(20, 390);
-			anchorContainer.Size = new Vector2(240, 120);
-			anchorContainer.Variant = PanelVariant.Bright;
-			anchorContainer.BorderStyle = BorderStyle.Solid;
-			anchorContainer.BorderColor = new FishColor(100, 100, 150, 255);
-			anchorContainer.BorderThickness = 1f;
-			FUI.AddControl(anchorContainer);
+			Window anchorWindow = new Window("Anchors Demo", new Vector2(260, 150));
+			anchorWindow.Position = new Vector2(20, 390);
+			anchorWindow.IsResizable = true;
+			anchorWindow.ShowCloseButton = false;
+			anchorWindow.MinSize = new Vector2(180, 100);
+			FUI.AddControl(anchorWindow);
 
 			Button anchorTL = new Button();
 			anchorTL.Text = "TL";
@@ -204,7 +203,7 @@ namespace FishUIDemos
 			anchorTL.Size = new Vector2(45, 25);
 			anchorTL.Anchor = FishUIAnchor.TopLeft;
 			anchorTL.TooltipText = "TopLeft anchor";
-			anchorContainer.AddChild(anchorTL);
+			anchorWindow.AddChild(anchorTL);
 
 			Button anchorTR = new Button();
 			anchorTR.Text = "TR";
@@ -212,47 +211,50 @@ namespace FishUIDemos
 			anchorTR.Size = new Vector2(45, 25);
 			anchorTR.Anchor = FishUIAnchor.TopRight;
 			anchorTR.TooltipText = "TopRight anchor";
-			anchorContainer.AddChild(anchorTR);
+			anchorWindow.AddChild(anchorTR);
 
 			Button anchorBL = new Button();
 			anchorBL.Text = "BL";
-			anchorBL.Position = new Vector2(5, 90);
+			anchorBL.Position = new Vector2(5, 70);
 			anchorBL.Size = new Vector2(45, 25);
 			anchorBL.Anchor = FishUIAnchor.BottomLeft;
 			anchorBL.TooltipText = "BottomLeft anchor";
-			anchorContainer.AddChild(anchorBL);
+			anchorWindow.AddChild(anchorBL);
 
 			Button anchorBR = new Button();
 			anchorBR.Text = "BR";
-			anchorBR.Position = new Vector2(190, 90);
+			anchorBR.Position = new Vector2(190, 70);
 			anchorBR.Size = new Vector2(45, 25);
 			anchorBR.Anchor = FishUIAnchor.BottomRight;
 			anchorBR.TooltipText = "BottomRight anchor";
-			anchorContainer.AddChild(anchorBR);
+			anchorWindow.AddChild(anchorBR);
 
 			Button anchorH = new Button();
 			anchorH.Text = "Horizontal";
-			anchorH.Position = new Vector2(55, 45);
+			anchorH.Position = new Vector2(55, 35);
 			anchorH.Size = new Vector2(130, 25);
 			anchorH.Anchor = FishUIAnchor.Horizontal;
 			anchorH.TooltipText = "Horizontal anchor (stretches)";
-			anchorContainer.AddChild(anchorH);
+			anchorWindow.AddChild(anchorH);
 
-			// === StackLayout ===
-			Label stackLabel = new Label("StackLayout");
-			stackLabel.Position = new Vector2(300, 235);
-			stackLabel.Alignment = Align.Left;
-			FUI.AddControl(stackLabel);
+			// === StackLayout in Window ===
+			Window stackWindow = new Window("StackLayout Demo", new Vector2(180, 320));
+			stackWindow.Position = new Vector2(300, 235);
+			stackWindow.IsResizable = true;
+			stackWindow.ShowCloseButton = false;
+			stackWindow.MinSize = new Vector2(150, 200);
+			FUI.AddControl(stackWindow);
 
 			// Vertical Stack
 			StackLayout vStack = new StackLayout();
-			vStack.Position = new Vector2(300, 260);
-			vStack.Size = new Vector2(140, 150);
+			vStack.Position = new Vector2(5, 5);
+			vStack.Size = new Vector2(140, 130);
+			vStack.Anchor = FishUIAnchor.Horizontal; // Stretch with window width
 			vStack.Orientation = StackOrientation.Vertical;
 			vStack.Spacing = 8;
 			vStack.LayoutPadding = 10;
 			vStack.IsTransparent = false;
-			FUI.AddControl(vStack);
+			stackWindow.AddChild(vStack);
 
 			Button vBtn1 = new Button();
 			vBtn1.Text = "Stack 1";
@@ -272,175 +274,176 @@ namespace FishUIDemos
 			vToggle.Size = new Vector2(50, 22);
 			vStack.AddChild(vToggle);
 
-			// Horizontal Stack
+			// Horizontal Stack (inside same window)
+			Label hStackLabel = new Label("Horizontal:");
+			hStackLabel.Position = new Vector2(5, 140);
+			hStackLabel.Alignment = Align.Left;
+			stackWindow.AddChild(hStackLabel);
+
 			StackLayout hStack = new StackLayout();
-			hStack.Position = new Vector2(300, 420);
-			hStack.Size = new Vector2(220, 50);
+			hStack.Position = new Vector2(5, 160);
+			hStack.Size = new Vector2(160, 45);
+			hStack.Anchor = FishUIAnchor.Horizontal; // Stretch with window width
 			hStack.Orientation = StackOrientation.Horizontal;
 			hStack.Spacing = 5;
 			hStack.LayoutPadding = 5;
 			hStack.IsTransparent = false;
-			FUI.AddControl(hStack);
+			stackWindow.AddChild(hStack);
 
-			for (char c = 'A'; c <= 'E'; c++)
+			for (char c = 'A'; c <= 'D'; c++)
 			{
 				Button hBtn = new Button();
 				hBtn.Text = c.ToString();
-				hBtn.Size = new Vector2(35, 35);
+				hBtn.Size = new Vector2(32, 32);
 				hStack.AddChild(hBtn);
 			}
 
-			// Nested Stacks
-			Label nestedLabel = new Label("Nested Stacks");
-			nestedLabel.Position = new Vector2(300, 480);
+			// Nested Stacks (inside same window)
+			Label nestedLabel = new Label("Nested:");
+			nestedLabel.Position = new Vector2(5, 210);
 			nestedLabel.Alignment = Align.Left;
-			FUI.AddControl(nestedLabel);
+			stackWindow.AddChild(nestedLabel);
 
 			StackLayout outerStack = new StackLayout();
-			outerStack.Position = new Vector2(300, 505);
-			outerStack.Size = new Vector2(250, 100);
+			outerStack.Position = new Vector2(5, 230);
+			outerStack.Size = new Vector2(160, 55);
+			outerStack.Anchor = FishUIAnchor.Horizontal; // Stretch with window width
 			outerStack.Orientation = StackOrientation.Horizontal;
-			outerStack.Spacing = 10;
-			outerStack.LayoutPadding = 8;
+			outerStack.Spacing = 5;
+			outerStack.LayoutPadding = 4;
 			outerStack.IsTransparent = false;
-			FUI.AddControl(outerStack);
+			stackWindow.AddChild(outerStack);
 
 			for (int i = 1; i <= 3; i++)
 			{
 				StackLayout innerStack = new StackLayout();
-				innerStack.Size = new Vector2(70, 80);
+				innerStack.Size = new Vector2(48, 45);
 				innerStack.Orientation = StackOrientation.Vertical;
-				innerStack.Spacing = 4;
-				innerStack.LayoutPadding = 4;
+				innerStack.Spacing = 2;
+				innerStack.LayoutPadding = 2;
 				innerStack.IsTransparent = false;
 				outerStack.AddChild(innerStack);
 
-				for (int j = 1; j <= 3; j++)
+				for (int j = 1; j <= 2; j++)
 				{
 					Button innerBtn = new Button();
 					innerBtn.Text = $"{i}{(char)('A' + j - 1)}";
-					innerBtn.Size = new Vector2(55, 20);
+					innerBtn.Size = new Vector2(40, 18);
 					innerStack.AddChild(innerBtn);
 				}
 			}
 
-			// === FlowLayout ===
-			Label flowLabel = new Label("FlowLayout (wrapping)");
-			flowLabel.Position = new Vector2(450, 60);
-			flowLabel.Alignment = Align.Left;
-			FUI.AddControl(flowLabel);
+			// === FlowLayout in Window ===
+			Window flowWindow = new Window("FlowLayout Demo", new Vector2(200, 340));
+			flowWindow.Position = new Vector2(500, 60);
+			flowWindow.IsResizable = true;
+			flowWindow.ShowCloseButton = false;
+			flowWindow.MinSize = new Vector2(150, 200);
+			FUI.AddControl(flowWindow);
 
 			// Basic FlowLayout - LeftToRight with wrap
+			Label flowLTRLabel = new Label("Left-to-Right:");
+			flowLTRLabel.Position = new Vector2(5, 5);
+			flowLTRLabel.Alignment = Align.Left;
+			flowWindow.AddChild(flowLTRLabel);
+
 			FlowLayout flowLTR = new FlowLayout();
-			flowLTR.Position = new Vector2(450, 85);
-			flowLTR.Size = new Vector2(180, 120);
+			flowLTR.Position = new Vector2(5, 25);
+			flowLTR.Size = new Vector2(175, 80);
+			flowLTR.Anchor = FishUIAnchor.Horizontal; // Stretch with window width
 			flowLTR.Direction = FlowDirection.LeftToRight;
 			flowLTR.Wrap = FlowWrap.Wrap;
-			flowLTR.Spacing = 5;
-			flowLTR.WrapSpacing = 5;
-			flowLTR.LayoutPadding = 8;
+			flowLTR.Spacing = 4;
+			flowLTR.WrapSpacing = 4;
+			flowLTR.LayoutPadding = 6;
 			flowLTR.IsTransparent = false;
-			FUI.AddControl(flowLTR);
+			flowWindow.AddChild(flowLTR);
 
 			for (int i = 1; i <= 8; i++)
 			{
 				Button flowBtn = new Button();
 				flowBtn.Text = $"B{i}";
-				flowBtn.Size = new Vector2(40, 28);
+				flowBtn.Size = new Vector2(35, 24);
 				flowLTR.AddChild(flowBtn);
 			}
 
 			// FlowLayout - RightToLeft
-			Label flowRTLLabel = new Label("RTL Flow");
-			flowRTLLabel.Position = new Vector2(450, 215);
+			Label flowRTLLabel = new Label("Right-to-Left:");
+			flowRTLLabel.Position = new Vector2(5, 110);
 			flowRTLLabel.Alignment = Align.Left;
-			FUI.AddControl(flowRTLLabel);
+			flowWindow.AddChild(flowRTLLabel);
 
 			FlowLayout flowRTL = new FlowLayout();
-			flowRTL.Position = new Vector2(450, 240);
-			flowRTL.Size = new Vector2(180, 70);
+			flowRTL.Position = new Vector2(5, 130);
+			flowRTL.Size = new Vector2(175, 55);
+			flowRTL.Anchor = FishUIAnchor.Horizontal; // Stretch with window width
 			flowRTL.Direction = FlowDirection.RightToLeft;
 			flowRTL.Wrap = FlowWrap.Wrap;
-			flowRTL.Spacing = 5;
-			flowRTL.WrapSpacing = 5;
-			flowRTL.LayoutPadding = 8;
+			flowRTL.Spacing = 4;
+			flowRTL.WrapSpacing = 4;
+			flowRTL.LayoutPadding = 6;
 			flowRTL.IsTransparent = false;
-			FUI.AddControl(flowRTL);
+			flowWindow.AddChild(flowRTL);
 
 			for (char c = 'A'; c <= 'F'; c++)
 			{
 				Button rtlBtn = new Button();
 				rtlBtn.Text = c.ToString();
-				rtlBtn.Size = new Vector2(35, 25);
+				rtlBtn.Size = new Vector2(28, 22);
 				flowRTL.AddChild(rtlBtn);
 			}
 
 			// FlowLayout - TopToBottom vertical flow
-			Label flowTBLabel = new Label("Vertical Flow");
-			flowTBLabel.Position = new Vector2(450, 320);
+			Label flowTBLabel = new Label("Vertical Flow:");
+			flowTBLabel.Position = new Vector2(5, 190);
 			flowTBLabel.Alignment = Align.Left;
-			FUI.AddControl(flowTBLabel);
+			flowWindow.AddChild(flowTBLabel);
 
 			FlowLayout flowTB = new FlowLayout();
-			flowTB.Position = new Vector2(450, 345);
-			flowTB.Size = new Vector2(180, 100);
+			flowTB.Position = new Vector2(5, 210);
+			flowTB.Size = new Vector2(175, 70);
+			flowTB.Anchor = FishUIAnchor.Horizontal; // Stretch with window width
 			flowTB.Direction = FlowDirection.TopToBottom;
 			flowTB.Wrap = FlowWrap.Wrap;
-			flowTB.Spacing = 4;
-			flowTB.WrapSpacing = 8;
-			flowTB.LayoutPadding = 6;
+			flowTB.Spacing = 3;
+			flowTB.WrapSpacing = 6;
+			flowTB.LayoutPadding = 4;
 			flowTB.IsTransparent = false;
-			FUI.AddControl(flowTB);
+			flowWindow.AddChild(flowTB);
 
 			for (int i = 1; i <= 6; i++)
 			{
 				Button tbBtn = new Button();
 				tbBtn.Text = $"V{i}";
-				tbBtn.Size = new Vector2(50, 25);
+				tbBtn.Size = new Vector2(42, 20);
 				flowTB.AddChild(tbBtn);
 			}
 
-			// FlowLayout - NoWrap example
-			Label flowNoWrapLabel = new Label("NoWrap (single line)");
-			flowNoWrapLabel.Position = new Vector2(450, 455);
-			flowNoWrapLabel.Alignment = Align.Left;
-			FUI.AddControl(flowNoWrapLabel);
-
-			FlowLayout flowNoWrap = new FlowLayout();
-			flowNoWrap.Position = new Vector2(450, 480);
-			flowNoWrap.Size = new Vector2(180, 45);
-			flowNoWrap.Direction = FlowDirection.LeftToRight;
-			flowNoWrap.Wrap = FlowWrap.NoWrap;
-			flowNoWrap.Spacing = 3;
-			flowNoWrap.LayoutPadding = 5;
-			flowNoWrap.IsTransparent = false;
-			FUI.AddControl(flowNoWrap);
-
-			for (int i = 1; i <= 5; i++)
-			{
-				Button nwBtn = new Button();
-				nwBtn.Text = i.ToString();
-				nwBtn.Size = new Vector2(30, 30);
-				flowNoWrap.AddChild(nwBtn);
-			}
-
-			// === GridLayout ===
-			Label gridLabel = new Label("GridLayout");
-			gridLabel.Position = new Vector2(650, 60);
-			gridLabel.Alignment = Align.Left;
-			FUI.AddControl(gridLabel);
+			// === GridLayout in Window ===
+			Window gridWindow = new Window("GridLayout Demo", new Vector2(200, 340));
+			gridWindow.Position = new Vector2(720, 60);
+			gridWindow.IsResizable = true;
+			gridWindow.ShowCloseButton = false;
+			gridWindow.MinSize = new Vector2(150, 200);
+			FUI.AddControl(gridWindow);
 
 			// Basic GridLayout - 3x3 grid
+			Label grid3x3Label = new Label("3x3 Grid:");
+			grid3x3Label.Position = new Vector2(5, 5);
+			grid3x3Label.Alignment = Align.Left;
+			gridWindow.AddChild(grid3x3Label);
+
 			GridLayout grid3x3 = new GridLayout();
-			grid3x3.Position = new Vector2(650, 85);
-			grid3x3.Size = new Vector2(180, 150);
+			grid3x3.Position = new Vector2(5, 25);
+			grid3x3.Size = new Vector2(175, 90);
+			grid3x3.Anchor = FishUIAnchor.Horizontal; // Stretch with window width
 			grid3x3.Columns = 3;
-			grid3x3.HorizontalSpacing = 5;
-			grid3x3.VerticalSpacing = 5;
-			grid3x3.LayoutPadding = 8;
+			grid3x3.HorizontalSpacing = 4;
+			grid3x3.VerticalSpacing = 4;
+			grid3x3.LayoutPadding = 5;
 			grid3x3.StretchCells = true;
 			grid3x3.IsTransparent = false;
-			FUI.AddControl(grid3x3);
+			gridWindow.AddChild(grid3x3);
 
 			for (int i = 1; i <= 9; i++)
 			{
@@ -450,23 +453,24 @@ namespace FishUIDemos
 			}
 
 			// GridLayout - 2 columns, auto rows
-			Label grid2ColLabel = new Label("2 Columns (auto rows)");
-			grid2ColLabel.Position = new Vector2(650, 245);
+			Label grid2ColLabel = new Label("2 Columns:");
+			grid2ColLabel.Position = new Vector2(5, 120);
 			grid2ColLabel.Alignment = Align.Left;
-			FUI.AddControl(grid2ColLabel);
+			gridWindow.AddChild(grid2ColLabel);
 
 			GridLayout grid2Col = new GridLayout();
-			grid2Col.Position = new Vector2(650, 270);
-			grid2Col.Size = new Vector2(180, 120);
+			grid2Col.Position = new Vector2(5, 140);
+			grid2Col.Size = new Vector2(175, 80);
+			grid2Col.Anchor = FishUIAnchor.Horizontal; // Stretch with window width
 			grid2Col.Columns = 2;
-			grid2Col.HorizontalSpacing = 8;
-			grid2Col.VerticalSpacing = 8;
-			grid2Col.LayoutPadding = 6;
+			grid2Col.HorizontalSpacing = 5;
+			grid2Col.VerticalSpacing = 5;
+			grid2Col.LayoutPadding = 4;
 			grid2Col.StretchCells = true;
 			grid2Col.IsTransparent = false;
-			FUI.AddControl(grid2Col);
+			gridWindow.AddChild(grid2Col);
 
-			string[] labels = { "OK", "Cancel", "Yes", "No", "Apply" };
+			string[] labels = { "OK", "Cancel", "Yes", "No" };
 			foreach (var label in labels)
 			{
 				Button colBtn = new Button();
@@ -475,21 +479,22 @@ namespace FishUIDemos
 			}
 
 			// GridLayout - 4 columns icon grid
-			Label grid4ColLabel = new Label("4 Column Grid");
-			grid4ColLabel.Position = new Vector2(650, 400);
+			Label grid4ColLabel = new Label("4 Columns:");
+			grid4ColLabel.Position = new Vector2(5, 225);
 			grid4ColLabel.Alignment = Align.Left;
-			FUI.AddControl(grid4ColLabel);
+			gridWindow.AddChild(grid4ColLabel);
 
 			GridLayout grid4Col = new GridLayout();
-			grid4Col.Position = new Vector2(650, 425);
-			grid4Col.Size = new Vector2(180, 90);
+			grid4Col.Position = new Vector2(5, 245);
+			grid4Col.Size = new Vector2(175, 55);
+			grid4Col.Anchor = FishUIAnchor.Horizontal; // Stretch with window width
 			grid4Col.Columns = 4;
-			grid4Col.HorizontalSpacing = 4;
-			grid4Col.VerticalSpacing = 4;
-			grid4Col.LayoutPadding = 5;
+			grid4Col.HorizontalSpacing = 3;
+			grid4Col.VerticalSpacing = 3;
+			grid4Col.LayoutPadding = 4;
 			grid4Col.StretchCells = true;
 			grid4Col.IsTransparent = false;
-			FUI.AddControl(grid4Col);
+			gridWindow.AddChild(grid4Col);
 
 			for (char c = 'A'; c <= 'H'; c++)
 			{
@@ -500,58 +505,39 @@ namespace FishUIDemos
 
 			// === Auto-Sizing ===
 			Label autoSizeLabel = new Label("Auto-Sizing");
-			autoSizeLabel.Position = new Vector2(650, 525);
+			autoSizeLabel.Position = new Vector2(300, 575);
 			autoSizeLabel.Alignment = Align.Left;
 			FUI.AddControl(autoSizeLabel);
-
-			// Auto-size Label (width only)
-			Label autoLabel1 = new Label("Short");
-			autoLabel1.Position = new Vector2(650, 550);
-			autoLabel1.AutoSize = AutoSizeMode.Both;
-			autoLabel1.AutoSizePadding = new Vector2(4, 2);
-			FUI.AddControl(autoLabel1);
-
-			Label autoLabel2 = new Label("A much longer label text");
-			autoLabel2.Position = new Vector2(700, 550);
-			autoLabel2.AutoSize = AutoSizeMode.Both;
-			autoLabel2.AutoSizePadding = new Vector2(4, 2);
-			FUI.AddControl(autoLabel2);
 
 			// Auto-size Buttons
 			Button autoBtn1 = new Button();
 			autoBtn1.Text = "OK";
-			autoBtn1.Position = new Vector2(650, 575);
-			autoBtn1.Size = new Vector2(50, 25); // Initial size, will auto-resize
+			autoBtn1.Position = new Vector2(400, 570);
+			autoBtn1.Size = new Vector2(50, 25);
 			autoBtn1.AutoSize = AutoSizeMode.Both;
 			FUI.AddControl(autoBtn1);
 
 			Button autoBtn2 = new Button();
 			autoBtn2.Text = "Cancel";
-			autoBtn2.Position = new Vector2(710, 575);
+			autoBtn2.Position = new Vector2(460, 570);
 			autoBtn2.Size = new Vector2(50, 25);
 			autoBtn2.AutoSize = AutoSizeMode.Both;
 			FUI.AddControl(autoBtn2);
 
 			Button autoBtn3 = new Button();
 			autoBtn3.Text = "Apply Changes";
-			autoBtn3.Position = new Vector2(780, 575);
+			autoBtn3.Position = new Vector2(530, 570);
 			autoBtn3.Size = new Vector2(50, 25);
 			autoBtn3.AutoSize = AutoSizeMode.Both;
 			FUI.AddControl(autoBtn3);
 
-			// Auto-size with constraints
-			Label constraintLabel = new Label("With Min/Max:");
-			constraintLabel.Position = new Vector2(650, 610);
-			constraintLabel.Alignment = Align.Left;
-			FUI.AddControl(constraintLabel);
-
 			Button constrainedBtn = new Button();
-			constrainedBtn.Text = "Constrained Button";
-			constrainedBtn.Position = new Vector2(750, 605);
+			constrainedBtn.Text = "Constrained (Min/Max)";
+			constrainedBtn.Position = new Vector2(670, 570);
 			constrainedBtn.Size = new Vector2(50, 25);
 			constrainedBtn.AutoSize = AutoSizeMode.Width;
 			constrainedBtn.MinSize = new Vector2(80, 0);
-			constrainedBtn.MaxSize = new Vector2(120, 0);
+			constrainedBtn.MaxSize = new Vector2(150, 0);
 			FUI.AddControl(constrainedBtn);
 		}
 	}
