@@ -1,166 +1,407 @@
 # FishUI
 
-A dependency-free, simple GUI library for .NET applications.
+A dependency-free, immediate-mode-inspired GUI library for .NET applications with backend-agnostic rendering.
+
+[![.NET 9.0](https://img.shields.io/badge/.NET-9.0-purple.svg)](https://dotnet.microsoft.com/)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ## Overview
 
-FishUI is a flexible, graphics-backend-agnostic GUI framework that provides common UI controls and supports custom rendering implementations. The library separates UI logic from rendering, allowing you to integrate it with any graphics library.
+FishUI is a flexible GUI framework that separates UI logic from rendering, allowing integration with any graphics library. It provides a comprehensive set of controls suitable for game development, tools, and applications.
+
+**Key Principles:**
+- **Backend Agnostic**: Implement your own graphics and input handlers via simple interfaces
+- **Dependency Free**: Core library has no external dependencies except YamlDotNet for serialization
+- **Game-Ready**: Designed for real-time applications with features like virtual cursor support
+- **Themeable**: YAML-based theme system with atlas/9-slice support
 
 ## Features
 
-- **Backend Agnostic**: Implement your own graphics and input handlers via interfaces
-- **Built-in Controls**: Button, CheckBox, RadioButton, Panel, Label, Textbox, ListBox, DropDown, ScrollBarV, SelectionBox
-- **Layout System**: Support for Absolute, Relative, and Docked positioning modes
-- **Draggable Controls**: Built-in drag support for repositioning controls
-- **YAML Layout Serialization**: Save and load UI layouts using YAML format
-- **NPatch/9-Slice Support**: Scalable UI graphics with 9-slice rendering
-- **Touch Support**: Built-in touch point handling for mobile/touch devices
+### Controls (35+ Built-in)
+
+| Category | Controls |
+|----------|----------|
+| **Input** | Button, Textbox, CheckBox, RadioButton, ToggleSwitch, Slider, NumericUpDown |
+| **Selection** | ListBox, DropDown (ComboBox), TreeView, SelectionBox |
+| **Display** | Label, StaticText, ImageBox, AnimatedImageBox, ProgressBar |
+| **Containers** | Panel, Window, GroupBox, TabControl, ScrollablePane, StackLayout |
+| **Navigation** | ScrollBarV, ScrollBarH, MenuBar, ContextMenu, MenuItem |
+| **Gauges** | RadialGauge, BarGauge, VUMeter |
+| **Advanced** | PropertyGrid, ItemListbox, Tooltip, Titlebar |
+
+### Framework Features
+
+- **Layout System**: Absolute positioning, anchoring, margins/padding, StackLayout
+- **Theme System**: YAML themes with atlas regions, 9-slice/NPatch rendering, color overrides
+- **Serialization**: Save/load UI layouts to YAML files
+- **Input**: Mouse, keyboard, touch, and virtual cursor (gamepad/keyboard navigation)
+- **Events**: Control events, hotkey manager, event broadcasting
 
 ## Projects
 
 | Project | Description |
 |---------|-------------|
-| **FishUI** | Core library containing all UI controls and interfaces |
-| **FishUISample** | Sample application demonstrating FishUI with Raylib |
+| **FishUI** | Core library - all controls and interfaces |
+| **FishUIDemos** | Sample implementations using ISample interface |
+| **FishUISample** | Raylib-based sample runner with GUI chooser |
 
-## Getting Started
+## Quick Start
 
 ### 1. Implement Required Interfaces
 
-FishUI requires you to implement three interfaces for your graphics backend:
+FishUI requires three interfaces for your graphics backend:
 
 ```csharp
 // Graphics rendering
-public interface IFishUIGfx
+public class MyGfx : IFishUIGfx
 {
-    void Init();
-    void BeginDrawing(float Dt);
-    void EndDrawing();
-    void DrawRectangle(Vector2 Position, Vector2 Size, FishColor Color);
-    void DrawImage(ImageRef Img, Vector2 Pos, float Rot, float Scale, FishColor Color);
-    void DrawText(FontRef Fn, string Text, Vector2 Pos);
-    // ... and more
+    public int ScreenWidth { get; set; }
+    public int ScreenHeight { get; set; }
+    
+    public void Init() { }
+    public void BeginDrawing(float dt) { }
+    public void EndDrawing() { }
+    
+    public ImageRef LoadImage(string path) { /* ... */ }
+    public FontRef LoadFont(string path, int size) { /* ... */ }
+    
+    public void DrawRectangle(Vector2 pos, Vector2 size, FishColor color) { /* ... */ }
+    public void DrawImage(ImageRef img, Vector2 pos, float rot, float scale, FishColor color) { /* ... */ }
+    public void DrawNPatch(NPatch patch, Vector2 pos, Vector2 size, FishColor color) { /* ... */ }
+    public void DrawText(FontRef font, string text, Vector2 pos) { /* ... */ }
+    // ... see IFishUIGfx for full interface
 }
 
 // Input handling
-public interface IFishUIInput
+public class MyInput : IFishUIInput
 {
-    Vector2 GetMousePosition();
-    bool IsMouseDown(FishMouseButton Button);
-    bool IsKeyPressed(FishKey Key);
-    FishTouchPoint[] GetTouchPoints();
-    // ... and more
+    public Vector2 GetMousePosition() { /* ... */ }
+    public bool IsMouseDown(FishMouseButton button) { /* ... */ }
+    public bool IsMousePressed(FishMouseButton button) { /* ... */ }
+    public bool IsKeyDown(FishKey key) { /* ... */ }
+    public bool IsKeyPressed(FishKey key) { /* ... */ }
+    public string GetTextInput() { /* ... */ }
+    // ... see IFishUIInput for full interface
 }
 
-// Event broadcasting
-public interface IFishUIEvents
+// Event broadcasting (optional)
+public class MyEvents : IFishUIEvents
 {
-    void Broadcast(FishUI UI, Control Sender, string EventName, object Data);
+    public void Broadcast(FishUI ui, Control sender, string eventName, object[] data) { /* ... */ }
 }
 ```
 
 ### 2. Initialize FishUI
 
 ```csharp
-FishUISettings UISettings = new FishUISettings();
-IFishUIGfx Gfx = new YourGfxImplementation();
-IFishUIInput Input = new YourInputImplementation();
-IFishUIEvents Events = new YourEventHandler();
+FishUISettings settings = new FishUISettings();
+IFishUIGfx gfx = new MyGfx(800, 600);
+IFishUIInput input = new MyInput();
+IFishUIEvents events = new MyEvents();
 
-FishUI.FishUI UI = new FishUI.FishUI(UISettings, Gfx, Input, Events);
-UI.Init();
+FishUI.FishUI ui = new FishUI.FishUI(settings, gfx, input, events);
+ui.Init();
+
+// Load a theme
+settings.LoadTheme("data/themes/gwen.yaml", applyImmediately: true);
 ```
 
 ### 3. Add Controls
 
 ```csharp
-// Create a button
+// Simple button with event
 Button btn = new Button();
-btn.ID = "myButton";
 btn.Text = "Click Me";
 btn.Position = new Vector2(100, 100);
-btn.Size = new Vector2(150, 50);
-UI.AddControl(btn);
+btn.Size = new Vector2(150, 40);
+btn.OnButtonPressed += (sender, mouseBtn, pos) => Console.WriteLine("Clicked!");
+ui.AddControl(btn);
 
-// Create a panel with children
+// Panel with children
 Panel panel = new Panel();
 panel.Position = new Vector2(10, 10);
-panel.Size = new Vector2(400, 300);
-panel.Draggable = true;
-UI.AddControl(panel);
+panel.Size = new Vector2(300, 200);
+ui.AddControl(panel);
 
-CheckBox checkbox = new CheckBox("Enable Feature");
-checkbox.Position = new Vector2(5, 10);
-panel.AddChild(checkbox);
+CheckBox check = new CheckBox("Enable Feature");
+check.Position = new Vector2(10, 10);
+panel.AddChild(check);
+
+// ListBox with items
+ListBox list = new ListBox();
+list.Position = new Vector2(10, 50);
+list.Size = new Vector2(150, 120);
+list.AlternatingRowColors = true;
+for (int i = 0; i < 10; i++)
+    list.AddItem($"Item {i + 1}");
+list.OnItemSelected += (lb, idx, item) => Console.WriteLine($"Selected: {item.Text}");
+panel.AddChild(list);
 ```
 
 ### 4. Run the Update Loop
 
 ```csharp
+Stopwatch timer = Stopwatch.StartNew();
+float lastTime = 0;
+
 while (running)
 {
-    float deltaTime = GetDeltaTime();
-    float totalTime = GetTotalTime();
+    float currentTime = (float)timer.Elapsed.TotalSeconds;
+    float deltaTime = currentTime - lastTime;
+    lastTime = currentTime;
     
-    UI.Tick(deltaTime, totalTime);
+    ui.Tick(deltaTime, currentTime);
 }
 ```
 
-## Available Controls
+## Control Examples
 
-| Control | Description |
-|---------|-------------|
-| `Button` | Clickable button with text |
-| `CheckBox` | Toggle checkbox with label |
-| `RadioButton` | Radio button for exclusive selection |
-| `Panel` | Container for grouping controls |
-| `Label` | Static text display |
-| `Textbox` | Text input field |
-| `ListBox` | Scrollable list of selectable items |
-| `DropDown` | Dropdown selection menu |
-| `ScrollBarV` | Vertical scrollbar |
-| `SelectionBox` | Selection box control |
-
-## Positioning Modes
-
-FishUI supports three positioning modes:
-
-- **Absolute**: Fixed position on screen
-- **Relative**: Position relative to parent control
-- **Docked**: Position and size relative to parent with docking (Left, Top, Right, Bottom)
+### Button Variants
 
 ```csharp
-// Docked positioning example
-button.Position = new FishUIPosition(
-    PositionMode.Docked, 
-    DockMode.Horizontal, 
-    new Vector4(15, 0, 15, 0),  // Left, Top, Right, Bottom margins
-    new Vector2(100, 100)
-);
+// Standard button
+Button btn = new Button { Text = "Normal" };
+
+// Image button (icon only)
+Button imgBtn = new Button();
+imgBtn.Icon = gfx.LoadImage("icon.png");
+imgBtn.IsImageButton = true;
+
+// Toggle button
+Button toggleBtn = new Button { Text = "Toggle", IsToggle = true };
+
+// Repeat button (fires while held)
+Button repeatBtn = new Button { Text = "Hold Me", IsRepeat = true };
 ```
 
-## Layout Serialization
-
-Save and load UI layouts using YAML:
+### DropDown with Features
 
 ```csharp
-// Save layout
-LayoutFormat.SerializeToFile(UI, "layout.yaml");
+// Searchable dropdown
+DropDown searchable = new DropDown();
+searchable.Searchable = true;  // Type to filter
+searchable.AddItem("Apple");
+searchable.AddItem("Banana");
+searchable.AddItem("Cherry");
 
-// Load layout
-LayoutFormat.DeserializeFromFile(UI, "layout.yaml");
+// Multi-select dropdown
+DropDown multi = new DropDown();
+multi.MultiSelect = true;
+multi.OnMultiSelectionChanged += (dd, indices) => { /* ... */ };
 ```
 
-## Sample Application
+### ListBox Features
 
-The `FishUISample` project demonstrates FishUI with [Raylib-cs](https://github.com/ChrisDill/Raylib-cs) as the graphics backend. See the sample for complete implementation examples of `IFishUIGfx` and `IFishUIInput`.
+```csharp
+ListBox list = new ListBox();
+list.AlternatingRowColors = true;
+list.EvenRowColor = new FishColor(200, 220, 255, 40);
+list.MultiSelect = true;  // Ctrl+click, Shift+click
+
+// Custom item rendering
+list.CustomItemHeight = 28;
+list.CustomItemRenderer = (ui, item, index, pos, size, selected, hovered) =>
+{
+    ui.Graphics.DrawRectangle(pos, new Vector2(12, 12), FishColor.Red);
+    ui.Graphics.DrawText(ui.Settings.FontDefault, item.Text, pos + new Vector2(16, 0));
+};
+```
+
+### Window with Titlebar
+
+```csharp
+Window window = new Window();
+window.Title = "My Window";
+window.Position = new Vector2(100, 100);
+window.Size = new Vector2(400, 300);
+window.ShowCloseButton = true;
+window.Resizable = true;
+window.OnClosed += (wnd) => wnd.Visible = false;
+ui.AddControl(window);
+
+// Add content to window
+Label content = new Label("Window content here");
+content.Position = new Vector2(10, 10);
+window.AddChild(content);
+```
+
+### Gauges
+
+```csharp
+// Radial gauge (speedometer style)
+RadialGauge radial = new RadialGauge();
+radial.Size = new Vector2(150, 150);
+radial.MinValue = 0;
+radial.MaxValue = 100;
+radial.Value = 75;
+
+// Bar gauge (linear)
+BarGauge bar = new BarGauge();
+bar.Size = new Vector2(200, 30);
+bar.MinValue = 0;
+bar.MaxValue = 100;
+bar.Value = 60;
+
+// VU Meter (audio level)
+VUMeter vu = new VUMeter();
+vu.Size = new Vector2(30, 100);
+vu.Value = 0.7f;
+```
+
+## Layout & Positioning
+
+### Anchoring
+
+```csharp
+// Anchor to edges (resizes with parent)
+Button btn = new Button();
+btn.Anchor = FishUIAnchor.Left | FishUIAnchor.Right;  // Stretches horizontally
+btn.Anchor = FishUIAnchor.All;  // Fills parent
+```
+
+### Margins
+
+```csharp
+control.Margin = new FishUIMargin(10, 10, 10, 10);  // Left, Top, Right, Bottom
+```
+
+### StackLayout
+
+```csharp
+StackLayout stack = new StackLayout();
+stack.Orientation = StackOrientation.Vertical;
+stack.Spacing = 5;
+
+stack.AddChild(new Button { Text = "First" });
+stack.AddChild(new Button { Text = "Second" });
+stack.AddChild(new Button { Text = "Third" });
+```
+
+## Theming
+
+### YAML Theme Files
+
+```yaml
+# Theme file example
+Atlas: "gwen.png"
+
+Button.Normal:
+  X: 480
+  Y: 0
+  W: 31
+  H: 31
+  Left: 8
+  Right: 8
+  Top: 8
+  Bottom: 8
+
+Button.Hovered:
+  X: 480
+  Y: 32
+  W: 31
+  H: 31
+  # ...
+```
+
+### Color Overrides
+
+```csharp
+// Per-control color customization
+label.SetColorOverride("Text", new FishColor(255, 0, 0, 255));
+button.SetColorOverride("Text", new FishColor(100, 200, 255, 255));
+```
+
+### Opacity
+
+```csharp
+control.Opacity = 0.5f;  // 50% transparent (affects children)
+```
+
+## Serialization
+
+```csharp
+// Save UI layout
+LayoutFormat.SerializeToFile(ui, "layout.yaml");
+
+// Load UI layout
+LayoutFormat.DeserializeFromFile(ui, "layout.yaml");
+```
+
+## Virtual Cursor (Gamepad/Keyboard Navigation)
+
+```csharp
+// Enable virtual cursor
+ui.VirtualMouse.Enabled = true;
+ui.VirtualMouse.Speed = 300f;
+
+// In update loop, map gamepad to virtual cursor
+if (gamepad.LeftStick.X != 0 || gamepad.LeftStick.Y != 0)
+{
+    ui.VirtualMouse.Move(gamepad.LeftStick * deltaTime);
+}
+```
+
+## Running Samples
+
+The `FishUISample` project includes a GUI-based sample chooser:
+
+```bash
+cd FishUISample
+dotnet run
+```
+
+Or run a specific sample:
+```bash
+dotnet run -- --sample 0
+```
+
+### Available Samples
+
+- **Basic Controls**: Textbox, Slider, NumericUpDown, ProgressBar, ToggleSwitch
+- **Button Variants**: Icon buttons, toggle, repeat, image buttons
+- **DropDown**: Basic, searchable, multi-select, custom rendering
+- **ListBox**: Alternating colors, multi-select, custom rendering
+- **ImageBox**: Scale modes, filter modes, animated images
+- **Gauges**: RadialGauge, BarGauge, VUMeter dashboard
+- **PropertyGrid**: Reflection-based property editor
+- **MenuBar**: Dropdown menus with submenus
+- **ScrollablePane**: Virtual scrolling container
+- **Layout System**: Anchoring, margins, StackLayout
+- **Theme Switcher**: Runtime theme switching
+- **Virtual Cursor**: Keyboard/gamepad navigation
+- **Game Menu**: Example game-style UI
 
 ## Requirements
 
-- .NET 9.0
-- [YamlDotNet](https://github.com/aaubry/YamlDotNet) (for layout serialization)
+- **.NET 9.0**
+- **YamlDotNet** (included via NuGet) - for layout/theme serialization
+
+For the sample application:
+- **Raylib-cs** - graphics/input backend for demos
+
+## Project Structure
+
+```
+FishUI/
+??? FishUI/                 # Core library
+?   ??? Controls/           # All UI controls
+?   ??? FishUI.cs           # Main UI manager
+?   ??? FishUISettings.cs   # Settings and theme loading
+?   ??? IFishUIGfx.cs       # Graphics interface
+?   ??? IFishUIInput.cs     # Input interface
+?   ??? LayoutFormat.cs     # YAML serialization
+??? FishUIDemos/            # Sample implementations
+?   ??? Samples/            # ISample implementations
+??? FishUISample/           # Raylib-based runner
+?   ??? RaylibGfx.cs        # IFishUIGfx implementation
+?   ??? RaylibInput.cs      # IFishUIInput implementation
+?   ??? SampleChooser.cs    # GUI sample selector
+??? data/                   # Assets
+    ??? themes/             # YAML theme files
+    ??? images/             # Sample images
+```
 
 ## License
 
-See repository for license information.
+MIT License - see repository for details.
 

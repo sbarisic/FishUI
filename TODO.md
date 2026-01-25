@@ -181,7 +181,6 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ## Documentation
 
-- [ ] Update complete README.md from scratch 
 - [ ] API reference documentation
 - [ ] Getting started tutorial
 - [ ] Custom control creation guide
@@ -267,6 +266,9 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Code Cleanup
 - ScreenCapture platform compatibility, YamlIgnore audit, naming conventions, XML docs, screenshot buttons, TODO extraction, debug flags refactor
+
+### Documentation
+- README.md: Complete rewrite with 35+ controls, code examples, theming, serialization, project structure
 
 ### Fixed Bugs
 - DropDown: Overlay rendering, click-through fixes, AlwaysOnTop handling, mouse leave behavior
