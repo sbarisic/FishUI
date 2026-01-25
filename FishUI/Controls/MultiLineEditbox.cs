@@ -340,9 +340,6 @@ namespace FishUI.Controls
 			float contentHeight = _lines.Count * _lineHeight;
 			float viewHeight = GetTextAreaHeight();
 
-			// Ensure cursor is visible (auto-scroll)
-			EnsureCursorVisible();
-
 			// Clamp scroll offset
 			float maxScroll = GetMaxScrollPixels();
 			_scrollOffsetPixels = Math.Clamp(_scrollOffsetPixels, 0, maxScroll);
@@ -507,6 +504,7 @@ namespace FishUI.Controls
 			}
 
 			ResetCursorBlink();
+			EnsureCursorVisible();
 		}
 
 		public override void HandleTextInput(FishUI UI, FishInputState InState, char Chr)
@@ -522,6 +520,7 @@ namespace FishUI.Controls
 
 			InsertText(Chr.ToString());
 			ResetCursorBlink();
+			EnsureCursorVisible();
 		}
 
 		public override void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
@@ -532,6 +531,7 @@ namespace FishUI.Controls
 			{
 				PositionCursorFromMouse(UI, Pos);
 				ResetCursorBlink();
+				EnsureCursorVisible();
 			}
 		}
 
