@@ -104,11 +104,17 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ## Control Improvements
 
-*All control improvement items have been completed - see Completed section*
+### MultiLineEditbox Enhancements
+- [ ] Text selection support (2 CPX)
+  - Selection highlighting similar to Textbox
+  - Shift+arrow key selection
+    - Click and drag to select
+    - Copy/Cut/Paste with selection
+- [ ] Move line numbers 4 px to the left
 
----
+  ---
 
-## Theme System
+  ## Theme System
 
 ### Theme File Improvements
 
@@ -193,7 +199,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-- Add selection to multiline editbox, similar to how regular textbox works
+*No uncategorized items*
 
 ---
 
