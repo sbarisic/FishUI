@@ -339,7 +339,6 @@ namespace FishUI
 			return null;
 		}
 
-		// TODO: Create a generic variant of FindControlByID
 		/// <summary>
 		/// Finds a control by its ID.
 		/// </summary>
@@ -348,6 +347,17 @@ namespace FishUI
 		public Control FindControlByID(string ID)
 		{
 			return FindControlByIDEx(Controls.ToArray(), ID);
+		}
+
+		/// <summary>
+		/// Finds a control by its ID and returns it as the specified type.
+		/// </summary>
+		/// <typeparam name="T">The type of control to return.</typeparam>
+		/// <param name="ID">The ID to search for.</param>
+		/// <returns>The control with the matching ID cast to type T, or null if not found or type mismatch.</returns>
+		public T FindControlByID<T>(string ID) where T : Control
+		{
+			return FindControlByIDEx(Controls.ToArray(), ID) as T;
 		}
 
 		void UpdateSingleControl(Control Ctl, FishInputState InState, FishInputState InLast)

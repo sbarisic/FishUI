@@ -112,9 +112,8 @@ A list of planned features, improvements, and new controls for FishUI.
 ## Theme System
 
 ### Theme File Improvements
-- [ ] Theme inheritance / base themes (3 CPX) **HIGH PRIORITY**
-  - Allow theme YAML files to inherit from other themes (e.g., `gwen2.yaml` inherits from `gwen.yaml`)
-  - Child themes only need to override specific regions, inheriting all others from parent
+
+*Theme file improvements completed - see Completed section*
 
 ### Theme Assets Available in gwen.png (from CEGUI imageset)
 The following regions are defined in the CEGUI imageset but may not be fully utilized:
@@ -201,14 +200,11 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Code Refactoring **HIGH PRIORITY**
 
-- [ ] **Generic FindControlByID method** (1 CPX)
-  - Add `FindControlByID<T>()` generic variant in `FishUI.cs`
-  - Returns strongly-typed control without manual casting
-
 - [ ] **Event System Refactoring** (4 CPX)
   - Refactor `IFishUIEvents` interface to be more powerful
   - Replace single `Broadcast` function with specialized event methods
   - Add standard events to all controls (OnClick, OnHover, OnValueChanged, etc.)
+  - Add an event that gets fired by FishUI when a layout has been deserialized/loaded
   - *Related: Serialization event handling*
 
 *All other code refactoring items have been completed - see Completed section*
@@ -276,6 +272,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - Shadow rendering: Window and ContextMenu shadow support with configurable offset and size
 - Virtual cursor: Position setting, input mapping, hybrid mode
 - LayoutFormat TypeMapping - All controls registered
+- Theme inheritance: Themes can inherit from parent themes via `inherits` property, child themes only override specific values
 
 ### Samples
 - SampleAnimations: Animation system demo with fade, slide, scale, easing comparisons
@@ -295,6 +292,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - CS0108: Renamed Padding to LayoutPadding (FlowLayout, StackLayout) and MenuPadding (ContextMenu)
 - CS0219/CS0414: Removed unused ToggleSwitch.useNPatch, ScrollablePane._scrollBarsCreated
 - FishUIThemeLoader: Replaced custom YAML parser with YamlDotNet, added DTO classes for deserialization
+- Generic FindControlByID<T>() method for strongly-typed control lookup
 
 ### Documentation
 - README.md: Complete rewrite with 35+ controls, code examples, theming, serialization, project structure

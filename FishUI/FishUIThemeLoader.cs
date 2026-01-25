@@ -27,6 +27,7 @@ namespace FishUI
 		public string Description { get; set; }
 		public string Version { get; set; }
 		public string Author { get; set; }
+		public string Inherits { get; set; }
 	}
 
 	internal class AtlasDto
@@ -95,12 +96,22 @@ namespace FishUI
 		/// </summary>
 		public FishUITheme LoadFromFile(string filePath)
 		{
+			return LoadFromFileInternal(filePath, new HashSet<string>());
+		}
+
+		private FishUITheme LoadFromFileInternal(string filePath, HashSet<string> loadedPaths)
+		{
+			string fullPath = Path.GetFullPath(filePath);
+			if (loadedPaths.Contains(fullPath))
+				throw new InvalidOperationException($"Circular theme inheritance detected: {filePath}");
+			loadedPaths.Add(fullPath);
+
 			if (!File.Exists(filePath))
 				throw new FileNotFoundException($"Theme file not found: {filePath}");
 
 			string content = File.ReadAllText(filePath);
 			string baseDir = Path.GetDirectoryName(filePath);
-			return ParseTheme(content, baseDir);
+			return ParseTheme(content, baseDir, loadedPaths);
 		}
 
 		/// <summary>
@@ -108,13 +119,27 @@ namespace FishUI
 		/// </summary>
 		public FishUITheme LoadFromString(string yamlContent, string baseDir = "")
 		{
-			return ParseTheme(yamlContent, baseDir);
+			return ParseTheme(yamlContent, baseDir, new HashSet<string>());
 		}
 
-		private FishUITheme ParseTheme(string content, string baseDir)
+		private FishUITheme ParseTheme(string content, string baseDir, HashSet<string> loadedPaths)
 		{
 			var dto = _deserializer.Deserialize<ThemeYamlDto>(content);
-			var theme = new FishUITheme();
+
+			// Load parent theme if inherits is specified
+			FishUITheme theme;
+			if (dto.Theme != null && !string.IsNullOrEmpty(dto.Theme.Inherits))
+			{
+				string parentPath = dto.Theme.Inherits;
+				if (!string.IsNullOrEmpty(baseDir) && !Path.IsPathRooted(parentPath))
+					parentPath = Path.Combine(baseDir, parentPath);
+
+				theme = LoadFromFileInternal(parentPath, loadedPaths);
+			}
+			else
+			{
+				theme = new FishUITheme();
+			}
 
 			// Map theme metadata
 			if (dto.Theme != null)
