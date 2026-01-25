@@ -69,7 +69,7 @@ namespace FishUI
 		/// <summary>
 		/// Maximum time between clicks for a double-click (in seconds).
 		/// </summary>
-		public float DoubleClickTime { get; set; } = 0.3f;
+		public float DoubleClickTime { get; set; } = 0.15f;
 
 		/// <summary>
 		/// Maximum distance between clicks for a double-click (in pixels).
