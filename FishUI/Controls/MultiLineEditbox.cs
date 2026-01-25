@@ -398,7 +398,7 @@ namespace FishUI.Controls
 
 					string lineNum = (lineIndex + 1).ToString();
 					var numSize = UI.Graphics.MeasureText(font, lineNum);
-					float numX = gutterX + gutterW - numSize.X - Scale(4);
+					float numX = gutterX + gutterW - numSize.X - Scale(8);
 					UI.Graphics.DrawTextColor(font, lineNum, new Vector2(numX, lineY), LineNumberColor);
 				}
 

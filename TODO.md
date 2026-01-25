@@ -108,13 +108,12 @@ A list of planned features, improvements, and new controls for FishUI.
 - [ ] Text selection support (2 CPX)
   - Selection highlighting similar to Textbox
   - Shift+arrow key selection
-    - Click and drag to select
-    - Copy/Cut/Paste with selection
-- [ ] Move line numbers 4 px to the left
+  - Click and drag to select
+  - Copy/Cut/Paste with selection
 
-  ---
+---
 
-  ## Theme System
+## Theme System
 
 ### Theme File Improvements
 
@@ -248,6 +247,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - PropertyGrid: Vector2/Vector3/Vector4 component editors with X/Y/Z/W fields
 - Timeline: White label color for dark backgrounds
 - Button/ImageBox: IconPath/ImagePath properties for serialization with OnDeserialized image loading
+- MultiLineEditbox: Line numbers moved 4px left for better spacing
 
 ### Core Framework
 - Scalable UI - UIScale property in FishUISettings (default 1.0), Scale helper methods, all controls respect scaling factor via GetAbsolutePosition/GetAbsoluteSize
