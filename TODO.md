@@ -151,7 +151,10 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ## Core Framework Features
 
 ### Accessibility
-- [ ] Scalable UI for different DPI (4 CPX)
+- [ ] Scalable UI (4 CPX) **HIGH PRIORITY**
+  - Implement scaling factor for UI (float value, 1 by default)
+  - Allow users to set global UI scale in FishUI settings
+  - Ensure all controls and layouts respect scaling factor
 
 ### Serialization
 - [ ] Figure out how to handle events in serialization, extend the Event system?
@@ -196,9 +199,19 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
   - Should introduce `IFishUIFileSystem` interface for file operations
   - Enable virtual file systems, embedded resources, or game engine asset systems
 
-### Code Refactoring
+### Code Refactoring **HIGH PRIORITY**
 
-*All code refactoring items have been completed - see Completed section*
+- [ ] **Generic FindControlByID method** (1 CPX)
+  - Add `FindControlByID<T>()` generic variant in `FishUI.cs`
+  - Returns strongly-typed control without manual casting
+
+- [ ] **Event System Refactoring** (4 CPX)
+  - Refactor `IFishUIEvents` interface to be more powerful
+  - Replace single `Broadcast` function with specialized event methods
+  - Add standard events to all controls (OnClick, OnHover, OnValueChanged, etc.)
+  - *Related: Serialization event handling*
+
+*All other code refactoring items have been completed - see Completed section*
 
 ---
 
@@ -210,8 +223,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-- FishUI.cs:342 - Categorize TODO comment
-- IFishUIEvents.cs - Categorize TODO comment
+*No uncategorized items*
 
 ---
 
