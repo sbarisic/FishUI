@@ -16,6 +16,7 @@ namespace FishUIDemos
 		LineChartSeries sineWaveSeries;
 		LineChartSeries noisySeries;
 		LineChartSeries randomSeries;
+		Label cursorValueLabel;
 		Random random = new Random();
 		float time = 0f;
 
@@ -27,6 +28,8 @@ namespace FishUIDemos
 		{
 			FUI = new FishUI.FishUI(UISettings, Gfx, Input, Events);
 			FUI.Init();
+
+
 
 			FishUITheme theme = UISettings.LoadTheme("data/themes/gwen.yaml", applyImmediately: true);
 
@@ -57,7 +60,7 @@ namespace FishUIDemos
 			Label chartLabel = new Label("Real-Time Data Visualization");
 			chartLabel.Position = new Vector2(20, 60);
 			chartLabel.Size = new Vector2(400, 24);
-			chartLabel.Alignment = Align.Left;
+		chartLabel.Alignment = Align.Left;
 			FUI.AddControl(chartLabel);
 
 			chart = new LineChart();
@@ -71,6 +74,8 @@ namespace FishUIDemos
 			chart.VerticalGridDivisions = 10;
 			chart.YAxisLabelFormat = "F1";
 			chart.XAxisLabelFormat = "F0";
+			chart.ShowCursor = true;
+			chart.CursorColor = new FishColor(255, 50, 50, 200);
 			FUI.AddControl(chart);
 
 			// Add data series
@@ -116,7 +121,7 @@ namespace FishUIDemos
 			noisyLegendLabel.Alignment = Align.Left;
 			FUI.AddControl(noisyLegendLabel);
 
-			// Random walk legend
+		// Random walk legend
 			Panel randomLegendColor = new Panel();
 			randomLegendColor.Position = new Vector2(540, 165);
 			randomLegendColor.Size = new Vector2(20, 10);
@@ -129,12 +134,33 @@ namespace FishUIDemos
 			randomLegendLabel.Alignment = Align.Left;
 			FUI.AddControl(randomLegendLabel);
 
+			// Cursor values display
+			Label cursorLabel = new Label("Cursor: Click chart to select");
+			cursorLabel.Position = new Vector2(540, 190);
+			cursorLabel.Size = new Vector2(250, 20);
+			cursorLabel.Alignment = Align.Left;
+			FUI.AddControl(cursorLabel);
+			cursorValueLabel = cursorLabel;
+
+			chart.OnCursorMoved += (sender, args) =>
+			{
+				string text = $"T={args.Time:F1}s";
+				foreach (var kv in args.Values)
+				{
+					if (kv.Value.HasValue)
+						text += $" {kv.Key.Name[0]}={kv.Value.Value:F2}";
+				}
+				cursorValueLabel.Text = text;
+			};
+
 			// === Controls Section ===
 			Label controlsLabel = new Label("Chart Settings:");
 			controlsLabel.Position = new Vector2(20, 360);
 			controlsLabel.Size = new Vector2(150, 24);
 			controlsLabel.Alignment = Align.Left;
 			FUI.AddControl(controlsLabel);
+
+
 
 			// Time window slider
 			Label timeWindowLabel = new Label("Time Window:");

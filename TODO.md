@@ -114,13 +114,6 @@ A list of planned features, improvements, and new controls for FishUI.
 ### Textbox Enhancements
 - [ ] Multi-line mode with character wrap (3 CPX)
 
-### LineChart Enhancements
-- [ ] Vertical cursor with data point selection (2 CPX)
-  - Draggable vertical line to select time point
-  - Callback with selected time and data values
-
-
-
 
 ---
 
@@ -218,7 +211,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-*No uncategorized items*
+- Make line chart time axis display 2 decimals
 
 ---
 
@@ -259,6 +252,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - Input controls: Mouse wheel support for Slider, ScrollBars, NumericUpDown
 - NumericUpDown: Narrower buttons, TabControl serialization, BarGauge styling
 - LineChart: IsPaused property with Pause()/Resume() methods
+- LineChart: Vertical cursor with draggable selection, data point interpolation, OnCursorMoved event
 - BarGauge: Black tick marks, dashboard styling (larger size, range labels)
 - RadialGauge: Black text/ticks, wider draw angle (~260° sweep)
 - PropertyGrid: Vector2/Vector3/Vector4 component editors with X/Y/Z/W fields

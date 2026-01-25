@@ -6,6 +6,28 @@ using YamlDotNet.Serialization;
 namespace FishUI.Controls
 {
 	/// <summary>
+	/// Event arguments for LineChart cursor events.
+	/// </summary>
+	public class LineChartCursorEventArgs
+	{
+		/// <summary>
+		/// The time value at the cursor position.
+		/// </summary>
+		public float Time { get; set; }
+
+		/// <summary>
+		/// Data values for each series at the cursor time.
+		/// Key is the series, value is the interpolated Y value (or null if no data).
+		/// </summary>
+		public Dictionary<LineChartSeries, float?> Values { get; set; } = new Dictionary<LineChartSeries, float?>();
+	}
+
+	/// <summary>
+	/// Delegate for LineChart cursor moved events.
+	/// </summary>
+	public delegate void LineChartCursorMovedFunc(LineChart sender, LineChartCursorEventArgs args);
+
+	/// <summary>
 	/// Represents a data series in a LineChart.
 	/// </summary>
 	public class LineChartSeries
@@ -31,7 +53,7 @@ namespace FishUI.Controls
 		[YamlIgnore]
 		public List<Vector2> Points { get; } = new List<Vector2>();
 
-	/// <summary>
+		/// <summary>
 		/// Maximum number of points to retain. Older points are removed when exceeded.
 		/// Set to 0 for unlimited points.
 		/// </summary>
@@ -67,6 +89,35 @@ namespace FishUI.Controls
 		public void Clear()
 		{
 			Points.Clear();
+		}
+
+		/// <summary>
+		/// Gets the interpolated value at the specified time.
+		/// Returns null if no data is available at that time.
+		/// </summary>
+		/// <param name="time">The time to get the value at.</param>
+		/// <returns>The interpolated value, or null if not available.</returns>
+		public float? GetValueAt(float time)
+		{
+			if (Points.Count == 0) return null;
+			if (Points.Count == 1) return Points[0].Y;
+
+			// Find the two points surrounding the time
+			for (int i = 0; i < Points.Count - 1; i++)
+			{
+				if (time >= Points[i].X && time <= Points[i + 1].X)
+				{
+					// Linear interpolation
+					float t = (time - Points[i].X) / (Points[i + 1].X - Points[i].X);
+					return Points[i].Y + t * (Points[i + 1].Y - Points[i].Y);
+				}
+			}
+
+			// Time is outside the data range
+			if (time < Points[0].X) return null;
+			if (time > Points[Points.Count - 1].X) return null;
+
+			return null;
 		}
 	}
 
@@ -126,7 +177,7 @@ namespace FishUI.Controls
 		[YamlMember]
 		public FishColor GridColor { get; set; } = new FishColor(60, 60, 60, 255);
 
-	/// <summary>
+		/// <summary>
 		/// Color of the axis labels.
 		/// </summary>
 		[YamlMember]
@@ -186,7 +237,7 @@ namespace FishUI.Controls
 		[YamlMember]
 		public string YAxisLabelFormat { get; set; } = "F1";
 
-	/// <summary>
+		/// <summary>
 		/// Format string for X-axis labels (time).
 		/// </summary>
 		[YamlMember]
@@ -204,6 +255,43 @@ namespace FishUI.Controls
 		/// </summary>
 		[YamlIgnore]
 		public List<LineChartSeries> Series { get; } = new List<LineChartSeries>();
+
+		// Cursor properties
+
+		/// <summary>
+		/// Whether to show the vertical cursor.
+		/// </summary>
+		[YamlMember]
+		public bool ShowCursor { get; set; } = false;
+
+		/// <summary>
+		/// The time position of the cursor.
+		/// </summary>
+		[YamlIgnore]
+		public float CursorTime { get; set; } = 0f;
+
+		/// <summary>
+		/// Color of the cursor line.
+		/// </summary>
+		[YamlMember]
+		public FishColor CursorColor { get; set; } = new FishColor(255, 100, 100, 200);
+
+		/// <summary>
+		/// Size of the data point markers on the cursor.
+		/// </summary>
+		[YamlMember]
+		public float CursorMarkerSize { get; set; } = 6f;
+
+		/// <summary>
+		/// Whether the cursor is currently being dragged.
+		/// </summary>
+		[YamlIgnore]
+		public bool IsDraggingCursor { get; private set; } = false;
+
+		/// <summary>
+		/// Event fired when the cursor is moved.
+		/// </summary>
+		public event LineChartCursorMovedFunc OnCursorMoved;
 
 
 
@@ -245,7 +333,7 @@ namespace FishUI.Controls
 			}
 		}
 
-	/// <summary>
+		/// <summary>
 		/// Advances the current time if the chart is not paused.
 		/// </summary>
 		/// <param name="deltaTime">Time elapsed since last update.</param>
@@ -274,6 +362,44 @@ namespace FishUI.Controls
 			IsPaused = false;
 		}
 
+		public override void HandleMousePress(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
+		{
+			base.HandleMousePress(UI, InState, Btn, Pos);
+
+			if (ShowCursor && Btn == FishMouseButton.Left)
+			{
+				// Check if click is within chart area
+				if (Pos.X >= _chartPos.X && Pos.X <= _chartPos.X + _chartSize.X &&
+					Pos.Y >= _chartPos.Y && Pos.Y <= _chartPos.Y + _chartSize.Y)
+				{
+					IsDraggingCursor = true;
+					CursorTime = ScreenXToTime(Pos.X);
+					FireCursorMoved();
+				}
+			}
+		}
+
+		public override void HandleMouseRelease(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
+		{
+			base.HandleMouseRelease(UI, InState, Btn, Pos);
+
+			if (Btn == FishMouseButton.Left)
+			{
+				IsDraggingCursor = false;
+			}
+		}
+
+		public override void HandleMouseMove(FishUI UI, FishInputState InState, Vector2 Pos)
+		{
+			base.HandleMouseMove(UI, InState, Pos);
+
+			if (ShowCursor && IsDraggingCursor)
+			{
+				CursorTime = ScreenXToTime(Pos.X);
+				FireCursorMoved();
+			}
+		}
+
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
 			base.DrawControl(UI, Dt, Time);
@@ -285,8 +411,14 @@ namespace FishUI.Controls
 			float labelLeftOffset = ShowYAxisLabels ? Scale(YAxisLabelWidth) : 0;
 			float labelBottomOffset = ShowXAxisLabels ? Scale(XAxisLabelHeight) : 0;
 
+
+
 			Vector2 chartPos = new Vector2(pos.X + labelLeftOffset, pos.Y);
 			Vector2 chartSize = new Vector2(size.X - labelLeftOffset, size.Y - labelBottomOffset);
+
+			// Store chart area for mouse interaction
+			_chartPos = chartPos;
+			_chartSize = chartSize;
 
 			// Draw background
 			UI.Graphics.DrawRectangle(chartPos, chartSize, BackgroundColor);
@@ -296,6 +428,10 @@ namespace FishUI.Controls
 
 			// Draw data series
 			DrawSeries(UI, chartPos, chartSize);
+
+			// Draw cursor
+			if (ShowCursor)
+				DrawCursor(UI, chartPos, chartSize);
 
 			// Draw border
 			UI.Graphics.DrawRectangleOutline(chartPos, chartSize, BorderColor);
@@ -308,7 +444,11 @@ namespace FishUI.Controls
 				DrawXAxisLabels(UI, chartPos, chartSize, labelBottomOffset);
 		}
 
-	private void DrawGrid(FishUI UI, Vector2 chartPos, Vector2 chartSize)
+		// Cached chart area for mouse interaction
+		private Vector2 _chartPos;
+		private Vector2 _chartSize;
+
+		private void DrawGrid(FishUI UI, Vector2 chartPos, Vector2 chartSize)
 		{
 			// Horizontal grid lines
 			if (ShowHorizontalGrid && HorizontalGridDivisions > 0)
@@ -380,7 +520,7 @@ namespace FishUI.Controls
 			}
 		}
 
-	private void DrawYAxisLabels(FishUI UI, Vector2 pos, Vector2 chartSize, float labelWidth)
+		private void DrawYAxisLabels(FishUI UI, Vector2 pos, Vector2 chartSize, float labelWidth)
 		{
 			var font = UI.Settings.FontDefault;
 			if (font == null) return;
@@ -402,7 +542,7 @@ namespace FishUI.Controls
 			}
 		}
 
-	private void DrawXAxisLabels(FishUI UI, Vector2 chartPos, Vector2 chartSize, float labelHeight)
+		private void DrawXAxisLabels(FishUI UI, Vector2 chartPos, Vector2 chartSize, float labelHeight)
 		{
 			var font = UI.Settings.FontDefault;
 			if (font == null) return;
@@ -423,6 +563,74 @@ namespace FishUI.Controls
 				var textSize = UI.Graphics.MeasureText(font, label);
 				UI.Graphics.DrawTextColor(font, label, new Vector2(x - textSize.X / 2, y), LabelColor);
 			}
+		}
+
+		private void DrawCursor(FishUI UI, Vector2 chartPos, Vector2 chartSize)
+		{
+			float timeStart = AutoScroll ? CurrentTime - TimeWindow : 0;
+			float timeEnd = AutoScroll ? CurrentTime : TimeWindow;
+
+			// Check if cursor is within visible range
+			if (CursorTime < timeStart || CursorTime > timeEnd)
+				return;
+
+			// Calculate cursor X position
+			float normalizedX = (CursorTime - timeStart) / (timeEnd - timeStart);
+			float cursorX = chartPos.X + normalizedX * chartSize.X;
+
+			// Draw vertical cursor line
+			UI.Graphics.DrawLine(
+				new Vector2(cursorX, chartPos.Y),
+				new Vector2(cursorX, chartPos.Y + chartSize.Y),
+				Scale(2f), CursorColor);
+
+			// Draw data point markers for each series
+			float markerSize = Scale(CursorMarkerSize);
+			foreach (var series in Series)
+			{
+				float? value = series.GetValueAt(CursorTime);
+				if (value.HasValue)
+				{
+					float normalizedY = 1f - ((value.Value - MinValue) / (MaxValue - MinValue));
+					normalizedY = Math.Clamp(normalizedY, 0f, 1f);
+
+					Vector2 markerPos = new Vector2(
+						cursorX - markerSize / 2,
+						chartPos.Y + normalizedY * chartSize.Y - markerSize / 2);
+
+					// Draw filled circle as marker (using rectangle for simplicity)
+					UI.Graphics.DrawRectangle(markerPos, new Vector2(markerSize, markerSize), series.Color);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Converts a screen X position to a time value.
+		/// </summary>
+		private float ScreenXToTime(float screenX)
+		{
+			float timeStart = AutoScroll ? CurrentTime - TimeWindow : 0;
+			float timeEnd = AutoScroll ? CurrentTime : TimeWindow;
+
+			float normalizedX = (screenX - _chartPos.X) / _chartSize.X;
+			normalizedX = Math.Clamp(normalizedX, 0f, 1f);
+
+			return timeStart + normalizedX * (timeEnd - timeStart);
+		}
+
+		/// <summary>
+		/// Fires the cursor moved event with current cursor data.
+		/// </summary>
+		private void FireCursorMoved()
+		{
+			if (OnCursorMoved == null) return;
+
+			var args = new LineChartCursorEventArgs { Time = CursorTime };
+			foreach (var series in Series)
+			{
+				args.Values[series] = series.GetValueAt(CursorTime);
+			}
+			OnCursorMoved?.Invoke(this, args);
 		}
 	}
 }
