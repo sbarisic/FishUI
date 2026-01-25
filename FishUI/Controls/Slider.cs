@@ -29,8 +29,12 @@ namespace FishUI.Controls
 				float newValue = Math.Clamp(value, MinValue, MaxValue);
 				if (_value != newValue)
 				{
+					float oldValue = _value;
 					_value = newValue;
 					OnValueChanged?.Invoke(this, _value);
+
+					// Invoke serialized value changed handler
+					InvokeHandler(OnValueChangedHandler, new ValueChangedEventHandlerArgs(FishUI, oldValue, _value));
 				}
 			}
 		}
@@ -299,7 +303,7 @@ namespace FishUI.Controls
 			}
 		}
 
-	private void DrawHorizontal(FishUI UI, Vector2 pos, Vector2 size, float normalized)
+		private void DrawHorizontal(FishUI UI, Vector2 pos, Vector2 size, float normalized)
 		{
 			float trackHeight = size.Y * 0.4f;
 			float trackY = pos.Y + (size.Y - trackHeight) / 2f;
@@ -386,7 +390,7 @@ namespace FishUI.Controls
 			}
 		}
 
-	private void DrawVertical(FishUI UI, Vector2 pos, Vector2 size, float normalized)
+		private void DrawVertical(FishUI UI, Vector2 pos, Vector2 size, float normalized)
 		{
 			float trackWidth = size.X * 0.4f;
 			float trackX = pos.X + (size.X - trackWidth) / 2f;
@@ -421,7 +425,7 @@ namespace FishUI.Controls
 			// Draw track border if no NPatch used
 			if (ShowBorder && UI.Settings.ImgSliderTrack == null)
 			{
-			UI.Graphics.DrawRectangleOutline(trackPos, trackSize, GetBorderColor(UI));
+				UI.Graphics.DrawRectangleOutline(trackPos, trackSize, GetBorderColor(UI));
 			}
 
 			// Draw thumb
@@ -437,14 +441,14 @@ namespace FishUI.Controls
 			// Select thumb NPatch based on state
 			NPatch thumbNPatch = UI.Settings.ImgSliderThumb;
 			if (_isDragging && UI.Settings.ImgSliderThumbPressed != null)
-			thumbNPatch = UI.Settings.ImgSliderThumbPressed;
+				thumbNPatch = UI.Settings.ImgSliderThumbPressed;
 			else if (IsMouseInside && UI.Settings.ImgSliderThumbHover != null)
-			thumbNPatch = UI.Settings.ImgSliderThumbHover;
+				thumbNPatch = UI.Settings.ImgSliderThumbHover;
 
 			if (thumbNPatch != null)
 			{
-			// Rotate thumb by 90 degrees for vertical slider
-			UI.Graphics.DrawNPatch(thumbNPatch, thumbPos, thumbDimensions, FishColor.White, 90f);
+				// Rotate thumb by 90 degrees for vertical slider
+				UI.Graphics.DrawNPatch(thumbNPatch, thumbPos, thumbDimensions, FishColor.White, 90f);
 			}
 			else
 			{
@@ -476,7 +480,7 @@ namespace FishUI.Controls
 			}
 		}
 
-	private void DrawValueLabel(FishUI UI, Vector2 pos, Vector2 size)
+		private void DrawValueLabel(FishUI UI, Vector2 pos, Vector2 size)
 		{
 			string label = Value.ToString(ValueLabelFormat);
 			Vector2 textSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, label);

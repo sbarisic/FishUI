@@ -193,11 +193,18 @@ namespace FishUI.Controls
 			{
 				IsToggled = !IsToggled;
 				OnToggled?.Invoke(this, IsToggled);
+
+				// Invoke serialized checked changed handler
+				InvokeHandler(OnCheckedChangedHandler, new CheckedChangedEventHandlerArgs(UI, IsToggled));
 			}
 
 			// Don't fire OnButtonPressed here for repeat buttons - it's handled in DrawControl
 			if (!IsRepeatButton && OnButtonPressed != null)
 				OnButtonPressed(this, Btn, Pos);
+
+			// Invoke serialized click handler
+			if (!IsRepeatButton)
+				InvokeHandler(OnClickHandler, new ClickEventHandlerArgs(UI, Btn));
 		}
 
 		public override void HandleMousePress(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)

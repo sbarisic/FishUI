@@ -26,11 +26,15 @@ namespace FishUI.Controls
 					newValue = newValue.Substring(0, MaxLength);
 				if (_text != newValue)
 				{
+					string oldValue = _text;
 					_text = newValue;
 					// Clamp cursor position to valid range
 					CursorPosition = Math.Clamp(CursorPosition, 0, _text.Length);
 					ClearSelection();
 					OnTextChanged?.Invoke(this, _text);
+
+					// Invoke serialized text changed handler
+					InvokeHandler(OnTextChangedHandler, new TextChangedEventHandlerArgs(FishUI, oldValue, _text));
 				}
 			}
 		}
@@ -415,7 +419,7 @@ namespace FishUI.Controls
 						SelectAll();
 						return;
 					case 'c': // Copy (handled by clipboard, we just provide the text)
-						// Copy() returns the text - actual clipboard integration is external
+							  // Copy() returns the text - actual clipboard integration is external
 						return;
 					case 'v': // Paste (handled externally, text comes through normal input or Paste method)
 						return;

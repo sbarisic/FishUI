@@ -77,7 +77,7 @@ namespace FishUI
 		public float DoubleClickDistance { get; set; } = 5f;
 
 		/// <summary>
-		/// Manager for global keyboard hotkeys.
+	/// Manager for global keyboard hotkeys.
 		/// </summary>
 		public FishUIHotkeyManager Hotkeys { get; } = new FishUIHotkeyManager();
 
@@ -85,6 +85,12 @@ namespace FishUI
 		/// Virtual mouse cursor for keyboard/gamepad input.
 		/// </summary>
 		public FishUIVirtualMouse VirtualMouse { get; } = new FishUIVirtualMouse();
+
+		/// <summary>
+		/// Registry for named event handlers used with layout serialization.
+		/// Register handlers by name, then reference them in YAML layout files.
+		/// </summary>
+		public EventHandlerRegistry EventHandlers { get; } = new EventHandlerRegistry();
 
 		/// <summary>
 		/// The current modal control (if any). When set, only this control and its children receive input.

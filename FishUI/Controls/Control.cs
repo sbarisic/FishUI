@@ -227,12 +227,62 @@ namespace FishUI.Controls
 		}
 
 		/// <summary>
-		/// Clears all color overrides for this control.
+	/// Clears all color overrides for this control.
 		/// </summary>
 		public void ClearAllColorOverrides()
 		{
 			ColorOverrides?.Clear();
 		}
+
+		#region Serializable Event Handlers
+
+		/// <summary>
+		/// Name of the registered event handler to invoke when this control is clicked.
+		/// The handler must be registered with FishUI.EventHandlers before deserialization.
+		/// </summary>
+		[YamlMember]
+		public string OnClickHandler { get; set; }
+
+		/// <summary>
+		/// Name of the registered event handler to invoke when this control's value changes.
+		/// Applies to Slider, NumericUpDown, ProgressBar, etc.
+		/// </summary>
+		[YamlMember]
+		public string OnValueChangedHandler { get; set; }
+
+		/// <summary>
+		/// Name of the registered event handler to invoke when this control's selection changes.
+		/// Applies to ListBox, DropDown, TreeView, etc.
+		/// </summary>
+		[YamlMember]
+		public string OnSelectionChangedHandler { get; set; }
+
+		/// <summary>
+		/// Name of the registered event handler to invoke when this control's text changes.
+		/// Applies to Textbox, MultiLineEditbox, etc.
+		/// </summary>
+		[YamlMember]
+		public string OnTextChangedHandler { get; set; }
+
+		/// <summary>
+		/// Name of the registered event handler to invoke when this control's checked state changes.
+		/// Applies to CheckBox, RadioButton, ToggleSwitch, etc.
+		/// </summary>
+		[YamlMember]
+		public string OnCheckedChangedHandler { get; set; }
+
+		/// <summary>
+		/// Invokes a named event handler from the registry.
+		/// </summary>
+		protected void InvokeHandler(string handlerName, EventHandlerArgs args)
+		{
+			if (string.IsNullOrEmpty(handlerName) || FishUI == null)
+				return;
+
+			FishUI.EventHandlers.Invoke(handlerName, this, args);
+		}
+
+		#endregion
 
 		/// <summary>
 		/// Gets the effective color for rendering, combining Color with Opacity.

@@ -137,7 +137,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 *Scalable UI completed - see Completed section*
 
 ### Serialization
-- [ ] Figure out how to handle events in serialization, extend the Event system?
+
+*Serializable event handlers completed - see Completed section*
 
 ---
 
@@ -247,6 +248,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - Virtual cursor: Position setting, input mapping, hybrid mode
 - LayoutFormat TypeMapping - All controls registered
 - Theme inheritance: Themes can inherit from parent themes via `inherits` property, child themes only override specific values
+- Serializable Event Handlers: EventHandlerRegistry for named handlers, OnClickHandler/OnValueChangedHandler/OnSelectionChangedHandler/OnTextChangedHandler/OnCheckedChangedHandler properties on controls, handlers invoked automatically on deserialized layouts
 
 ### Samples
 - SampleLayoutSystem: Updated to use Window controls for Anchors, StackLayout, FlowLayout, and GridLayout demos
@@ -269,6 +271,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - SampleTimePicker: TimePicker demo with 12/24-hour formats, seconds display, quick-set buttons
 - SampleDataGrid: DataGrid demo with employee database, multi-select, sorting, column resize
 - SampleSpreadsheetGrid: SpreadsheetGrid demo with sales data, cell editing, navigation, Clear/Fill actions
+- SampleEventSerialization: Serializable event handlers demo with named handlers for clicks, value changes, selections, text changes
 
 ### Code Cleanup
 - ScreenCapture platform compatibility, YamlIgnore audit, naming conventions, XML docs, screenshot buttons, TODO extraction, debug flags refactor

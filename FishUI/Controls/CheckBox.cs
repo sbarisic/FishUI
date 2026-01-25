@@ -23,6 +23,9 @@ namespace FishUI.Controls
 				{
 					_isChecked = value;
 					OnCheckedChanged?.Invoke(this, _isChecked);
+
+					// Invoke serialized checked changed handler
+					InvokeHandler(OnCheckedChangedHandler, new CheckedChangedEventHandlerArgs(FishUI, _isChecked));
 				}
 			}
 		}

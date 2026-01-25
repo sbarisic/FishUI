@@ -170,6 +170,9 @@ namespace FishUI.Controls
 				FishUI.Events?.OnControlSelectionChanged(eventArgs);
 
 				OnItemSelected?.Invoke(this, _selectedIndex, Items[_selectedIndex]);
+
+				// Invoke serialized selection changed handler
+				InvokeHandler(OnSelectionChangedHandler, new SelectionChangedEventHandlerArgs(FishUI, _selectedIndex, Items[_selectedIndex]));
 			}
 		}
 
@@ -194,15 +197,15 @@ namespace FishUI.Controls
 			return GetSelectedIndices().Where(i => i >= 0 && i < Items.Count).Select(i => Items[i]).ToArray();
 		}
 
-	/// <summary>
-	/// Clears all selections.
-	/// </summary>
-	public void ClearSelection()
-	{
-		SelectedIndices.Clear();
-		_selectedIndex = -1;
-		SelectionAnchor = -1;
-	}
+		/// <summary>
+		/// Clears all selections.
+		/// </summary>
+		public void ClearSelection()
+		{
+			SelectedIndices.Clear();
+			_selectedIndex = -1;
+			SelectionAnchor = -1;
+		}
 
 		/// <summary>
 		/// Selects all items (only works when MultiSelect is enabled).
@@ -216,9 +219,9 @@ namespace FishUI.Controls
 			for (int i = 0; i < Items.Count; i++)
 				SelectedIndices.Add(i);
 
-		if (Items.Count > 0)
-			_selectedIndex = 0;
-	}
+			if (Items.Count > 0)
+				_selectedIndex = 0;
+		}
 
 		/// <summary>
 		/// Returns true if the given index is selected.
@@ -248,43 +251,43 @@ namespace FishUI.Controls
 
 		public override void HandleMouseMove(FishUI UI, FishInputState InState, Vector2 Pos)
 		{
-		Vector2 LocalPos = GetLocalRelative(Pos);
-		float itemHeight = CustomItemHeight > 0 ? CustomItemHeight : UI.Settings.FontDefault.Size + 4;
-		HoveredIndex = PickIndexFromPosition2(UI, LocalPos, itemHeight);
+			Vector2 LocalPos = GetLocalRelative(Pos);
+			float itemHeight = CustomItemHeight > 0 ? CustomItemHeight : UI.Settings.FontDefault.Size + 4;
+			HoveredIndex = PickIndexFromPosition2(UI, LocalPos, itemHeight);
 		}
 
 		public override void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
 		{
-		if (HoveredIndex == -1)
-		return;
+			if (HoveredIndex == -1)
+				return;
 
-		if (MultiSelect)
-		{
-		if (InState.CtrlDown)
-		{
-		// Ctrl+click: Toggle selection of clicked item
-		if (SelectedIndices.Contains(HoveredIndex))
-			SelectedIndices.Remove(HoveredIndex);
-		else
-			SelectedIndices.Add(HoveredIndex);
+			if (MultiSelect)
+			{
+				if (InState.CtrlDown)
+				{
+					// Ctrl+click: Toggle selection of clicked item
+					if (SelectedIndices.Contains(HoveredIndex))
+						SelectedIndices.Remove(HoveredIndex);
+					else
+						SelectedIndices.Add(HoveredIndex);
 
-		SelectionAnchor = HoveredIndex;
-		_selectedIndex = HoveredIndex;
-		}
-		else if (InState.ShiftDown && SelectionAnchor >= 0)
-		{
-		// Shift+click: Select range from anchor to clicked item
-		SelectedIndices.Clear();
-		int start = Math.Min(SelectionAnchor, HoveredIndex);
-		int end = Math.Max(SelectionAnchor, HoveredIndex);
-		for (int i = start; i <= end; i++)
-			SelectedIndices.Add(i);
+					SelectionAnchor = HoveredIndex;
+					_selectedIndex = HoveredIndex;
+				}
+				else if (InState.ShiftDown && SelectionAnchor >= 0)
+				{
+					// Shift+click: Select range from anchor to clicked item
+					SelectedIndices.Clear();
+					int start = Math.Min(SelectionAnchor, HoveredIndex);
+					int end = Math.Max(SelectionAnchor, HoveredIndex);
+					for (int i = start; i <= end; i++)
+						SelectedIndices.Add(i);
 
-		_selectedIndex = HoveredIndex;
-		}
-		else
-		{
-				// Normal click: Clear selection and select only clicked item
+					_selectedIndex = HoveredIndex;
+				}
+				else
+				{
+					// Normal click: Clear selection and select only clicked item
 					SelectedIndices.Clear();
 					SelectedIndices.Add(HoveredIndex);
 					SelectionAnchor = HoveredIndex;
@@ -374,31 +377,31 @@ namespace FishUI.Controls
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
-		if (ShowScrollBar)
-		CreateScrollBar(UI);
-		else if (ScrollBar != null)
-		{
-		RemoveChild(ScrollBar);
-		ScrollBar = null;
-		}
+			if (ShowScrollBar)
+				CreateScrollBar(UI);
+			else if (ScrollBar != null)
+			{
+				RemoveChild(ScrollBar);
+				ScrollBar = null;
+			}
 
-		// Use custom item height if set, otherwise use font-based height
-		float ItemHeight = CustomItemHeight > 0 ? CustomItemHeight : UI.Settings.FontDefault.Size + 4;
-		ListItemHeight = ItemHeight;
+			// Use custom item height if set, otherwise use font-based height
+			float ItemHeight = CustomItemHeight > 0 ? CustomItemHeight : UI.Settings.FontDefault.Size + 4;
+			ListItemHeight = ItemHeight;
 
-		if (Size.Y == 0)
-		AutoResizeHeight();
+			if (Size.Y == 0)
+				AutoResizeHeight();
 
-		NPatch Cur = UI.Settings.ImgListBoxNormal;
-		UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), Color);
+			NPatch Cur = UI.Settings.ImgListBoxNormal;
+			UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), Color);
 
-		bool ShowSBar = false;
+			bool ShowSBar = false;
 
-		UI.Graphics.PushScissor(GetAbsolutePosition() + new Vector2(2, 2), GetAbsoluteSize() - new Vector2(4, 4));
-		for (int i = 0; i < Items.Count; i++)
-		{
-		bool IsSelected = IsIndexSelected(i);
-		bool IsHovered = (i == HoveredIndex);
+			UI.Graphics.PushScissor(GetAbsolutePosition() + new Vector2(2, 2), GetAbsoluteSize() - new Vector2(4, 4));
+			for (int i = 0; i < Items.Count; i++)
+			{
+				bool IsSelected = IsIndexSelected(i);
+				bool IsHovered = (i == HoveredIndex);
 
 				float Y = Position.Y + 2 + i * ListItemHeight;
 
