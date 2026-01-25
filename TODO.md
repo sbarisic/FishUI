@@ -189,12 +189,14 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Active Bugs
 
-*No active bugs*
+- [ ] **MultiLineEditbox: Selected text not visually highlighted** (2 CPX)
+  - Text selection works functionally (copy/cut/paste) but has no visual indicator
+  - Expected: Selected text should be highlighted like in regular Textbox
+  - Note: Text selection feature was marked complete but visual feedback is missing
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-- When i select text in multi line editbox in the demo, functionally it works correct, but i have no visual indicator
-- I expect same behavior as in normal textbox - selected text is highlighted
+*No uncategorized items*
 
 ---
 
