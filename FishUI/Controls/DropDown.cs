@@ -319,7 +319,12 @@ namespace FishUI.Controls
 				// Only broadcast event if control is connected to FishUI (has parent or _FishUI set)
 				if (FishUI != null)
 				{
-					FishUI.Events.Broadcast(FishUI, this, "item_selected", new object[] { Items[SelectedIndex] });
+					// Legacy broadcast for backward compatibility
+					FishUI.Events?.Broadcast(FishUI, this, "item_selected", new object[] { Items[SelectedIndex] });
+
+					// Fire new interface event
+					var eventArgs = new FishUISelectionChangedEventArgs(FishUI, this, SelectedIndex, Items[SelectedIndex]);
+					FishUI.Events?.OnControlSelectionChanged(eventArgs);
 				}
 				OnItemSelected?.Invoke(this, Items[SelectedIndex]);
 			}

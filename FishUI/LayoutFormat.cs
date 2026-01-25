@@ -22,10 +22,13 @@ namespace FishUI
 			File.WriteAllText(FilePath, Data);
 		}
 
-		public static void DeserializeFromFile(FishUI UI, string FilePath)
+	public static void DeserializeFromFile(FishUI UI, string FilePath)
 		{
 			string Data = File.ReadAllText(FilePath);
 			Deserialize(UI, Data);
+
+			// Fire layout loaded event
+			UI.Events?.OnLayoutLoaded(new FishUILayoutLoadedEventArgs(UI, FilePath));
 		}
 
 		static Dictionary<string, Type> TypeMapping = new Dictionary<string, Type>()

@@ -162,8 +162,14 @@ namespace FishUI.Controls
 
 			if (LastSelectedIndex != _selectedIndex)
 			{
-				FishUI.Events.Broadcast(FishUI, this, "item_selected", new object[] { _selectedIndex, Items[_selectedIndex] });
-			OnItemSelected?.Invoke(this, _selectedIndex, Items[_selectedIndex]);
+				// Legacy broadcast for backward compatibility
+				FishUI.Events?.Broadcast(FishUI, this, "item_selected", new object[] { _selectedIndex, Items[_selectedIndex] });
+
+				// Fire new interface event
+				var eventArgs = new FishUISelectionChangedEventArgs(FishUI, this, _selectedIndex, Items[_selectedIndex]);
+				FishUI.Events?.OnControlSelectionChanged(eventArgs);
+
+				OnItemSelected?.Invoke(this, _selectedIndex, Items[_selectedIndex]);
 			}
 		}
 
@@ -285,7 +291,12 @@ namespace FishUI.Controls
 					SelectIndex(HoveredIndex);
 				}
 
-				FishUI.Events.Broadcast(FishUI, this, "selection_changed", new object[] { GetSelectedIndices() });
+				// Legacy broadcast for backward compatibility
+				FishUI.Events?.Broadcast(FishUI, this, "selection_changed", new object[] { GetSelectedIndices() });
+
+				// Fire new interface event
+				var eventArgs = new FishUISelectionChangedEventArgs(FishUI, this, GetSelectedIndices());
+				FishUI.Events?.OnControlSelectionChanged(eventArgs);
 			}
 			else
 			{

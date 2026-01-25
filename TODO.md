@@ -197,14 +197,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Code Refactoring **HIGH PRIORITY**
 
-- [ ] **Event System Refactoring** (4 CPX)
-  - Refactor `IFishUIEvents` interface to be more powerful
-  - Replace single `Broadcast` function with specialized event methods
-  - Add standard events to all controls (OnClick, OnHover, OnValueChanged, etc.)
-  - Add an event that gets fired by FishUI when a layout has been deserialized/loaded
-  - *Related: Serialization event handling*
-
-*All other code refactoring items have been completed - see Completed section*
+*All code refactoring items have been completed - see Completed section*
 
 ---
 
@@ -293,6 +286,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - CS0219/CS0414: Removed unused ToggleSwitch.useNPatch, ScrollablePane._scrollBarsCreated
 - FishUIThemeLoader: Replaced custom YAML parser with YamlDotNet, added DTO classes for deserialization
 - Generic FindControlByID<T>() method for strongly-typed control lookup
+- Event System Refactoring: IFishUIEvents with specialized methods (OnControlClicked, OnControlValueChanged, OnControlSelectionChanged, etc.), FishUIEventArgs classes, Control events (Clicked, DoubleClicked, MouseEnter, MouseLeave), OnLayoutLoaded event
 
 ### Documentation
 - README.md: Complete rewrite with 35+ controls, code examples, theming, serialization, project structure

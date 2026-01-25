@@ -359,6 +359,26 @@ namespace FishUI.Controls
 		public event OnControlDraggedFunc OnDragged;
 
 		/// <summary>
+		/// Event fired when this control is clicked.
+		/// </summary>
+		public event Action<Control, FishUIClickEventArgs> Clicked;
+
+		/// <summary>
+		/// Event fired when this control is double-clicked.
+		/// </summary>
+		public event Action<Control, FishUIClickEventArgs> DoubleClicked;
+
+		/// <summary>
+		/// Event fired when the mouse enters this control's bounds.
+		/// </summary>
+		public event Action<Control, FishUIMouseEventArgs> MouseEnter;
+
+		/// <summary>
+		/// Event fired when the mouse leaves this control's bounds.
+		/// </summary>
+		public event Action<Control, FishUIMouseEventArgs> MouseLeave;
+
+		/// <summary>
 		/// Gets the parent control.
 		/// </summary>
 		public Control GetParent()
@@ -871,6 +891,13 @@ namespace FishUI.Controls
 		public virtual void HandleMouseEnter(FishUI UI, FishInputState InState)
 		{
 			FishUIDebug.LogControlEvent(GetType().Name, ID, "Mouse Enter");
+
+			// Fire local event
+			var eventArgs = new FishUIMouseEventArgs(UI, this, InState.MousePos);
+			MouseEnter?.Invoke(this, eventArgs);
+
+			// Fire interface event
+			UI.Events?.OnControlMouseEnter(eventArgs);
 		}
 
 		/// <summary>
@@ -886,6 +913,13 @@ namespace FishUI.Controls
 		public virtual void HandleMouseLeave(FishUI UI, FishInputState InState)
 		{
 			FishUIDebug.LogControlEvent(GetType().Name, ID, "Mouse Leave");
+
+			// Fire local event
+			var eventArgs = new FishUIMouseEventArgs(UI, this, InState.MousePos);
+			MouseLeave?.Invoke(this, eventArgs);
+
+			// Fire interface event
+			UI.Events?.OnControlMouseLeave(eventArgs);
 		}
 
 
@@ -912,7 +946,15 @@ namespace FishUI.Controls
 		{
 			FishUIDebug.LogControlEvent(GetType().Name, ID, "Mouse Click", Btn.ToString());
 
-			UI.Events.Broadcast(UI, this, "mouse_click", null);
+			// Legacy broadcast for backward compatibility
+			UI.Events?.Broadcast(UI, this, "mouse_click", null);
+
+			// Fire local event
+			var eventArgs = new FishUIClickEventArgs(UI, this, Btn, Pos);
+			Clicked?.Invoke(this, eventArgs);
+
+			// Fire interface event
+			UI.Events?.OnControlClicked(eventArgs);
 		}
 
 		/// <summary>
@@ -922,7 +964,15 @@ namespace FishUI.Controls
 		{
 			FishUIDebug.LogControlEvent(GetType().Name, ID, "Mouse Double Click", Btn.ToString());
 
-			UI.Events.Broadcast(UI, this, "mouse_double_click", null);
+			// Legacy broadcast for backward compatibility
+			UI.Events?.Broadcast(UI, this, "mouse_double_click", null);
+
+			// Fire local event
+			var eventArgs = new FishUIClickEventArgs(UI, this, Btn, Pos);
+			DoubleClicked?.Invoke(this, eventArgs);
+
+			// Fire interface event
+			UI.Events?.OnControlDoubleClicked(eventArgs);
 		}
 
 		/// <summary>

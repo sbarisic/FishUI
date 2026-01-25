@@ -302,7 +302,7 @@ namespace FishUI.Controls
 		/// <summary>
 		/// Selects a node.
 		/// </summary>
-		public void SelectNode(TreeNode node)
+	public void SelectNode(TreeNode node)
 		{
 			if (SelectedNode != null)
 				SelectedNode.IsSelected = false;
@@ -313,7 +313,13 @@ namespace FishUI.Controls
 			{
 				node.IsSelected = true;
 				OnNodeSelected?.Invoke(this, node);
-				FishUI?.Events.Broadcast(FishUI, this, "node_selected", new object[] { node });
+
+				// Legacy broadcast for backward compatibility
+				FishUI?.Events?.Broadcast(FishUI, this, "node_selected", new object[] { node });
+
+				// Fire new interface event
+				var eventArgs = new FishUISelectionChangedEventArgs(FishUI, this, -1, node);
+				FishUI?.Events?.OnControlSelectionChanged(eventArgs);
 			}
 		}
 
