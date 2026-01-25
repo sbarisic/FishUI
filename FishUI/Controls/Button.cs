@@ -28,7 +28,7 @@ namespace FishUI.Controls
 		[YamlIgnore]
 		NPatch ImgDisabled;
 
-	[YamlIgnore]
+		[YamlIgnore]
 		NPatch ImgPressed;
 
 		/// <summary>

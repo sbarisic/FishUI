@@ -758,6 +758,91 @@ namespace FishUI.Controls
 		}
 
 		/// <summary>
+		/// Updates this control's anchor offsets based on its current position and parent size.
+		/// Call after manually changing a control's position (e.g., in an editor) to keep anchoring in sync.
+		/// </summary>
+		public void UpdateOwnAnchorOffsets()
+		{
+			Control parent = GetParent();
+			if (parent == null)
+				return;
+
+			Vector2 parentSize = parent.GetAbsoluteSize();
+			AnchorParentSize = parentSize;
+
+			// Calculate distances from right and bottom edges
+			float childRight = Position.X + Size.X;
+			float childBottom = Position.Y + Size.Y;
+
+			AnchorRight = parentSize.X - childRight;
+			AnchorBottom = parentSize.Y - childBottom;
+		}
+
+		/// <summary>
+		/// Gets this control's position with anchor adjustments applied.
+		/// Returns the relative position (to parent) adjusted for anchor settings based on parent size changes.
+		/// </summary>
+		/// <returns>The anchor-adjusted relative position.</returns>
+		public Vector2 GetAnchorAdjustedRelativePosition()
+		{
+			Vector2 pos = new Vector2(Position.X, Position.Y);
+
+			// Apply anchor adjustments if this control has a parent and uses anchoring
+			Control parent = GetParent();
+			if (parent != null && Anchor != FishUIAnchor.None && Anchor != FishUIAnchor.TopLeft)
+			{
+				Vector2 currentParentSize = parent.Size;
+				Vector2 sizeDelta = currentParentSize - AnchorParentSize;
+
+				// Right anchor: adjust X position based on parent width change
+				if (Anchor.HasFlag(FishUIAnchor.Right) && !Anchor.HasFlag(FishUIAnchor.Left))
+				{
+					pos.X += sizeDelta.X;
+				}
+
+				// Bottom anchor: adjust Y position based on parent height change
+				if (Anchor.HasFlag(FishUIAnchor.Bottom) && !Anchor.HasFlag(FishUIAnchor.Top))
+				{
+					pos.Y += sizeDelta.Y;
+				}
+			}
+
+			return pos;
+		}
+
+		/// <summary>
+		/// Gets this control's size with anchor stretching applied.
+		/// Returns the size adjusted for anchor settings when anchored to opposite edges (stretch behavior).
+		/// </summary>
+		/// <returns>The anchor-adjusted size.</returns>
+		public Vector2 GetAnchorAdjustedSize()
+		{
+			Vector2 size = Size;
+
+			// Apply anchor stretching if this control has a parent and uses stretching anchors
+			Control parent = GetParent();
+			if (parent != null && Anchor != FishUIAnchor.None && Anchor != FishUIAnchor.TopLeft)
+			{
+				Vector2 currentParentSize = parent.Size;
+				Vector2 sizeDelta = currentParentSize - AnchorParentSize;
+
+				// Horizontal stretching: anchored to both left and right
+				if (Anchor.HasFlag(FishUIAnchor.Left) && Anchor.HasFlag(FishUIAnchor.Right))
+				{
+					size.X += sizeDelta.X;
+				}
+
+				// Vertical stretching: anchored to both top and bottom
+				if (Anchor.HasFlag(FishUIAnchor.Top) && Anchor.HasFlag(FishUIAnchor.Bottom))
+				{
+					size.Y += sizeDelta.Y;
+				}
+			}
+
+			return size;
+		}
+
+		/// <summary>
 		/// Determines if a child control should receive input at the specified point.
 		/// Override in container controls like ScrollablePane to restrict input to visible area.
 		/// </summary>

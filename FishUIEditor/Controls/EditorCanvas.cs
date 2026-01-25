@@ -194,17 +194,18 @@ namespace FishUIEditor.Controls
 
 		/// <summary>
 		/// Calculates the absolute position of a control within the canvas,
-		/// taking into account parent control offsets for nested controls.
+		/// taking into account parent control offsets and anchor adjustments for nested controls.
 		/// </summary>
 		private Vector2 GetControlAbsolutePositionInCanvas(Control control, Vector2 canvasPos)
 		{
-			Vector2 pos = new Vector2(control.Position.X, control.Position.Y);
+			// Start with this control's position including anchor adjustment
+			Vector2 pos = control.GetAnchorAdjustedRelativePosition();
 
-			// Walk up the parent chain to accumulate ALL parent offsets
+			// Walk up the parent chain to accumulate ALL parent offsets (also anchor-adjusted)
 			Control parent = control.GetParent();
 			while (parent != null && parent != this)
 			{
-				pos += new Vector2(parent.Position.X, parent.Position.Y);
+				pos += parent.GetAnchorAdjustedRelativePosition();
 				parent = parent.GetParent();
 			}
 
@@ -213,6 +214,7 @@ namespace FishUIEditor.Controls
 
 		/// <summary>
 		/// Gets the accumulated parent offset for a control (excluding the control's own position).
+		/// Includes anchor adjustments for all parent controls.
 		/// </summary>
 		private Vector2 GetParentOffset(Control control)
 		{
@@ -221,7 +223,7 @@ namespace FishUIEditor.Controls
 			Control parent = control.GetParent();
 			while (parent != null && parent != this)
 			{
-				offset += new Vector2(parent.Position.X, parent.Position.Y);
+				offset += parent.GetAnchorAdjustedRelativePosition();
 				parent = parent.GetParent();
 			}
 
@@ -314,7 +316,8 @@ namespace FishUIEditor.Controls
 		{
 			// Calculate absolute position for the control (including parent offset if nested)
 			Vector2 ctrlAbsPos = GetControlAbsolutePositionInCanvas(control, canvasPos);
-			Vector2 ctrlSize = control.Size;
+			// Get anchor-adjusted size (accounts for stretching when anchored to opposite edges)
+			Vector2 ctrlSize = control.GetAnchorAdjustedSize();
 
 			// Draw selection rectangle
 			UI.Graphics.DrawRectangleOutline(ctrlAbsPos, ctrlSize, SelectionColor);
@@ -394,7 +397,7 @@ namespace FishUIEditor.Controls
 			if (SelectedControl != null)
 			{
 				Vector2 ctrlAbsPos = GetControlAbsolutePositionInCanvas(SelectedControl, canvasPos);
-				Vector2 ctrlSize = SelectedControl.Size;
+				Vector2 ctrlSize = SelectedControl.GetAnchorAdjustedSize();
 
 				_activeHandle = GetHandleAtPosition(Pos, ctrlAbsPos, ctrlSize);
 				if (_activeHandle != ResizeHandle.None)
@@ -532,6 +535,9 @@ namespace FishUIEditor.Controls
 				}
 
 				SelectedControl.Position = newPos;
+
+				// Update anchor offsets to keep anchoring in sync with new position
+				SelectedControl.UpdateOwnAnchorOffsets();
 			}
 			else if (_isResizing && _activeHandle != ResizeHandle.None)
 			{
@@ -598,6 +604,13 @@ namespace FishUIEditor.Controls
 
 				SelectedControl.Position = ctrlPos;
 				SelectedControl.Size = ctrlSize;
+
+				// Update anchor offsets for this control (so it stays in place relative to ITS parent)
+				SelectedControl.UpdateOwnAnchorOffsets();
+
+				// NOTE: Do NOT call RecalculateChildAnchors() here!
+				// Children should move/resize according to their anchor settings when the parent is resized.
+				// RecalculateChildAnchors() would reset their AnchorParentSize, making anchoring have no effect.
 			}
 		}
 
@@ -622,8 +635,11 @@ namespace FishUIEditor.Controls
 				if (!IsContainerControl(ctrl))
 					continue;
 
-				if (localPos.X >= ctrl.Position.X && localPos.X <= ctrl.Position.X + ctrl.Size.X &&
-					localPos.Y >= ctrl.Position.Y && localPos.Y <= ctrl.Position.Y + ctrl.Size.Y)
+				Vector2 ctrlPos = ctrl.GetAnchorAdjustedRelativePosition();
+				Vector2 ctrlSize = ctrl.GetAnchorAdjustedSize();
+
+				if (localPos.X >= ctrlPos.X && localPos.X <= ctrlPos.X + ctrlSize.X &&
+					localPos.Y >= ctrlPos.Y && localPos.Y <= ctrlPos.Y + ctrlSize.Y)
 				{
 					return ctrl;
 				}
@@ -656,8 +672,8 @@ namespace FishUIEditor.Controls
 			if (control == excludeControl || IsDescendantOf(control, excludeControl))
 				return null;
 
-			Vector2 ctrlPos = parentOffset + new Vector2(control.Position.X, control.Position.Y);
-			Vector2 ctrlSize = control.Size;
+			Vector2 ctrlPos = parentOffset + control.GetAnchorAdjustedRelativePosition();
+			Vector2 ctrlSize = control.GetAnchorAdjustedSize();
 
 			Control result = null;
 
@@ -741,11 +757,13 @@ namespace FishUIEditor.Controls
 		/// <summary>
 		/// Recursively searches for a control at the given position.
 		/// Children with higher ZDepth are checked first.
+		/// Uses anchor-adjusted positions and sizes for accurate hit testing.
 		/// </summary>
 		private Control FindControlAtPositionRecursive(Control control, Vector2 localPos, Vector2 parentOffset)
 		{
-			Vector2 ctrlPos = parentOffset + new Vector2(control.Position.X, control.Position.Y);
-			Vector2 ctrlSize = control.Size;
+			// Use anchor-adjusted position and size for accurate hit testing
+			Vector2 ctrlPos = parentOffset + control.GetAnchorAdjustedRelativePosition();
+			Vector2 ctrlSize = control.GetAnchorAdjustedSize();
 
 			// Check if position is within this control
 			if (localPos.X >= ctrlPos.X && localPos.X <= ctrlPos.X + ctrlSize.X &&
