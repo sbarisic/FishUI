@@ -209,7 +209,11 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-*No uncategorized items*
+- Create a chart control, it should be a horizontal line chart where you can define a time window on the X axis, and data on Y axis
+  - Data on the Y axis should support a start value, end value, it should display these on the left with labels
+  - Drawn lines should support colors
+  - Goal is real time data display, like temperature across time
+  - Create a demo screen with some realtime data, sine wave with random noise
 
 ---
 
