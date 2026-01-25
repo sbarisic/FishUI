@@ -173,6 +173,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [ ] MultiLine textbox example (separate demo)
   - Add single line and multi line 
   - Requires multi-line textbox mode implementation
+- [ ] SampleLayoutSystem: Use Window controls instead of Panels for demos (1 CPX)
 
 ---
 
@@ -186,9 +187,12 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ---
 
-## Code Cleanup & Technical Debt
+## Code Cleanup & Technical Debt **HIGH PRIORITY**
 
-*All code cleanup items have been completed - see Completed section*
+- [ ] Fix CS0108 warnings: Padding property hides inherited member in ContextMenu, FlowLayout, StackLayout (1 CPX)
+  - Add `new` keyword or refactor to use inherited Control.Padding
+- [ ] Fix CS0219/CS0414 warnings: Remove unused variables/fields (1 CPX)
+  - ToggleSwitch.useNPatch, ScrollablePane._scrollBarsCreated
 
 ---
 
@@ -200,12 +204,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-- Change the layout demo so the controls are inside windows, not panels
-- 1>E:\Projects\FishUI\FishUI\Controls\ContextMenu.cs(58,23,58,30): warning CS0108: 'ContextMenu.Padding' hides inherited member 'Control.Padding'. Use the new keyword if hiding was intended.
-- 1>E:\Projects\FishUI\FishUI\Controls\FlowLayout.cs(88,16,88,23): warning CS0108: 'FlowLayout.Padding' hides inherited member 'Control.Padding'. Use the new keyword if hiding was intended.
-- 1>E:\Projects\FishUI\FishUI\Controls\StackLayout.cs(45,16,45,23): warning CS0108: 'StackLayout.Padding' hides inherited member 'Control.Padding'. Use the new keyword if hiding was intended.
-- 1>E:\Projects\FishUI\FishUI\Controls\ToggleSwitch.cs(165,9,165,18): warning CS0219: The variable 'useNPatch' is assigned but its value is never used
-- 1>E:\Projects\FishUI\FishUI\Controls\ScrollablePane.cs(85,16,85,34): warning CS0414: The field 'ScrollablePane._scrollBarsCreated' is assigned but its value is never used
+*No uncategorized items*
 
 ---
 
