@@ -119,8 +119,10 @@ namespace FishUI.Controls
 		private int _selectionAnchor = -1;
 
 		// Scrolling
-		private float _scrollOffset = 0;
+		private Vector2 _scrollOffset = Vector2.Zero;
+		[YamlIgnore]
 		private ScrollBarV _scrollBar;
+		private float _rowHeight;
 
 		// Column resize
 		private int _resizingColumnIndex = -1;
@@ -135,22 +137,16 @@ namespace FishUI.Controls
 		public float HeaderHeight { get; set; } = 24f;
 
 		/// <summary>
-		/// Height of each data row.
+		/// Height of each data row. If 0, uses font height + padding.
 		/// </summary>
 		[YamlMember]
-		public float RowHeight { get; set; } = 22f;
+		public float RowHeight { get; set; } = 0f;
 
 		/// <summary>
 		/// Whether to show the vertical scrollbar.
 		/// </summary>
 		[YamlMember]
 		public bool ShowScrollBar { get; set; } = true;
-
-		/// <summary>
-		/// Width of the scrollbar.
-		/// </summary>
-		[YamlMember]
-		public float ScrollBarWidth { get; set; } = 16f;
 
 		/// <summary>
 		/// Whether to allow multiple row selection.
@@ -168,37 +164,13 @@ namespace FishUI.Controls
 		/// Background color for even rows.
 		/// </summary>
 		[YamlMember]
-		public FishColor EvenRowColor { get; set; } = new FishColor(255, 255, 255, 255);
+		public FishColor EvenRowColor { get; set; } = new FishColor(255, 255, 255, 20);
 
 		/// <summary>
 		/// Background color for odd rows.
 		/// </summary>
 		[YamlMember]
-		public FishColor OddRowColor { get; set; } = new FishColor(240, 240, 240, 255);
-
-		/// <summary>
-		/// Background color for selected rows.
-		/// </summary>
-		[YamlMember]
-		public FishColor SelectedRowColor { get; set; } = new FishColor(51, 153, 255, 255);
-
-		/// <summary>
-		/// Background color for hovered rows.
-		/// </summary>
-		[YamlMember]
-		public FishColor HoveredRowColor { get; set; } = new FishColor(200, 220, 255, 255);
-
-		/// <summary>
-		/// Background color for column headers.
-		/// </summary>
-		[YamlMember]
-		public FishColor HeaderColor { get; set; } = new FishColor(220, 220, 220, 255);
-
-		/// <summary>
-		/// Background color for hovered column header.
-		/// </summary>
-		[YamlMember]
-		public FishColor HeaderHoverColor { get; set; } = new FishColor(200, 200, 200, 255);
+		public FishColor OddRowColor { get; set; } = new FishColor(0, 0, 0, 20);
 
 		/// <summary>
 		/// Gets or sets the selected row index.
@@ -228,86 +200,40 @@ namespace FishUI.Controls
 
 		#region Column Management
 
-		/// <summary>
-		/// Adds a column to the grid.
-		/// </summary>
-		public void AddColumn(DataGridColumn column)
-		{
-			_columns.Add(column);
-		}
+		public void AddColumn(DataGridColumn column) => _columns.Add(column);
 
-		/// <summary>
-		/// Adds a column with the specified header and width.
-		/// </summary>
 		public void AddColumn(string header, float width = 100f, bool sortable = true)
-		{
-			_columns.Add(new DataGridColumn(header, width, sortable));
-		}
+			=> _columns.Add(new DataGridColumn(header, width, sortable));
 
-		/// <summary>
-		/// Gets all columns.
-		/// </summary>
 		public IReadOnlyList<DataGridColumn> Columns => _columns;
 
-		/// <summary>
-		/// Clears all columns.
-		/// </summary>
-		public void ClearColumns()
-		{
-			_columns.Clear();
-		}
+		public void ClearColumns() => _columns.Clear();
 
 		#endregion
 
 		#region Row Management
 
-		/// <summary>
-		/// Adds a row to the grid.
-		/// </summary>
-		public void AddRow(DataGridRow row)
-		{
-			_rows.Add(row);
-		}
+		public void AddRow(DataGridRow row) => _rows.Add(row);
 
-		/// <summary>
-		/// Adds a row with the specified cell values.
-		/// </summary>
-		public void AddRow(params string[] cells)
-		{
-			_rows.Add(new DataGridRow(cells));
-		}
+		public void AddRow(params string[] cells) => _rows.Add(new DataGridRow(cells));
 
-		/// <summary>
-		/// Gets all rows.
-		/// </summary>
 		public IReadOnlyList<DataGridRow> Rows => _rows;
 
-		/// <summary>
-		/// Clears all rows.
-		/// </summary>
 		public void ClearRows()
 		{
 			_rows.Clear();
 			_selectedIndex = -1;
 			_selectedIndices.Clear();
-			_scrollOffset = 0;
+			_scrollOffset = Vector2.Zero;
 		}
 
-		/// <summary>
-		/// Gets the row at the specified index.
-		/// </summary>
 		public DataGridRow GetRow(int index)
-		{
-			return index >= 0 && index < _rows.Count ? _rows[index] : null;
-		}
+			=> index >= 0 && index < _rows.Count ? _rows[index] : null;
 
 		#endregion
 
 		#region Selection
 
-		/// <summary>
-		/// Selects a row by index.
-		/// </summary>
 		public void SelectRow(int index)
 		{
 			if (index < 0) index = -1;
@@ -322,9 +248,6 @@ namespace FishUI.Controls
 			}
 		}
 
-		/// <summary>
-		/// Gets all selected row indices.
-		/// </summary>
 		public int[] GetSelectedIndices()
 		{
 			if (MultiSelect)
@@ -335,9 +258,6 @@ namespace FishUI.Controls
 				return Array.Empty<int>();
 		}
 
-		/// <summary>
-		/// Clears all selections.
-		/// </summary>
 		public void ClearSelection()
 		{
 			_selectedIndex = -1;
@@ -345,13 +265,17 @@ namespace FishUI.Controls
 			_selectionAnchor = -1;
 		}
 
+		public bool IsIndexSelected(int index)
+		{
+			if (MultiSelect)
+				return _selectedIndices.Contains(index);
+			return index == _selectedIndex;
+		}
+
 		#endregion
 
 		#region Sorting
 
-		/// <summary>
-		/// Sorts the grid by the specified column.
-		/// </summary>
 		public void SortByColumn(int columnIndex, SortDirection direction)
 		{
 			if (columnIndex < 0 || columnIndex >= _columns.Count)
@@ -373,10 +297,32 @@ namespace FishUI.Controls
 					: _rows.OrderByDescending(r => r[columnIndex], StringComparer.OrdinalIgnoreCase).ToList();
 			}
 
-			// Clear selection after sort
 			ClearSelection();
-
 			OnColumnSort?.Invoke(this, columnIndex, direction);
+		}
+
+		#endregion
+
+		#region ScrollBar
+
+		private void CreateScrollBar(FishUI UI)
+		{
+			if (_scrollBar != null)
+				return;
+
+			RemoveAllChildren();
+
+			_scrollBar = new ScrollBarV();
+			_scrollBar.Position = new Vector2(Size.X - 16, Scale(HeaderHeight));
+			_scrollBar.Size = new Vector2(16, Size.Y - Scale(HeaderHeight));
+			_scrollBar.ThumbHeight = 0.5f;
+			_scrollBar.OnScrollChanged += (_, scroll, delta) =>
+			{
+				float contentHeight = _rows.Count * _rowHeight;
+				_scrollOffset = new Vector2(0, -scroll * contentHeight);
+			};
+
+			AddChild(_scrollBar);
 		}
 
 		#endregion
@@ -385,39 +331,74 @@ namespace FishUI.Controls
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
-			Vector2 pos = GetAbsolutePosition();
-			Vector2 size = ScaledSize;
-			var font = UI.Settings.FontDefault;
+			// Calculate row height based on font if not set
+			_rowHeight = RowHeight > 0 ? Scale(RowHeight) : UI.Settings.FontDefault.Size + 4;
 
+			Vector2 pos = GetAbsolutePosition();
+			Vector2 size = GetAbsoluteSize();
+			var font = UI.Settings.FontDefault;
 			float headerH = Scale(HeaderHeight);
-			float rowH = Scale(RowHeight);
-			float scrollBarW = ShowScrollBar ? Scale(ScrollBarWidth) : 0;
+
+			// Create/update scrollbar
+			if (ShowScrollBar)
+			{
+				CreateScrollBar(UI);
+				if (_scrollBar != null)
+				{
+					_scrollBar.Position = new Vector2(Size.X - 16, HeaderHeight);
+					_scrollBar.Size = new Vector2(16, Size.Y - HeaderHeight);
+
+					float contentHeight = _rows.Count * _rowHeight;
+					float viewHeight = size.Y - headerH;
+					_scrollBar.Visible = contentHeight > viewHeight;
+				}
+			}
+			else if (_scrollBar != null)
+			{
+				RemoveChild(_scrollBar);
+				_scrollBar = null;
+			}
+
+			float scrollBarW = (_scrollBar?.Visible ?? false) ? _scrollBar.GetAbsoluteSize().X : 0;
 			float contentWidth = size.X - scrollBarW;
 
-			// Draw background
-			UI.Graphics.DrawRectangle(pos, size, new FishColor(255, 255, 255, 255));
-			UI.Graphics.DrawRectangleOutline(pos, size, new FishColor(128, 128, 128, 255));
+			// Draw background using ListBox theme
+			NPatch bgPatch = UI.Settings.ImgListBoxNormal;
+			if (bgPatch != null)
+			{
+				UI.Graphics.DrawNPatch(bgPatch, pos, size, Color);
+			}
+			else
+			{
+				UI.Graphics.DrawRectangle(pos, size, new FishColor(255, 255, 255, 255));
+				UI.Graphics.DrawRectangleOutline(pos, size, new FishColor(128, 128, 128, 255));
+			}
 
 			// Draw header
 			DrawHeader(UI, pos, contentWidth, headerH, font);
 
-			// Draw rows
+			// Draw rows with scissoring
 			float rowAreaY = pos.Y + headerH;
 			float rowAreaHeight = size.Y - headerH;
-			UI.Graphics.BeginScissor(new Vector2(pos.X, rowAreaY), new Vector2(contentWidth, rowAreaHeight));
-			DrawRows(UI, new Vector2(pos.X, rowAreaY), contentWidth, rowAreaHeight, rowH, font);
-			UI.Graphics.EndScissor();
-
-			// Draw scrollbar
-			if (ShowScrollBar)
-			{
-				DrawScrollBar(UI, pos, size, headerH, rowH);
-			}
+			UI.Graphics.PushScissor(new Vector2(pos.X + 2, rowAreaY), new Vector2(contentWidth - 4, rowAreaHeight));
+			DrawRows(UI, new Vector2(pos.X + 2, rowAreaY), contentWidth - 4, rowAreaHeight, font, scrollBarW);
+			UI.Graphics.PopScissor();
 		}
 
 		private void DrawHeader(FishUI UI, Vector2 pos, float width, float height, FontRef font)
 		{
 			float x = pos.X;
+
+			// Draw header background
+			NPatch headerBg = UI.Settings.ImgButtonNormal;
+			if (headerBg != null)
+			{
+				UI.Graphics.DrawNPatch(headerBg, new Vector2(pos.X, pos.Y), new Vector2(width, height), Color);
+			}
+			else
+			{
+				UI.Graphics.DrawRectangle(new Vector2(pos.X, pos.Y), new Vector2(width, height), new FishColor(220, 220, 220, 255));
+			}
 
 			for (int i = 0; i < _columns.Count; i++)
 			{
@@ -428,17 +409,22 @@ namespace FishUI.Controls
 
 				if (colW <= 0) break;
 
-				// Header background
-				FishColor bgColor = (i == _hoveredColumnIndex && _resizingColumnIndex < 0)
-					? HeaderHoverColor : HeaderColor;
-				UI.Graphics.DrawRectangle(new Vector2(x, pos.Y), new Vector2(colW, height), bgColor);
-				UI.Graphics.DrawRectangleOutline(new Vector2(x, pos.Y), new Vector2(colW, height), new FishColor(180, 180, 180, 255));
+				// Column separator
+				if (i > 0)
+				{
+					UI.Graphics.DrawRectangle(new Vector2(x, pos.Y + 2), new Vector2(1, height - 4), new FishColor(180, 180, 180, 255));
+				}
 
-				// Header text
+				// Hover highlight
+				if (i == _hoveredColumnIndex && _resizingColumnIndex < 0)
+				{
+					UI.Graphics.DrawRectangle(new Vector2(x, pos.Y), new Vector2(colW, height), new FishColor(0, 0, 0, 30));
+				}
+
+				// Header text with sort indicator
 				if (font != null)
 				{
 					string text = col.Header;
-					// Add sort indicator
 					if (col.SortDirection == SortDirection.Ascending)
 						text += " ^";
 					else if (col.SortDirection == SortDirection.Descending)
@@ -447,43 +433,63 @@ namespace FishUI.Controls
 					var textSize = UI.Graphics.MeasureText(font, text);
 					float textX = x + 4;
 					float textY = pos.Y + (height - textSize.Y) / 2;
-					UI.Graphics.BeginScissor(new Vector2(x + 2, pos.Y), new Vector2(colW - 4, height));
+
+					UI.Graphics.PushScissor(new Vector2(x + 2, pos.Y), new Vector2(colW - 4, height));
 					UI.Graphics.DrawTextColor(font, text, new Vector2(textX, textY), new FishColor(0, 0, 0, 255));
-					UI.Graphics.EndScissor();
+					UI.Graphics.PopScissor();
 				}
 
 				x += colW;
 			}
+
+			// Bottom border
+			UI.Graphics.DrawRectangle(new Vector2(pos.X, pos.Y + height - 1), new Vector2(width, 1), new FishColor(160, 160, 160, 255));
 		}
 
-		private void DrawRows(FishUI UI, Vector2 pos, float width, float height, float rowH, FontRef font)
+		private void DrawRows(FishUI UI, Vector2 pos, float width, float height, FontRef font, float scrollBarW)
 		{
-			int startRow = (int)(_scrollOffset / rowH);
-			int visibleRows = (int)(height / rowH) + 2;
-
-			float y = pos.Y - (_scrollOffset % rowH);
-
-			for (int i = startRow; i < Math.Min(startRow + visibleRows, _rows.Count); i++)
+			for (int i = 0; i < _rows.Count; i++)
 			{
-				if (y + rowH < pos.Y) { y += rowH; continue; }
+				var row = _rows[i];
+				float y = pos.Y + i * _rowHeight + _scrollOffset.Y;
+
+				// Skip rows outside visible area
+				if (y + _rowHeight < pos.Y) continue;
 				if (y > pos.Y + height) break;
 
-				var row = _rows[i];
-				bool isSelected = MultiSelect ? _selectedIndices.Contains(i) : (i == _selectedIndex);
-				bool isHovered = i == _hoveredRowIndex && !isSelected;
+				bool isSelected = IsIndexSelected(i);
+				bool isHovered = (i == _hoveredRowIndex);
 
-				// Row background
-				FishColor bgColor;
-				if (isSelected)
-					bgColor = SelectedRowColor;
+				// Draw alternating row background (like ListBox)
+				if (AlternatingRowColors && !isSelected && !isHovered)
+				{
+					FishColor rowColor = (i % 2 == 0) ? EvenRowColor : OddRowColor;
+					UI.Graphics.DrawRectangle(new Vector2(pos.X, y), new Vector2(width, _rowHeight), rowColor);
+				}
+
+				// Draw selection/hover using theme (like ListBox)
+				NPatch itemPatch = null;
+				FishColor textColor = FishColor.Black;
+
+				if (isHovered && isSelected)
+				{
+					itemPatch = UI.Settings.ImgListBoxItmSelectedHovered;
+					textColor = FishColor.White;
+				}
 				else if (isHovered)
-					bgColor = HoveredRowColor;
-				else if (AlternatingRowColors)
-					bgColor = (i % 2 == 0) ? EvenRowColor : OddRowColor;
-				else
-					bgColor = EvenRowColor;
+				{
+					itemPatch = UI.Settings.ImgListBoxItmHovered;
+				}
+				else if (isSelected)
+				{
+					itemPatch = UI.Settings.ImgListBoxItmSelected;
+					textColor = FishColor.White;
+				}
 
-				UI.Graphics.DrawRectangle(new Vector2(pos.X, y), new Vector2(width, rowH), bgColor);
+				if (itemPatch != null)
+				{
+					UI.Graphics.DrawNPatch(itemPatch, new Vector2(pos.X, y), new Vector2(width, _rowHeight), Color);
+				}
 
 				// Draw cells
 				float x = pos.X;
@@ -500,67 +506,53 @@ namespace FishUI.Controls
 					{
 						var textSize = UI.Graphics.MeasureText(font, cellText);
 						float textX = x + 4;
-						float textY = y + (rowH - textSize.Y) / 2;
+						float textY = y + (_rowHeight - textSize.Y) / 2;
 
-						UI.Graphics.BeginScissor(new Vector2(x + 2, y), new Vector2(colW - 4, rowH));
-						FishColor textColor = isSelected ? new FishColor(255, 255, 255, 255) : new FishColor(0, 0, 0, 255);
+						UI.Graphics.PushScissor(new Vector2(x + 2, y), new Vector2(colW - 4, _rowHeight));
 						UI.Graphics.DrawTextColor(font, cellText, new Vector2(textX, textY), textColor);
-						UI.Graphics.EndScissor();
+						UI.Graphics.PopScissor();
 					}
 
 					x += colW;
 				}
-
-				// Row separator
-				UI.Graphics.DrawLine(new Vector2(pos.X, y + rowH), new Vector2(pos.X + width, y + rowH), 1f, new FishColor(220, 220, 220, 255));
-
-				y += rowH;
 			}
-		}
-
-		private void DrawScrollBar(FishUI UI, Vector2 pos, Vector2 size, float headerH, float rowH)
-		{
-			float totalHeight = _rows.Count * rowH;
-			float viewHeight = size.Y - headerH;
-			float scrollBarW = Scale(ScrollBarWidth);
-
-			if (totalHeight <= viewHeight)
-				return;
-
-			Vector2 sbPos = new Vector2(pos.X + size.X - scrollBarW, pos.Y + headerH);
-			Vector2 sbSize = new Vector2(scrollBarW, viewHeight);
-
-			// Track
-			UI.Graphics.DrawRectangle(sbPos, sbSize, new FishColor(230, 230, 230, 255));
-
-			// Thumb
-			float thumbRatio = viewHeight / totalHeight;
-			float thumbHeight = Math.Max(20, viewHeight * thumbRatio);
-			float thumbY = sbPos.Y + (_scrollOffset / totalHeight) * (viewHeight - thumbHeight);
-
-			UI.Graphics.DrawRectangle(new Vector2(sbPos.X + 2, thumbY), new Vector2(scrollBarW - 4, thumbHeight), new FishColor(180, 180, 180, 255));
 		}
 
 		#endregion
 
 		#region Input Handling
 
+		private int PickRowFromPosition(Vector2 localPos)
+		{
+			float headerH = Scale(HeaderHeight);
+			if (localPos.Y < headerH) return -1;
+
+			float relY = localPos.Y - headerH - _scrollOffset.Y;
+			int rowIdx = (int)(relY / _rowHeight);
+
+			if (rowIdx < 0 || rowIdx >= _rows.Count)
+				return -1;
+
+			return rowIdx;
+		}
+
 		public override void HandleMouseMove(FishUI UI, FishInputState InState, Vector2 Pos)
 		{
 			base.HandleMouseMove(UI, InState, Pos);
 
 			Vector2 ctrlPos = GetAbsolutePosition();
-			Vector2 size = ScaledSize;
+			Vector2 size = GetAbsoluteSize();
+			Vector2 localPos = Pos - ctrlPos;
 			float headerH = Scale(HeaderHeight);
-			float rowH = Scale(RowHeight);
-			float scrollBarW = ShowScrollBar ? Scale(ScrollBarWidth) : 0;
+			float scrollBarW = (_scrollBar?.Visible ?? false) ? _scrollBar.GetAbsoluteSize().X : 0;
 			float contentWidth = size.X - scrollBarW;
 
 			// Handle column resize dragging
 			if (_resizingColumnIndex >= 0)
 			{
 				float delta = Pos.X - _resizeStartX;
-				float newWidth = Math.Max(_columns[_resizingColumnIndex].MinWidth, _resizeStartWidth + delta / (UI.Settings.UIScale > 0 ? UI.Settings.UIScale : 1f));
+				float scale = UI.Settings.UIScale > 0 ? UI.Settings.UIScale : 1f;
+				float newWidth = Math.Max(_columns[_resizingColumnIndex].MinWidth, _resizeStartWidth + delta / scale);
 				_columns[_resizingColumnIndex].Width = newWidth;
 				return;
 			}
@@ -581,13 +573,13 @@ namespace FishUI.Controls
 
 			// Check header hover
 			_hoveredColumnIndex = -1;
-			if (Pos.Y >= ctrlPos.Y && Pos.Y < ctrlPos.Y + headerH && _hoverResizeColumnIndex < 0)
+			if (localPos.Y >= 0 && localPos.Y < headerH && _hoverResizeColumnIndex < 0)
 			{
-				x = ctrlPos.X;
+				x = 0;
 				for (int i = 0; i < _columns.Count; i++)
 				{
 					float colW = Scale(_columns[i].Width);
-					if (Pos.X >= x && Pos.X < x + colW)
+					if (localPos.X >= x && localPos.X < x + colW)
 					{
 						_hoveredColumnIndex = i;
 						break;
@@ -598,12 +590,9 @@ namespace FishUI.Controls
 
 			// Check row hover
 			_hoveredRowIndex = -1;
-			if (Pos.Y >= ctrlPos.Y + headerH && Pos.X >= ctrlPos.X && Pos.X < ctrlPos.X + contentWidth)
+			if (localPos.X >= 0 && localPos.X < contentWidth && localPos.Y >= headerH)
 			{
-				float relY = Pos.Y - (ctrlPos.Y + headerH) + _scrollOffset;
-				int rowIdx = (int)(relY / rowH);
-				if (rowIdx >= 0 && rowIdx < _rows.Count)
-					_hoveredRowIndex = rowIdx;
+				_hoveredRowIndex = PickRowFromPosition(localPos);
 			}
 		}
 
@@ -615,7 +604,6 @@ namespace FishUI.Controls
 				return;
 
 			Vector2 ctrlPos = GetAbsolutePosition();
-			Vector2 size = ScaledSize;
 			float headerH = Scale(HeaderHeight);
 
 			// Start column resize
@@ -644,43 +632,49 @@ namespace FishUI.Controls
 			// Row click - select
 			if (_hoveredRowIndex >= 0)
 			{
-				bool ctrl = InState.CtrlDown;
-				bool shift = InState.ShiftDown;
+				HandleRowSelection(InState);
+			}
+		}
 
-				if (MultiSelect)
+		private void HandleRowSelection(FishInputState InState)
+		{
+			if (_hoveredRowIndex < 0) return;
+
+			if (MultiSelect)
+			{
+				if (InState.CtrlDown)
 				{
-					if (shift && _selectionAnchor >= 0)
-					{
-						// Range select
-						_selectedIndices.Clear();
-						int start = Math.Min(_selectionAnchor, _hoveredRowIndex);
-						int end = Math.Max(_selectionAnchor, _hoveredRowIndex);
-						for (int i = start; i <= end; i++)
-							_selectedIndices.Add(i);
-					}
-					else if (ctrl)
-					{
-						// Toggle select
-						if (_selectedIndices.Contains(_hoveredRowIndex))
-							_selectedIndices.Remove(_hoveredRowIndex);
-						else
-							_selectedIndices.Add(_hoveredRowIndex);
-						_selectionAnchor = _hoveredRowIndex;
-					}
+					// Toggle selection
+					if (_selectedIndices.Contains(_hoveredRowIndex))
+						_selectedIndices.Remove(_hoveredRowIndex);
 					else
-					{
-						// Single select
-						_selectedIndices.Clear();
 						_selectedIndices.Add(_hoveredRowIndex);
-						_selectionAnchor = _hoveredRowIndex;
-					}
+					_selectionAnchor = _hoveredRowIndex;
 					_selectedIndex = _hoveredRowIndex;
-					OnRowSelected?.Invoke(this, _hoveredRowIndex, _rows[_hoveredRowIndex]);
+				}
+				else if (InState.ShiftDown && _selectionAnchor >= 0)
+				{
+					// Range select
+					_selectedIndices.Clear();
+					int start = Math.Min(_selectionAnchor, _hoveredRowIndex);
+					int end = Math.Max(_selectionAnchor, _hoveredRowIndex);
+					for (int i = start; i <= end; i++)
+						_selectedIndices.Add(i);
+					_selectedIndex = _hoveredRowIndex;
 				}
 				else
 				{
-					SelectRow(_hoveredRowIndex);
+					// Single select
+					_selectedIndices.Clear();
+					_selectedIndices.Add(_hoveredRowIndex);
+					_selectionAnchor = _hoveredRowIndex;
+					_selectedIndex = _hoveredRowIndex;
 				}
+				OnRowSelected?.Invoke(this, _hoveredRowIndex, _rows[_hoveredRowIndex]);
+			}
+			else
+			{
+				SelectRow(_hoveredRowIndex);
 			}
 		}
 
@@ -694,13 +688,40 @@ namespace FishUI.Controls
 		{
 			base.HandleMouseWheel(UI, InState, Delta);
 
-			float rowH = Scale(RowHeight);
-			float headerH = Scale(HeaderHeight);
-			float viewHeight = ScaledSize.Y - headerH;
-			float totalHeight = _rows.Count * rowH;
+			if (_scrollBar != null && _scrollBar.Visible)
+			{
+				// Delegate to scrollbar
+				if (Delta > 0)
+					_scrollBar.ScrollUp();
+				else if (Delta < 0)
+					_scrollBar.ScrollDown();
+			}
+			else
+			{
+				// Direct scrolling
+				float headerH = Scale(HeaderHeight);
+				float viewHeight = GetAbsoluteSize().Y - headerH;
+				float contentHeight = _rows.Count * _rowHeight;
 
-			_scrollOffset -= Delta * rowH * 3;
-			_scrollOffset = Math.Max(0, Math.Min(_scrollOffset, Math.Max(0, totalHeight - viewHeight)));
+				_scrollOffset.Y += Delta * _rowHeight * 3;
+
+				float maxScroll = 0;
+				float minScroll = Math.Min(0, viewHeight - contentHeight);
+				_scrollOffset.Y = Math.Clamp(_scrollOffset.Y, minScroll, maxScroll);
+			}
+		}
+
+		public override void HandleKeyPress(FishUI UI, FishInputState InState, FishKey Key)
+		{
+			base.HandleKeyPress(UI, InState, Key);
+
+			if (_selectedIndex >= 0 && _selectedIndex < _rows.Count)
+			{
+				if (Key == FishKey.Up)
+					SelectRow(_selectedIndex - 1);
+				else if (Key == FishKey.Down)
+					SelectRow(_selectedIndex + 1);
+			}
 		}
 
 		#endregion
