@@ -175,9 +175,6 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [ ] MultiLine textbox example (separate demo)
   - Add single line and multi line 
   - Requires multi-line textbox mode implementation
-- [ ] SampleLineChart improvements
-  - Add 4th series with slow updates (1.5s interval) for interpolation testing
-  - Double chart width, move temperature monitor below main chart
 
 ---
 
@@ -284,7 +281,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - SampleListBox: Dedicated ListBox demo (alternating colors, multi-select, custom rendering)
 - SampleBasicControls refactored: Focused on input controls (Textbox, Sliders, NumericUpDown, etc.)
 - Sample chooser: Replaced button grid with ListBox for better scalability
-- SampleLineChart: Real-time data visualization with multiple series, sine wave, noise, and temperature monitor
+- SampleLineChart: Real-time data visualization with multiple series, sine wave, noise, temperature monitor, 4th slow series (1.5s interval), wider chart layout
 
 ### Code Cleanup
 - ScreenCapture platform compatibility, YamlIgnore audit, naming conventions, XML docs, screenshot buttons, TODO extraction, debug flags refactor

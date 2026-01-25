@@ -11,11 +11,12 @@ namespace FishUIDemos
 	/// </summary>
 	public class SampleLineChart : ISample
 	{
-		FishUI.FishUI FUI;
+	FishUI.FishUI FUI;
 		LineChart chart;
 		LineChartSeries sineWaveSeries;
 		LineChartSeries noisySeries;
 		LineChartSeries randomSeries;
+		LineChartSeries slowSeries;
 		Label cursorValueLabel;
 		Random random = new Random();
 		float time = 0f;
@@ -63,9 +64,9 @@ namespace FishUIDemos
 		chartLabel.Alignment = Align.Left;
 			FUI.AddControl(chartLabel);
 
-		chart = new LineChart();
+	chart = new LineChart();
 			chart.Position = new Vector2(20, 90);
-			chart.Size = new Vector2(500, 250);
+			chart.Size = new Vector2(760, 250);
 			chart.MinValue = -1.5f;
 			chart.MaxValue = 1.5f;
 			chart.TimeWindow = 10f;
@@ -88,56 +89,72 @@ namespace FishUIDemos
 			randomSeries = chart.AddSeries("Random Walk", new FishColor(100, 150, 255, 255));
 			randomSeries.LineThickness = 1.5f;
 
-			// === Legend ===
+			slowSeries = chart.AddSeries("Slow (1.5s)", new FishColor(255, 200, 50, 255));
+			slowSeries.LineThickness = 2.5f;
+
+		// === Legend ===
 			Label legendLabel = new Label("Legend:");
-			legendLabel.Position = new Vector2(540, 90);
+			legendLabel.Position = new Vector2(20, 350);
 			legendLabel.Size = new Vector2(100, 20);
 			legendLabel.Alignment = Align.Left;
 			FUI.AddControl(legendLabel);
 
 			// Sine wave legend
 			Panel sineLegendColor = new Panel();
-			sineLegendColor.Position = new Vector2(540, 115);
-			sineLegendColor.Size = new Vector2(20, 10);
+			sineLegendColor.Position = new Vector2(80, 353);
+			sineLegendColor.Size = new Vector2(15, 10);
 			sineLegendColor.Color = sineWaveSeries.Color;
 			FUI.AddControl(sineLegendColor);
 
-			Label sineLegendLabel = new Label("Sine Wave");
-			sineLegendLabel.Position = new Vector2(565, 110);
-			sineLegendLabel.Size = new Vector2(100, 20);
+			Label sineLegendLabel = new Label("Sine");
+			sineLegendLabel.Position = new Vector2(100, 348);
+			sineLegendLabel.Size = new Vector2(50, 20);
 			sineLegendLabel.Alignment = Align.Left;
 			FUI.AddControl(sineLegendLabel);
 
 			// Noisy sine legend
 			Panel noisyLegendColor = new Panel();
-			noisyLegendColor.Position = new Vector2(540, 140);
-			noisyLegendColor.Size = new Vector2(20, 10);
+			noisyLegendColor.Position = new Vector2(150, 353);
+			noisyLegendColor.Size = new Vector2(15, 10);
 			noisyLegendColor.Color = noisySeries.Color;
 			FUI.AddControl(noisyLegendColor);
 
-			Label noisyLegendLabel = new Label("Noisy Sine");
-			noisyLegendLabel.Position = new Vector2(565, 135);
-			noisyLegendLabel.Size = new Vector2(100, 20);
+			Label noisyLegendLabel = new Label("Noisy");
+			noisyLegendLabel.Position = new Vector2(170, 348);
+			noisyLegendLabel.Size = new Vector2(50, 20);
 			noisyLegendLabel.Alignment = Align.Left;
 			FUI.AddControl(noisyLegendLabel);
 
 		// Random walk legend
 			Panel randomLegendColor = new Panel();
-			randomLegendColor.Position = new Vector2(540, 165);
-			randomLegendColor.Size = new Vector2(20, 10);
+			randomLegendColor.Position = new Vector2(225, 353);
+			randomLegendColor.Size = new Vector2(15, 10);
 			randomLegendColor.Color = randomSeries.Color;
 			FUI.AddControl(randomLegendColor);
 
-			Label randomLegendLabel = new Label("Random Walk");
-			randomLegendLabel.Position = new Vector2(565, 160);
-			randomLegendLabel.Size = new Vector2(100, 20);
+			Label randomLegendLabel = new Label("Random");
+			randomLegendLabel.Position = new Vector2(245, 348);
+			randomLegendLabel.Size = new Vector2(60, 20);
 			randomLegendLabel.Alignment = Align.Left;
 			FUI.AddControl(randomLegendLabel);
 
+			// Slow series legend
+			Panel slowLegendColor = new Panel();
+			slowLegendColor.Position = new Vector2(310, 353);
+			slowLegendColor.Size = new Vector2(15, 10);
+			slowLegendColor.Color = slowSeries.Color;
+			FUI.AddControl(slowLegendColor);
+
+			Label slowLegendLabel = new Label("Slow(1.5s)");
+			slowLegendLabel.Position = new Vector2(330, 348);
+			slowLegendLabel.Size = new Vector2(80, 20);
+			slowLegendLabel.Alignment = Align.Left;
+			FUI.AddControl(slowLegendLabel);
+
 			// Cursor values display
 			Label cursorLabel = new Label("Cursor: Click chart to select");
-			cursorLabel.Position = new Vector2(540, 190);
-			cursorLabel.Size = new Vector2(250, 20);
+			cursorLabel.Position = new Vector2(430, 348);
+			cursorLabel.Size = new Vector2(350, 20);
 			cursorLabel.Alignment = Align.Left;
 			FUI.AddControl(cursorLabel);
 			cursorValueLabel = cursorLabel;
@@ -153,9 +170,9 @@ namespace FishUIDemos
 				cursorValueLabel.Text = text;
 			};
 
-			// === Controls Section ===
+		// === Controls Section ===
 			Label controlsLabel = new Label("Chart Settings:");
-			controlsLabel.Position = new Vector2(20, 360);
+			controlsLabel.Position = new Vector2(20, 375);
 			controlsLabel.Size = new Vector2(150, 24);
 			controlsLabel.Alignment = Align.Left;
 			FUI.AddControl(controlsLabel);
@@ -164,13 +181,13 @@ namespace FishUIDemos
 
 			// Time window slider
 			Label timeWindowLabel = new Label("Time Window:");
-			timeWindowLabel.Position = new Vector2(20, 390);
+			timeWindowLabel.Position = new Vector2(20, 405);
 			timeWindowLabel.Size = new Vector2(100, 20);
 			timeWindowLabel.Alignment = Align.Left;
 			FUI.AddControl(timeWindowLabel);
 
 			Slider timeWindowSlider = new Slider();
-			timeWindowSlider.Position = new Vector2(130, 390);
+			timeWindowSlider.Position = new Vector2(130, 405);
 			timeWindowSlider.Size = new Vector2(150, 20);
 			timeWindowSlider.MinValue = 5f;
 			timeWindowSlider.MaxValue = 30f;
@@ -179,7 +196,7 @@ namespace FishUIDemos
 			FUI.AddControl(timeWindowSlider);
 
 		Label timeWindowValueLabel = new Label($"{chart.TimeWindow:F0}s");
-			timeWindowValueLabel.Position = new Vector2(290, 390);
+			timeWindowValueLabel.Position = new Vector2(290, 405);
 			timeWindowValueLabel.Size = new Vector2(50, 20);
 			timeWindowValueLabel.Alignment = Align.Left;
 			timeWindowSlider.OnValueChanged += (slider, val) => timeWindowValueLabel.Text = $"{val:F0}s";
@@ -188,7 +205,7 @@ namespace FishUIDemos
 			// Pause/Resume button
 			Button pauseBtn = new Button();
 			pauseBtn.Text = "Pause";
-			pauseBtn.Position = new Vector2(360, 385);
+			pauseBtn.Position = new Vector2(360, 400);
 			pauseBtn.Size = new Vector2(70, 30);
 			pauseBtn.OnButtonPressed += (btn, mbtn, pos) =>
 			{
@@ -200,7 +217,7 @@ namespace FishUIDemos
 			// Clear button
 			Button clearBtn = new Button();
 			clearBtn.Text = "Clear";
-			clearBtn.Position = new Vector2(435, 385);
+			clearBtn.Position = new Vector2(435, 400);
 			clearBtn.Size = new Vector2(70, 30);
 			clearBtn.OnButtonPressed += (btn, mbtn, pos) =>
 			{
@@ -213,7 +230,7 @@ namespace FishUIDemos
 
 			// Grid toggle
 			CheckBox showGridCheckbox = new CheckBox("Show Grid");
-			showGridCheckbox.Position = new Vector2(20, 420);
+			showGridCheckbox.Position = new Vector2(520, 405);
 			showGridCheckbox.Size = new Vector2(15, 15);
 			showGridCheckbox.IsChecked = true;
 			showGridCheckbox.OnCheckedChanged += (cb, chk) =>
@@ -225,7 +242,7 @@ namespace FishUIDemos
 
 			// Labels toggle
 			CheckBox showLabelsCheckbox = new CheckBox("Show Labels");
-			showLabelsCheckbox.Position = new Vector2(120, 420);
+			showLabelsCheckbox.Position = new Vector2(620, 405);
 			showLabelsCheckbox.Size = new Vector2(15, 15);
 			showLabelsCheckbox.IsChecked = true;
 			showLabelsCheckbox.OnCheckedChanged += (cb, chk) =>
@@ -237,14 +254,14 @@ namespace FishUIDemos
 
 			// === Second Chart - Temperature Style ===
 			Label tempLabel = new Label("Temperature Monitor Style");
-			tempLabel.Position = new Vector2(540, 200);
+			tempLabel.Position = new Vector2(20, 440);
 			tempLabel.Size = new Vector2(200, 24);
 			tempLabel.Alignment = Align.Left;
 			FUI.AddControl(tempLabel);
 
 			LineChart tempChart = new LineChart();
-			tempChart.Position = new Vector2(540, 230);
-			tempChart.Size = new Vector2(250, 150);
+			tempChart.Position = new Vector2(20, 470);
+			tempChart.Size = new Vector2(760, 120);
 			tempChart.MinValue = 20f;
 			tempChart.MaxValue = 80f;
 			tempChart.TimeWindow = 60f;
@@ -266,18 +283,21 @@ namespace FishUIDemos
 			this.gpuTemp = gpuTemp;
 		}
 
-		LineChart tempChart;
+	LineChart tempChart;
 		LineChartSeries cpuTemp;
 		LineChartSeries gpuTemp;
 		float randomWalkValue = 0f;
 		float tempTime = 0f;
 		float sampleTime = 0f;
+		float slowTime = 0f;
+		float slowValue = 0f;
 
 		public void Update(float Dt)
 		{
 			time += Dt;
 			tempTime += Dt;
 			sampleTime += Dt;
+			slowTime += Dt;
 
 
 			// Update main chart
@@ -302,6 +322,14 @@ namespace FishUIDemos
 				randomWalkValue += (float)(random.NextDouble() - 0.5) * 0.1f;
 				randomWalkValue = Math.Clamp(randomWalkValue, -1.2f, 1.2f);
 				randomSeries.AddPoint(time, randomWalkValue);
+			}
+
+			// Slow series - update every 1.5 seconds for interpolation testing
+			if (slowTime >= 1.5f)
+			{
+				slowTime = 0f;
+				slowValue = (float)Math.Sin(time * 0.5) * 0.8f + (float)(random.NextDouble() - 0.5) * 0.3f;
+				slowSeries.AddPoint(time, slowValue);
 			}
 
 			// Update temperature chart (slower updates)
