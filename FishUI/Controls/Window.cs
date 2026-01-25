@@ -55,13 +55,13 @@ namespace FishUI.Controls
 		/// </summary>
 		public bool ShowCloseButton
 		{
-		get => _titlebar?.ShowCloseButton ?? _showCloseButton;
-		set
-		{
-		_showCloseButton = value;
-		if (_titlebar != null)
-		_titlebar.ShowCloseButton = value;
-		}
+			get => _titlebar?.ShowCloseButton ?? _showCloseButton;
+			set
+			{
+				_showCloseButton = value;
+				if (_titlebar != null)
+					_titlebar.ShowCloseButton = value;
+			}
 		}
 		private bool _showCloseButton = true;
 
@@ -72,13 +72,13 @@ namespace FishUI.Controls
 		/// </summary>
 		public bool CloseButtonEnabled
 		{
-		get => _titlebar?.CloseButtonEnabled ?? _closeButtonEnabled;
-		set
-		{
-		_closeButtonEnabled = value;
-		if (_titlebar != null)
-		_titlebar.CloseButtonEnabled = value;
-		}
+			get => _titlebar?.CloseButtonEnabled ?? _closeButtonEnabled;
+			set
+			{
+				_closeButtonEnabled = value;
+				if (_titlebar != null)
+					_titlebar.CloseButtonEnabled = value;
+			}
 		}
 		private bool _closeButtonEnabled = true;
 
@@ -88,15 +88,15 @@ namespace FishUI.Controls
 		/// </summary>
 		public bool IsModal
 		{
-		get => _isModal;
-		set
-		{
-		_isModal = value;
-		if (value)
-		{
-		CloseButtonEnabled = false;
-		}
-		}
+			get => _isModal;
+			set
+			{
+				_isModal = value;
+				if (value)
+				{
+					CloseButtonEnabled = false;
+				}
+			}
 		}
 		private bool _isModal = false;
 
@@ -202,17 +202,17 @@ namespace FishUI.Controls
 			UpdateInternalSizes();
 		}
 
-	private void CreateInternalControls()
+		private void CreateInternalControls()
 		{
-		// Create titlebar
-		_titlebar = new Titlebar(_title)
-		{
-		Position = new Vector2(0, 0),
-		Size = new Vector2(Size.X, TitlebarHeight),
-		ShowCloseButton = _showCloseButton,
-		CloseButtonEnabled = _closeButtonEnabled,
-		IsActive = _isActive
-		};
+			// Create titlebar
+			_titlebar = new Titlebar(_title)
+			{
+				Position = new Vector2(0, 0),
+				Size = new Vector2(Size.X, TitlebarHeight),
+				ShowCloseButton = _showCloseButton,
+				CloseButtonEnabled = _closeButtonEnabled,
+				IsActive = _isActive
+			};
 
 			_titlebar.OnCloseClicked += (tb) => Close();
 			_titlebar.OnTitlebarDragged += (tb, delta) =>
@@ -237,7 +237,7 @@ namespace FishUI.Controls
 		}
 
 
-	private void UpdateInternalSizes()
+		private void UpdateInternalSizes()
 		{
 			if (_titlebar != null)
 				_titlebar.Size = new Vector2(Size.X, TitlebarHeight);
@@ -301,7 +301,7 @@ namespace FishUI.Controls
 			if (!args.Cancel)
 			{
 				Visible = false;
-			OnClosed?.Invoke(this);
+				OnClosed?.Invoke(this);
 
 				// Clear modal if this was the modal window
 				if (FishUI?.ModalControl == this)
@@ -503,7 +503,7 @@ namespace FishUI.Controls
 		/// <summary>
 		/// Called after deserialization to reinitialize internal references.
 		/// </summary>
-		public override void OnDeserialized()
+		public override void OnDeserialized(FishUI UI)
 		{
 			// Find the titlebar and content panel in children
 			_titlebar = null;
@@ -531,7 +531,7 @@ namespace FishUI.Controls
 			}
 
 			// Call base to handle children recursively
-			base.OnDeserialized();
+			base.OnDeserialized(UI);
 		}
 	}
 }

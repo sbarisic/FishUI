@@ -124,7 +124,7 @@ namespace FishUI
 				if (Obj is Control C)
 				{
 					LinkParents(C);
-					C.OnDeserialized();
+					C.OnDeserialized(UI);
 					UI.AddControl(C);
 				}
 			}

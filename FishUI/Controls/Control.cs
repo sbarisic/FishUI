@@ -775,16 +775,17 @@ namespace FishUI.Controls
 		{
 		}
 
-		/// <summary>
+	/// <summary>
 		/// Called after this control and its children have been deserialized from a layout file.
-		/// Override this to reinitialize internal state that depends on child controls.
+		/// Override this to reinitialize internal state that depends on child controls or load resources.
 		/// </summary>
-		public virtual void OnDeserialized()
+		/// <param name="UI">The FishUI instance for loading resources.</param>
+		public virtual void OnDeserialized(FishUI UI)
 		{
 			// Call OnDeserialized on all children
 			foreach (var child in Children)
 			{
-				child.OnDeserialized();
+				child.OnDeserialized(UI);
 			}
 		}
 

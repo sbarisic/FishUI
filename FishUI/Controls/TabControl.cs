@@ -385,7 +385,7 @@ namespace FishUI.Controls
 		/// Called after deserialization to rebuild the TabPages list from children.
 		/// Uses stored TabNames to preserve tab names across serialization.
 		/// </summary>
-		public override void OnDeserialized()
+		public override void OnDeserialized(FishUI UI)
 		{
 			// Clear and rebuild TabPages from child panels
 			TabPages.Clear();
@@ -418,7 +418,7 @@ namespace FishUI.Controls
 			UpdateContentVisibility();
 
 			// Call base to handle children recursively
-			base.OnDeserialized();
+			base.OnDeserialized(UI);
 		}
 	}
 }

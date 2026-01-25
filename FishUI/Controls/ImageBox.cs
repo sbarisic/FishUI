@@ -60,6 +60,12 @@ namespace FishUI.Controls
 		public ImageRef Image { get; set; }
 
 		/// <summary>
+		/// Path to the image file. Used for serialization - the image is loaded on deserialization.
+		/// </summary>
+		[YamlMember]
+		public string ImagePath { get; set; }
+
+		/// <summary>
 		/// How the image should be scaled within the control bounds.
 		/// </summary>
 		public ImageScaleMode ScaleMode { get; set; } = ImageScaleMode.Stretch;
@@ -89,7 +95,7 @@ namespace FishUI.Controls
 		}
 
 
-	public override void DrawControl(FishUI UI, float Dt, float Time)
+		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
 			if (Image == null)
 				return;
@@ -167,6 +173,20 @@ namespace FishUI.Controls
 			base.HandleMouseClick(UI, InState, Btn, Pos);
 
 			OnClick?.Invoke(this, Btn, Pos);
+		}
+
+		/// <summary>
+		/// Called after deserialization to load the image from ImagePath.
+		/// </summary>
+		public override void OnDeserialized(FishUI UI)
+		{
+			base.OnDeserialized(UI);
+
+			// Load image from path if specified
+			if (!string.IsNullOrEmpty(ImagePath) && Image == null)
+			{
+				Image = UI.Graphics.LoadImage(ImagePath);
+			}
 		}
 	}
 }

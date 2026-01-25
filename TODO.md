@@ -154,9 +154,6 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Serialization
 - [ ] Figure out how to handle events in serialization, extend the Event system?
-- [ ] Image reference serialization (3 CPX)
-  - Icons/images (Button.Icon, etc.) not preserved across Save/Load Layout
-  - Need mechanism to reference images by file path or ID in layout files
 
 ---
 
@@ -196,7 +193,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-*No uncategorized items*
+- Add selection to multiline editbox, similar to how regular textbox works
 
 ---
 
@@ -218,7 +215,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - MenuBar - Horizontal menu strip with dropdown menus, hover switching, submenus
 - ImageBox, StaticText, VUMeter, AnimatedImageBox - Display controls
 - Timeline - Time range navigation control with draggable view window, pan/resize, LineChart companion
-- MultiLineEditbox - Multi-line text editor with line numbers, scrolling, cursor navigation, read-only mode
+- MultiLineEditbox - Multi-line text editor with line numbers, smooth pixel-based scrolling, ScrollBarV integration, cursor navigation, read-only mode
 - MenuItem, RadialGauge, BarGauge - Menu items and gauge controls
 - ScrollablePane - Container with automatic scrollbars and virtual scrolling
 - ItemListbox - Listbox with custom item widgets
@@ -243,6 +240,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - BarGauge: Black tick marks, dashboard styling (larger size, range labels)
 - RadialGauge: Black text/ticks, wider draw angle (~260° sweep)
 - PropertyGrid: Vector2/Vector3/Vector4 component editors with X/Y/Z/W fields
+- Timeline: White label color for dark backgrounds
+- Button/ImageBox: IconPath/ImagePath properties for serialization with OnDeserialized image loading
 
 ### Core Framework
 - Scalable UI - UIScale property in FishUISettings (default 1.0), Scale helper methods, all controls respect scaling factor via GetAbsolutePosition/GetAbsoluteSize
@@ -273,6 +272,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - Sample chooser: Replaced button grid with ListBox for better scalability
 - SampleLineChart: Real-time data visualization with multiple series, sine wave, noise, temperature monitor, 4th slow series (1.5s interval), wider chart layout
 - SampleMultiLineEditbox: Multi-line text editor demo with editable editor, read-only log viewer, simple editor examples
+- SampleSerialization: Layout serialization demo showing IconPath/ImagePath properties for image preservation
 
 ### Code Cleanup
 - ScreenCapture platform compatibility, YamlIgnore audit, naming conventions, XML docs, screenshot buttons, TODO extraction, debug flags refactor

@@ -34,11 +34,19 @@ namespace FishUI.Controls
 		public string Text;
 
 
+
+
 		/// <summary>
 		/// Icon image to display on the button. When set, the icon is rendered alongside or instead of text.
 		/// </summary>
 		[YamlIgnore]
 		public ImageRef Icon;
+
+		/// <summary>
+		/// Path to the icon image file. Used for serialization - the image is loaded on deserialization.
+		/// </summary>
+		[YamlMember]
+		public string IconPath { get; set; }
 
 		/// <summary>
 		/// Position of the icon relative to the text.
@@ -348,6 +356,20 @@ namespace FishUI.Controls
 			}
 
 			//DrawChildren(UI, Dt, Time);
+		}
+
+		/// <summary>
+		/// Called after deserialization to load the icon from IconPath.
+		/// </summary>
+		public override void OnDeserialized(FishUI UI)
+		{
+			base.OnDeserialized(UI);
+
+			// Load icon from path if specified
+			if (!string.IsNullOrEmpty(IconPath) && Icon == null)
+			{
+				Icon = UI.Graphics.LoadImage(IconPath);
+			}
 		}
 	}
 }
