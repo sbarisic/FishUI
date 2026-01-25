@@ -97,6 +97,8 @@ namespace FishUISample
 				}
 
 				FishUISettings UISettings = new FishUISettings();
+				UISettings.UIScale = 1.0f;
+
 				RaylibGfx Gfx = new RaylibGfx(1920, 1080, "FishUI - " + Cur.Name);
 				IFishUIInput Input = new RaylibInput();
 				IFishUIEvents Events = new EvtHandler();

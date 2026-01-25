@@ -77,10 +77,36 @@ namespace FishUI.Controls
 
 
 		/// <summary>
-		/// Size of the control in pixels.
+		/// Size of the control in logical pixels (unscaled).
 		/// </summary>
 		[YamlMember]
 		public Vector2 Size;
+
+		/// <summary>
+		/// Gets the scaled size of this control based on the global UIScale factor.
+		/// </summary>
+		[YamlIgnore]
+		public Vector2 ScaledSize => FishUI?.Settings?.Scale(Size) ?? Size;
+
+		/// <summary>
+		/// Scales a value by the current UIScale factor.
+		/// </summary>
+		/// <param name="value">The value to scale.</param>
+		/// <returns>The scaled value.</returns>
+		protected float Scale(float value) => FishUI?.Settings?.Scale(value) ?? value;
+
+		/// <summary>
+		/// Scales a Vector2 by the current UIScale factor.
+		/// </summary>
+		/// <param name="value">The vector to scale.</param>
+		/// <returns>The scaled vector.</returns>
+		protected Vector2 Scale(Vector2 value) => FishUI?.Settings?.Scale(value) ?? value;
+
+		/// <summary>
+		/// Gets the current UIScale factor.
+		/// </summary>
+		[YamlIgnore]
+		protected float UIScale => FishUI?.Settings?.UIScale ?? 1.0f;
 
 		/// <summary>
 		/// Margin (outer spacing) around this control. Affects position relative to siblings.
@@ -398,19 +424,19 @@ namespace FishUI.Controls
 
 		/// <summary>
 		/// Gets the absolute position of this control in screen coordinates.
-		/// Accounts for parent Padding, this control's Margin, and Anchor settings.
+		/// Accounts for parent Padding, this control's Margin, Anchor settings, and UI scaling.
 		/// </summary>
-		/// <returns>The absolute position in pixels.</returns>
+		/// <returns>The absolute position in pixels (scaled by UIScale).</returns>
 		public Vector2 GetAbsolutePosition()
 		{
-			// Calculate parent padding offset
+			// Calculate parent padding offset (scaled)
 			Vector2 parentPaddingOffset = Vector2.Zero;
 			Vector2 parentPos = Vector2.Zero;
 			Vector2 parentSize = Vector2.Zero;
 
 			if (Parent != null)
 			{
-				parentPaddingOffset = new Vector2(Parent.Padding.Left, Parent.Padding.Top);
+				parentPaddingOffset = new Vector2(Scale(Parent.Padding.Left), Scale(Parent.Padding.Top));
 				parentPos = Parent.GetAbsolutePosition();
 				parentSize = Parent.GetAbsoluteSize();
 			}
@@ -419,31 +445,31 @@ namespace FishUI.Controls
 				parentSize = new Vector2(FishUI.Width, FishUI.Height);
 			}
 
-			// This control's margin offset
-			Vector2 marginOffset = new Vector2(Margin.Left, Margin.Top);
+			// This control's margin offset (scaled)
+			Vector2 marginOffset = new Vector2(Scale(Margin.Left), Scale(Margin.Top));
 
 			// Calculate base position
 			Vector2 basePos;
 			if (Position.Mode == PositionMode.Absolute)
 			{
-				basePos = new Vector2(Position.X, Position.Y) + marginOffset;
+				basePos = new Vector2(Scale(Position.X), Scale(Position.Y)) + marginOffset;
 			}
 			else if (Position.Mode == PositionMode.Relative)
 			{
-				basePos = parentPos + parentPaddingOffset + new Vector2(Position.X, Position.Y) + marginOffset;
+				basePos = parentPos + parentPaddingOffset + new Vector2(Scale(Position.X), Scale(Position.Y)) + marginOffset;
 			}
 			else if (Position.Mode == PositionMode.Docked)
 			{
-				Vector2 DockedPos = parentPos + parentPaddingOffset + new Vector2(Position.X, Position.Y) + marginOffset;
+				Vector2 DockedPos = parentPos + parentPaddingOffset + new Vector2(Scale(Position.X), Scale(Position.Y)) + marginOffset;
 
 				if (Position.Dock.HasFlag(DockMode.Left))
 				{
-					DockedPos.X = parentPos.X + parentPaddingOffset.X + Position.Left + Margin.Left;
+					DockedPos.X = parentPos.X + parentPaddingOffset.X + Scale(Position.Left) + Scale(Margin.Left);
 				}
 
 				if (Position.Dock.HasFlag(DockMode.Top))
 				{
-					DockedPos.Y = parentPos.Y + parentPaddingOffset.Y + Position.Top + Margin.Top;
+					DockedPos.Y = parentPos.Y + parentPaddingOffset.Y + Scale(Position.Top) + Scale(Margin.Top);
 				}
 
 				basePos = DockedPos;
@@ -451,13 +477,13 @@ namespace FishUI.Controls
 			else
 			{
 				// Fallback for unknown position modes - treat as absolute position
-				basePos = new Vector2(Position.X, Position.Y) + marginOffset;
+				basePos = new Vector2(Scale(Position.X), Scale(Position.Y)) + marginOffset;
 			}
 
 			// Apply anchor adjustments if parent exists and anchored to right or bottom
 			if (Parent != null && Anchor != FishUIAnchor.None && Anchor != FishUIAnchor.TopLeft)
 			{
-				Vector2 sizeDelta = parentSize - AnchorParentSize;
+				Vector2 sizeDelta = parentSize - Scale(AnchorParentSize);
 
 				// Right anchor: adjust X position based on parent width change
 				if (Anchor.HasFlag(FishUIAnchor.Right) && !Anchor.HasFlag(FishUIAnchor.Left))
@@ -494,12 +520,13 @@ namespace FishUI.Controls
 		}
 
 		/// <summary>
-		/// Gets the absolute size of this control, accounting for docked positioning, margins, and anchor stretching.
+		/// Gets the absolute size of this control, accounting for docked positioning, margins, anchor stretching, and UI scaling.
 		/// </summary>
-		/// <returns>The actual size in pixels.</returns>
+		/// <returns>The actual size in pixels (scaled by UIScale).</returns>
 		public Vector2 GetAbsoluteSize()
 		{
-			Vector2 resultSize = Size;
+			// Apply UI scaling to the base size
+			Vector2 resultSize = Scale(Size);
 
 			// Handle docked positioning
 			if (Position.Mode == PositionMode.Docked)
@@ -522,8 +549,8 @@ namespace FishUI.Controls
 				}
 				else
 				{
-					// No parent and no FishUI - return default size
-					return Size;
+					// No parent and no FishUI - return scaled size
+					return Scale(Size);
 				}
 
 				Vector2 MyPos = GetAbsolutePosition();
@@ -534,15 +561,15 @@ namespace FishUI.Controls
 				if (Position.Dock.HasFlag(DockMode.Right))
 				{
 					float FullChildWidth = ParentSize.X - SubX;
-					// Account for parent right padding and this control's right margin
-					resultSize.X = FullChildWidth - Position.Right - parentPadding.Right - Margin.Right;
+					// Account for parent right padding and this control's right margin (scaled)
+					resultSize.X = FullChildWidth - Scale(Position.Right) - Scale(parentPadding.Right) - Scale(Margin.Right);
 				}
 
 				if (Position.Dock.HasFlag(DockMode.Bottom))
 				{
 					float FullChildHeight = ParentSize.Y - SubY;
-					// Account for parent bottom padding and this control's bottom margin
-					resultSize.Y = FullChildHeight - Position.Bottom - parentPadding.Bottom - Margin.Bottom;
+					// Account for parent bottom padding and this control's bottom margin (scaled)
+					resultSize.Y = FullChildHeight - Scale(Position.Bottom) - Scale(parentPadding.Bottom) - Scale(Margin.Bottom);
 				}
 			}
 
@@ -550,18 +577,18 @@ namespace FishUI.Controls
 			if (Parent != null && Anchor != FishUIAnchor.None && Anchor != FishUIAnchor.TopLeft)
 			{
 				Vector2 parentSize = Parent.GetAbsoluteSize();
-				Vector2 sizeDelta = parentSize - AnchorParentSize;
+				Vector2 sizeDelta = parentSize - Scale(AnchorParentSize);
 
 				// Horizontal stretching: anchored to both left and right
 				if (Anchor.HasFlag(FishUIAnchor.Left) && Anchor.HasFlag(FishUIAnchor.Right))
 				{
-					resultSize.X = Size.X + sizeDelta.X;
+					resultSize.X = Scale(Size.X) + sizeDelta.X;
 				}
 
 				// Vertical stretching: anchored to both top and bottom
 				if (Anchor.HasFlag(FishUIAnchor.Top) && Anchor.HasFlag(FishUIAnchor.Bottom))
 				{
-					resultSize.Y = Size.Y + sizeDelta.Y;
+					resultSize.Y = Scale(Size.Y) + sizeDelta.Y;
 				}
 			}
 

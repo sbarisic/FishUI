@@ -150,10 +150,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ## Core Framework Features
 
 ### Accessibility
-- [ ] Scalable UI (4 CPX) **HIGH PRIORITY**
-  - Implement scaling factor for UI (float value, 1 by default)
-  - Allow users to set global UI scale in FishUI settings
-  - Ensure all controls and layouts respect scaling factor
+
+*Scalable UI completed - see Completed section*
 
 ### Serialization
 - [ ] Figure out how to handle events in serialization, extend the Event system?
@@ -169,7 +167,9 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [ ] MultiLine textbox example (separate demo)
   - Add single line and multi line 
   - Requires multi-line textbox mode implementation
-- [ ] SampleLayoutSystem: Use Window controls instead of Panels for demos (1 CPX)
+- [ ] SampleLayoutSystem: Use Window controls instead of Panels for demos (1 CPX) **HIGH PRIORITY**
+  - Update existing layout system sample to use Window controls
+  - Demonstrate layout features with real controls
 
 ---
 
@@ -263,6 +263,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - PropertyGrid: Vector2/Vector3/Vector4 component editors with X/Y/Z/W fields
 
 ### Core Framework
+- Scalable UI - UIScale property in FishUISettings (default 1.0), Scale helper methods, all controls respect scaling factor via GetAbsolutePosition/GetAbsoluteSize
 - Animation system - Easing functions (14 types), FishUIAnimationManager, tween helpers, Control extensions (FadeIn/Out, SlideIn/Out, AnimatePosition/Size/Opacity, ScaleBounce)
 - Auto-sizing controls - AutoSizeMode (None/Width/Height/Both), GetPreferredSize, Min/MaxSize constraints
 - GridLayout - Grid-based child positioning with configurable columns, spacing, and stretch options
@@ -275,6 +276,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - Theme inheritance: Themes can inherit from parent themes via `inherits` property, child themes only override specific values
 
 ### Samples
+- SampleUIScaling: UI scaling demo with interactive scale slider, preset buttons, various controls
 - SampleAnimations: Animation system demo with fade, slide, scale, easing comparisons
 - Sample infrastructure: Split samples, runner loop, GUI-based chooser, theme switcher, game menu
 - GUI sample chooser: FishUI-based sample selector replacing console menu (self-dogfooding)

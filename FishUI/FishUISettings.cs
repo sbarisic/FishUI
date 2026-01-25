@@ -26,20 +26,58 @@ namespace FishUI
 		public event Action<FishUITheme> OnThemeChanged;
 
 		// Public settings
+
+		/// <summary>
+		/// Global UI scale factor. All UI elements will be scaled by this value.
+		/// Default is 1.0 (no scaling). Values greater than 1.0 make the UI larger.
+		/// </summary>
+		public float UIScale { get; set; } = 1.0f;
+
+		/// <summary>
+		/// Scales a value by the current UIScale factor.
+		/// </summary>
+		/// <param name="value">The value to scale.</param>
+		/// <returns>The scaled value.</returns>
+		public float Scale(float value) => value * UIScale;
+
+		/// <summary>
+		/// Scales a Vector2 by the current UIScale factor.
+		/// </summary>
+		/// <param name="value">The vector to scale.</param>
+		/// <returns>The scaled vector.</returns>
+		public System.Numerics.Vector2 Scale(System.Numerics.Vector2 value) => value * UIScale;
+
+		/// <summary>
+		/// Scales an integer value by the current UIScale factor and rounds to nearest integer.
+		/// </summary>
+		/// <param name="value">The value to scale.</param>
+		/// <returns>The scaled value as an integer.</returns>
+		public int ScaleInt(int value) => (int)Math.Round(value * UIScale);
+
 		/// <summary>
 		/// Spacing between font characters.
 		/// </summary>
 		public int FontSpacing { get; set; } = 0;
 
 		/// <summary>
-		/// Default font size in pixels.
+		/// Default font size in pixels (unscaled).
 		/// </summary>
 		public int FontSize { get; set; } = 14;
 
 		/// <summary>
-		/// Font size for labels in pixels.
+		/// Font size for labels in pixels (unscaled).
 		/// </summary>
 		public int FontSizeLabel { get; set; } = 14;
+
+		/// <summary>
+		/// Gets the scaled default font size based on UIScale.
+		/// </summary>
+		public float ScaledFontSize => FontSize * UIScale;
+
+		/// <summary>
+		/// Gets the scaled label font size based on UIScale.
+		/// </summary>
+		public float ScaledFontSizeLabel => FontSizeLabel * UIScale;
 
 
 		// Fonts
@@ -273,13 +311,13 @@ namespace FishUI
 			string FontFolder = "data/fonts/";
 			string SBFolder = "data/sb/";
 
-			// Fonts
-			FontDefault = UI.Graphics.LoadFont(FontFolder + "ubuntu_mono.ttf", FontSize, FontSpacing, FishColor.Black);
-			FontDefaultBold = UI.Graphics.LoadFont(FontFolder + "ubuntu_mono_bold.ttf", FontSize, FontSpacing, FishColor.Black);
+			// Fonts (using scaled font sizes)
+			FontDefault = UI.Graphics.LoadFont(FontFolder + "ubuntu_mono.ttf", ScaledFontSize, FontSpacing, FishColor.Black);
+			FontDefaultBold = UI.Graphics.LoadFont(FontFolder + "ubuntu_mono_bold.ttf", ScaledFontSize, FontSpacing, FishColor.Black);
 
-			FontTextboxDefault = UI.Graphics.LoadFont(FontFolder + "ubuntu_mono.ttf", FontSize, FontSpacing, FishColor.Black);
+			FontTextboxDefault = UI.Graphics.LoadFont(FontFolder + "ubuntu_mono.ttf", ScaledFontSize, FontSpacing, FishColor.Black);
 
-			FontLabel = UI.Graphics.LoadFont(FontFolder + "ubuntu_mono.ttf", FontSizeLabel, FontSpacing, FishColor.Black);
+			FontLabel = UI.Graphics.LoadFont(FontFolder + "ubuntu_mono.ttf", ScaledFontSizeLabel, FontSpacing, FishColor.Black);
 
 			//
 			ImgButtonNormal = new NPatch(UI, DataFolder + "button_normal.png", 2, 2, 2, 2);
