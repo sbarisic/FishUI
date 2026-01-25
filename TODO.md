@@ -118,9 +118,8 @@ A list of planned features, improvements, and new controls for FishUI.
 - [ ] Vertical cursor with data point selection (2 CPX)
   - Draggable vertical line to select time point
   - Callback with selected time and data values
-- [ ] Pause/resume data recording (1 CPX)
-  - IsPaused property to freeze chart updates
-  - Data still collected but not displayed until resumed
+
+
 
 
 ---
@@ -259,6 +258,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - ImageBox: Pixelated (nearest-neighbor) filter mode for pixel art
 - Input controls: Mouse wheel support for Slider, ScrollBars, NumericUpDown
 - NumericUpDown: Narrower buttons, TabControl serialization, BarGauge styling
+- LineChart: IsPaused property with Pause()/Resume() methods
 - BarGauge: Black tick marks, dashboard styling (larger size, range labels)
 - RadialGauge: Black text/ticks, wider draw angle (~260° sweep)
 - PropertyGrid: Vector2/Vector3/Vector4 component editors with X/Y/Z/W fields

@@ -152,18 +152,30 @@ namespace FishUIDemos
 			timeWindowSlider.OnValueChanged += (slider, val) => chart.TimeWindow = val;
 			FUI.AddControl(timeWindowSlider);
 
-			Label timeWindowValueLabel = new Label($"{chart.TimeWindow:F0}s");
+		Label timeWindowValueLabel = new Label($"{chart.TimeWindow:F0}s");
 			timeWindowValueLabel.Position = new Vector2(290, 390);
 			timeWindowValueLabel.Size = new Vector2(50, 20);
 			timeWindowValueLabel.Alignment = Align.Left;
 			timeWindowSlider.OnValueChanged += (slider, val) => timeWindowValueLabel.Text = $"{val:F0}s";
 			FUI.AddControl(timeWindowValueLabel);
 
+			// Pause/Resume button
+			Button pauseBtn = new Button();
+			pauseBtn.Text = "Pause";
+			pauseBtn.Position = new Vector2(360, 385);
+			pauseBtn.Size = new Vector2(70, 30);
+			pauseBtn.OnButtonPressed += (btn, mbtn, pos) =>
+			{
+				chart.IsPaused = !chart.IsPaused;
+				pauseBtn.Text = chart.IsPaused ? "Resume" : "Pause";
+			};
+			FUI.AddControl(pauseBtn);
+
 			// Clear button
 			Button clearBtn = new Button();
-			clearBtn.Text = "Clear Data";
-			clearBtn.Position = new Vector2(360, 385);
-			clearBtn.Size = new Vector2(100, 30);
+			clearBtn.Text = "Clear";
+			clearBtn.Position = new Vector2(435, 385);
+			clearBtn.Size = new Vector2(70, 30);
 			clearBtn.OnButtonPressed += (btn, mbtn, pos) =>
 			{
 				chart.ClearAllData();

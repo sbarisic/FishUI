@@ -186,17 +186,26 @@ namespace FishUI.Controls
 		[YamlMember]
 		public string YAxisLabelFormat { get; set; } = "F1";
 
-		/// <summary>
+	/// <summary>
 		/// Format string for X-axis labels (time).
 		/// </summary>
 		[YamlMember]
 		public string XAxisLabelFormat { get; set; } = "F1";
 
 		/// <summary>
+		/// Whether the chart is paused. When paused, CurrentTime does not advance
+		/// and the chart display is frozen, but data can still be added to series.
+		/// </summary>
+		[YamlMember]
+		public bool IsPaused { get; set; } = false;
+
+		/// <summary>
 		/// Data series displayed in this chart.
 		/// </summary>
 		[YamlIgnore]
 		public List<LineChartSeries> Series { get; } = new List<LineChartSeries>();
+
+
 
 		public LineChart()
 		{
@@ -236,13 +245,33 @@ namespace FishUI.Controls
 			}
 		}
 
-		/// <summary>
-		/// Advances the current time and optionally adds a data point to a series.
+	/// <summary>
+		/// Advances the current time if the chart is not paused.
 		/// </summary>
 		/// <param name="deltaTime">Time elapsed since last update.</param>
 		public void Update(float deltaTime)
 		{
-			CurrentTime += deltaTime;
+			if (!IsPaused)
+			{
+				CurrentTime += deltaTime;
+			}
+		}
+
+		/// <summary>
+		/// Pauses the chart, freezing the display at the current time.
+		/// Data can still be added to series while paused.
+		/// </summary>
+		public void Pause()
+		{
+			IsPaused = true;
+		}
+
+		/// <summary>
+		/// Resumes the chart, allowing CurrentTime to advance again.
+		/// </summary>
+		public void Resume()
+		{
+			IsPaused = false;
 		}
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
