@@ -323,6 +323,106 @@ namespace FishUIDemos
 					innerStack.AddChild(innerBtn);
 				}
 			}
+
+			// === FlowLayout ===
+			Label flowLabel = new Label("FlowLayout (wrapping)");
+			flowLabel.Position = new Vector2(450, 60);
+			flowLabel.Alignment = Align.Left;
+			FUI.AddControl(flowLabel);
+
+			// Basic FlowLayout - LeftToRight with wrap
+			FlowLayout flowLTR = new FlowLayout();
+			flowLTR.Position = new Vector2(450, 85);
+			flowLTR.Size = new Vector2(180, 120);
+			flowLTR.Direction = FlowDirection.LeftToRight;
+			flowLTR.Wrap = FlowWrap.Wrap;
+			flowLTR.Spacing = 5;
+			flowLTR.WrapSpacing = 5;
+			flowLTR.Padding = 8;
+			flowLTR.IsTransparent = false;
+			FUI.AddControl(flowLTR);
+
+			for (int i = 1; i <= 8; i++)
+			{
+				Button flowBtn = new Button();
+				flowBtn.Text = $"B{i}";
+				flowBtn.Size = new Vector2(40, 28);
+				flowLTR.AddChild(flowBtn);
+			}
+
+			// FlowLayout - RightToLeft
+			Label flowRTLLabel = new Label("RTL Flow");
+			flowRTLLabel.Position = new Vector2(450, 215);
+			flowRTLLabel.Alignment = Align.Left;
+			FUI.AddControl(flowRTLLabel);
+
+			FlowLayout flowRTL = new FlowLayout();
+			flowRTL.Position = new Vector2(450, 240);
+			flowRTL.Size = new Vector2(180, 70);
+			flowRTL.Direction = FlowDirection.RightToLeft;
+			flowRTL.Wrap = FlowWrap.Wrap;
+			flowRTL.Spacing = 5;
+			flowRTL.WrapSpacing = 5;
+			flowRTL.Padding = 8;
+			flowRTL.IsTransparent = false;
+			FUI.AddControl(flowRTL);
+
+			for (char c = 'A'; c <= 'F'; c++)
+			{
+				Button rtlBtn = new Button();
+				rtlBtn.Text = c.ToString();
+				rtlBtn.Size = new Vector2(35, 25);
+				flowRTL.AddChild(rtlBtn);
+			}
+
+			// FlowLayout - TopToBottom vertical flow
+			Label flowTBLabel = new Label("Vertical Flow");
+			flowTBLabel.Position = new Vector2(450, 320);
+			flowTBLabel.Alignment = Align.Left;
+			FUI.AddControl(flowTBLabel);
+
+			FlowLayout flowTB = new FlowLayout();
+			flowTB.Position = new Vector2(450, 345);
+			flowTB.Size = new Vector2(180, 100);
+			flowTB.Direction = FlowDirection.TopToBottom;
+			flowTB.Wrap = FlowWrap.Wrap;
+			flowTB.Spacing = 4;
+			flowTB.WrapSpacing = 8;
+			flowTB.Padding = 6;
+			flowTB.IsTransparent = false;
+			FUI.AddControl(flowTB);
+
+			for (int i = 1; i <= 6; i++)
+			{
+				Button tbBtn = new Button();
+				tbBtn.Text = $"V{i}";
+				tbBtn.Size = new Vector2(50, 25);
+				flowTB.AddChild(tbBtn);
+			}
+
+			// FlowLayout - NoWrap example
+			Label flowNoWrapLabel = new Label("NoWrap (single line)");
+			flowNoWrapLabel.Position = new Vector2(450, 455);
+			flowNoWrapLabel.Alignment = Align.Left;
+			FUI.AddControl(flowNoWrapLabel);
+
+			FlowLayout flowNoWrap = new FlowLayout();
+			flowNoWrap.Position = new Vector2(450, 480);
+			flowNoWrap.Size = new Vector2(180, 45);
+			flowNoWrap.Direction = FlowDirection.LeftToRight;
+			flowNoWrap.Wrap = FlowWrap.NoWrap;
+			flowNoWrap.Spacing = 3;
+			flowNoWrap.Padding = 5;
+			flowNoWrap.IsTransparent = false;
+			FUI.AddControl(flowNoWrap);
+
+			for (int i = 1; i <= 5; i++)
+			{
+				Button nwBtn = new Button();
+				nwBtn.Text = i.ToString();
+				nwBtn.Size = new Vector2(30, 30);
+				flowNoWrap.AddChild(nwBtn);
+			}
 		}
 	}
 }

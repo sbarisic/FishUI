@@ -149,7 +149,6 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ## Core Framework Features
 
 ### Layout System **HIGH PRIORITY**
-- [ ] **FlowLayout** - Automatic horizontal/vertical flow of children (3 CPX)
 - [ ] **GridLayout** - Grid-based child positioning (3 CPX)
 - [ ] Auto-sizing controls based on content (3 CPX)
   - Should work in tandem with Docking/Anchoring
@@ -201,7 +200,12 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-*No uncategorized items*
+- Change the layout demo so the controls are inside windows, not panels
+- 1>E:\Projects\FishUI\FishUI\Controls\ContextMenu.cs(58,23,58,30): warning CS0108: 'ContextMenu.Padding' hides inherited member 'Control.Padding'. Use the new keyword if hiding was intended.
+- 1>E:\Projects\FishUI\FishUI\Controls\FlowLayout.cs(88,16,88,23): warning CS0108: 'FlowLayout.Padding' hides inherited member 'Control.Padding'. Use the new keyword if hiding was intended.
+- 1>E:\Projects\FishUI\FishUI\Controls\StackLayout.cs(45,16,45,23): warning CS0108: 'StackLayout.Padding' hides inherited member 'Control.Padding'. Use the new keyword if hiding was intended.
+- 1>E:\Projects\FishUI\FishUI\Controls\ToggleSwitch.cs(165,9,165,18): warning CS0219: The variable 'useNPatch' is assigned but its value is never used
+- 1>E:\Projects\FishUI\FishUI\Controls\ScrollablePane.cs(85,16,85,34): warning CS0414: The field 'ScrollablePane._scrollBarsCreated' is assigned but its value is never used
 
 ---
 
@@ -245,6 +249,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - PropertyGrid: Vector2/Vector3/Vector4 component editors with X/Y/Z/W fields
 
 ### Core Framework
+- FlowLayout - Automatic horizontal/vertical flow with wrapping (4 directions, 3 wrap modes)
 - StackLayout, Anchor, Margin/Padding - Layout infrastructure
 - Opacity, fonts, image rotation/scaling - Rendering features
 - Shadow rendering: Window and ContextMenu shadow support with configurable offset and size
