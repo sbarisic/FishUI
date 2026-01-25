@@ -202,7 +202,7 @@ namespace FishUIDemos
 			timeWindowSlider.OnValueChanged += (slider, val) => timeWindowValueLabel.Text = $"{val:F0}s";
 			FUI.AddControl(timeWindowValueLabel);
 
-			// Pause/Resume button
+		// Pause/Resume button
 			Button pauseBtn = new Button();
 			pauseBtn.Text = "Pause";
 			pauseBtn.Position = new Vector2(360, 400);
@@ -211,6 +211,14 @@ namespace FishUIDemos
 			{
 				chart.IsPaused = !chart.IsPaused;
 				pauseBtn.Text = chart.IsPaused ? "Resume" : "Pause";
+				
+				// Toggle auto-scroll: when paused, allow manual navigation via timeline
+				chart.AutoScroll = !chart.IsPaused;
+				if (chart.IsPaused)
+				{
+					// Set ViewStart to current view position when pausing
+					chart.ViewStart = chart.CurrentTime - chart.TimeWindow;
+				}
 			};
 			FUI.AddControl(pauseBtn);
 
@@ -282,7 +290,7 @@ namespace FishUIDemos
 			this.cpuTemp = cpuTemp;
 			this.gpuTemp = gpuTemp;
 
-			// === Timeline Control ===
+		// === Timeline Control ===
 			Label timelineLabel = new Label("Timeline (drag window to navigate)");
 			timelineLabel.Position = new Vector2(600, 440);
 			timelineLabel.Size = new Vector2(200, 24);
@@ -299,14 +307,15 @@ namespace FishUIDemos
 			timeline.LabelFormat = "F0";
 			timeline.OnViewChanged += (sender, args) =>
 			{
-				// Sync main chart's time window when timeline changes
+				// Sync main chart's view when timeline changes
 				chart.TimeWindow = args.ViewWidth;
-				// Note: In auto-scroll mode, we can't directly control the view position
-				// This timeline is more of a visualization/demo of the control
+				chart.ViewStart = args.ViewStart;
 			};
 			FUI.AddControl(timeline);
 			this.timeline = timeline;
 		}
+
+
 
 		Timeline timeline;
 		LineChart tempChart;
@@ -325,9 +334,12 @@ namespace FishUIDemos
 			sampleTime += Dt;
 			slowTime += Dt;
 
-			// Update timeline to track current time
+			// Update timeline to track current time (only auto-scroll when not paused)
 			timeline.MaxTime = Math.Max(timeline.MaxTime, time + 5f);
-			timeline.SetViewToEnd(chart.TimeWindow);
+			if (!chart.IsPaused)
+			{
+				timeline.SetViewToEnd(chart.TimeWindow);
+			}
 
 			// Update main chart
 			chart.Update(Dt);

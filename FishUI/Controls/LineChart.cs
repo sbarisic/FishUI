@@ -127,7 +127,7 @@ namespace FishUI.Controls
 	/// </summary>
 	public class LineChart : Control
 	{
-		/// <summary>
+	/// <summary>
 		/// Minimum value on the Y-axis.
 		/// </summary>
 		[YamlMember]
@@ -155,9 +155,17 @@ namespace FishUI.Controls
 
 		/// <summary>
 		/// Whether to auto-scroll the time window as CurrentTime advances.
+		/// When false, use ViewStart to manually set the view position.
 		/// </summary>
 		[YamlMember]
 		public bool AutoScroll { get; set; } = true;
+
+		/// <summary>
+		/// Manual view start time (used when AutoScroll is false).
+		/// The view will show from ViewStart to ViewStart + TimeWindow.
+		/// </summary>
+		[YamlIgnore]
+		public float ViewStart { get; set; } = 0f;
 
 		/// <summary>
 		/// Background color of the chart area.
@@ -477,10 +485,10 @@ namespace FishUI.Controls
 			}
 		}
 
-		private void DrawSeries(FishUI UI, Vector2 chartPos, Vector2 chartSize)
+	private void DrawSeries(FishUI UI, Vector2 chartPos, Vector2 chartSize)
 		{
-			float timeStart = AutoScroll ? CurrentTime - TimeWindow : 0;
-			float timeEnd = AutoScroll ? CurrentTime : TimeWindow;
+			float timeStart = AutoScroll ? CurrentTime - TimeWindow : ViewStart;
+			float timeEnd = AutoScroll ? CurrentTime : ViewStart + TimeWindow;
 
 			foreach (var series in Series)
 			{
@@ -542,13 +550,15 @@ namespace FishUI.Controls
 			}
 		}
 
-		private void DrawXAxisLabels(FishUI UI, Vector2 chartPos, Vector2 chartSize, float labelHeight)
+	private void DrawXAxisLabels(FishUI UI, Vector2 chartPos, Vector2 chartSize, float labelHeight)
 		{
 			var font = UI.Settings.FontDefault;
 			if (font == null) return;
 
-			float timeStart = AutoScroll ? CurrentTime - TimeWindow : 0;
-			float timeEnd = AutoScroll ? CurrentTime : TimeWindow;
+			float timeStart = AutoScroll ? CurrentTime - TimeWindow : ViewStart;
+			float timeEnd = AutoScroll ? CurrentTime : ViewStart + TimeWindow;
+
+
 
 			for (int i = 0; i <= VerticalGridDivisions; i++)
 			{
@@ -565,10 +575,10 @@ namespace FishUI.Controls
 			}
 		}
 
-		private void DrawCursor(FishUI UI, Vector2 chartPos, Vector2 chartSize)
+	private void DrawCursor(FishUI UI, Vector2 chartPos, Vector2 chartSize)
 		{
-			float timeStart = AutoScroll ? CurrentTime - TimeWindow : 0;
-			float timeEnd = AutoScroll ? CurrentTime : TimeWindow;
+			float timeStart = AutoScroll ? CurrentTime - TimeWindow : ViewStart;
+			float timeEnd = AutoScroll ? CurrentTime : ViewStart + TimeWindow;
 
 			// Check if cursor is within visible range
 			if (CursorTime < timeStart || CursorTime > timeEnd)
@@ -604,13 +614,13 @@ namespace FishUI.Controls
 			}
 		}
 
-		/// <summary>
+	/// <summary>
 		/// Converts a screen X position to a time value.
 		/// </summary>
 		private float ScreenXToTime(float screenX)
 		{
-			float timeStart = AutoScroll ? CurrentTime - TimeWindow : 0;
-			float timeEnd = AutoScroll ? CurrentTime : TimeWindow;
+			float timeStart = AutoScroll ? CurrentTime - TimeWindow : ViewStart;
+			float timeEnd = AutoScroll ? CurrentTime : ViewStart + TimeWindow;
 
 			float normalizedX = (screenX - _chartPos.X) / _chartSize.X;
 			normalizedX = Math.Clamp(normalizedX, 0f, 1f);
