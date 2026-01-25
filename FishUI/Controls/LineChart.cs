@@ -237,11 +237,11 @@ namespace FishUI.Controls
 		[YamlMember]
 		public string YAxisLabelFormat { get; set; } = "F1";
 
-		/// <summary>
+	/// <summary>
 		/// Format string for X-axis labels (time).
 		/// </summary>
 		[YamlMember]
-		public string XAxisLabelFormat { get; set; } = "F1";
+		public string XAxisLabelFormat { get; set; } = "F2";
 
 		/// <summary>
 		/// Whether the chart is paused. When paused, CurrentTime does not advance

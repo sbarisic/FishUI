@@ -63,7 +63,7 @@ namespace FishUIDemos
 		chartLabel.Alignment = Align.Left;
 			FUI.AddControl(chartLabel);
 
-			chart = new LineChart();
+		chart = new LineChart();
 			chart.Position = new Vector2(20, 90);
 			chart.Size = new Vector2(500, 250);
 			chart.MinValue = -1.5f;
@@ -73,7 +73,7 @@ namespace FishUIDemos
 			chart.HorizontalGridDivisions = 6;
 			chart.VerticalGridDivisions = 10;
 			chart.YAxisLabelFormat = "F1";
-			chart.XAxisLabelFormat = "F0";
+			chart.XAxisLabelFormat = "F2";
 			chart.ShowCursor = true;
 			chart.CursorColor = new FishColor(255, 50, 50, 200);
 			FUI.AddControl(chart);

@@ -211,7 +211,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-- Make line chart time axis display 2 decimals
+*No uncategorized items*
 
 ---
 
@@ -310,4 +310,4 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - Window: Increased resize handle size, content panel recalculates child anchors on size change
 - ScrollablePane: Input restricted to visible area intersection with parent bounds
 - Misc: ImageBox overlap, ScrollBar mouse wheel, ContextMenu submenu overlap
-- LineChart: Black labels (was light gray), increased MaxPoints (5000), throttled sample rate in demo
+- LineChart: Black labels (was light gray), increased MaxPoints (5000), throttled sample rate in demo, X-axis now uses 2 decimals (F2)
