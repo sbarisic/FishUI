@@ -96,6 +96,12 @@ A list of planned features, improvements, and new controls for FishUI.
   - Text only cell type for now
   - *Use case: Data entry forms, configuration editors*
 
+- [ ] **TimePicker** (2 CPX)
+  - Time selection control with hour/minute/second spinners
+  - 12-hour (AM/PM) and 24-hour format support
+  - Optional seconds display
+  - Companion to DateTimePicker
+
 ---
 
 ## Control Improvements
@@ -301,3 +307,4 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - ScrollablePane: Input restricted to visible area intersection with parent bounds
 - Misc: ImageBox overlap, ScrollBar mouse wheel, ContextMenu submenu overlap
 - LineChart: Black labels (was light gray), increased MaxPoints (5000), throttled sample rate in demo, X-axis now uses 2 decimals (F2)
+- DateTimePicker: Fixed click-through and selection issues via IsPointInside override for calendar popup bounds
