@@ -71,7 +71,8 @@ namespace FishUI
 			{ "!GridLayout", typeof(GridLayout) },
 			{ "!LineChart", typeof(LineChart) },
 			{ "!Timeline", typeof(Timeline) },
-			{ "!MultiLineEditbox", typeof(MultiLineEditbox) }
+			{ "!MultiLineEditbox", typeof(MultiLineEditbox) },
+			{ "!DateTimePicker", typeof(DateTimePicker) }
 		};
 
 		public static string Serialize(FishUI UI)

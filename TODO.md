@@ -63,6 +63,7 @@ A list of planned features, improvements, and new controls for FishUI.
 | LineChart | ✅ Complete | N/A |
 | Timeline | ✅ Complete | N/A |
 | MultiLineEditbox | ✅ Complete | ✅ Atlas |
+| DateTimePicker | ✅ Complete | ✅ Atlas |
 
 ---
 
@@ -94,11 +95,6 @@ A list of planned features, improvements, and new controls for FishUI.
   - Cell selection and navigation
   - Text only cell type for now
   - *Use case: Data entry forms, configuration editors*
-
-- [ ] **DateTimePicker** (4 CPX)
-  - Calendar popup for date selection
-  - Optional time selection spinner
-  - Configurable date formats
 
 ---
 
@@ -159,7 +155,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ## Sample Application
 
-- [ ] Examples should be implemented in FishUISample project, using the ISample interface (2 CPX each)
+*Sample infrastructure complete - see Completed section for list of implemented samples*
 
 ---
 
@@ -222,6 +218,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - ScrollablePane - Container with automatic scrollbars and virtual scrolling
 - ItemListbox - Listbox with custom item widgets
 - LineChart - Real-time line chart with multiple data series, configurable time window, grid, and axis labels
+- DateTimePicker - Calendar popup with month/year navigation, date format configuration, min/max date range
 
 ### Control Improvements
 - Button: Icon, Toggle, Repeat, ImageButton modes
@@ -277,6 +274,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - SampleLineChart: Real-time data visualization with multiple series, sine wave, noise, temperature monitor, 4th slow series (1.5s interval), wider chart layout
 - SampleMultiLineEditbox: Multi-line text editor demo with editable editor, read-only log viewer, simple editor examples
 - SampleSerialization: Layout serialization demo showing IconPath/ImagePath properties for image preservation
+- SampleDateTimePicker: DateTimePicker demo with date formats, range restrictions, quick-set buttons
 
 ### Code Cleanup
 - ScreenCapture platform compatibility, YamlIgnore audit, naming conventions, XML docs, screenshot buttons, TODO extraction, debug flags refactor
