@@ -112,7 +112,7 @@ A list of planned features, improvements, and new controls for FishUI.
 ## Theme System
 
 ### Theme File Improvements
-- [ ] Theme inheritance / base themes (3 CPX)
+- [ ] Theme inheritance / base themes (3 CPX) **HIGH PRIORITY**
   - Allow theme YAML files to inherit from other themes (e.g., `gwen2.yaml` inherits from `gwen.yaml`)
   - Child themes only need to override specific regions, inheriting all others from parent
 
@@ -183,7 +183,23 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ## Code Cleanup & Technical Debt
 
-*All code cleanup items have been completed - see Completed section*
+### External Dependency Abstraction
+
+- [ ] **Logging Interface Abstraction** (2 CPX)
+  - `FishUIDebug.cs` uses `Console.WriteLine` directly (lines 69, 81, 94, 104)
+  - Should introduce `IFishUILogger` interface with methods like `Log(string message)`
+  - Allow users to provide custom logging implementations (file, game console, etc.)
+
+- [ ] **File System Interface Abstraction** (3 CPX)
+  - `FishUIThemeLoader.cs` uses `File.Exists`, `File.ReadAllText` (lines 26, 29)
+  - `LayoutFormat.cs` uses `File.WriteAllText`, `File.ReadAllText` (lines 22, 27)
+  - Should introduce `IFishUIFileSystem` interface for file operations
+  - Enable virtual file systems, embedded resources, or game engine asset systems
+
+- [ ] **Path Operations Interface** (2 CPX)
+  - `FishUIThemeLoader.cs` uses `Path.GetDirectoryName`, `Path.IsPathRooted`, `Path.Combine` (lines 30, 176, 177)
+  - Could be part of `IFishUIFileSystem` or separate `IFishUIPathResolver`
+  - Allow platform-specific path handling (game engines, web, etc.)
 
 ---
 
