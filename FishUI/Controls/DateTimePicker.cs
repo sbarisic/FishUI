@@ -152,7 +152,7 @@ namespace FishUI.Controls
 			_displayMonth = new DateTime(_value.Year, _value.Month, 1);
 			AlwaysOnTop = true;
 			BringToFront();
-			if (!OpenPickers.Contains(this))
+		if (!OpenPickers.Contains(this))
 				OpenPickers.Add(this);
 		}
 
@@ -176,6 +176,30 @@ namespace FishUI.Controls
 				Close();
 			else
 				Open();
+		}
+
+		/// <summary>
+		/// Override to include calendar popup bounds when open.
+		/// </summary>
+		public override bool IsPointInside(Vector2 GlobalPt)
+		{
+			// Check if point is inside the main control
+			if (base.IsPointInside(GlobalPt))
+				return true;
+
+			// Also check if point is inside the open calendar popup
+			if (_isOpen)
+			{
+				Vector2 controlPos = GetAbsolutePosition();
+				Vector2 size = ScaledSize;
+				Vector2 calSize = Scale(CalendarSize);
+				Vector2 calPos = new Vector2(controlPos.X, controlPos.Y + size.Y + 2);
+
+				return GlobalPt.X >= calPos.X && GlobalPt.X < calPos.X + calSize.X &&
+					   GlobalPt.Y >= calPos.Y && GlobalPt.Y < calPos.Y + calSize.Y;
+			}
+
+			return false;
 		}
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
