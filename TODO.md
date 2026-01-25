@@ -189,10 +189,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Active Bugs
 
-- [ ] **MultiLineEditbox: Selected text not visually highlighted** (2 CPX)
-  - Text selection works functionally (copy/cut/paste) but has no visual indicator
-  - Expected: Selected text should be highlighted like in regular Textbox
-  - Note: Text selection feature was marked complete but visual feedback is missing
+*No active bugs*
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
@@ -248,7 +245,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - Timeline: White label color for dark backgrounds
 - Button/ImageBox: IconPath/ImagePath properties for serialization with OnDeserialized image loading
 - MultiLineEditbox: Line numbers moved 4px left for better spacing
-- MultiLineEditbox: Text selection support with highlighting, Shift+arrow key selection, click/drag to select, Copy/Cut/Paste
+- MultiLineEditbox: Text selection support with highlighting, Shift+arrow key selection, click/drag to select, Copy/Cut/Paste, visual selection highlighting
 
 ### Core Framework
 - Scalable UI - UIScale property in FishUISettings (default 1.0), Scale helper methods, all controls respect scaling factor via GetAbsolutePosition/GetAbsoluteSize
