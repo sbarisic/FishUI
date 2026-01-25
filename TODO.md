@@ -66,6 +66,7 @@ A list of planned features, improvements, and new controls for FishUI.
 | DatePicker | ✅ Complete | ✅ Atlas |
 | TimePicker | ✅ Complete | ✅ Atlas |
 | DataGrid | ✅ Complete | ✅ Atlas |
+| SpreadsheetGrid | ✅ Complete | ✅ Atlas |
 
 ---
 
@@ -81,13 +82,7 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ### Lower Priority
 
-- [ ] **SpreadsheetGrid** (5 CPX)
-  - Spreadsheet cell is a separate control, grid is made of cells
-  - Excel-like table control with cell editing
-  - X-axis (column) and Y-axis (row) headers
-  - Cell selection and navigation
-  - Text only cell type for now
-  - *Use case: Data entry forms, configuration editors*
+*All lower priority controls have been implemented*
 
 ---
 
@@ -214,6 +209,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - DatePicker - Calendar popup with month/year navigation, date format configuration, min/max date range
 - TimePicker - Time selection with hour/minute/second spinners, 12/24-hour format, mouse wheel support
 - DataGrid - Multi-column list with sortable headers, resizable columns, single/multi row selection, scrolling
+- SpreadsheetGrid - Excel-like grid with editable cells, column headers (A,B,C...), row headers (1,2,3...), keyboard navigation
 
 ### Control Improvements
 - Button: Icon, Toggle, Repeat, ImageButton modes
@@ -272,6 +268,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - SampleDatePicker: DatePicker demo with date formats, range restrictions, quick-set buttons
 - SampleTimePicker: TimePicker demo with 12/24-hour formats, seconds display, quick-set buttons
 - SampleDataGrid: DataGrid demo with employee database, multi-select, sorting, column resize
+- SampleSpreadsheetGrid: SpreadsheetGrid demo with sales data, cell editing, navigation, Clear/Fill actions
 
 ### Code Cleanup
 - ScreenCapture platform compatibility, YamlIgnore audit, naming conventions, XML docs, screenshot buttons, TODO extraction, debug flags refactor
