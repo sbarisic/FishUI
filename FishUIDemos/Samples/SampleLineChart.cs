@@ -176,7 +176,7 @@ namespace FishUIDemos
 			// Grid toggle
 			CheckBox showGridCheckbox = new CheckBox("Show Grid");
 			showGridCheckbox.Position = new Vector2(20, 420);
-			showGridCheckbox.Size = new Vector2(120, 25);
+			showGridCheckbox.Size = new Vector2(15, 15);
 			showGridCheckbox.IsChecked = true;
 			showGridCheckbox.OnCheckedChanged += (cb, chk) =>
 			{
@@ -187,8 +187,8 @@ namespace FishUIDemos
 
 			// Labels toggle
 			CheckBox showLabelsCheckbox = new CheckBox("Show Labels");
-			showLabelsCheckbox.Position = new Vector2(150, 420);
-			showLabelsCheckbox.Size = new Vector2(120, 25);
+			showLabelsCheckbox.Position = new Vector2(120, 420);
+			showLabelsCheckbox.Size = new Vector2(15, 15);
 			showLabelsCheckbox.IsChecked = true;
 			showLabelsCheckbox.OnCheckedChanged += (cb, chk) =>
 			{
@@ -233,30 +233,38 @@ namespace FishUIDemos
 		LineChartSeries gpuTemp;
 		float randomWalkValue = 0f;
 		float tempTime = 0f;
+		float sampleTime = 0f;
 
 		public void Update(float Dt)
 		{
 			time += Dt;
 			tempTime += Dt;
+			sampleTime += Dt;
+
 
 			// Update main chart
 			chart.Update(Dt);
 
-			// Add data points at regular intervals
-			float sampleInterval = 0.05f; // 20 samples per second
+			// Add data points at regular intervals (20 samples per second)
+			float sampleInterval = 0.05f;
 
-			// Generate sine wave
-			float sineValue = (float)Math.Sin(time * 2.0);
-			sineWaveSeries.AddPoint(time, sineValue);
+			if (sampleTime >= sampleInterval)
+			{
+				sampleTime = 0f;
 
-			// Generate noisy sine
-			float noise = (float)(random.NextDouble() - 0.5) * 0.4f;
-			noisySeries.AddPoint(time, sineValue + noise);
+				// Generate sine wave
+				float sineValue = (float)Math.Sin(time * 2.0);
+				sineWaveSeries.AddPoint(time, sineValue);
 
-			// Generate random walk
-			randomWalkValue += (float)(random.NextDouble() - 0.5) * 0.1f;
-			randomWalkValue = Math.Clamp(randomWalkValue, -1.2f, 1.2f);
-			randomSeries.AddPoint(time, randomWalkValue);
+				// Generate noisy sine
+				float noise = (float)(random.NextDouble() - 0.5) * 0.4f;
+				noisySeries.AddPoint(time, sineValue + noise);
+
+				// Generate random walk
+				randomWalkValue += (float)(random.NextDouble() - 0.5) * 0.1f;
+				randomWalkValue = Math.Clamp(randomWalkValue, -1.2f, 1.2f);
+				randomSeries.AddPoint(time, randomWalkValue);
+			}
 
 			// Update temperature chart (slower updates)
 			tempChart.Update(Dt);

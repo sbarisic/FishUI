@@ -31,11 +31,11 @@ namespace FishUI.Controls
 		[YamlIgnore]
 		public List<Vector2> Points { get; } = new List<Vector2>();
 
-		/// <summary>
+	/// <summary>
 		/// Maximum number of points to retain. Older points are removed when exceeded.
 		/// Set to 0 for unlimited points.
 		/// </summary>
-		public int MaxPoints { get; set; } = 1000;
+		public int MaxPoints { get; set; } = 5000;
 
 		public LineChartSeries() { }
 
@@ -126,11 +126,11 @@ namespace FishUI.Controls
 		[YamlMember]
 		public FishColor GridColor { get; set; } = new FishColor(60, 60, 60, 255);
 
-		/// <summary>
+	/// <summary>
 		/// Color of the axis labels.
 		/// </summary>
 		[YamlMember]
-		public FishColor LabelColor { get; set; } = new FishColor(200, 200, 200, 255);
+		public FishColor LabelColor { get; set; } = new FishColor(0, 0, 0, 255);
 
 		/// <summary>
 		/// Whether to show horizontal grid lines.

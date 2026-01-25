@@ -201,7 +201,12 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-*No uncategorized items*
+- Add a 4th line in the line chart demo, but one which sends a data point every 1.5 seconds or so, to debug interpolated drawing
+- Add a vertical cursor to line charts, so you can get data points and selected time point in a callback
+- Add ability to pause data recording for line charts
+- Make the real time data visualization chart double in width, and move the temperature monitor style below so it's not in the way
+- Add a timeline control, which will display the timeline of a line chart, and where you can select the displayed time window and displayed offset
+- Timeline control should display current window as a blue rectangle outline, timeline should be as wide as the real time data visualization chart
 
 ---
 
@@ -298,3 +303,4 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - Window: Increased resize handle size, content panel recalculates child anchors on size change
 - ScrollablePane: Input restricted to visible area intersection with parent bounds
 - Misc: ImageBox overlap, ScrollBar mouse wheel, ContextMenu submenu overlap
+- LineChart: Black labels (was light gray), increased MaxPoints (5000), throttled sample rate in demo
