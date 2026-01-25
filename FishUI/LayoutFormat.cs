@@ -57,7 +57,7 @@ namespace FishUI
 			{ "!MenuItem", typeof(MenuItem) },
 			{ "!MenuBar", typeof(MenuBar) },
 			{ "!MenuBarItem", typeof(MenuBarItem) },
-		{ "!StackLayout", typeof(StackLayout) },
+			{ "!StackLayout", typeof(StackLayout) },
 			{ "!ImageBox", typeof(ImageBox) },
 			{ "!StaticText", typeof(StaticText) },
 			{ "!BarGauge", typeof(BarGauge) },
@@ -69,7 +69,8 @@ namespace FishUI
 			{ "!ItemListbox", typeof(ItemListbox) },
 			{ "!FlowLayout", typeof(FlowLayout) },
 			{ "!GridLayout", typeof(GridLayout) },
-			{ "!LineChart", typeof(LineChart) }
+			{ "!LineChart", typeof(LineChart) },
+			{ "!Timeline", typeof(Timeline) }
 		};
 
 		public static string Serialize(FishUI UI)

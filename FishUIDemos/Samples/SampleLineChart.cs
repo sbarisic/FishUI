@@ -261,7 +261,7 @@ namespace FishUIDemos
 
 			LineChart tempChart = new LineChart();
 			tempChart.Position = new Vector2(20, 470);
-			tempChart.Size = new Vector2(760, 120);
+			tempChart.Size = new Vector2(560, 120);
 			tempChart.MinValue = 20f;
 			tempChart.MaxValue = 80f;
 			tempChart.TimeWindow = 60f;
@@ -281,8 +281,34 @@ namespace FishUIDemos
 			this.tempChart = tempChart;
 			this.cpuTemp = cpuTemp;
 			this.gpuTemp = gpuTemp;
+
+			// === Timeline Control ===
+			Label timelineLabel = new Label("Timeline (drag window to navigate)");
+			timelineLabel.Position = new Vector2(600, 440);
+			timelineLabel.Size = new Vector2(200, 24);
+			timelineLabel.Alignment = Align.Left;
+			FUI.AddControl(timelineLabel);
+
+			Timeline timeline = new Timeline();
+			timeline.Position = new Vector2(600, 470);
+			timeline.Size = new Vector2(180, 50);
+			timeline.MinTime = 0f;
+			timeline.MaxTime = 100f;
+			timeline.SetView(0f, 10f);
+			timeline.MajorTickCount = 5;
+			timeline.LabelFormat = "F0";
+			timeline.OnViewChanged += (sender, args) =>
+			{
+				// Sync main chart's time window when timeline changes
+				chart.TimeWindow = args.ViewWidth;
+				// Note: In auto-scroll mode, we can't directly control the view position
+				// This timeline is more of a visualization/demo of the control
+			};
+			FUI.AddControl(timeline);
+			this.timeline = timeline;
 		}
 
+		Timeline timeline;
 		LineChart tempChart;
 		LineChartSeries cpuTemp;
 		LineChartSeries gpuTemp;
@@ -299,6 +325,9 @@ namespace FishUIDemos
 			sampleTime += Dt;
 			slowTime += Dt;
 
+			// Update timeline to track current time
+			timeline.MaxTime = Math.Max(timeline.MaxTime, time + 5f);
+			timeline.SetViewToEnd(chart.TimeWindow);
 
 			// Update main chart
 			chart.Update(Dt);

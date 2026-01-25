@@ -61,6 +61,7 @@ A list of planned features, improvements, and new controls for FishUI.
 | FlowLayout | ✅ Complete | N/A |
 | GridLayout | ✅ Complete | N/A |
 | LineChart | ✅ Complete | N/A |
+| Timeline | ✅ Complete | N/A |
 
 ---
 
@@ -77,13 +78,6 @@ A list of planned features, improvements, and new controls for FishUI.
   - Word wrap support
   - Vertical scrollbar integration
   - *GWEN atlas regions: Uses TextBox regions*
-
-- [ ] **Timeline** (3 CPX)
-  - Timeline control for LineChart navigation
-  - Displays time range with selectable window
-  - Current view shown as blue rectangle outline
-  - Allows selecting displayed time window and offset
-  - *Use case: Historical data browsing, LineChart companion*
 
 ### Lower Priority
 
@@ -229,6 +223,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - ContextMenu / PopupMenu - Right-click menus with submenus, keyboard navigation
 - MenuBar - Horizontal menu strip with dropdown menus, hover switching, submenus
 - ImageBox, StaticText, VUMeter, AnimatedImageBox - Display controls
+- Timeline - Time range navigation control with draggable view window, pan/resize, LineChart companion
 - MenuItem, RadialGauge, BarGauge - Menu items and gauge controls
 - ScrollablePane - Container with automatic scrollbars and virtual scrolling
 - ItemListbox - Listbox with custom item widgets
