@@ -67,12 +67,13 @@ namespace FishUI
 			{ "!PropertyGrid", typeof(PropertyGrid) },
 			{ "!ScrollablePane", typeof(ScrollablePane) },
 			{ "!ItemListbox", typeof(ItemListbox) },
-			{ "!FlowLayout", typeof(FlowLayout) },
+		{ "!FlowLayout", typeof(FlowLayout) },
 			{ "!GridLayout", typeof(GridLayout) },
 			{ "!LineChart", typeof(LineChart) },
 			{ "!Timeline", typeof(Timeline) },
 			{ "!MultiLineEditbox", typeof(MultiLineEditbox) },
-			{ "!DateTimePicker", typeof(DateTimePicker) }
+			{ "!DatePicker", typeof(DatePicker) },
+			{ "!TimePicker", typeof(TimePicker) }
 		};
 
 		public static string Serialize(FishUI UI)

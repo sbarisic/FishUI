@@ -6,15 +6,15 @@ using System.Numerics;
 namespace FishUIDemos
 {
 	/// <summary>
-	/// Demonstrates the DateTimePicker control with various configurations.
+	/// Demonstrates the DatePicker control with various configurations.
 	/// </summary>
-	public class SampleDateTimePicker : ISample
+	public class SampleDatePicker : ISample
 	{
 		FishUI.FishUI FUI;
 		Label _selectedDateLabel;
-		DateTimePicker _mainPicker;
+		DatePicker _mainPicker;
 
-		public string Name => "DateTimePicker";
+		public string Name => "DatePicker";
 
 		public TakeScreenshotFunc TakeScreenshot { get; set; }
 
@@ -31,7 +31,7 @@ namespace FishUIDemos
 		public void Init()
 		{
 			// === Title ===
-			Label titleLabel = new Label("DateTimePicker Demo");
+			Label titleLabel = new Label("DatePicker Demo");
 			titleLabel.Position = new Vector2(20, 20);
 			titleLabel.Size = new Vector2(300, 30);
 			titleLabel.Alignment = Align.Left;
@@ -50,13 +50,13 @@ namespace FishUIDemos
 
 			float yPos = 60;
 
-			// === Basic DateTimePicker ===
+			// === Basic DatePicker ===
 			Label basicLabel = new Label("Basic Date Picker:");
 			basicLabel.Position = new Vector2(20, yPos);
 			basicLabel.Alignment = Align.Left;
 			FUI.AddControl(basicLabel);
 
-			_mainPicker = new DateTimePicker(DateTime.Today);
+			_mainPicker = new DatePicker(DateTime.Today);
 			_mainPicker.Position = new Vector2(150, yPos);
 			_mainPicker.Size = new Vector2(160, 24);
 			_mainPicker.OnValueChanged += OnDateChanged;
@@ -88,7 +88,7 @@ namespace FishUIDemos
 			isoLabel.Alignment = Align.Left;
 			FUI.AddControl(isoLabel);
 
-			DateTimePicker isoPicker = new DateTimePicker(DateTime.Today);
+			DatePicker isoPicker = new DatePicker(DateTime.Today);
 			isoPicker.Position = new Vector2(150, yPos);
 			isoPicker.Size = new Vector2(120, 24);
 			isoPicker.DateFormat = "yyyy-MM-dd";
@@ -103,7 +103,7 @@ namespace FishUIDemos
 			usLabel.Alignment = Align.Left;
 			FUI.AddControl(usLabel);
 
-			DateTimePicker usPicker = new DateTimePicker(DateTime.Today);
+			DatePicker usPicker = new DatePicker(DateTime.Today);
 			usPicker.Position = new Vector2(150, yPos);
 			usPicker.Size = new Vector2(120, 24);
 			usPicker.DateFormat = "MM/dd/yyyy";
@@ -118,7 +118,7 @@ namespace FishUIDemos
 			euLabel.Alignment = Align.Left;
 			FUI.AddControl(euLabel);
 
-			DateTimePicker euPicker = new DateTimePicker(DateTime.Today);
+			DatePicker euPicker = new DatePicker(DateTime.Today);
 			euPicker.Position = new Vector2(150, yPos);
 			euPicker.Size = new Vector2(120, 24);
 			euPicker.DateFormat = "dd.MM.yyyy";
@@ -133,7 +133,7 @@ namespace FishUIDemos
 			longLabel.Alignment = Align.Left;
 			FUI.AddControl(longLabel);
 
-			DateTimePicker longPicker = new DateTimePicker(DateTime.Today);
+			DatePicker longPicker = new DatePicker(DateTime.Today);
 			longPicker.Position = new Vector2(150, yPos);
 			longPicker.Size = new Vector2(200, 24);
 			longPicker.DateFormat = "MMMM dd, yyyy";
@@ -150,7 +150,7 @@ namespace FishUIDemos
 
 			yPos += 25;
 
-			DateTimePicker rangePicker = new DateTimePicker(DateTime.Today);
+			DatePicker rangePicker = new DatePicker(DateTime.Today);
 			rangePicker.Position = new Vector2(20, yPos);
 			rangePicker.Size = new Vector2(160, 24);
 			rangePicker.MinDate = DateTime.Today;
@@ -196,7 +196,7 @@ namespace FishUIDemos
 			FUI.AddControl(nextMonthBtn);
 		}
 
-		private void OnDateChanged(DateTimePicker sender, DateTime value)
+		private void OnDateChanged(DatePicker sender, DateTime value)
 		{
 			_selectedDateLabel.Text = $"Selected: {value:D}";
 		}

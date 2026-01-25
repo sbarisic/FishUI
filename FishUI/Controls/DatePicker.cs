@@ -6,19 +6,19 @@ using YamlDotNet.Serialization;
 namespace FishUI.Controls
 {
 	/// <summary>
-	/// Delegate for DateTimePicker value changed events.
+	/// Delegate for DatePicker value changed events.
 	/// </summary>
-	public delegate void DateTimePickerValueChangedFunc(DateTimePicker sender, DateTime value);
+	public delegate void DatePickerValueChangedFunc(DatePicker sender, DateTime value);
 
 	/// <summary>
 	/// A date picker control with calendar popup for date selection.
 	/// </summary>
-	public class DateTimePicker : Control
+	public class DatePicker : Control
 	{
 		/// <summary>
 		/// Static list of currently open date pickers for overlay rendering.
 		/// </summary>
-		internal static List<DateTimePicker> OpenPickers = new List<DateTimePicker>();
+		internal static List<DatePicker> OpenPickers = new List<DatePicker>();
 
 		private DateTime _value = DateTime.Today;
 		private DateTime _displayMonth;
@@ -123,7 +123,7 @@ namespace FishUI.Controls
 		/// <summary>
 		/// Event raised when the selected date changes.
 		/// </summary>
-		public event DateTimePickerValueChangedFunc OnValueChanged;
+		public event DatePickerValueChangedFunc OnValueChanged;
 
 		// Calendar layout constants
 		private const float HeaderHeight = 28f;
@@ -131,14 +131,14 @@ namespace FishUI.Controls
 		private const int DaysInWeek = 7;
 		private const int MaxWeeksDisplayed = 6;
 
-		public DateTimePicker()
+		public DatePicker()
 		{
 			Size = new Vector2(150, 24);
 			Focusable = true;
 			_displayMonth = new DateTime(_value.Year, _value.Month, 1);
 		}
 
-		public DateTimePicker(DateTime value) : this()
+		public DatePicker(DateTime value) : this()
 		{
 			Value = value;
 		}
@@ -152,7 +152,7 @@ namespace FishUI.Controls
 			_displayMonth = new DateTime(_value.Year, _value.Month, 1);
 			AlwaysOnTop = true;
 			BringToFront();
-		if (!OpenPickers.Contains(this))
+			if (!OpenPickers.Contains(this))
 				OpenPickers.Add(this);
 		}
 
