@@ -222,7 +222,7 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-*No uncategorized items*
+- Create a layout editor application for FishUI, allowing users to visually design and arrange UI layouts, generate FishUI-compatible layout files
 
 ---
 
