@@ -1,0 +1,56 @@
+- !Button
+  ID: saveButton
+  Text: Save
+  Position: { X: 20, Y: 85 }
+  Size: { X: 80, Y: 28 }
+  OnClickHandler: OnSaveClicked
+
+- !Button
+  ID: loadButton
+  Text: Load
+  Position: { X: 110, Y: 85 }
+  Size: { X: 80, Y: 28 }
+  OnClickHandler: OnLoadClicked
+
+- !Button
+  ID: deleteButton
+  Text: Delete
+  Position: { X: 200, Y: 85 }
+  Size: { X: 80, Y: 28 }
+  OnClickHandler: OnDeleteClicked
+
+- !Slider
+  ID: volumeSlider
+  Position: { X: 85, Y: 125 }
+  Size: { X: 150, Y: 24 }
+  MinValue: 0
+  MaxValue: 100
+  Value: 50
+  OnValueChangedHandler: OnSliderChanged
+
+- !CheckBox
+  ID: enableSound
+  Position: { X: 20, Y: 160 }
+  Size: { X: 20, Y: 20 }
+  IsChecked: false
+  OnCheckedChangedHandler: OnCheckboxToggled
+
+- !CheckBox
+  ID: enableMusic
+  Position: { X: 160, Y: 160 }
+  Size: { X: 20, Y: 20 }
+  IsChecked: true
+  OnCheckedChangedHandler: OnCheckboxToggled
+
+- !ListBox
+  ID: themeList
+  Position: { X: 20, Y: 217 }
+  Size: { X: 150, Y: 80 }
+  OnSelectionChangedHandler: OnItemSelected
+
+- !Textbox
+  ID: usernameBox
+  Position: { X: 190, Y: 217 }
+  Size: { X: 150, Y: 24 }
+  Placeholder: Enter username
+  OnTextChangedHandler: OnTextEdited
