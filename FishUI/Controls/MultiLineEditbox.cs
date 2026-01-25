@@ -148,6 +148,42 @@ namespace FishUI.Controls
 		public bool ShowScrollBar { get; set; } = true;
 
 		/// <summary>
+		/// Color of the selection highlight.
+		/// </summary>
+		[YamlMember]
+		public FishColor SelectionColor { get; set; } = new FishColor(51, 153, 255, 128);
+
+		/// <summary>
+		/// Selection start row (0-based line index).
+		/// </summary>
+		[YamlIgnore]
+		public int SelectionStartRow { get; set; } = 0;
+
+		/// <summary>
+		/// Selection start column (0-based character index).
+		/// </summary>
+		[YamlIgnore]
+		public int SelectionStartColumn { get; set; } = 0;
+
+		/// <summary>
+		/// Selection end row (0-based line index).
+		/// </summary>
+		[YamlIgnore]
+		public int SelectionEndRow { get; set; } = 0;
+
+		/// <summary>
+		/// Selection end column (0-based character index).
+		/// </summary>
+		[YamlIgnore]
+		public int SelectionEndColumn { get; set; } = 0;
+
+		/// <summary>
+		/// Returns true if there is any text selected.
+		/// </summary>
+		[YamlIgnore]
+		public bool HasSelection => SelectionStartRow != SelectionEndRow || SelectionStartColumn != SelectionEndColumn;
+
+		/// <summary>
 		/// Event fired when text changes.
 		/// </summary>
 		public event MultiLineEditboxTextChangedFunc OnTextChanged;
@@ -155,6 +191,14 @@ namespace FishUI.Controls
 		// Cursor blink timer
 		private float _cursorBlinkTimer = 0f;
 		private bool _cursorVisible = true;
+
+		// For drag selection
+		[YamlIgnore]
+		private bool _isSelecting = false;
+		[YamlIgnore]
+		private int _selectionAnchorRow = 0;
+		[YamlIgnore]
+		private int _selectionAnchorColumn = 0;
 
 		// Cached font metrics
 		private float _lineHeight = 0f;
@@ -178,6 +222,231 @@ namespace FishUI.Controls
 		{
 			Text = text;
 		}
+
+		#region Selection Methods
+
+		/// <summary>
+		/// Gets the normalized selection range with start always before end.
+		/// Returns ((startRow, startCol), (endRow, endCol)).
+		/// </summary>
+		public ((int Row, int Col) Start, (int Row, int Col) End) GetSelectionRange()
+		{
+			int startRow = SelectionStartRow;
+			int startCol = SelectionStartColumn;
+			int endRow = SelectionEndRow;
+			int endCol = SelectionEndColumn;
+
+			// Normalize: ensure start is before end
+			if (startRow > endRow || (startRow == endRow && startCol > endCol))
+			{
+				(startRow, endRow) = (endRow, startRow);
+				(startCol, endCol) = (endCol, startCol);
+			}
+
+			// Clamp to valid ranges
+			startRow = Math.Clamp(startRow, 0, _lines.Count - 1);
+			endRow = Math.Clamp(endRow, 0, _lines.Count - 1);
+			startCol = Math.Clamp(startCol, 0, _lines[startRow].Length);
+			endCol = Math.Clamp(endCol, 0, _lines[endRow].Length);
+
+			return ((startRow, startCol), (endRow, endCol));
+		}
+
+		/// <summary>
+		/// Gets the currently selected text.
+		/// </summary>
+		public string GetSelectedText()
+		{
+			if (!HasSelection)
+				return "";
+
+			var (start, end) = GetSelectionRange();
+
+			if (start.Row == end.Row)
+			{
+				// Single line selection
+				return _lines[start.Row].Substring(start.Col, end.Col - start.Col);
+			}
+
+			// Multi-line selection
+			StringBuilder sb = new StringBuilder();
+
+			// First line (from start column to end)
+			sb.Append(_lines[start.Row].Substring(start.Col));
+
+			// Middle lines (full lines)
+			for (int row = start.Row + 1; row < end.Row; row++)
+			{
+				sb.Append('\n');
+				sb.Append(_lines[row]);
+			}
+
+			// Last line (from start to end column)
+			sb.Append('\n');
+			sb.Append(_lines[end.Row].Substring(0, end.Col));
+
+			return sb.ToString();
+		}
+
+		/// <summary>
+		/// Selects all text in the editbox.
+		/// </summary>
+		public void SelectAll()
+		{
+			if (_lines.Count > 0)
+			{
+				SelectionStartRow = 0;
+				SelectionStartColumn = 0;
+				SelectionEndRow = _lines.Count - 1;
+				SelectionEndColumn = _lines[_lines.Count - 1].Length;
+				CursorRow = SelectionEndRow;
+				CursorColumn = SelectionEndColumn;
+			}
+		}
+
+		/// <summary>
+		/// Clears the current selection.
+		/// </summary>
+		public void ClearSelection()
+		{
+			SelectionStartRow = CursorRow;
+			SelectionStartColumn = CursorColumn;
+			SelectionEndRow = CursorRow;
+			SelectionEndColumn = CursorColumn;
+		}
+
+		/// <summary>
+		/// Copies the selected text to the clipboard (returns the text for external clipboard handling).
+		/// </summary>
+		public string Copy()
+		{
+			return GetSelectedText();
+		}
+
+		/// <summary>
+		/// Cuts the selected text (returns the text for external clipboard handling).
+		/// </summary>
+		public string Cut()
+		{
+			if (ReadOnly || !HasSelection)
+				return "";
+
+			string selectedText = GetSelectedText();
+			DeleteSelection();
+			return selectedText;
+		}
+
+		/// <summary>
+		/// Pastes text at the current cursor position, replacing any selection.
+		/// </summary>
+		public void Paste(string text)
+		{
+			if (ReadOnly || string.IsNullOrEmpty(text))
+				return;
+
+			// Delete selection first if any
+			if (HasSelection)
+				DeleteSelection();
+
+			// Insert the text (may contain newlines)
+			string[] linesToInsert = text.Split('\n');
+
+			if (linesToInsert.Length == 1)
+			{
+				// Single line paste
+				InsertTextInternal(linesToInsert[0]);
+			}
+			else
+			{
+				// Multi-line paste
+				string currentLine = _lines[CursorRow];
+				string beforeCursor = currentLine.Substring(0, CursorColumn);
+				string afterCursor = currentLine.Substring(CursorColumn);
+
+				// First line: append to current line
+				_lines[CursorRow] = beforeCursor + linesToInsert[0];
+
+				// Middle lines: insert new lines
+				for (int i = 1; i < linesToInsert.Length - 1; i++)
+				{
+					_lines.Insert(CursorRow + i, linesToInsert[i]);
+				}
+
+				// Last line: append with remainder
+				int lastIndex = linesToInsert.Length - 1;
+				_lines.Insert(CursorRow + lastIndex, linesToInsert[lastIndex] + afterCursor);
+
+				CursorRow += lastIndex;
+				CursorColumn = linesToInsert[lastIndex].Length;
+			}
+
+			ClearSelection();
+			OnTextChanged?.Invoke(this, Text);
+		}
+
+		/// <summary>
+		/// Deletes the currently selected text.
+		/// </summary>
+		private void DeleteSelection()
+		{
+			if (!HasSelection)
+				return;
+
+			var (start, end) = GetSelectionRange();
+
+			if (start.Row == end.Row)
+			{
+				// Single line deletion
+				string line = _lines[start.Row];
+				_lines[start.Row] = line.Remove(start.Col, end.Col - start.Col);
+			}
+			else
+			{
+				// Multi-line deletion
+				string startLine = _lines[start.Row].Substring(0, start.Col);
+				string endLine = _lines[end.Row].Substring(end.Col);
+
+				// Remove lines in between
+				for (int row = end.Row; row > start.Row; row--)
+				{
+					_lines.RemoveAt(row);
+				}
+
+				// Merge remaining
+				_lines[start.Row] = startLine + endLine;
+			}
+
+			// Move cursor to start of selection
+			CursorRow = start.Row;
+			CursorColumn = start.Col;
+			ClearSelection();
+			OnTextChanged?.Invoke(this, Text);
+		}
+
+		/// <summary>
+		/// Starts a selection at the current cursor position.
+		/// </summary>
+		private void StartSelection()
+		{
+			if (!HasSelection)
+			{
+				SelectionStartRow = CursorRow;
+				SelectionStartColumn = CursorColumn;
+				SelectionEndRow = CursorRow;
+				SelectionEndColumn = CursorColumn;
+			}
+		}
+
+		/// <summary>
+		/// Extends the selection to the current cursor position.
+		/// </summary>
+		private void ExtendSelection()
+		{
+			SelectionEndRow = CursorRow;
+			SelectionEndColumn = CursorColumn;
+		}
+
+		#endregion
 
 		private void CreateScrollBar()
 		{
@@ -347,6 +616,10 @@ namespace FishUI.Controls
 			// Begin scissor for text area clipping
 			UI.Graphics.BeginScissor(new Vector2(textAreaPos.X, pos.Y), new Vector2(textAreaSize.X, size.Y));
 
+			// Get selection range for highlighting
+			var (selStart, selEnd) = GetSelectionRange();
+			bool hasSelection = HasSelection && HasFocus;
+
 			// Draw all lines with pixel offset
 			for (int lineIndex = 0; lineIndex < _lines.Count; lineIndex++)
 			{
@@ -454,35 +727,135 @@ namespace FishUI.Controls
 			switch (Key)
 			{
 				case FishKey.Left:
-					MoveCursorLeft();
+					if (InState.ShiftDown)
+					{
+						StartSelection();
+						MoveCursorLeftInternal();
+						ExtendSelection();
+					}
+					else
+					{
+						if (HasSelection)
+						{
+							var (start, _) = GetSelectionRange();
+							CursorRow = start.Row;
+							CursorColumn = start.Col;
+							ClearSelection();
+						}
+						else
+						{
+							MoveCursorLeftInternal();
+						}
+					}
 					break;
 				case FishKey.Right:
-					MoveCursorRight();
+					if (InState.ShiftDown)
+					{
+						StartSelection();
+						MoveCursorRightInternal();
+						ExtendSelection();
+					}
+					else
+					{
+						if (HasSelection)
+						{
+							var (_, end) = GetSelectionRange();
+							CursorRow = end.Row;
+							CursorColumn = end.Col;
+							ClearSelection();
+						}
+						else
+						{
+							MoveCursorRightInternal();
+						}
+					}
 					break;
 				case FishKey.Up:
-					MoveCursorUp();
+					if (InState.ShiftDown)
+					{
+						StartSelection();
+						MoveCursorUpInternal();
+						ExtendSelection();
+					}
+					else
+					{
+						ClearSelection();
+						MoveCursorUpInternal();
+					}
 					break;
 				case FishKey.Down:
-					MoveCursorDown();
+					if (InState.ShiftDown)
+					{
+						StartSelection();
+						MoveCursorDownInternal();
+						ExtendSelection();
+					}
+					else
+					{
+						ClearSelection();
+						MoveCursorDownInternal();
+					}
 					break;
 				case FishKey.Home:
-					CursorColumn = 0;
+					if (InState.ShiftDown)
+					{
+						StartSelection();
+						CursorColumn = 0;
+						ExtendSelection();
+					}
+					else
+					{
+						CursorColumn = 0;
+						ClearSelection();
+					}
 					break;
 				case FishKey.End:
-					CursorColumn = _lines[CursorRow].Length;
+					if (InState.ShiftDown)
+					{
+						StartSelection();
+						CursorColumn = _lines[CursorRow].Length;
+						ExtendSelection();
+					}
+					else
+					{
+						CursorColumn = _lines[CursorRow].Length;
+						ClearSelection();
+					}
 					break;
 				case FishKey.PageUp:
 					{
 						int visibleLines = GetVisibleLineCount();
-						CursorRow = Math.Max(0, CursorRow - visibleLines);
-						CursorColumn = Math.Min(CursorColumn, _lines[CursorRow].Length);
+						if (InState.ShiftDown)
+						{
+							StartSelection();
+							CursorRow = Math.Max(0, CursorRow - visibleLines);
+							CursorColumn = Math.Min(CursorColumn, _lines[CursorRow].Length);
+							ExtendSelection();
+						}
+						else
+						{
+							CursorRow = Math.Max(0, CursorRow - visibleLines);
+							CursorColumn = Math.Min(CursorColumn, _lines[CursorRow].Length);
+							ClearSelection();
+						}
 					}
 					break;
 				case FishKey.PageDown:
 					{
 						int visibleLines = GetVisibleLineCount();
-						CursorRow = Math.Min(_lines.Count - 1, CursorRow + visibleLines);
-						CursorColumn = Math.Min(CursorColumn, _lines[CursorRow].Length);
+						if (InState.ShiftDown)
+						{
+							StartSelection();
+							CursorRow = Math.Min(_lines.Count - 1, CursorRow + visibleLines);
+							CursorColumn = Math.Min(CursorColumn, _lines[CursorRow].Length);
+							ExtendSelection();
+						}
+						else
+						{
+							CursorRow = Math.Min(_lines.Count - 1, CursorRow + visibleLines);
+							CursorColumn = Math.Min(CursorColumn, _lines[CursorRow].Length);
+							ClearSelection();
+						}
 					}
 					break;
 				case FishKey.Enter:
@@ -511,6 +884,26 @@ namespace FishUI.Controls
 		{
 			base.HandleTextInput(UI, InState, Chr);
 
+			// Handle Ctrl key combinations
+			if (InState.CtrlDown)
+			{
+				switch (char.ToLower(Chr))
+				{
+					case 'a': // Select All
+						SelectAll();
+						return;
+					case 'c': // Copy (handled by clipboard, we just provide the text)
+							  // Copy() returns the text - actual clipboard integration is external
+						return;
+					case 'v': // Paste (handled externally, text comes through Paste method)
+						return;
+					case 'x': // Cut
+						if (!ReadOnly)
+							Cut();
+						return;
+				}
+			}
+
 			if (ReadOnly)
 				return;
 
@@ -518,9 +911,63 @@ namespace FishUI.Controls
 			if (char.IsControl(Chr) && Chr != '\t')
 				return;
 
-			InsertText(Chr.ToString());
+			// Delete selection first if any
+			if (HasSelection)
+				DeleteSelection();
+
+			InsertTextInternal(Chr.ToString());
 			ResetCursorBlink();
 			EnsureCursorVisible();
+		}
+
+		public override void HandleMousePress(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
+		{
+			base.HandleMousePress(UI, InState, Btn, Pos);
+
+			if (Btn == FishMouseButton.Left)
+			{
+				PositionCursorFromMouse(UI, Pos);
+				_selectionAnchorRow = CursorRow;
+				_selectionAnchorColumn = CursorColumn;
+				_isSelecting = true;
+				ClearSelection();
+				ResetCursorBlink();
+			}
+		}
+
+		public override void HandleMouseRelease(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
+		{
+			base.HandleMouseRelease(UI, InState, Btn, Pos);
+
+			if (Btn == FishMouseButton.Left)
+			{
+				_isSelecting = false;
+			}
+		}
+
+		public override void HandleDrag(FishUI UI, Vector2 StartPos, Vector2 EndPos, FishInputState InState)
+		{
+			base.HandleDrag(UI, StartPos, EndPos, InState);
+
+			if (_isSelecting && HasFocus)
+			{
+				PositionCursorFromMouse(UI, EndPos);
+				SelectionStartRow = _selectionAnchorRow;
+				SelectionStartColumn = _selectionAnchorColumn;
+				SelectionEndRow = CursorRow;
+				SelectionEndColumn = CursorColumn;
+			}
+		}
+
+		public override void HandleMouseDoubleClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
+		{
+			base.HandleMouseDoubleClick(UI, InState, Btn, Pos);
+
+			if (Btn == FishMouseButton.Left && HasFocus)
+			{
+				// Double-click selects all text
+				SelectAll();
+			}
 		}
 
 		public override void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
@@ -577,7 +1024,7 @@ namespace FishUI.Controls
 			}
 		}
 
-		private void MoveCursorLeft()
+		private void MoveCursorLeftInternal()
 		{
 			if (CursorColumn > 0)
 			{
@@ -590,7 +1037,7 @@ namespace FishUI.Controls
 			}
 		}
 
-		private void MoveCursorRight()
+		private void MoveCursorRightInternal()
 		{
 			if (CursorColumn < _lines[CursorRow].Length)
 			{
@@ -603,7 +1050,7 @@ namespace FishUI.Controls
 			}
 		}
 
-		private void MoveCursorUp()
+		private void MoveCursorUpInternal()
 		{
 			if (CursorRow > 0)
 			{
@@ -612,7 +1059,7 @@ namespace FishUI.Controls
 			}
 		}
 
-		private void MoveCursorDown()
+		private void MoveCursorDownInternal()
 		{
 			if (CursorRow < _lines.Count - 1)
 			{
@@ -621,7 +1068,7 @@ namespace FishUI.Controls
 			}
 		}
 
-		private void InsertText(string text)
+		private void InsertTextInternal(string text)
 		{
 			string currentLine = _lines[CursorRow];
 			_lines[CursorRow] = currentLine.Insert(CursorColumn, text);
@@ -629,8 +1076,27 @@ namespace FishUI.Controls
 			OnTextChanged?.Invoke(this, Text);
 		}
 
+		/// <summary>
+		/// Inserts text at the current cursor position, replacing any selection.
+		/// </summary>
+		public void InsertText(string text)
+		{
+			if (ReadOnly || string.IsNullOrEmpty(text))
+				return;
+
+			// Delete selection first if any
+			if (HasSelection)
+				DeleteSelection();
+
+			InsertTextInternal(text);
+		}
+
 		private void InsertNewLine()
 		{
+			// Delete selection first if any
+			if (HasSelection)
+				DeleteSelection();
+
 			string currentLine = _lines[CursorRow];
 			string beforeCursor = currentLine.Substring(0, CursorColumn);
 			string afterCursor = currentLine.Substring(CursorColumn);
@@ -645,6 +1111,13 @@ namespace FishUI.Controls
 
 		private void HandleBackspace()
 		{
+			// Delete selection first if any
+			if (HasSelection)
+			{
+				DeleteSelection();
+				return;
+			}
+
 			if (CursorColumn > 0)
 			{
 				string line = _lines[CursorRow];
@@ -665,6 +1138,13 @@ namespace FishUI.Controls
 
 		private void HandleDelete()
 		{
+			// Delete selection first if any
+			if (HasSelection)
+			{
+				DeleteSelection();
+				return;
+			}
+
 			string line = _lines[CursorRow];
 			if (CursorColumn < line.Length)
 			{

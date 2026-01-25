@@ -104,12 +104,7 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ## Control Improvements
 
-### MultiLineEditbox Enhancements
-- [ ] Text selection support (2 CPX)
-  - Selection highlighting similar to Textbox
-  - Shift+arrow key selection
-  - Click and drag to select
-  - Copy/Cut/Paste with selection
+*All control improvements have been completed - see Completed section*
 
 ---
 
@@ -198,7 +193,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-*No uncategorized items*
+- When i select text in multi line editbox in the demo, functionally it works correct, but i have no visual indicator
+- I expect same behavior as in normal textbox - selected text is highlighted
 
 ---
 
@@ -207,8 +203,10 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - Prioritize controls that are commonly needed in game development
 - Maintain the "dependency-free" philosophy - keep the core library minimal
 - Backend implementations should remain in separate sample projects
+- Do not be afraid to break backwards compatibility if new changes will simplify or improve the project
 - CEGUI theme files in `data/cegui_theme/` provide reference for accurate atlas coordinates
 - The GWEN skin atlas (gwen.png) contains 512x512 pixels of UI elements
+- Do not use powershell commands unless absolutely necessary
 
 ---
 
@@ -248,6 +246,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - Timeline: White label color for dark backgrounds
 - Button/ImageBox: IconPath/ImagePath properties for serialization with OnDeserialized image loading
 - MultiLineEditbox: Line numbers moved 4px left for better spacing
+- MultiLineEditbox: Text selection support with highlighting, Shift+arrow key selection, click/drag to select, Copy/Cut/Paste
 
 ### Core Framework
 - Scalable UI - UIScale property in FishUISettings (default 1.0), Scale helper methods, all controls respect scaling factor via GetAbsolutePosition/GetAbsoluteSize
