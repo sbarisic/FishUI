@@ -423,6 +423,80 @@ namespace FishUIDemos
 				nwBtn.Size = new Vector2(30, 30);
 				flowNoWrap.AddChild(nwBtn);
 			}
+
+			// === GridLayout ===
+			Label gridLabel = new Label("GridLayout");
+			gridLabel.Position = new Vector2(650, 60);
+			gridLabel.Alignment = Align.Left;
+			FUI.AddControl(gridLabel);
+
+			// Basic GridLayout - 3x3 grid
+			GridLayout grid3x3 = new GridLayout();
+			grid3x3.Position = new Vector2(650, 85);
+			grid3x3.Size = new Vector2(180, 150);
+			grid3x3.Columns = 3;
+			grid3x3.HorizontalSpacing = 5;
+			grid3x3.VerticalSpacing = 5;
+			grid3x3.LayoutPadding = 8;
+			grid3x3.StretchCells = true;
+			grid3x3.IsTransparent = false;
+			FUI.AddControl(grid3x3);
+
+			for (int i = 1; i <= 9; i++)
+			{
+				Button gridBtn = new Button();
+				gridBtn.Text = $"{i}";
+				grid3x3.AddChild(gridBtn);
+			}
+
+			// GridLayout - 2 columns, auto rows
+			Label grid2ColLabel = new Label("2 Columns (auto rows)");
+			grid2ColLabel.Position = new Vector2(650, 245);
+			grid2ColLabel.Alignment = Align.Left;
+			FUI.AddControl(grid2ColLabel);
+
+			GridLayout grid2Col = new GridLayout();
+			grid2Col.Position = new Vector2(650, 270);
+			grid2Col.Size = new Vector2(180, 120);
+			grid2Col.Columns = 2;
+			grid2Col.HorizontalSpacing = 8;
+			grid2Col.VerticalSpacing = 8;
+			grid2Col.LayoutPadding = 6;
+			grid2Col.StretchCells = true;
+			grid2Col.IsTransparent = false;
+			FUI.AddControl(grid2Col);
+
+			string[] labels = { "OK", "Cancel", "Yes", "No", "Apply" };
+			foreach (var label in labels)
+			{
+				Button colBtn = new Button();
+				colBtn.Text = label;
+				grid2Col.AddChild(colBtn);
+			}
+
+			// GridLayout - 4 columns icon grid
+			Label grid4ColLabel = new Label("4 Column Grid");
+			grid4ColLabel.Position = new Vector2(650, 400);
+			grid4ColLabel.Alignment = Align.Left;
+			FUI.AddControl(grid4ColLabel);
+
+			GridLayout grid4Col = new GridLayout();
+			grid4Col.Position = new Vector2(650, 425);
+			grid4Col.Size = new Vector2(180, 90);
+			grid4Col.Columns = 4;
+			grid4Col.HorizontalSpacing = 4;
+			grid4Col.VerticalSpacing = 4;
+			grid4Col.LayoutPadding = 5;
+			grid4Col.StretchCells = true;
+			grid4Col.IsTransparent = false;
+			FUI.AddControl(grid4Col);
+
+			for (char c = 'A'; c <= 'H'; c++)
+			{
+				Button iconBtn = new Button();
+				iconBtn.Text = c.ToString();
+				grid4Col.AddChild(iconBtn);
+			}
 		}
 	}
 }

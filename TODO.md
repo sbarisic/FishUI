@@ -58,6 +58,8 @@ A list of planned features, improvements, and new controls for FishUI.
 | MenuBar | ✅ Complete | ✅ Atlas |
 | ScrollablePane | ✅ Complete | N/A |
 | ItemListbox | ✅ Complete | ✅ Atlas |
+| FlowLayout | ✅ Complete | N/A |
+| GridLayout | ✅ Complete | N/A |
 
 ---
 
@@ -149,7 +151,6 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ## Core Framework Features
 
 ### Layout System **HIGH PRIORITY**
-- [ ] **GridLayout** - Grid-based child positioning (3 CPX)
 - [ ] Auto-sizing controls based on content (3 CPX)
   - Should work in tandem with Docking/Anchoring
 
@@ -245,6 +246,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - PropertyGrid: Vector2/Vector3/Vector4 component editors with X/Y/Z/W fields
 
 ### Core Framework
+- GridLayout - Grid-based child positioning with configurable columns, spacing, and stretch options
 - FlowLayout - Automatic horizontal/vertical flow with wrapping (4 directions, 3 wrap modes)
 - StackLayout, Anchor, Margin/Padding - Layout infrastructure
 - Opacity, fonts, image rotation/scaling - Rendering features

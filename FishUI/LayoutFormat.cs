@@ -65,7 +65,8 @@ namespace FishUI
 		{ "!PropertyGrid", typeof(PropertyGrid) },
 		{ "!ScrollablePane", typeof(ScrollablePane) },
 		{ "!ItemListbox", typeof(ItemListbox) },
-		{ "!FlowLayout", typeof(FlowLayout) }
+		{ "!FlowLayout", typeof(FlowLayout) },
+		{ "!GridLayout", typeof(GridLayout) }
 		};
 
 		public static string Serialize(FishUI UI)
