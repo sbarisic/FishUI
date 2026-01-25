@@ -149,9 +149,9 @@ namespace FishUI.Controls
 		/// <returns>The override color if set, otherwise the fallback</returns>
 		public FishColor GetColorOverride(string key, FishColor fallback)
 		{
-		if (ColorOverrides != null && ColorOverrides.TryGetValue(key, out var color))
-		return color;
-		return fallback;
+			if (ColorOverrides != null && ColorOverrides.TryGetValue(key, out var color))
+				return color;
+			return fallback;
 		}
 
 		/// <summary>
@@ -161,8 +161,8 @@ namespace FishUI.Controls
 		/// <param name="color">The color value to set</param>
 		public void SetColorOverride(string key, FishColor color)
 		{
-		ColorOverrides ??= new Dictionary<string, FishColor>();
-		ColorOverrides[key] = color;
+			ColorOverrides ??= new Dictionary<string, FishColor>();
+			ColorOverrides[key] = color;
 		}
 
 		/// <summary>
@@ -171,7 +171,7 @@ namespace FishUI.Controls
 		/// <param name="key">Color key to clear</param>
 		public void ClearColorOverride(string key)
 		{
-		ColorOverrides?.Remove(key);
+			ColorOverrides?.Remove(key);
 		}
 
 		/// <summary>
@@ -179,7 +179,7 @@ namespace FishUI.Controls
 		/// </summary>
 		public void ClearAllColorOverrides()
 		{
-		ColorOverrides?.Clear();
+			ColorOverrides?.Clear();
 		}
 
 		/// <summary>
@@ -188,11 +188,11 @@ namespace FishUI.Controls
 		[YamlIgnore]
 		public FishColor EffectiveColor
 		{
-		get
-		{
-		byte effectiveAlpha = (byte)(Color.A * Math.Clamp(Opacity, 0f, 1f));
-		return new FishColor(Color.R, Color.G, Color.B, effectiveAlpha);
-		}
+			get
+			{
+				byte effectiveAlpha = (byte)(Color.A * Math.Clamp(Opacity, 0f, 1f));
+				return new FishColor(Color.R, Color.G, Color.B, effectiveAlpha);
+			}
 		}
 
 		/// <summary>
