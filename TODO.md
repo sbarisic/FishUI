@@ -60,6 +60,7 @@ A list of planned features, improvements, and new controls for FishUI.
 | ItemListbox | ✅ Complete | ✅ Atlas |
 | FlowLayout | ✅ Complete | N/A |
 | GridLayout | ✅ Complete | N/A |
+| LineChart | ✅ Complete | N/A |
 
 ---
 
@@ -76,13 +77,6 @@ A list of planned features, improvements, and new controls for FishUI.
   - Word wrap support
   - Vertical scrollbar integration
   - *GWEN atlas regions: Uses TextBox regions*
-
-- [ ] **LineChart** (3 CPX)
-  - Horizontal line chart for real-time data visualization
-  - Configurable time window on X-axis
-  - Y-axis with configurable min/max values and labels
-  - Multiple data series with customizable colors
-  - *Use case: Temperature monitoring, performance graphs, sensor data*
 
 ### Lower Priority
 
@@ -174,9 +168,6 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [ ] MultiLine textbox example (separate demo)
   - Add single line and multi line 
   - Requires multi-line textbox mode implementation
-- [ ] LineChart example (separate demo)
-  - Real-time sine wave with random noise
-  - Requires LineChart control implementation
 
 ---
 
@@ -234,6 +225,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - MenuItem, RadialGauge, BarGauge - Menu items and gauge controls
 - ScrollablePane - Container with automatic scrollbars and virtual scrolling
 - ItemListbox - Listbox with custom item widgets
+- LineChart - Real-time line chart with multiple data series, configurable time window, grid, and axis labels
 
 ### Control Improvements
 - Button: Icon, Toggle, Repeat, ImageButton modes
@@ -280,6 +272,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - SampleListBox: Dedicated ListBox demo (alternating colors, multi-select, custom rendering)
 - SampleBasicControls refactored: Focused on input controls (Textbox, Sliders, NumericUpDown, etc.)
 - Sample chooser: Replaced button grid with ListBox for better scalability
+- SampleLineChart: Real-time data visualization with multiple series, sine wave, noise, and temperature monitor
 
 ### Code Cleanup
 - ScreenCapture platform compatibility, YamlIgnore audit, naming conventions, XML docs, screenshot buttons, TODO extraction, debug flags refactor
