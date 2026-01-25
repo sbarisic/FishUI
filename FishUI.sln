@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FishUI", "FishUI\FishUI.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FishUIDemos", "FishUIDemos\FishUIDemos.csproj", "{574E01C4-213C-4D6D-A40C-A7DC933FC93A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FishUIEditor", "FishUIEditor\FishUIEditor.csproj", "{8C8640B9-383F-4333-ADD6-F73262ADC26A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{574E01C4-213C-4D6D-A40C-A7DC933FC93A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{574E01C4-213C-4D6D-A40C-A7DC933FC93A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{574E01C4-213C-4D6D-A40C-A7DC933FC93A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C8640B9-383F-4333-ADD6-F73262ADC26A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C8640B9-383F-4333-ADD6-F73262ADC26A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C8640B9-383F-4333-ADD6-F73262ADC26A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C8640B9-383F-4333-ADD6-F73262ADC26A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
