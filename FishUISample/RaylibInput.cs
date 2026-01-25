@@ -1,4 +1,4 @@
-﻿using FishUI;
+using FishUI;
 using Raylib_cs;
 using System;
 using System.Collections.Generic;
@@ -76,6 +76,16 @@ namespace FishUISample
 		public bool IsMouseUp(FishMouseButton Button)
 		{
 			return Raylib.IsMouseButtonUp((MouseButton)Button);
+		}
+
+		public string GetClipboardText()
+		{
+			return Raylib.GetClipboardText_();
+		}
+
+		public void SetClipboardText(string text)
+		{
+			Raylib.SetClipboardText(text ?? "");
 		}
 	}
 }

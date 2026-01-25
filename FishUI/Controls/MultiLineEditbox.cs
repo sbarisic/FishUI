@@ -761,6 +761,45 @@ namespace FishUI.Controls
 		{
 			base.HandleKeyPress(UI, InState, Key);
 
+			// Handle Ctrl key combinations for clipboard
+			if (InState.CtrlDown)
+			{
+				switch (Key)
+				{
+					case FishKey.A: // Select All
+						SelectAll();
+						ResetCursorBlink();
+						return;
+					case FishKey.C: // Copy
+						{
+							string text = Copy();
+							if (!string.IsNullOrEmpty(text))
+								UI.Input?.SetClipboardText(text);
+						}
+						return;
+					case FishKey.V: // Paste
+						if (!ReadOnly)
+						{
+							string text = UI.Input?.GetClipboardText() ?? "";
+							if (!string.IsNullOrEmpty(text))
+								Paste(text);
+							ResetCursorBlink();
+							EnsureCursorVisible();
+						}
+						return;
+					case FishKey.X: // Cut
+						if (!ReadOnly)
+						{
+							string text = Cut();
+							if (!string.IsNullOrEmpty(text))
+								UI.Input?.SetClipboardText(text);
+							ResetCursorBlink();
+							EnsureCursorVisible();
+						}
+						return;
+				}
+			}
+
 			if (ReadOnly && Key != FishKey.Up && Key != FishKey.Down && Key != FishKey.Left && Key != FishKey.Right &&
 				Key != FishKey.Home && Key != FishKey.End && Key != FishKey.PageUp && Key != FishKey.PageDown)
 				return;
@@ -933,14 +972,27 @@ namespace FishUI.Controls
 					case 'a': // Select All
 						SelectAll();
 						return;
-					case 'c': // Copy (handled by clipboard, we just provide the text)
-							  // Copy() returns the text - actual clipboard integration is external
+					case 'c': // Copy
+						{
+							string text = Copy();
+							if (!string.IsNullOrEmpty(text))
+								UI.Input?.SetClipboardText(text);
+						}
 						return;
-					case 'v': // Paste (handled externally, text comes through Paste method)
+					case 'v': // Paste
+						{
+							string text = UI.Input?.GetClipboardText() ?? "";
+							if (!string.IsNullOrEmpty(text))
+								Paste(text);
+						}
 						return;
 					case 'x': // Cut
 						if (!ReadOnly)
-							Cut();
+						{
+							string text = Cut();
+							if (!string.IsNullOrEmpty(text))
+								UI.Input?.SetClipboardText(text);
+						}
 						return;
 				}
 			}

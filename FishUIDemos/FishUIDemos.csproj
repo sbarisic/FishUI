@@ -10,10 +10,4 @@
     <ProjectReference Include="..\FishUI\FishUI.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="data\layouts\event_demo.yaml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>

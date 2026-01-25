@@ -1,6 +1,7 @@
 using FishUI;
 using FishUI.Controls;
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 
 namespace FishUIDemos
@@ -198,14 +199,29 @@ namespace FishUIDemos
 		{
 			try
 			{
-				// Serialize current controls to YAML and save to file
-				LayoutFormat.SerializeToFile(FUI, SavedLayoutPath);
+				// Only serialize controls that have IDs (the dynamic controls from YAML)
+				// Exclude static UI elements like labels, log box, etc.
+				var dynamicControls = new List<Control>();
+				string[] dynamicIDs = { "saveButton", "loadButton", "deleteButton", "volumeSlider",
+		"enableSound", "enableMusic", "themeList", "usernameBox" };
+
+				foreach (var id in dynamicIDs)
+				{
+					var ctrl = FUI.FindControlByID<Control>(id);
+					if (ctrl != null)
+						dynamicControls.Add(ctrl);
+				}
+
+				// Serialize only the dynamic controls using LayoutFormat
+				string yaml = LayoutFormat.SerializeControls(dynamicControls);
+
+				// Save to file
+				FUI.FileSystem.WriteAllText(SavedLayoutPath, yaml);
 				Log($"Layout saved to: {SavedLayoutPath}");
 
 				// Show a preview of what was saved
-				string yaml = LayoutFormat.Serialize(FUI);
 				string[] lines = yaml.Split('\n');
-				int linesToShow = Math.Min(6, lines.Length);
+				int linesToShow = Math.Min(8, lines.Length);
 				for (int i = 0; i < linesToShow; i++)
 				{
 					if (!string.IsNullOrWhiteSpace(lines[i]))
@@ -318,20 +334,20 @@ namespace FishUIDemos
 			// Status and log
 			_statusLabel = new Label("Interact with controls to see events. Click 'Save' to serialize, 'Load' to reload from YAML.");
 			_statusLabel.Position = new Vector2(20, 310);
-			_statusLabel.Size = new Vector2(450, 20);
+			_statusLabel.Size = new Vector2(750, 20);
 			_statusLabel.Alignment = Align.Left;
 			FUI.AddControl(_statusLabel);
 
 			_logBox = new MultiLineEditbox();
 			_logBox.Position = new Vector2(20, 335);
-			_logBox.Size = new Vector2(430, 120);
+			_logBox.Size = new Vector2(750, 180);
 			_logBox.ReadOnly = true;
 			_logBox.ShowLineNumbers = false;
 			FUI.AddControl(_logBox);
 
 			// YAML file reference
 			Label yamlLabel = new Label("YAML source: data/layouts/event_demo.yaml");
-			yamlLabel.Position = new Vector2(20, 460);
+			yamlLabel.Position = new Vector2(20, 520);
 			yamlLabel.Size = new Vector2(400, 20);
 			yamlLabel.Alignment = Align.Left;
 			FUI.AddControl(yamlLabel);

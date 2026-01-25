@@ -74,5 +74,15 @@ namespace FishUI
 		/// Returns true if the specified mouse button was just released this frame.
 		/// </summary>
 		public bool IsMouseReleased(FishMouseButton Button);
+
+		/// <summary>
+		/// Gets text from the system clipboard. Returns empty string if clipboard is empty or unavailable.
+		/// </summary>
+		public string GetClipboardText() => "";
+
+		/// <summary>
+		/// Sets text to the system clipboard.
+		/// </summary>
+		public void SetClipboardText(string text) { }
 	}
 }

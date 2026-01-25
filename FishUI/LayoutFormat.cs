@@ -67,7 +67,7 @@ namespace FishUI
 			{ "!PropertyGrid", typeof(PropertyGrid) },
 			{ "!ScrollablePane", typeof(ScrollablePane) },
 			{ "!ItemListbox", typeof(ItemListbox) },
-		{ "!FlowLayout", typeof(FlowLayout) },
+			{ "!FlowLayout", typeof(FlowLayout) },
 			{ "!GridLayout", typeof(GridLayout) },
 			{ "!LineChart", typeof(LineChart) },
 			{ "!Timeline", typeof(Timeline) },
@@ -81,6 +81,14 @@ namespace FishUI
 
 		public static string Serialize(FishUI UI)
 		{
+			return SerializeControls(UI.GetAllControls());
+		}
+
+		/// <summary>
+		/// Serializes a list of controls to YAML.
+		/// </summary>
+		public static string SerializeControls(IEnumerable<Control> controls)
+		{
 			SerializerBuilder sbuild = new SerializerBuilder();
 			sbuild = sbuild.WithNamingConvention(PascalCaseNamingConvention.Instance);
 			sbuild = sbuild.IncludeNonPublicProperties();
@@ -90,9 +98,8 @@ namespace FishUI
 				sbuild.WithTagMapping(KV.Key, KV.Value);
 			}
 
-
 			ISerializer ser = sbuild.Build();
-			string yamlDoc = ser.Serialize(UI.GetAllControls());
+			string yamlDoc = ser.Serialize(controls);
 
 			return yamlDoc;
 		}

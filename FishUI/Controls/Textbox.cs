@@ -418,14 +418,27 @@ namespace FishUI.Controls
 					case 'a': // Select All
 						SelectAll();
 						return;
-					case 'c': // Copy (handled by clipboard, we just provide the text)
-							  // Copy() returns the text - actual clipboard integration is external
+					case 'c': // Copy
+						{
+							string text = Copy();
+							if (!string.IsNullOrEmpty(text))
+								UI.Input?.SetClipboardText(text);
+						}
 						return;
-					case 'v': // Paste (handled externally, text comes through normal input or Paste method)
+					case 'v': // Paste
+						{
+							string text = UI.Input?.GetClipboardText() ?? "";
+							if (!string.IsNullOrEmpty(text))
+								Paste(text);
+						}
 						return;
 					case 'x': // Cut
 						if (!ReadOnly)
-							Cut();
+						{
+							string text = Cut();
+							if (!string.IsNullOrEmpty(text))
+								UI.Input?.SetClipboardText(text);
+						}
 						return;
 				}
 			}
@@ -481,6 +494,41 @@ namespace FishUI.Controls
 
 			if (UI.InputActiveControl != this)
 				return;
+
+			// Handle Ctrl key combinations for clipboard
+			// Key codes: A=65, C=67, V=86, X=88
+			if (InState.CtrlDown)
+			{
+				switch (KeyCode)
+				{
+					case 65: // A - Select All
+						SelectAll();
+						return;
+					case 67: // C - Copy
+						{
+							string text = Copy();
+							if (!string.IsNullOrEmpty(text))
+								UI.Input?.SetClipboardText(text);
+						}
+						return;
+					case 86: // V - Paste
+						if (!ReadOnly)
+						{
+							string text = UI.Input?.GetClipboardText() ?? "";
+							if (!string.IsNullOrEmpty(text))
+								Paste(text);
+						}
+						return;
+					case 88: // X - Cut
+						if (!ReadOnly)
+						{
+							string text = Cut();
+							if (!string.IsNullOrEmpty(text))
+								UI.Input?.SetClipboardText(text);
+						}
+						return;
+				}
+			}
 
 			bool shift = InState.ShiftDown;
 
