@@ -146,6 +146,65 @@ namespace FishUI.Controls
 			EnsureDataSize();
 		}
 
+		private void CreateScrollBars()
+		{
+			if (_scrollBarV == null)
+			{
+				_scrollBarV = new ScrollBarV();
+				_scrollBarV.OnScrollChanged += (_, scroll, delta) =>
+				{
+					float cellH = Scale(CellHeight);
+					float contentHeight = _rowCount * cellH;
+					_scrollOffset.Y = -scroll * contentHeight;
+				};
+				AddChild(_scrollBarV);
+			}
+
+			if (_scrollBarH == null)
+			{
+				_scrollBarH = new ScrollBarH();
+				_scrollBarH.OnScrollChanged += (_, scroll, delta) =>
+				{
+					float cellW = Scale(CellWidth);
+					float contentWidth = _columnCount * cellW;
+					_scrollOffset.X = -scroll * contentWidth;
+				};
+				AddChild(_scrollBarH);
+			}
+		}
+
+		private void UpdateScrollBars(FishUI UI)
+		{
+			float rowHeaderW = Scale(RowHeaderWidth);
+			float colHeaderH = Scale(ColumnHeaderHeight);
+			float cellW = Scale(CellWidth);
+			float cellH = Scale(CellHeight);
+			Vector2 size = GetAbsoluteSize();
+
+			float contentWidth = _columnCount * cellW;
+			float contentHeight = _rowCount * cellH;
+			float viewWidth = size.X - rowHeaderW - 16;
+			float viewHeight = size.Y - colHeaderH - 16;
+
+			// Update vertical scrollbar
+			_scrollBarV.Position = new Vector2(Size.X - 16, ColumnHeaderHeight);
+			_scrollBarV.Size = new Vector2(16, Size.Y - ColumnHeaderHeight - 16);
+			_scrollBarV.Visible = contentHeight > viewHeight;
+			if (_scrollBarV.Visible)
+			{
+				_scrollBarV.ThumbHeight = Math.Clamp(viewHeight / contentHeight, 0.1f, 1f);
+			}
+
+			// Update horizontal scrollbar
+			_scrollBarH.Position = new Vector2(RowHeaderWidth, Size.Y - 16);
+			_scrollBarH.Size = new Vector2(Size.X - RowHeaderWidth - 16, 16);
+			_scrollBarH.Visible = contentWidth > viewWidth;
+			if (_scrollBarH.Visible)
+			{
+				_scrollBarH.ThumbWidth = Math.Clamp(viewWidth / contentWidth, 0.1f, 1f);
+			}
+		}
+
 		private void EnsureDataSize()
 		{
 			// Ensure we have enough rows
@@ -302,6 +361,26 @@ namespace FishUI.Controls
 				_scrollOffset.Y = -cellY;
 			else if (cellY + cellH + _scrollOffset.Y > viewHeight)
 				_scrollOffset.Y = viewHeight - cellY - cellH;
+
+			// Sync scrollbar positions
+			SyncScrollBarsFromOffset();
+		}
+
+		private void SyncScrollBarsFromOffset()
+		{
+			float cellW = Scale(CellWidth);
+			float cellH = Scale(CellHeight);
+			float contentWidth = _columnCount * cellW;
+			float contentHeight = _rowCount * cellH;
+
+			if (_scrollBarV != null && contentHeight > 0)
+			{
+				_scrollBarV.ThumbPosition = -_scrollOffset.Y / contentHeight;
+			}
+			if (_scrollBarH != null && contentWidth > 0)
+			{
+				_scrollBarH.ThumbPosition = -_scrollOffset.X / contentWidth;
+			}
 		}
 
 		#endregion
@@ -310,6 +389,10 @@ namespace FishUI.Controls
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
+			// Create and update scrollbars
+			CreateScrollBars();
+			UpdateScrollBars(UI);
+
 			Vector2 pos = GetAbsolutePosition();
 			Vector2 size = GetAbsoluteSize();
 			var font = UI.Settings.FontDefault;
@@ -318,6 +401,7 @@ namespace FishUI.Controls
 			float cellH = Scale(CellHeight);
 			float rowHeaderW = Scale(RowHeaderWidth);
 			float colHeaderH = Scale(ColumnHeaderHeight);
+
 
 			// Background
 			NPatch bgPatch = UI.Settings.ImgListBoxNormal;
@@ -689,11 +773,15 @@ namespace FishUI.Controls
 			float viewHeight = GetAbsoluteSize().Y - colHeaderH - 16;
 			float contentHeight = _rowCount * cellH;
 
+
 			_scrollOffset.Y += Delta * cellH * 3;
 
 			float maxScroll = 0;
 			float minScroll = Math.Min(0, viewHeight - contentHeight);
 			_scrollOffset.Y = Math.Clamp(_scrollOffset.Y, minScroll, maxScroll);
+
+			// Sync scrollbar position
+			SyncScrollBarsFromOffset();
 		}
 
 		#endregion
