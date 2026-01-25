@@ -92,6 +92,7 @@ namespace FishUI
 			SerializerBuilder sbuild = new SerializerBuilder();
 			sbuild = sbuild.WithNamingConvention(PascalCaseNamingConvention.Instance);
 			sbuild = sbuild.IncludeNonPublicProperties();
+			sbuild = sbuild.ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults | DefaultValuesHandling.OmitNull | DefaultValuesHandling.OmitEmptyCollections);
 
 			foreach (var KV in TypeMapping)
 			{
