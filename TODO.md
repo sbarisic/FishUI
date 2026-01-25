@@ -194,11 +194,6 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### External Dependency Abstraction
 
-- [ ] **Logging Interface Abstraction** (2 CPX)
-  - `FishUIDebug.cs` uses `Console.WriteLine` directly (lines 69, 81, 94, 104)
-  - Should introduce `IFishUILogger` interface with methods like `Log(string message)`
-  - Allow users to provide custom logging implementations (file, game console, etc.)
-
 - [ ] **File System Interface Abstraction** (3 CPX)
   - `FishUIThemeLoader.cs` uses `File.Exists`, `File.ReadAllText` (lines 26, 29)
   - `LayoutFormat.cs` uses `File.WriteAllText`, `File.ReadAllText` (lines 22, 27)
@@ -297,6 +292,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - FishUIThemeLoader: Replaced custom YAML parser with YamlDotNet, added DTO classes for deserialization
 - Generic FindControlByID<T>() method for strongly-typed control lookup
 - Event System Refactoring: IFishUIEvents with specialized methods (OnControlClicked, OnControlValueChanged, OnControlSelectionChanged, etc.), FishUIEventArgs classes, Control events (Clicked, DoubleClicked, MouseEnter, MouseLeave), OnLayoutLoaded event
+- Logging Interface Abstraction: IFishUILogger interface, DefaultFishUILogger, NullFishUILogger, FishUIDebug.Logger property for custom logging
 
 ### Documentation
 - README.md: Complete rewrite with 35+ controls, code examples, theming, serialization, project structure

@@ -8,6 +8,19 @@ namespace FishUI
 	/// </summary>
 	public static class FishUIDebug
 	{
+		private static IFishUILogger _logger = new DefaultFishUILogger();
+
+		/// <summary>
+		/// Gets or sets the logger implementation used for all FishUI debug output.
+		/// Set to a custom IFishUILogger implementation to redirect logs to file, game console, etc.
+		/// Set to NullFishUILogger to disable all logging.
+		/// </summary>
+		public static IFishUILogger Logger
+		{
+			get => _logger;
+			set => _logger = value ?? new NullFishUILogger();
+		}
+
 		/// <summary>
 		/// Gets or sets whether debug logging is globally enabled.
 		/// </summary>
@@ -66,7 +79,7 @@ namespace FishUI
 		public static void Log(string message)
 		{
 			if (Enabled)
-				Console.WriteLine($"[FishUI] {message}");
+				_logger.Log(message);
 		}
 
 		/// <summary>
@@ -78,7 +91,7 @@ namespace FishUI
 		public static void LogControlEvent(string controlType, string controlId, string eventName)
 		{
 			if (Enabled && LogControlEvents)
-				Console.WriteLine($"[FishUI] {controlType}({controlId ?? "null"}) - {eventName}");
+				_logger.LogControlEvent(controlType, controlId, eventName);
 		}
 
 		/// <summary>
@@ -91,7 +104,7 @@ namespace FishUI
 		public static void LogControlEvent(string controlType, string controlId, string eventName, string info)
 		{
 			if (Enabled && LogControlEvents)
-				Console.WriteLine($"[FishUI] {controlType}({controlId ?? "null"}) - {eventName} {info}");
+				_logger.LogControlEvent(controlType, controlId, eventName, info);
 		}
 
 		/// <summary>
@@ -101,7 +114,7 @@ namespace FishUI
 		public static void LogListBoxSelectionChange(int selectedIndex)
 		{
 			if (Enabled && LogListBoxSelection)
-				Console.WriteLine($"[FishUI] ListBox selected index: {selectedIndex}");
+				_logger.Log($"ListBox selected index: {selectedIndex}");
 		}
 	}
 }
