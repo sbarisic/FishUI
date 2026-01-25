@@ -77,6 +77,13 @@ A list of planned features, improvements, and new controls for FishUI.
   - Vertical scrollbar integration
   - *GWEN atlas regions: Uses TextBox regions*
 
+- [ ] **LineChart** (3 CPX)
+  - Horizontal line chart for real-time data visualization
+  - Configurable time window on X-axis
+  - Y-axis with configurable min/max values and labels
+  - Multiple data series with customizable colors
+  - *Use case: Temperature monitoring, performance graphs, sensor data*
+
 ### Lower Priority
 
 - [ ] **MultiColumnList / DataGrid** (4 CPX)
@@ -167,6 +174,9 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [ ] MultiLine textbox example (separate demo)
   - Add single line and multi line 
   - Requires multi-line textbox mode implementation
+- [ ] LineChart example (separate demo)
+  - Real-time sine wave with random noise
+  - Requires LineChart control implementation
 
 ---
 
@@ -209,11 +219,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-- Create a chart control, it should be a horizontal line chart where you can define a time window on the X axis, and data on Y axis
-  - Data on the Y axis should support a start value, end value, it should display these on the left with labels
-  - Drawn lines should support colors
-  - Goal is real time data display, like temperature across time
-  - Create a demo screen with some realtime data, sine wave with random noise
+*No uncategorized items*
 
 ---
 
