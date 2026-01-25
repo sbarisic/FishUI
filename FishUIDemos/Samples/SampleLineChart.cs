@@ -92,68 +92,93 @@ namespace FishUIDemos
 			slowSeries = chart.AddSeries("Slow (1.5s)", new FishColor(255, 200, 50, 255));
 			slowSeries.LineThickness = 2.5f;
 
+			// === Timeline Control (between chart and legend) ===
+			Label timelineLabel = new Label("Timeline (drag to navigate when paused)");
+			timelineLabel.Position = new Vector2(20, 350);
+			timelineLabel.Size = new Vector2(300, 20);
+			timelineLabel.Alignment = Align.Left;
+			FUI.AddControl(timelineLabel);
+
+			Timeline timeline = new Timeline();
+			timeline.Position = new Vector2(20, 375);
+			timeline.Size = new Vector2(760, 40);
+			timeline.MinTime = 0f;
+			timeline.MaxTime = 100f;
+			timeline.SetView(0f, 10f);
+			timeline.MajorTickCount = 10;
+			timeline.LabelFormat = "F0";
+			timeline.OnViewChanged += (sender, args) =>
+			{
+				// Sync main chart's view when timeline changes
+				chart.TimeWindow = args.ViewWidth;
+				chart.ViewStart = args.ViewStart;
+			};
+			FUI.AddControl(timeline);
+			this.timeline = timeline;
+
 			// === Legend ===
 			Label legendLabel = new Label("Legend:");
-			legendLabel.Position = new Vector2(20, 350);
+			legendLabel.Position = new Vector2(20, 420);
 			legendLabel.Size = new Vector2(100, 20);
 			legendLabel.Alignment = Align.Left;
 			FUI.AddControl(legendLabel);
 
+
 			// Sine wave legend
 			Panel sineLegendColor = new Panel();
-			sineLegendColor.Position = new Vector2(80, 353);
+			sineLegendColor.Position = new Vector2(80, 423);
 			sineLegendColor.Size = new Vector2(15, 10);
 			sineLegendColor.Color = sineWaveSeries.Color;
 			FUI.AddControl(sineLegendColor);
 
 			Label sineLegendLabel = new Label("Sine");
-			sineLegendLabel.Position = new Vector2(100, 348);
+			sineLegendLabel.Position = new Vector2(100, 418);
 			sineLegendLabel.Size = new Vector2(50, 20);
 			sineLegendLabel.Alignment = Align.Left;
 			FUI.AddControl(sineLegendLabel);
 
 			// Noisy sine legend
 			Panel noisyLegendColor = new Panel();
-			noisyLegendColor.Position = new Vector2(150, 353);
+			noisyLegendColor.Position = new Vector2(150, 423);
 			noisyLegendColor.Size = new Vector2(15, 10);
 			noisyLegendColor.Color = noisySeries.Color;
 			FUI.AddControl(noisyLegendColor);
 
 			Label noisyLegendLabel = new Label("Noisy");
-			noisyLegendLabel.Position = new Vector2(170, 348);
+			noisyLegendLabel.Position = new Vector2(170, 418);
 			noisyLegendLabel.Size = new Vector2(50, 20);
 			noisyLegendLabel.Alignment = Align.Left;
 			FUI.AddControl(noisyLegendLabel);
 
 			// Random walk legend
 			Panel randomLegendColor = new Panel();
-			randomLegendColor.Position = new Vector2(225, 353);
+			randomLegendColor.Position = new Vector2(225, 423);
 			randomLegendColor.Size = new Vector2(15, 10);
 			randomLegendColor.Color = randomSeries.Color;
 			FUI.AddControl(randomLegendColor);
 
 			Label randomLegendLabel = new Label("Random");
-			randomLegendLabel.Position = new Vector2(245, 348);
+			randomLegendLabel.Position = new Vector2(245, 418);
 			randomLegendLabel.Size = new Vector2(60, 20);
 			randomLegendLabel.Alignment = Align.Left;
 			FUI.AddControl(randomLegendLabel);
 
 			// Slow series legend
 			Panel slowLegendColor = new Panel();
-			slowLegendColor.Position = new Vector2(310, 353);
+			slowLegendColor.Position = new Vector2(310, 423);
 			slowLegendColor.Size = new Vector2(15, 10);
 			slowLegendColor.Color = slowSeries.Color;
 			FUI.AddControl(slowLegendColor);
 
 			Label slowLegendLabel = new Label("Slow(1.5s)");
-			slowLegendLabel.Position = new Vector2(330, 348);
+			slowLegendLabel.Position = new Vector2(330, 418);
 			slowLegendLabel.Size = new Vector2(80, 20);
 			slowLegendLabel.Alignment = Align.Left;
 			FUI.AddControl(slowLegendLabel);
 
 			// Cursor values display
 			Label cursorLabel = new Label("Cursor: Click chart to select");
-			cursorLabel.Position = new Vector2(430, 348);
+			cursorLabel.Position = new Vector2(430, 418);
 			cursorLabel.Size = new Vector2(350, 20);
 			cursorLabel.Alignment = Align.Left;
 			FUI.AddControl(cursorLabel);
@@ -172,7 +197,7 @@ namespace FishUIDemos
 
 			// === Controls Section ===
 			Label controlsLabel = new Label("Chart Settings:");
-			controlsLabel.Position = new Vector2(20, 375);
+			controlsLabel.Position = new Vector2(20, 445);
 			controlsLabel.Size = new Vector2(150, 24);
 			controlsLabel.Alignment = Align.Left;
 			FUI.AddControl(controlsLabel);
@@ -181,13 +206,13 @@ namespace FishUIDemos
 
 			// Time window slider
 			Label timeWindowLabel = new Label("Time Window:");
-			timeWindowLabel.Position = new Vector2(20, 405);
+			timeWindowLabel.Position = new Vector2(20, 475);
 			timeWindowLabel.Size = new Vector2(100, 20);
 			timeWindowLabel.Alignment = Align.Left;
 			FUI.AddControl(timeWindowLabel);
 
 			Slider timeWindowSlider = new Slider();
-			timeWindowSlider.Position = new Vector2(130, 405);
+			timeWindowSlider.Position = new Vector2(130, 475);
 			timeWindowSlider.Size = new Vector2(150, 20);
 			timeWindowSlider.MinValue = 5f;
 			timeWindowSlider.MaxValue = 30f;
@@ -196,22 +221,22 @@ namespace FishUIDemos
 			FUI.AddControl(timeWindowSlider);
 
 			Label timeWindowValueLabel = new Label($"{chart.TimeWindow:F0}s");
-			timeWindowValueLabel.Position = new Vector2(290, 405);
+			timeWindowValueLabel.Position = new Vector2(290, 475);
 			timeWindowValueLabel.Size = new Vector2(50, 20);
 			timeWindowValueLabel.Alignment = Align.Left;
 			timeWindowSlider.OnValueChanged += (slider, val) => timeWindowValueLabel.Text = $"{val:F0}s";
 			FUI.AddControl(timeWindowValueLabel);
 
-		// Pause/Resume button
+			// Pause/Resume button
 			Button pauseBtn = new Button();
 			pauseBtn.Text = "Pause";
-			pauseBtn.Position = new Vector2(360, 400);
+			pauseBtn.Position = new Vector2(360, 470);
 			pauseBtn.Size = new Vector2(70, 30);
 			pauseBtn.OnButtonPressed += (btn, mbtn, pos) =>
 			{
 				chart.IsPaused = !chart.IsPaused;
 				pauseBtn.Text = chart.IsPaused ? "Resume" : "Pause";
-				
+
 				// Toggle auto-scroll: when paused, allow manual navigation via timeline
 				chart.AutoScroll = !chart.IsPaused;
 				if (chart.IsPaused)
@@ -225,7 +250,7 @@ namespace FishUIDemos
 			// Clear button
 			Button clearBtn = new Button();
 			clearBtn.Text = "Clear";
-			clearBtn.Position = new Vector2(435, 400);
+			clearBtn.Position = new Vector2(435, 470);
 			clearBtn.Size = new Vector2(70, 30);
 			clearBtn.OnButtonPressed += (btn, mbtn, pos) =>
 			{
@@ -238,7 +263,7 @@ namespace FishUIDemos
 
 			// Grid toggle
 			CheckBox showGridCheckbox = new CheckBox("Show Grid");
-			showGridCheckbox.Position = new Vector2(520, 405);
+			showGridCheckbox.Position = new Vector2(520, 475);
 			showGridCheckbox.Size = new Vector2(15, 15);
 			showGridCheckbox.IsChecked = true;
 			showGridCheckbox.OnCheckedChanged += (cb, chk) =>
@@ -250,7 +275,7 @@ namespace FishUIDemos
 
 			// Labels toggle
 			CheckBox showLabelsCheckbox = new CheckBox("Show Labels");
-			showLabelsCheckbox.Position = new Vector2(620, 405);
+			showLabelsCheckbox.Position = new Vector2(620, 475);
 			showLabelsCheckbox.Size = new Vector2(15, 15);
 			showLabelsCheckbox.IsChecked = true;
 			showLabelsCheckbox.OnCheckedChanged += (cb, chk) =>
@@ -262,14 +287,14 @@ namespace FishUIDemos
 
 			// === Second Chart - Temperature Style ===
 			Label tempLabel = new Label("Temperature Monitor Style");
-			tempLabel.Position = new Vector2(20, 440);
+			tempLabel.Position = new Vector2(20, 510);
 			tempLabel.Size = new Vector2(200, 24);
 			tempLabel.Alignment = Align.Left;
 			FUI.AddControl(tempLabel);
 
 			LineChart tempChart = new LineChart();
-			tempChart.Position = new Vector2(20, 470);
-			tempChart.Size = new Vector2(560, 120);
+			tempChart.Position = new Vector2(20, 540);
+			tempChart.Size = new Vector2(760, 120);
 			tempChart.MinValue = 20f;
 			tempChart.MaxValue = 80f;
 			tempChart.TimeWindow = 60f;
@@ -289,30 +314,6 @@ namespace FishUIDemos
 			this.tempChart = tempChart;
 			this.cpuTemp = cpuTemp;
 			this.gpuTemp = gpuTemp;
-
-		// === Timeline Control ===
-			Label timelineLabel = new Label("Timeline (drag window to navigate)");
-			timelineLabel.Position = new Vector2(600, 440);
-			timelineLabel.Size = new Vector2(200, 24);
-			timelineLabel.Alignment = Align.Left;
-			FUI.AddControl(timelineLabel);
-
-			Timeline timeline = new Timeline();
-			timeline.Position = new Vector2(600, 470);
-			timeline.Size = new Vector2(180, 50);
-			timeline.MinTime = 0f;
-			timeline.MaxTime = 100f;
-			timeline.SetView(0f, 10f);
-			timeline.MajorTickCount = 5;
-			timeline.LabelFormat = "F0";
-			timeline.OnViewChanged += (sender, args) =>
-			{
-				// Sync main chart's view when timeline changes
-				chart.TimeWindow = args.ViewWidth;
-				chart.ViewStart = args.ViewStart;
-			};
-			FUI.AddControl(timeline);
-			this.timeline = timeline;
 		}
 
 

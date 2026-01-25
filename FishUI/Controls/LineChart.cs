@@ -127,7 +127,7 @@ namespace FishUI.Controls
 	/// </summary>
 	public class LineChart : Control
 	{
-	/// <summary>
+		/// <summary>
 		/// Minimum value on the Y-axis.
 		/// </summary>
 		[YamlMember]
@@ -485,7 +485,7 @@ namespace FishUI.Controls
 			}
 		}
 
-	private void DrawSeries(FishUI UI, Vector2 chartPos, Vector2 chartSize)
+		private void DrawSeries(FishUI UI, Vector2 chartPos, Vector2 chartSize)
 		{
 			float timeStart = AutoScroll ? CurrentTime - TimeWindow : ViewStart;
 			float timeEnd = AutoScroll ? CurrentTime : ViewStart + TimeWindow;
@@ -550,7 +550,7 @@ namespace FishUI.Controls
 			}
 		}
 
-	private void DrawXAxisLabels(FishUI UI, Vector2 chartPos, Vector2 chartSize, float labelHeight)
+		private void DrawXAxisLabels(FishUI UI, Vector2 chartPos, Vector2 chartSize, float labelHeight)
 		{
 			var font = UI.Settings.FontDefault;
 			if (font == null) return;
@@ -575,7 +575,7 @@ namespace FishUI.Controls
 			}
 		}
 
-	private void DrawCursor(FishUI UI, Vector2 chartPos, Vector2 chartSize)
+		private void DrawCursor(FishUI UI, Vector2 chartPos, Vector2 chartSize)
 		{
 			float timeStart = AutoScroll ? CurrentTime - TimeWindow : ViewStart;
 			float timeEnd = AutoScroll ? CurrentTime : ViewStart + TimeWindow;
@@ -614,7 +614,7 @@ namespace FishUI.Controls
 			}
 		}
 
-	/// <summary>
+		/// <summary>
 		/// Converts a screen X position to a time value.
 		/// </summary>
 		private float ScreenXToTime(float screenX)

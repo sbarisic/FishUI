@@ -127,7 +127,7 @@ namespace FishUI.Controls
 		/// Color of the time labels.
 		/// </summary>
 		[YamlMember]
-		public FishColor LabelColor { get; set; } = new FishColor(0, 0, 0, 255);
+		public FishColor LabelColor { get; set; } = new FishColor(255, 255, 255, 255);
 
 		/// <summary>
 		/// Number of major tick divisions.
