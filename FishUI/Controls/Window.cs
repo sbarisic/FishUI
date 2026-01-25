@@ -123,12 +123,12 @@ namespace FishUI.Controls
 		/// <summary>
 		/// Minimum size the window can be resized to.
 		/// </summary>
-		public Vector2 MinSize { get; set; } = new Vector2(100, 60);
+		public override Vector2 MinSize { get; set; } = new Vector2(100, 60);
 
 		/// <summary>
 		/// Maximum size the window can be resized to. Set to Vector2.Zero for no limit.
 		/// </summary>
-		public Vector2 MaxSize { get; set; } = Vector2.Zero;
+		public override Vector2 MaxSize { get; set; } = Vector2.Zero;
 
 		/// <summary>
 		/// Height of the titlebar in pixels.
