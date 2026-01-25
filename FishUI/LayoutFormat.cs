@@ -19,57 +19,56 @@ namespace FishUI
 		public static void SerializeToFile(FishUI UI, string FilePath)
 		{
 			string Data = Serialize(UI);
-			File.WriteAllText(FilePath, Data);
+			UI.FileSystem.WriteAllText(FilePath, Data);
 		}
 
-	public static void DeserializeFromFile(FishUI UI, string FilePath)
+		public static void DeserializeFromFile(FishUI UI, string FilePath)
 		{
-			string Data = File.ReadAllText(FilePath);
+			string Data = UI.FileSystem.ReadAllText(FilePath);
 			Deserialize(UI, Data);
 
 			// Fire layout loaded event
 			UI.Events?.OnLayoutLoaded(new FishUILayoutLoadedEventArgs(UI, FilePath));
 		}
 
-		static Dictionary<string, Type> TypeMapping = new Dictionary<string, Type>()
-	{
-		{ "!Button", typeof(Button) },
-		{ "!CheckBox", typeof(CheckBox) },
-		{ "!RadioButton", typeof(RadioButton) },
-		{ "!Panel", typeof(Panel) },
-		{ "!Textbox", typeof(Textbox) },
-		{ "!Label", typeof(Label) },
-		{ "!ListBox", typeof(ListBox) },
-		{ "!ScrollBarV", typeof(ScrollBarV) },
-		{ "!ScrollBarH", typeof(ScrollBarH) },
-		{ "!DropDown", typeof(DropDown) },
-		{ "!ProgressBar", typeof(ProgressBar) },
-		{ "!Slider", typeof(Slider) },
-		{ "!ToggleSwitch", typeof(ToggleSwitch) },
-		{ "!SelectionBox", typeof(SelectionBox) },
-		{ "!Window", typeof(Window) },
-		{ "!Titlebar", typeof(Titlebar) },
-		{ "!TabControl", typeof(TabControl) },
-		{ "!GroupBox", typeof(GroupBox) },
-		{ "!TreeView", typeof(TreeView) },
-		{ "!NumericUpDown", typeof(NumericUpDown) },
-		{ "!Tooltip", typeof(Tooltip) },
-		{ "!ContextMenu", typeof(ContextMenu) },
-		{ "!MenuItem", typeof(MenuItem) },
-		{ "!MenuBar", typeof(MenuBar) },
-		{ "!MenuBarItem", typeof(MenuBarItem) },
-		{ "!StackLayout", typeof(StackLayout) },
-		{ "!ImageBox", typeof(ImageBox) },
-		{ "!StaticText", typeof(StaticText) },
-		{ "!BarGauge", typeof(BarGauge) },
-		{ "!VUMeter", typeof(VUMeter) },
-		{ "!AnimatedImageBox", typeof(AnimatedImageBox) },
-		{ "!RadialGauge", typeof(RadialGauge) },
-		{ "!PropertyGrid", typeof(PropertyGrid) },
-		{ "!ScrollablePane", typeof(ScrollablePane) },
-		{ "!ItemListbox", typeof(ItemListbox) },
-		{ "!FlowLayout", typeof(FlowLayout) },
-		{ "!GridLayout", typeof(GridLayout) }
+		static Dictionary<string, Type> TypeMapping = new Dictionary<string, Type>() {
+			{ "!Button", typeof(Button) },
+			{ "!CheckBox", typeof(CheckBox) },
+			{ "!RadioButton", typeof(RadioButton) },
+			{ "!Panel", typeof(Panel) },
+			{ "!Textbox", typeof(Textbox) },
+			{ "!Label", typeof(Label) },
+			{ "!ListBox", typeof(ListBox) },
+			{ "!ScrollBarV", typeof(ScrollBarV) },
+			{ "!ScrollBarH", typeof(ScrollBarH) },
+			{ "!DropDown", typeof(DropDown) },
+			{ "!ProgressBar", typeof(ProgressBar) },
+			{ "!Slider", typeof(Slider) },
+			{ "!ToggleSwitch", typeof(ToggleSwitch) },
+			{ "!SelectionBox", typeof(SelectionBox) },
+			{ "!Window", typeof(Window) },
+			{ "!Titlebar", typeof(Titlebar) },
+			{ "!TabControl", typeof(TabControl) },
+			{ "!GroupBox", typeof(GroupBox) },
+			{ "!TreeView", typeof(TreeView) },
+			{ "!NumericUpDown", typeof(NumericUpDown) },
+			{ "!Tooltip", typeof(Tooltip) },
+			{ "!ContextMenu", typeof(ContextMenu) },
+			{ "!MenuItem", typeof(MenuItem) },
+			{ "!MenuBar", typeof(MenuBar) },
+			{ "!MenuBarItem", typeof(MenuBarItem) },
+			{ "!StackLayout", typeof(StackLayout) },
+			{ "!ImageBox", typeof(ImageBox) },
+			{ "!StaticText", typeof(StaticText) },
+			{ "!BarGauge", typeof(BarGauge) },
+			{ "!VUMeter", typeof(VUMeter) },
+			{ "!AnimatedImageBox", typeof(AnimatedImageBox) },
+			{ "!RadialGauge", typeof(RadialGauge) },
+			{ "!PropertyGrid", typeof(PropertyGrid) },
+			{ "!ScrollablePane", typeof(ScrollablePane) },
+			{ "!ItemListbox", typeof(ItemListbox) },
+			{ "!FlowLayout", typeof(FlowLayout) },
+			{ "!GridLayout", typeof(GridLayout) }
 		};
 
 		public static string Serialize(FishUI UI)

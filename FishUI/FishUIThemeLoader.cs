@@ -101,16 +101,16 @@ namespace FishUI
 
 		private FishUITheme LoadFromFileInternal(string filePath, HashSet<string> loadedPaths)
 		{
-			string fullPath = Path.GetFullPath(filePath);
+			string fullPath = UI.FileSystem.GetFullPath(filePath);
 			if (loadedPaths.Contains(fullPath))
 				throw new InvalidOperationException($"Circular theme inheritance detected: {filePath}");
 			loadedPaths.Add(fullPath);
 
-			if (!File.Exists(filePath))
+			if (!UI.FileSystem.Exists(filePath))
 				throw new FileNotFoundException($"Theme file not found: {filePath}");
 
-			string content = File.ReadAllText(filePath);
-			string baseDir = Path.GetDirectoryName(filePath);
+			string content = UI.FileSystem.ReadAllText(filePath);
+			string baseDir = UI.FileSystem.GetDirectoryName(filePath);
 			return ParseTheme(content, baseDir, loadedPaths);
 		}
 
@@ -132,7 +132,7 @@ namespace FishUI
 			{
 				string parentPath = dto.Theme.Inherits;
 				if (!string.IsNullOrEmpty(baseDir) && !Path.IsPathRooted(parentPath))
-					parentPath = Path.Combine(baseDir, parentPath);
+					parentPath = UI.FileSystem.CombinePath(baseDir, parentPath);
 
 				theme = LoadFromFileInternal(parentPath, loadedPaths);
 			}
@@ -161,8 +161,10 @@ namespace FishUI
 				if (!string.IsNullOrEmpty(dto.Atlas.Path))
 				{
 					string atlasPath = dto.Atlas.Path;
+
 					if (!string.IsNullOrEmpty(baseDir) && !Path.IsPathRooted(atlasPath) && !atlasPath.StartsWith("data"))
-						atlasPath = Path.Combine(baseDir, atlasPath);
+						atlasPath = UI.FileSystem.CombinePath(baseDir, atlasPath);
+
 					theme.AtlasPath = atlasPath;
 				}
 			}
@@ -172,20 +174,28 @@ namespace FishUI
 			{
 				if (!string.IsNullOrEmpty(dto.Colors.Background))
 					theme.Colors.Background = ParseColorValue(dto.Colors.Background);
+
 				if (!string.IsNullOrEmpty(dto.Colors.Foreground))
 					theme.Colors.Foreground = ParseColorValue(dto.Colors.Foreground);
+
 				if (!string.IsNullOrEmpty(dto.Colors.Accent))
 					theme.Colors.Accent = ParseColorValue(dto.Colors.Accent);
+
 				if (!string.IsNullOrEmpty(dto.Colors.AccentSecondary))
 					theme.Colors.AccentSecondary = ParseColorValue(dto.Colors.AccentSecondary);
+
 				if (!string.IsNullOrEmpty(dto.Colors.Disabled))
 					theme.Colors.Disabled = ParseColorValue(dto.Colors.Disabled);
+
 				if (!string.IsNullOrEmpty(dto.Colors.Error))
 					theme.Colors.Error = ParseColorValue(dto.Colors.Error);
+
 				if (!string.IsNullOrEmpty(dto.Colors.Success))
 					theme.Colors.Success = ParseColorValue(dto.Colors.Success);
+
 				if (!string.IsNullOrEmpty(dto.Colors.Warning))
 					theme.Colors.Warning = ParseColorValue(dto.Colors.Warning);
+
 				if (!string.IsNullOrEmpty(dto.Colors.Border))
 					theme.Colors.Border = ParseColorValue(dto.Colors.Border);
 
@@ -203,12 +213,16 @@ namespace FishUI
 			{
 				if (!string.IsNullOrEmpty(dto.Fonts.DefaultPath))
 					theme.Fonts.DefaultFontPath = dto.Fonts.DefaultPath;
+
 				if (!string.IsNullOrEmpty(dto.Fonts.BoldPath))
 					theme.Fonts.BoldFontPath = dto.Fonts.BoldPath;
+
 				if (dto.Fonts.DefaultSize > 0)
 					theme.Fonts.DefaultSize = dto.Fonts.DefaultSize;
+
 				if (dto.Fonts.LabelSize > 0)
 					theme.Fonts.LabelSize = dto.Fonts.LabelSize;
+
 				theme.Fonts.Spacing = dto.Fonts.Spacing;
 			}
 

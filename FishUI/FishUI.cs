@@ -29,6 +29,13 @@ namespace FishUI
 		/// </summary>
 		public IFishUIEvents Events;
 
+		/// <summary>
+		/// File system interface for file operations (theme loading, layout serialization, etc.).
+		/// Set to a custom IFishUIFileSystem implementation to use virtual file systems,
+		/// embedded resources, or game engine asset systems.
+		/// </summary>
+		public IFishUIFileSystem FileSystem = new DefaultFishUIFileSystem();
+
 		List<Control> Controls;
 
 		/// <summary>
