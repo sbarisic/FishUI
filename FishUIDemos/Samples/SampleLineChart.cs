@@ -11,7 +11,7 @@ namespace FishUIDemos
 	/// </summary>
 	public class SampleLineChart : ISample
 	{
-	FishUI.FishUI FUI;
+		FishUI.FishUI FUI;
 		LineChart chart;
 		LineChartSeries sineWaveSeries;
 		LineChartSeries noisySeries;
@@ -61,10 +61,10 @@ namespace FishUIDemos
 			Label chartLabel = new Label("Real-Time Data Visualization");
 			chartLabel.Position = new Vector2(20, 60);
 			chartLabel.Size = new Vector2(400, 24);
-		chartLabel.Alignment = Align.Left;
+			chartLabel.Alignment = Align.Left;
 			FUI.AddControl(chartLabel);
 
-	chart = new LineChart();
+			chart = new LineChart();
 			chart.Position = new Vector2(20, 90);
 			chart.Size = new Vector2(760, 250);
 			chart.MinValue = -1.5f;
@@ -92,7 +92,7 @@ namespace FishUIDemos
 			slowSeries = chart.AddSeries("Slow (1.5s)", new FishColor(255, 200, 50, 255));
 			slowSeries.LineThickness = 2.5f;
 
-		// === Legend ===
+			// === Legend ===
 			Label legendLabel = new Label("Legend:");
 			legendLabel.Position = new Vector2(20, 350);
 			legendLabel.Size = new Vector2(100, 20);
@@ -125,7 +125,7 @@ namespace FishUIDemos
 			noisyLegendLabel.Alignment = Align.Left;
 			FUI.AddControl(noisyLegendLabel);
 
-		// Random walk legend
+			// Random walk legend
 			Panel randomLegendColor = new Panel();
 			randomLegendColor.Position = new Vector2(225, 353);
 			randomLegendColor.Size = new Vector2(15, 10);
@@ -170,7 +170,7 @@ namespace FishUIDemos
 				cursorValueLabel.Text = text;
 			};
 
-		// === Controls Section ===
+			// === Controls Section ===
 			Label controlsLabel = new Label("Chart Settings:");
 			controlsLabel.Position = new Vector2(20, 375);
 			controlsLabel.Size = new Vector2(150, 24);
@@ -195,7 +195,7 @@ namespace FishUIDemos
 			timeWindowSlider.OnValueChanged += (slider, val) => chart.TimeWindow = val;
 			FUI.AddControl(timeWindowSlider);
 
-		Label timeWindowValueLabel = new Label($"{chart.TimeWindow:F0}s");
+			Label timeWindowValueLabel = new Label($"{chart.TimeWindow:F0}s");
 			timeWindowValueLabel.Position = new Vector2(290, 405);
 			timeWindowValueLabel.Size = new Vector2(50, 20);
 			timeWindowValueLabel.Alignment = Align.Left;
@@ -283,7 +283,7 @@ namespace FishUIDemos
 			this.gpuTemp = gpuTemp;
 		}
 
-	LineChart tempChart;
+		LineChart tempChart;
 		LineChartSeries cpuTemp;
 		LineChartSeries gpuTemp;
 		float randomWalkValue = 0f;

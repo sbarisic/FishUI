@@ -237,7 +237,7 @@ namespace FishUI.Controls
 		[YamlMember]
 		public string YAxisLabelFormat { get; set; } = "F1";
 
-	/// <summary>
+		/// <summary>
 		/// Format string for X-axis labels (time).
 		/// </summary>
 		[YamlMember]
