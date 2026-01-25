@@ -190,7 +190,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ## Code Cleanup & Technical Debt **HIGH PRIORITY**
 
 - [ ] Fix CS0108 warnings: Padding property hides inherited member in ContextMenu, FlowLayout, StackLayout (1 CPX)
-  - Add `new` keyword or refactor to use inherited Control.Padding
+  - Do not use 'new' keyword to hide base members, rename derived members instead or refactor base class field to use a better type if applicable
 - [ ] Fix CS0219/CS0414 warnings: Remove unused variables/fields (1 CPX)
   - ToggleSwitch.useNPatch, ScrollablePane._scrollBarsCreated
 
