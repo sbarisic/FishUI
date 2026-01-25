@@ -52,14 +52,13 @@ namespace FishUIDemos
 
 			// === Basic 24-hour TimePicker ===
 			Label basicLabel = new Label("24-Hour Format:");
-			basicLabel.Position = new Vector2(20, yPos);
+		basicLabel.Position = new Vector2(20, yPos);
 			basicLabel.Size = new Vector2(120, 24);
 			basicLabel.Alignment = Align.Left;
 			FUI.AddControl(basicLabel);
 
 			_mainPicker = new TimePicker(14, 30, 0);
 			_mainPicker.Position = new Vector2(150, yPos);
-			_mainPicker.Size = new Vector2(140, 24);
 			_mainPicker.OnValueChanged += OnTimeChanged;
 			FUI.AddControl(_mainPicker);
 
@@ -83,8 +82,8 @@ namespace FishUIDemos
 
 			TimePicker ampmPicker = new TimePicker(9, 30, 0);
 			ampmPicker.Position = new Vector2(150, yPos);
-			ampmPicker.Size = new Vector2(180, 24);
 			ampmPicker.Use24HourFormat = false;
+			ampmPicker.UpdateSize();
 			FUI.AddControl(ampmPicker);
 
 			yPos += 35;
@@ -98,8 +97,8 @@ namespace FishUIDemos
 
 			TimePicker secondsPicker = new TimePicker(12, 45, 30);
 			secondsPicker.Position = new Vector2(150, yPos);
-			secondsPicker.Size = new Vector2(200, 24);
 			secondsPicker.ShowSeconds = true;
+			secondsPicker.UpdateSize();
 			FUI.AddControl(secondsPicker);
 
 			yPos += 35;
@@ -113,10 +112,11 @@ namespace FishUIDemos
 
 			TimePicker fullPicker = new TimePicker(23, 59, 59);
 			fullPicker.Position = new Vector2(155, yPos);
-			fullPicker.Size = new Vector2(230, 24);
 			fullPicker.Use24HourFormat = false;
 			fullPicker.ShowSeconds = true;
+			fullPicker.UpdateSize();
 			FUI.AddControl(fullPicker);
+
 
 			yPos += 50;
 

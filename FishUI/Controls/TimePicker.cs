@@ -93,7 +93,7 @@ namespace FishUI.Controls
 		[YamlMember]
 		public float ButtonWidth { get; set; } = 16f;
 
-		/// <summary>
+	/// <summary>
 		/// Width of the AM/PM toggle button (only used in 12-hour mode).
 		/// </summary>
 		[YamlMember]
@@ -106,7 +106,7 @@ namespace FishUI.Controls
 
 		public TimePicker()
 		{
-			Size = new Vector2(180, 24);
+			Size = new Vector2(GetPreferredWidth(), 24);
 			Focusable = true;
 			UpdateSpinnersFromValue();
 		}
@@ -119,6 +119,45 @@ namespace FishUI.Controls
 		public TimePicker(int hours, int minutes, int seconds = 0) : this()
 		{
 			Value = new TimeSpan(hours, minutes, seconds);
+		}
+
+		/// <summary>
+		/// Calculates the preferred width based on current settings.
+		/// </summary>
+		private float GetPreferredWidth()
+		{
+			float width = 0;
+			float separatorW = 8f;
+			float gap = 4f;
+
+			// Hour spinner
+			width += SpinnerWidth;
+
+			// Separator + Minute spinner
+			width += separatorW + SpinnerWidth;
+
+			// Seconds (optional)
+			if (_showSeconds)
+			{
+				width += separatorW + SpinnerWidth;
+			}
+
+			// AM/PM button (only in 12-hour mode)
+			if (!_use24HourFormat)
+			{
+				width += gap + AmPmWidth;
+			}
+
+			return width;
+		}
+
+		/// <summary>
+		/// Updates the control size based on current settings.
+		/// Call this after changing Use24HourFormat or ShowSeconds.
+		/// </summary>
+		public void UpdateSize()
+		{
+			Size = new Vector2(GetPreferredWidth(), Size.Y);
 		}
 
 		private void UpdateSpinnersFromValue()
@@ -155,7 +194,7 @@ namespace FishUI.Controls
 				if (_isPM) totalHours += 12;
 			}
 
-			TimeSpan newValue = new TimeSpan(totalHours, _minute, _second);
+		TimeSpan newValue = new TimeSpan(totalHours, _minute, _second);
 			if (_value != newValue)
 			{
 				_value = newValue;
@@ -165,7 +204,8 @@ namespace FishUI.Controls
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
-			base.DrawControl(UI, Dt, Time);
+			// Don't call base.DrawControl - we don't want a background rectangle
+			// The separator areas should be transparent
 
 			Vector2 pos = GetAbsolutePosition();
 			Vector2 size = ScaledSize;
@@ -285,11 +325,11 @@ namespace FishUI.Controls
 				UI.Graphics.DrawRectangleOutline(downPos, btnSize, new FishColor(160, 160, 160, 255));
 			}
 
-			// Draw arrows
+		// Draw arrows using simple ASCII characters
 			if (font != null)
 			{
-				var upArrow = "▲";
-				var downArrow = "▼";
+				var upArrow = "+";
+				var downArrow = "-";
 				var upSize = UI.Graphics.MeasureText(font, upArrow);
 				var downSize = UI.Graphics.MeasureText(font, downArrow);
 
