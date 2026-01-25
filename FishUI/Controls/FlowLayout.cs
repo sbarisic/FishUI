@@ -85,7 +85,7 @@ namespace FishUI.Controls
 		/// Padding from the edges of the container.
 		/// </summary>
 		[YamlMember]
-		public float Padding { get; set; } = 5f;
+		public float LayoutPadding { get; set; } = 5f;
 
 		/// <summary>
 		/// Whether the flow layout background is transparent (not drawn).
@@ -111,8 +111,8 @@ namespace FishUI.Controls
 		{
 			Vector2 containerSize = GetAbsoluteSize();
 			float availableMainAxis = IsHorizontalFlow
-				? containerSize.X - Padding * 2
-				: containerSize.Y - Padding * 2;
+				? containerSize.X - LayoutPadding * 2
+				: containerSize.Y - LayoutPadding * 2;
 
 			// Collect visible children
 			var visibleChildren = new System.Collections.Generic.List<Control>();
@@ -159,11 +159,11 @@ namespace FishUI.Controls
 				lines.Reverse();
 
 			// Position children
-			float crossAxisPos = Padding;
+			float crossAxisPos = LayoutPadding;
 
 			foreach (var line in lines)
 			{
-				float mainAxisPos = Padding;
+				float mainAxisPos = LayoutPadding;
 				float lineCrossSize = 0;
 
 				// Calculate line cross size (max height for horizontal, max width for vertical)
@@ -176,12 +176,12 @@ namespace FishUI.Controls
 				// Handle reverse direction
 				if (Direction == FlowDirection.RightToLeft)
 				{
-					mainAxisPos = containerSize.X - Padding;
+					mainAxisPos = containerSize.X - LayoutPadding;
 					line.Reverse();
 				}
 				else if (Direction == FlowDirection.BottomToTop)
 				{
-					mainAxisPos = containerSize.Y - Padding;
+					mainAxisPos = containerSize.Y - LayoutPadding;
 					line.Reverse();
 				}
 
@@ -236,8 +236,8 @@ namespace FishUI.Controls
 			{
 				Vector2 containerSize = Size;
 				float availableMainAxis = IsHorizontalFlow
-					? containerSize.X - Padding * 2
-					: containerSize.Y - Padding * 2;
+					? containerSize.X - LayoutPadding * 2
+					: containerSize.Y - LayoutPadding * 2;
 
 				// Collect visible children
 				var visibleChildren = new System.Collections.Generic.List<Control>();
@@ -248,10 +248,10 @@ namespace FishUI.Controls
 				}
 
 				if (visibleChildren.Count == 0)
-					return new Vector2(Padding * 2, Padding * 2);
+					return new Vector2(LayoutPadding * 2, LayoutPadding * 2);
 
 				// Calculate lines
-				float totalCrossSize = Padding;
+				float totalCrossSize = LayoutPadding;
 				float maxMainSize = 0;
 				float currentLineMainSize = 0;
 				float currentLineCrossSize = 0;
@@ -285,11 +285,11 @@ namespace FishUI.Controls
 
 				// Add last line
 				maxMainSize = Math.Max(maxMainSize, currentLineMainSize);
-				totalCrossSize += currentLineCrossSize + Padding;
+				totalCrossSize += currentLineCrossSize + LayoutPadding;
 
 				return IsHorizontalFlow
-					? new Vector2(maxMainSize + Padding * 2, totalCrossSize)
-					: new Vector2(totalCrossSize, maxMainSize + Padding * 2);
+					? new Vector2(maxMainSize + LayoutPadding * 2, totalCrossSize)
+					: new Vector2(totalCrossSize, maxMainSize + LayoutPadding * 2);
 			}
 		}
 

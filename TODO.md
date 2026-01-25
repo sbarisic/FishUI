@@ -187,12 +187,9 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ---
 
-## Code Cleanup & Technical Debt **HIGH PRIORITY**
+## Code Cleanup & Technical Debt
 
-- [ ] Fix CS0108 warnings: Padding property hides inherited member in ContextMenu, FlowLayout, StackLayout (1 CPX)
-  - Do not use 'new' keyword to hide base members, rename derived members instead or refactor base class field to use a better type if applicable
-- [ ] Fix CS0219/CS0414 warnings: Remove unused variables/fields (1 CPX)
-  - ToggleSwitch.useNPatch, ScrollablePane._scrollBarsCreated
+*All code cleanup items have been completed - see Completed section*
 
 ---
 
@@ -269,6 +266,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Code Cleanup
 - ScreenCapture platform compatibility, YamlIgnore audit, naming conventions, XML docs, screenshot buttons, TODO extraction, debug flags refactor
+- CS0108: Renamed Padding to LayoutPadding (FlowLayout, StackLayout) and MenuPadding (ContextMenu)
+- CS0219/CS0414: Removed unused ToggleSwitch.useNPatch, ScrollablePane._scrollBarsCreated
 
 ### Documentation
 - README.md: Complete rewrite with 35+ controls, code examples, theming, serialization, project structure

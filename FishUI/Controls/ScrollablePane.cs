@@ -81,9 +81,6 @@ namespace FishUI.Controls
 		[YamlIgnore]
 		private Vector2 _calculatedContentSize = Vector2.Zero;
 
-		[YamlIgnore]
-		private bool _scrollBarsCreated = false;
-
 		public ScrollablePane()
 		{
 			Size = new Vector2(300, 200);

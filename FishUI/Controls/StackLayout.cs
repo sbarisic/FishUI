@@ -42,7 +42,7 @@ namespace FishUI.Controls
 		/// Padding from the edges of the container.
 		/// </summary>
 		[YamlMember]
-		public float Padding { get; set; } = 5f;
+		public float LayoutPadding { get; set; } = 5f;
 
 		/// <summary>
 		/// Whether the stack layout background is transparent (not drawn).
@@ -69,7 +69,7 @@ namespace FishUI.Controls
 		/// </summary>
 		public void UpdateLayout()
 		{
-			float currentPos = Padding;
+			float currentPos = LayoutPadding;
 			Vector2 containerSize = GetAbsoluteSize();
 
 			foreach (var child in Children)
@@ -80,12 +80,12 @@ namespace FishUI.Controls
 				if (Orientation == StackOrientation.Vertical)
 				{
 					// Position child vertically
-					child.Position = new FishUIPosition(PositionMode.Relative, new Vector2(Padding, currentPos));
+					child.Position = new FishUIPosition(PositionMode.Relative, new Vector2(LayoutPadding, currentPos));
 
 					// Optionally stretch to fill width
 					if (StretchChildren)
 					{
-						child.Size = new Vector2(containerSize.X - Padding * 2, child.Size.Y);
+						child.Size = new Vector2(containerSize.X - LayoutPadding * 2, child.Size.Y);
 					}
 
 					currentPos += child.Size.Y + Spacing;
@@ -93,12 +93,12 @@ namespace FishUI.Controls
 				else // Horizontal
 				{
 					// Position child horizontally
-					child.Position = new FishUIPosition(PositionMode.Relative, new Vector2(currentPos, Padding));
+					child.Position = new FishUIPosition(PositionMode.Relative, new Vector2(currentPos, LayoutPadding));
 
 					// Optionally stretch to fill height
 					if (StretchChildren)
 					{
-						child.Size = new Vector2(child.Size.X, containerSize.Y - Padding * 2);
+						child.Size = new Vector2(child.Size.X, containerSize.Y - LayoutPadding * 2);
 					}
 
 					currentPos += child.Size.X + Spacing;
@@ -114,7 +114,7 @@ namespace FishUI.Controls
 		{
 			get
 			{
-				float mainAxis = Padding;
+				float mainAxis = LayoutPadding;
 				float crossAxis = 0;
 
 				foreach (var child in Children)
@@ -136,11 +136,11 @@ namespace FishUI.Controls
 
 				// Remove last spacing and add end padding
 				if (Children.Count > 0)
-					mainAxis = mainAxis - Spacing + Padding;
+					mainAxis = mainAxis - Spacing + LayoutPadding;
 				else
-					mainAxis = Padding * 2;
+					mainAxis = LayoutPadding * 2;
 
-				crossAxis += Padding * 2;
+				crossAxis += LayoutPadding * 2;
 
 				return Orientation == StackOrientation.Vertical
 					? new Vector2(crossAxis, mainAxis)

@@ -250,7 +250,7 @@ namespace FishUIDemos
 			vStack.Size = new Vector2(140, 150);
 			vStack.Orientation = StackOrientation.Vertical;
 			vStack.Spacing = 8;
-			vStack.Padding = 10;
+			vStack.LayoutPadding = 10;
 			vStack.IsTransparent = false;
 			FUI.AddControl(vStack);
 
@@ -278,7 +278,7 @@ namespace FishUIDemos
 			hStack.Size = new Vector2(220, 50);
 			hStack.Orientation = StackOrientation.Horizontal;
 			hStack.Spacing = 5;
-			hStack.Padding = 5;
+			hStack.LayoutPadding = 5;
 			hStack.IsTransparent = false;
 			FUI.AddControl(hStack);
 
@@ -301,7 +301,7 @@ namespace FishUIDemos
 			outerStack.Size = new Vector2(250, 100);
 			outerStack.Orientation = StackOrientation.Horizontal;
 			outerStack.Spacing = 10;
-			outerStack.Padding = 8;
+			outerStack.LayoutPadding = 8;
 			outerStack.IsTransparent = false;
 			FUI.AddControl(outerStack);
 
@@ -311,7 +311,7 @@ namespace FishUIDemos
 				innerStack.Size = new Vector2(70, 80);
 				innerStack.Orientation = StackOrientation.Vertical;
 				innerStack.Spacing = 4;
-				innerStack.Padding = 4;
+				innerStack.LayoutPadding = 4;
 				innerStack.IsTransparent = false;
 				outerStack.AddChild(innerStack);
 
@@ -338,7 +338,7 @@ namespace FishUIDemos
 			flowLTR.Wrap = FlowWrap.Wrap;
 			flowLTR.Spacing = 5;
 			flowLTR.WrapSpacing = 5;
-			flowLTR.Padding = 8;
+			flowLTR.LayoutPadding = 8;
 			flowLTR.IsTransparent = false;
 			FUI.AddControl(flowLTR);
 
@@ -363,7 +363,7 @@ namespace FishUIDemos
 			flowRTL.Wrap = FlowWrap.Wrap;
 			flowRTL.Spacing = 5;
 			flowRTL.WrapSpacing = 5;
-			flowRTL.Padding = 8;
+			flowRTL.LayoutPadding = 8;
 			flowRTL.IsTransparent = false;
 			FUI.AddControl(flowRTL);
 
@@ -388,7 +388,7 @@ namespace FishUIDemos
 			flowTB.Wrap = FlowWrap.Wrap;
 			flowTB.Spacing = 4;
 			flowTB.WrapSpacing = 8;
-			flowTB.Padding = 6;
+			flowTB.LayoutPadding = 6;
 			flowTB.IsTransparent = false;
 			FUI.AddControl(flowTB);
 
@@ -412,7 +412,7 @@ namespace FishUIDemos
 			flowNoWrap.Direction = FlowDirection.LeftToRight;
 			flowNoWrap.Wrap = FlowWrap.NoWrap;
 			flowNoWrap.Spacing = 3;
-			flowNoWrap.Padding = 5;
+			flowNoWrap.LayoutPadding = 5;
 			flowNoWrap.IsTransparent = false;
 			FUI.AddControl(flowNoWrap);
 

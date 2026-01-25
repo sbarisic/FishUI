@@ -55,7 +55,7 @@ namespace FishUI.Controls
 		/// <summary>
 		/// Padding inside the menu.
 		/// </summary>
-		private const float Padding = 2f;
+		private const float MenuPadding = 2f;
 
 		/// <summary>
 		/// Minimum width of the menu.
@@ -201,7 +201,7 @@ namespace FishUI.Controls
 		/// </summary>
 		private void RecalculateSize()
 		{
-			float totalHeight = Padding * 2;
+			float totalHeight = MenuPadding * 2;
 			float maxWidth = MinWidth;
 
 			foreach (var child in Children)
@@ -227,13 +227,13 @@ namespace FishUI.Controls
 			Size = new Vector2(maxWidth, totalHeight);
 
 			// Update child item sizes and positions
-			float y = Padding;
+			float y = MenuPadding;
 			foreach (var child in Children)
 			{
 				if (child is MenuItem item)
 				{
-					item.Position = new FishUIPosition(PositionMode.Relative, new Vector2(Padding, y));
-					item.Size = new Vector2(maxWidth - Padding * 2, item.GetItemHeight());
+					item.Position = new FishUIPosition(PositionMode.Relative, new Vector2(MenuPadding, y));
+					item.Size = new Vector2(maxWidth - MenuPadding * 2, item.GetItemHeight());
 					y += item.GetItemHeight();
 				}
 			}
@@ -277,7 +277,7 @@ namespace FishUI.Controls
 
 		private int GetItemIndexAtPosition(Vector2 localPos)
 		{
-			float y = Padding;
+			float y = MenuPadding;
 			int index = 0;
 
 			foreach (var child in Children)

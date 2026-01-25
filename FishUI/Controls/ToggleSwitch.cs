@@ -162,16 +162,13 @@ namespace FishUI.Controls
 			}
 
 			// Draw background track using NPatch if available
-			bool useNPatch = false;
 			if (IsOn && UI.Settings.ImgToggleSwitchTrackOn != null)
 			{
 				UI.Graphics.DrawNPatch(UI.Settings.ImgToggleSwitchTrackOn, pos, size, FishColor.White);
-				useNPatch = true;
 			}
 			else if (!IsOn && UI.Settings.ImgToggleSwitchTrackOff != null)
 			{
 				UI.Graphics.DrawNPatch(UI.Settings.ImgToggleSwitchTrackOff, pos, size, FishColor.White);
-				useNPatch = true;
 			}
 			else
 			{
