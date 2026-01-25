@@ -93,7 +93,7 @@ namespace FishUI.Controls
 		[YamlMember]
 		public float ButtonWidth { get; set; } = 16f;
 
-	/// <summary>
+		/// <summary>
 		/// Width of the AM/PM toggle button (only used in 12-hour mode).
 		/// </summary>
 		[YamlMember]
@@ -194,7 +194,7 @@ namespace FishUI.Controls
 				if (_isPM) totalHours += 12;
 			}
 
-		TimeSpan newValue = new TimeSpan(totalHours, _minute, _second);
+			TimeSpan newValue = new TimeSpan(totalHours, _minute, _second);
 			if (_value != newValue)
 			{
 				_value = newValue;
@@ -325,7 +325,7 @@ namespace FishUI.Controls
 				UI.Graphics.DrawRectangleOutline(downPos, btnSize, new FishColor(160, 160, 160, 255));
 			}
 
-		// Draw arrows using simple ASCII characters
+			// Draw arrows using simple ASCII characters
 			if (font != null)
 			{
 				var upArrow = "+";
@@ -390,7 +390,6 @@ namespace FishUI.Controls
 			_hoveredDown = false;
 
 			float xOffset = 0;
-			float halfHeight = size.Y / 2;
 
 			// Check hour spinner
 			if (CheckSpinnerHover(mousePos, pos + new Vector2(xOffset, 0), spinnerW, size.Y, btnW, 0))
@@ -429,14 +428,25 @@ namespace FishUI.Controls
 			float textWidth = width - btnWidth;
 			float halfHeight = height / 2;
 
-			// Check button area
-			Vector2 btnAreaPos = new Vector2(spinnerPos.X + textWidth, spinnerPos.Y);
-			if (mousePos.X >= btnAreaPos.X && mousePos.X < btnAreaPos.X + btnWidth &&
-				mousePos.Y >= btnAreaPos.Y && mousePos.Y < btnAreaPos.Y + height)
+			// Check if mouse is anywhere in the spinner area (text or buttons)
+			if (mousePos.X >= spinnerPos.X && mousePos.X < spinnerPos.X + width &&
+				mousePos.Y >= spinnerPos.Y && mousePos.Y < spinnerPos.Y + height)
 			{
 				_hoveredSpinner = spinnerIndex;
-				_hoveredUp = mousePos.Y < btnAreaPos.Y + halfHeight;
-				_hoveredDown = !_hoveredUp;
+
+				// Check if specifically over button area for up/down detection
+				Vector2 btnAreaPos = new Vector2(spinnerPos.X + textWidth, spinnerPos.Y);
+				if (mousePos.X >= btnAreaPos.X && mousePos.X < btnAreaPos.X + btnWidth)
+				{
+					_hoveredUp = mousePos.Y < btnAreaPos.Y + halfHeight;
+					_hoveredDown = !_hoveredUp;
+				}
+				else
+				{
+					// Over text area - no specific up/down button hovered
+					_hoveredUp = false;
+					_hoveredDown = false;
+				}
 				return true;
 			}
 
