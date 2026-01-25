@@ -20,6 +20,21 @@ namespace FishUI.Controls
 		public bool IsOpen { get; private set; } = false;
 
 		/// <summary>
+		/// Whether to draw a shadow behind the menu.
+		/// </summary>
+		public bool ShowShadow { get; set; } = true;
+
+		/// <summary>
+		/// Offset of the shadow from the menu (in pixels).
+		/// </summary>
+		public Vector2 ShadowOffset { get; set; } = new Vector2(4, 4);
+
+		/// <summary>
+		/// Extra size added to the shadow beyond the menu bounds (in pixels).
+		/// </summary>
+		public float ShadowSize { get; set; } = 4;
+
+		/// <summary>
 		/// Currently hovered item index.
 		/// </summary>
 		[YamlIgnore]
@@ -536,6 +551,14 @@ namespace FishUI.Controls
 
 			Vector2 pos = GetAbsolutePosition();
 			Vector2 size = GetAbsoluteSize();
+
+			// Draw shadow behind the menu
+			if (ShowShadow && UI.Settings.ImgShadow != null)
+			{
+				Vector2 shadowPos = pos + ShadowOffset - new Vector2(ShadowSize, ShadowSize);
+				Vector2 shadowSize = size + new Vector2(ShadowSize * 2, ShadowSize * 2);
+				UI.Graphics.DrawNPatch(UI.Settings.ImgShadow, shadowPos, shadowSize, FishColor.White);
+			}
 
 			// Draw menu background
 			NPatch bgPatch = UI.Settings.ImgMenuBackground ?? UI.Settings.ImgPanel;

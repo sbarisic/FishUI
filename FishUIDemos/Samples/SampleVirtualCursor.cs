@@ -21,12 +21,12 @@ namespace FishUIDemos
 		/// <summary>
 		/// Display name of the sample.
 		/// </summary>
-		public string Name => "Virtual Cursor";
+		public string Name => "VirtualCursor";
 
-		/// <summary>
+	/// <summary>
 		/// Action to take a screenshot, set by Program.cs.
 		/// </summary>
-		public Action TakeScreenshot { get; set; }
+		public TakeScreenshotFunc TakeScreenshot { get; set; }
 
 		public FishUI.FishUI CreateUI(FishUISettings UISettings, IFishUIGfx Gfx, IFishUIInput Input, IFishUIEvents Events)
 		{
@@ -206,7 +206,7 @@ namespace FishUIDemos
 			screenshotBtn.Icon = iconCamera;
 			screenshotBtn.IsImageButton = true;
 			screenshotBtn.TooltipText = "Take screenshot";
-			screenshotBtn.OnButtonPressed += (ctrl, btn, pos) => TakeScreenshot?.Invoke();
+			screenshotBtn.OnButtonPressed += (ctrl, btn, pos) => TakeScreenshot?.Invoke(Name);
 			mainPanel.AddChild(screenshotBtn);
 
 			// Second panel for more interaction targets

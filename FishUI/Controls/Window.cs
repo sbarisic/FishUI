@@ -106,6 +106,21 @@ namespace FishUI.Controls
 		public bool IsResizable { get; set; } = true;
 
 		/// <summary>
+		/// Whether to draw a shadow behind the window.
+		/// </summary>
+		public bool ShowShadow { get; set; } = true;
+
+		/// <summary>
+		/// Offset of the shadow from the window (in pixels).
+		/// </summary>
+		public Vector2 ShadowOffset { get; set; } = new Vector2(8, 8);
+
+		/// <summary>
+		/// Extra size added to the shadow beyond the window bounds (in pixels).
+		/// </summary>
+		public float ShadowSize { get; set; } = 8;
+
+		/// <summary>
 		/// Minimum size the window can be resized to.
 		/// </summary>
 		public Vector2 MinSize { get; set; } = new Vector2(100, 60);
@@ -439,6 +454,14 @@ namespace FishUI.Controls
 			UpdateInternalSizes();
 			if (_titlebar != null)
 				_titlebar.IsActive = IsActive;
+
+			// Draw shadow behind the window
+			if (ShowShadow && UI.Settings.ImgShadow != null)
+			{
+				Vector2 shadowPos = absPos + ShadowOffset - new Vector2(ShadowSize, ShadowSize);
+				Vector2 shadowSize = absSize + new Vector2(ShadowSize * 2, ShadowSize * 2);
+				UI.Graphics.DrawNPatch(UI.Settings.ImgShadow, shadowPos, shadowSize, FishColor.White);
+			}
 
 			// Draw window body (middle section)
 			NPatch middleImg = IsActive

@@ -156,8 +156,6 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Rendering **HIGH PRIORITY**
 - [ ] Animation system for transitions (4 CPX)
-- [ ] Shadow rendering for windows/popups (2 CPX)
-  - *GWEN has: Shadow region*
 
 ### Accessibility
 - [ ] Scalable UI for different DPI (4 CPX)
@@ -249,6 +247,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 ### Core Framework
 - StackLayout, Anchor, Margin/Padding - Layout infrastructure
 - Opacity, fonts, image rotation/scaling - Rendering features
+- Shadow rendering: Window and ContextMenu shadow support with configurable offset and size
 - Virtual cursor: Position setting, input mapping, hybrid mode
 - LayoutFormat TypeMapping - All controls registered
 

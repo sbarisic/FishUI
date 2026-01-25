@@ -82,7 +82,7 @@ namespace FishUIDemos
 
 		public string Name => "PropertyGrid";
 
-		public Action TakeScreenshot { get; set; }
+		public TakeScreenshotFunc TakeScreenshot { get; set; }
 
 		public FishUI.FishUI CreateUI(FishUISettings UISettings, IFishUIGfx Gfx, IFishUIInput Input, IFishUIEvents Events)
 		{
@@ -111,7 +111,7 @@ namespace FishUIDemos
 			screenshotBtn.Size = new Vector2(30, 30);
 			screenshotBtn.IsImageButton = true;
 			screenshotBtn.TooltipText = "Take a screenshot";
-			screenshotBtn.OnButtonPressed += (btn, mbtn, pos) => TakeScreenshot?.Invoke();
+			screenshotBtn.OnButtonPressed += (btn, mbtn, pos) => TakeScreenshot?.Invoke(Name);
 			FUI.AddControl(screenshotBtn);
 
 			// === Create sample object ===

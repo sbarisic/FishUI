@@ -869,6 +869,18 @@ regions:
       left: 5
       right: 5
 
+  # Shadow region (for windows/popups)
+  Shadow:
+    Normal:
+      x: 448
+      y: 0
+      width: 31
+      height: 31
+      top: 10
+      bottom: 10
+      left: 10
+      right: 10
+
   # Menu regions
   Menu:
     Strip:

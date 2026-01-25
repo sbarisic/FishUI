@@ -21,12 +21,12 @@ namespace FishUIDemos
 		/// <summary>
 		/// Display name of the sample.
 		/// </summary>
-		public string Name => "Theme Switcher";
+		public string Name => "ThemeSwitcher";
 
 		/// <summary>
 		/// Action to take a screenshot, set by Program.cs.
 		/// </summary>
-		public Action TakeScreenshot { get; set; }
+		public TakeScreenshotFunc TakeScreenshot { get; set; }
 
 		public FishUI.FishUI CreateUI(FishUISettings UISettings, IFishUIGfx Gfx, IFishUIInput Input, IFishUIEvents Events)
 		{
@@ -105,7 +105,7 @@ namespace FishUIDemos
 			screenshotBtn.Position = new Vector2(250, 250);
 			screenshotBtn.Size = new Vector2(120, 32);
 			screenshotBtn.TooltipText = "Take a screenshot";
-			screenshotBtn.OnButtonPressed += (btn, mbtn, pos) => TakeScreenshot?.Invoke();
+			screenshotBtn.OnButtonPressed += (btn, mbtn, pos) => TakeScreenshot?.Invoke(Name);
 			panel.AddChild(screenshotBtn);
 		}
 

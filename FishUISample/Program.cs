@@ -18,7 +18,7 @@ namespace FishUISample
 		/// <summary>
 		/// Takes a screenshot and saves it to the screenshots folder.
 		/// </summary>
-		static void TakeScreenshot(RaylibGfx Gfx)
+		static void TakeScreenshot(string Title, RaylibGfx Gfx)
 		{
 			if (!ScreenCapture.IsSupported)
 			{
@@ -27,7 +27,7 @@ namespace FishUISample
 			}
 
 			DateTime Now = DateTime.Now;
-			string FName = $"../../../../screenshots/ss_{Now.ToString("ddMMyyyy_HHmmss")}.png";
+			string FName = $"../../../../screenshots/{Title}_{Now.ToString("ddMMyyyy_HHmmss")}.png";
 
 			Gfx.FocusWindow();
 			Thread.Sleep(200);
@@ -102,7 +102,7 @@ namespace FishUISample
 				IFishUIEvents Events = new EvtHandler();
 
 				// Set up screenshot action for the sample
-				Cur.TakeScreenshot = () => TakeScreenshot(Gfx);
+				Cur.TakeScreenshot = (Title) => TakeScreenshot(Title, Gfx);
 
 				FishUI.FishUI FUI = Cur.CreateUI(UISettings, Gfx, Input, Events);
 				Cur.Init();

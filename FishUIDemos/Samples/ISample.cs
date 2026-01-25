@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 
 namespace FishUIDemos
 {
+	public delegate void TakeScreenshotFunc(string Title);
+
 	public interface ISample
 	{
 		/// <summary>
@@ -26,6 +28,6 @@ namespace FishUIDemos
 		/// <summary>
 		/// Sets the action to be called when the sample wants to take a screenshot.
 		/// </summary>
-		public Action TakeScreenshot { get; set; }
+		public TakeScreenshotFunc TakeScreenshot { get; set; }
 	}
 }

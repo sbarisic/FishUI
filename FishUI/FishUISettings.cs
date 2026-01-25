@@ -169,6 +169,9 @@ namespace FishUI
 		// Tooltip
 		public NPatch ImgTooltipNormal { get; set; }
 
+		// Shadow (for windows/popups)
+		public NPatch ImgShadow { get; set; }
+
 		// Menu
 		public NPatch ImgMenuStrip { get; set; }
 		public NPatch ImgMenuBackground { get; set; }
@@ -644,6 +647,10 @@ namespace FishUI
 			// Tooltip
 			np = themeLoader.CreateNPatch(theme, "Tooltip", "Normal");
 			if (np != null) ImgTooltipNormal = np;
+
+			// Shadow
+			np = themeLoader.CreateNPatch(theme, "Shadow", "Normal");
+			if (np != null) ImgShadow = np;
 
 			// Menu
 			np = themeLoader.CreateNPatch(theme, "Menu", "Strip");
