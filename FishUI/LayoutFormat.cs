@@ -76,7 +76,8 @@ namespace FishUI
 			{ "!TimePicker", typeof(TimePicker) },
 			{ "!DataGrid", typeof(DataGrid) },
 			{ "!SpreadsheetGrid", typeof(SpreadsheetGrid) },
-			{ "!SpreadsheetCell", typeof(SpreadsheetCell) }
+			{ "!SpreadsheetCell", typeof(SpreadsheetCell) },
+			{ "!ListBoxItem", typeof(ListBoxItem) }
 		};
 
 		public static string Serialize(FishUI UI)

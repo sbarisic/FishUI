@@ -51,16 +51,29 @@ namespace FishUI.Controls
 
 	public class ListBox : Control
 	{
+		/// <summary>
+		/// The list of items in the ListBox. Can be serialized to/from YAML.
+		/// </summary>
 		[YamlMember]
-		List<ListBoxItem> Items = new List<ListBoxItem>();
+		public List<ListBoxItem> Items { get; set; } = new List<ListBoxItem>();
 
 		[YamlIgnore]
 		Vector2 StartOffset = new Vector2(0, 2);
 
 		Vector2 ScrollOffset = new Vector2(0, 0);
 
-		[YamlMember(Alias = "SelectedIndex")]
 		int _selectedIndex = -1;
+
+		/// <summary>
+		/// Gets or sets the currently selected index for YAML serialization.
+		/// This property does NOT trigger selection events.
+		/// </summary>
+		[YamlMember(Alias = "SelectedIndex")]
+		public int SerializedSelectedIndex
+		{
+			get => _selectedIndex;
+			set => _selectedIndex = value;
+		}
 
 		/// <summary>
 		/// Gets or sets the currently selected index. -1 means no selection.
@@ -69,8 +82,8 @@ namespace FishUI.Controls
 		[YamlIgnore]
 		public int SelectedIndex
 		{
-		get => _selectedIndex;
-		set => SelectIndex(value);
+			get => _selectedIndex;
+			set => SelectIndex(value);
 		}
 
 		[YamlIgnore]
@@ -147,7 +160,7 @@ namespace FishUI.Controls
 
 		public ListBox()
 		{
-		Size = new Vector2(140, 120);
+			Size = new Vector2(140, 120);
 		}
 
 		public void AddItem(ListBoxItem Itm)
