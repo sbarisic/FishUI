@@ -69,7 +69,11 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ### Medium Priority
 
-*All medium priority controls have been implemented*
+- [ ] **MultiLineEditbox / TextArea** (3 CPX)
+  - Multi-line text input
+  - Word wrap support
+  - Vertical scrollbar integration
+  - *GWEN atlas regions: Uses TextBox regions*
 
 ### Lower Priority
 
@@ -87,12 +91,6 @@ A list of planned features, improvements, and new controls for FishUI.
   - Cell selection and navigation
   - Text only cell type for now
   - *Use case: Data entry forms, configuration editors*
-
-- [ ] **MultiLineEditbox / TextArea** (3 CPX)
-  - Multi-line text input
-  - Word wrap support
-  - Vertical scrollbar integration
-  - *GWEN atlas regions: Uses TextBox regions*
 
 - [ ] **DateTimePicker** (4 CPX)
   - Calendar popup for date selection
@@ -150,12 +148,13 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ## Core Framework Features
 
-### Layout System
+### Layout System **HIGH PRIORITY**
 - [ ] **FlowLayout** - Automatic horizontal/vertical flow of children (3 CPX)
 - [ ] **GridLayout** - Grid-based child positioning (3 CPX)
 - [ ] Auto-sizing controls based on content (3 CPX)
+  - Should work in tandem with Docking/Anchoring
 
-### Rendering
+### Rendering **HIGH PRIORITY**
 - [ ] Animation system for transitions (4 CPX)
 - [ ] Shadow rendering for windows/popups (2 CPX)
   - *GWEN has: Shadow region*
@@ -164,6 +163,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [ ] Scalable UI for different DPI (4 CPX)
 
 ### Serialization
+- [ ] Figure out how to handle events in serialization, extend the Event system?
 - [ ] Image reference serialization (3 CPX)
   - Icons/images (Button.Icon, etc.) not preserved across Save/Load Layout
   - Need mechanism to reference images by file path or ID in layout files
@@ -179,7 +179,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ---
 
-## Documentation
+## Documentation **LOW PRIORITY**
 
 - [ ] API reference documentation
 - [ ] Getting started tutorial
