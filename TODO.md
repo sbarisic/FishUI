@@ -157,12 +157,10 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Rendering
 - [ ] Animation system for transitions (4 CPX)
-- [ ] Anti-aliased rendering option (2 CPX)
 - [ ] Shadow rendering for windows/popups (2 CPX)
   - *GWEN has: Shadow region*
 
 ### Accessibility
-- [ ] Keyboard-only navigation (3 CPX)
 - [ ] Scalable UI for different DPI (4 CPX)
 
 ### Serialization
@@ -178,14 +176,6 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [ ] MultiLine textbox example (separate demo)
   - Add single line and multi line 
   - Requires multi-line textbox mode implementation
-
-### Sample Refactoring
-- [ ] Move DropDown demos from SampleBasicControls into separate SampleDropDown demo (2 CPX)
-- [ ] Move ListBox demos from SampleBasicControls into separate SampleListBox demo (2 CPX)
-- [ ] Review and split remaining SampleBasicControls into focused demos (2 CPX)
-
-### Sample Chooser Improvements
-- [ ] Replace button grid with ListBox in sample chooser for better scalability (2 CPX)
 
 ---
 
@@ -244,6 +234,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - Panel: Border styles and variants (Normal, Bright, Dark, Highlight)
 - ProgressBar: Vertical orientation mode
 - ListBox: Alternating row colors, multi-select mode (Ctrl+click, Shift+click)
+- ListBox: Public SelectedIndex property for easy get/set access
 - DropDown: Search/filter functionality with type-to-filter support
 - Per-control color overrides: ColorOverrides dictionary with GetColorOverride/SetColorOverride methods
 - DropDown: Custom item rendering via CustomItemRenderer delegate
@@ -269,6 +260,10 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - SampleGauges: Dedicated gauge demo with RadialGauge, BarGauge, VUMeter, car dashboard preview
 - Sample auto-discovery via reflection (SampleDiscovery class)
 - SampleImageBox: Dedicated ImageBox/AnimatedImageBox demo split from SampleBasicControls
+- SampleDropDown: Dedicated DropDown demo (basic, searchable, multi-select, custom rendering)
+- SampleListBox: Dedicated ListBox demo (alternating colors, multi-select, custom rendering)
+- SampleBasicControls refactored: Focused on input controls (Textbox, Sliders, NumericUpDown, etc.)
+- Sample chooser: Replaced button grid with ListBox for better scalability
 
 ### Code Cleanup
 - ScreenCapture platform compatibility, YamlIgnore audit, naming conventions, XML docs, screenshot buttons, TODO extraction, debug flags refactor

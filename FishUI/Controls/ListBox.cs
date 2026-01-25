@@ -59,7 +59,18 @@ namespace FishUI.Controls
 		Vector2 ScrollOffset = new Vector2(0, 0);
 
 		[YamlMember]
-		int SelectedIndex = -1;
+		int _selectedIndex = -1;
+
+		/// <summary>
+		/// Gets or sets the currently selected index. -1 means no selection.
+		/// Setting this property will trigger selection events.
+		/// </summary>
+		[YamlIgnore]
+		public int SelectedIndex
+		{
+			get => _selectedIndex;
+			set => SelectIndex(value);
+		}
 
 		[YamlMember]
 		int HoveredIndex = -1;
@@ -139,7 +150,7 @@ namespace FishUI.Controls
 
 		public void SelectIndex(int Idx)
 		{
-			int LastSelectedIndex = SelectedIndex;
+			int LastSelectedIndex = _selectedIndex;
 
 			if (Idx < 0)
 				Idx = 0;
@@ -147,12 +158,12 @@ namespace FishUI.Controls
 			if (Idx >= Items.Count)
 				Idx = Items.Count - 1;
 
-			SelectedIndex = Idx;
+			_selectedIndex = Idx;
 
-			if (LastSelectedIndex != SelectedIndex)
+			if (LastSelectedIndex != _selectedIndex)
 			{
-				FishUI.Events.Broadcast(FishUI, this, "item_selected", new object[] { SelectedIndex, Items[SelectedIndex] });
-			OnItemSelected?.Invoke(this, SelectedIndex, Items[SelectedIndex]);
+				FishUI.Events.Broadcast(FishUI, this, "item_selected", new object[] { _selectedIndex, Items[_selectedIndex] });
+			OnItemSelected?.Invoke(this, _selectedIndex, Items[_selectedIndex]);
 			}
 		}
 
@@ -177,15 +188,15 @@ namespace FishUI.Controls
 			return GetSelectedIndices().Where(i => i >= 0 && i < Items.Count).Select(i => Items[i]).ToArray();
 		}
 
-		/// <summary>
-		/// Clears all selections.
-		/// </summary>
-		public void ClearSelection()
-		{
-			SelectedIndices.Clear();
-			SelectedIndex = -1;
-			SelectionAnchor = -1;
-		}
+	/// <summary>
+	/// Clears all selections.
+	/// </summary>
+	public void ClearSelection()
+	{
+		SelectedIndices.Clear();
+		_selectedIndex = -1;
+		SelectionAnchor = -1;
+	}
 
 		/// <summary>
 		/// Selects all items (only works when MultiSelect is enabled).
@@ -199,9 +210,9 @@ namespace FishUI.Controls
 			for (int i = 0; i < Items.Count; i++)
 				SelectedIndices.Add(i);
 
-			if (Items.Count > 0)
-				SelectedIndex = 0;
-		}
+		if (Items.Count > 0)
+			_selectedIndex = 0;
+	}
 
 		/// <summary>
 		/// Returns true if the given index is selected.
@@ -252,7 +263,7 @@ namespace FishUI.Controls
 			SelectedIndices.Add(HoveredIndex);
 
 		SelectionAnchor = HoveredIndex;
-		SelectedIndex = HoveredIndex;
+		_selectedIndex = HoveredIndex;
 		}
 		else if (InState.ShiftDown && SelectionAnchor >= 0)
 		{
@@ -263,7 +274,7 @@ namespace FishUI.Controls
 		for (int i = start; i <= end; i++)
 			SelectedIndices.Add(i);
 
-		SelectedIndex = HoveredIndex;
+		_selectedIndex = HoveredIndex;
 		}
 		else
 		{
@@ -281,7 +292,7 @@ namespace FishUI.Controls
 				SelectIndex(HoveredIndex);
 			}
 
-			FishUIDebug.LogListBoxSelectionChange(SelectedIndex);
+			FishUIDebug.LogListBoxSelectionChange(_selectedIndex);
 		}
 
 		public override void HandleKeyPress(FishUI UI, FishInputState InState, FishKey Key)

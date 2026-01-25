@@ -9,7 +9,7 @@ using FishUIDemos;
 namespace FishUISample.Samples
 {
 	/// <summary>
-	/// GUI-based sample chooser that displays available samples as clickable buttons.
+	/// GUI-based sample chooser that displays available samples in a ListBox.
 	/// Self-dogfooding: uses FishUI to demonstrate FishUI.
 	/// </summary>
 	internal class SampleChooser
@@ -18,6 +18,7 @@ namespace FishUISample.Samples
 		private ISample _selectedSample;
 		private bool _selectionMade;
 		private FishUI.FishUI _fui;
+		private ListBox _sampleListBox;
 
 		public SampleChooser(ISample[] samples)
 		{
@@ -102,61 +103,65 @@ namespace FishUISample.Samples
 			_fui.AddControl(titleLabel);
 
 			// Subtitle
-			Label subtitleLabel = new Label("Select a sample to run:");
+			Label subtitleLabel = new Label("Select a sample and click 'Launch':");
 			subtitleLabel.Position = new Vector2(20, 60);
 			subtitleLabel.Size = new Vector2(760, 24);
 			subtitleLabel.Alignment = Align.Center;
 			_fui.AddControl(subtitleLabel);
 
-			// Sample buttons in a grid layout
-			const int buttonsPerRow = 2;
-			const float buttonWidth = 350;
-			const float buttonHeight = 40;
-			const float buttonPadding = 20;
-			const float startY = 100;
-			const float startX = 40;
+			// Sample ListBox
+			_sampleListBox = new ListBox();
+			_sampleListBox.Position = new Vector2(150, 100);
+			_sampleListBox.Size = new Vector2(500, 350);
+			_sampleListBox.AlternatingRowColors = true;
+			_sampleListBox.EvenRowColor = new FishColor(200, 220, 255, 40);
+			_sampleListBox.OddRowColor = new FishColor(255, 255, 255, 10);
+			_sampleListBox.TooltipText = "Select a sample to launch";
+			_fui.AddControl(_sampleListBox);
 
+			// Add samples to ListBox
 			for (int i = 0; i < _samples.Length; i++)
 			{
-				int row = i / buttonsPerRow;
-				int col = i % buttonsPerRow;
-
-				float x = startX + col * (buttonWidth + buttonPadding);
-				float y = startY + row * (buttonHeight + buttonPadding);
-
-				Button sampleBtn = new Button();
-				sampleBtn.Text = $"{i + 1}. {_samples[i].Name}";
-				sampleBtn.Position = new Vector2(x, y);
-				sampleBtn.Size = new Vector2(buttonWidth, buttonHeight);
-
-				int sampleIndex = i; // Capture for closure
-				sampleBtn.OnButtonPressed += (btn, mbtn, pos) =>
-				{
-					_selectedSample = _samples[sampleIndex];
-					_selectionMade = true;
-				};
-
-				_fui.AddControl(sampleBtn);
+				_sampleListBox.AddItem($"{i + 1}. {_samples[i].Name}");
 			}
 
-			// Footer with instructions
-			float footerY = startY + ((_samples.Length + buttonsPerRow - 1) / buttonsPerRow) * (buttonHeight + buttonPadding) + 20;
+			// Select first item by default
+			if (_samples.Length > 0)
+				_sampleListBox.SelectIndex(0);
 
-			Label footerLabel = new Label("Click a button or close this window to exit");
-			footerLabel.Position = new Vector2(20, footerY);
+			// Launch button
+			Button launchBtn = new Button();
+			launchBtn.Text = "Launch Selected";
+			launchBtn.Position = new Vector2(300, 470);
+			launchBtn.Size = new Vector2(200, 40);
+			launchBtn.TooltipText = "Launch the selected sample";
+			launchBtn.OnButtonPressed += (btn, mbtn, pos) =>
+			{
+				int idx = _sampleListBox.SelectedIndex;
+				if (idx >= 0 && idx < _samples.Length)
+				{
+					_selectedSample = _samples[idx];
+					_selectionMade = true;
+				}
+			};
+			_fui.AddControl(launchBtn);
+
+			// Footer with instructions
+			Label footerLabel = new Label("Select a sample from the list and click 'Launch' to run it");
+			footerLabel.Position = new Vector2(20, 520);
 			footerLabel.Size = new Vector2(760, 24);
 			footerLabel.Alignment = Align.Center;
 			_fui.AddControl(footerLabel);
 
 			// Version/info panel
 			Panel infoPanel = new Panel();
-			infoPanel.Position = new Vector2(20, footerY + 40);
-			infoPanel.Size = new Vector2(760, 60);
+			infoPanel.Position = new Vector2(20, 550);
+			infoPanel.Size = new Vector2(760, 40);
 			_fui.AddControl(infoPanel);
 
-			Label infoLabel = new Label("FishUI - GUI Library for .NET\nSelf-dogfooding: This chooser is built with FishUI!");
+			Label infoLabel = new Label("FishUI - GUI Library for .NET | Self-dogfooding: This chooser is built with FishUI!");
 			infoLabel.Position = new Vector2(10, 10);
-			infoLabel.Size = new Vector2(740, 40);
+			infoLabel.Size = new Vector2(740, 20);
 			infoLabel.Alignment = Align.Center;
 			infoPanel.AddChild(infoLabel);
 		}
