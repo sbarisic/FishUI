@@ -14,6 +14,7 @@ namespace FishUI
 		public static readonly FishColor Cyan = new FishColor(0, 255, 255);
 		public static readonly FishColor Yellow = new FishColor(255, 255, 0);
 		public static readonly FishColor Teal = new FishColor(255, 0, 255);
+		public static readonly FishColor Transparent = new FishColor(0, 0, 0, 0);
 
 		public byte R;
 		public byte G;
@@ -31,6 +32,24 @@ namespace FishUI
 		public bool IsEmpty()
 		{
 			return R == 0 && G == 0 && B == 0 && A == 0;
+		}
+
+		/// <summary>
+		/// Linearly interpolates between two colors.
+		/// </summary>
+		/// <param name="a">Start color.</param>
+		/// <param name="b">End color.</param>
+		/// <param name="t">Interpolation factor (0-1).</param>
+		/// <returns>The interpolated color.</returns>
+		public static FishColor Lerp(FishColor a, FishColor b, float t)
+		{
+			t = Math.Clamp(t, 0f, 1f);
+			return new FishColor(
+				(byte)(a.R + (b.R - a.R) * t),
+				(byte)(a.G + (b.G - a.G) * t),
+				(byte)(a.B + (b.B - a.B) * t),
+				(byte)(a.A + (b.A - a.A) * t)
+			);
 		}
 	}
 }

@@ -150,9 +150,6 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ## Core Framework Features
 
-### Rendering **HIGH PRIORITY**
-- [ ] Animation system for transitions (4 CPX)
-
 ### Accessibility
 - [ ] Scalable UI for different DPI (4 CPX)
 
@@ -242,6 +239,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - PropertyGrid: Vector2/Vector3/Vector4 component editors with X/Y/Z/W fields
 
 ### Core Framework
+- Animation system - Easing functions (14 types), FishUIAnimationManager, tween helpers, Control extensions (FadeIn/Out, SlideIn/Out, AnimatePosition/Size/Opacity, ScaleBounce)
 - Auto-sizing controls - AutoSizeMode (None/Width/Height/Both), GetPreferredSize, Min/MaxSize constraints
 - GridLayout - Grid-based child positioning with configurable columns, spacing, and stretch options
 - FlowLayout - Automatic horizontal/vertical flow with wrapping (4 directions, 3 wrap modes)
@@ -252,6 +250,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - LayoutFormat TypeMapping - All controls registered
 
 ### Samples
+- SampleAnimations: Animation system demo with fade, slide, scale, easing comparisons
 - Sample infrastructure: Split samples, runner loop, GUI-based chooser, theme switcher, game menu
 - GUI sample chooser: FishUI-based sample selector replacing console menu (self-dogfooding)
 - Control demos: ImageBox, BarGauge, VirtualCursor, AnimatedImageBox, StaticText

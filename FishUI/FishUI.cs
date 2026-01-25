@@ -97,6 +97,11 @@ namespace FishUI
 		/// </summary>
 		public float TooltipShowDelay { get; set; } = 0.5f;
 
+		/// <summary>
+		/// Animation manager for UI transitions and effects.
+		/// </summary>
+		public FishUIAnimationManager Animations { get; } = new FishUIAnimationManager();
+
 
 		/// <summary>
 		/// Creates a new FishUI instance.
@@ -523,6 +528,9 @@ namespace FishUI
 
 		void Draw(Control[] Controls, float Dt, float Time)
 		{
+			// Update animations
+			Animations.Update(Dt);
+
 			Graphics.BeginDrawing(Dt);
 			foreach (Control Ctl in Controls)
 			{
