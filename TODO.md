@@ -196,10 +196,9 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
   - Should introduce `IFishUIFileSystem` interface for file operations
   - Enable virtual file systems, embedded resources, or game engine asset systems
 
-- [ ] **Path Operations Interface** (2 CPX)
-  - `FishUIThemeLoader.cs` uses `Path.GetDirectoryName`, `Path.IsPathRooted`, `Path.Combine` (lines 30, 176, 177)
-  - Could be part of `IFishUIFileSystem` or separate `IFishUIPathResolver`
-  - Allow platform-specific path handling (game engines, web, etc.)
+### Code Refactoring
+
+*All code refactoring items have been completed - see Completed section*
 
 ---
 
@@ -211,7 +210,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-*No uncategorized items*
+- FishUI.cs:342 - Categorize TODO comment
+- IFishUIEvents.cs - Categorize TODO comment
 
 ---
 
@@ -282,6 +282,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - ScreenCapture platform compatibility, YamlIgnore audit, naming conventions, XML docs, screenshot buttons, TODO extraction, debug flags refactor
 - CS0108: Renamed Padding to LayoutPadding (FlowLayout, StackLayout) and MenuPadding (ContextMenu)
 - CS0219/CS0414: Removed unused ToggleSwitch.useNPatch, ScrollablePane._scrollBarsCreated
+- FishUIThemeLoader: Replaced custom YAML parser with YamlDotNet, added DTO classes for deserialization
 
 ### Documentation
 - README.md: Complete rewrite with 35+ controls, code examples, theming, serialization, project structure

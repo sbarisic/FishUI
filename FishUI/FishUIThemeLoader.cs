@@ -2,20 +2,92 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Globalization;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 namespace FishUI
 {
+	#region YAML DTO Classes
+
 	/// <summary>
-	/// Loads and parses FishUI theme files.
-	/// Supports a simple YAML-like format without external dependencies.
+	/// Root DTO for theme YAML deserialization.
+	/// </summary>
+	internal class ThemeYamlDto
+	{
+		public ThemeMetadataDto Theme { get; set; }
+		public AtlasDto Atlas { get; set; }
+		public ColorsDto Colors { get; set; }
+		public FontsDto Fonts { get; set; }
+		public Dictionary<string, Dictionary<string, RegionDto>> Regions { get; set; }
+	}
+
+	internal class ThemeMetadataDto
+	{
+		public string Name { get; set; }
+		public string Description { get; set; }
+		public string Version { get; set; }
+		public string Author { get; set; }
+	}
+
+	internal class AtlasDto
+	{
+		public bool Enabled { get; set; }
+		public string Path { get; set; }
+	}
+
+	internal class ColorsDto
+	{
+		public string Background { get; set; }
+		public string Foreground { get; set; }
+		public string Accent { get; set; }
+		public string AccentSecondary { get; set; }
+		public string Disabled { get; set; }
+		public string Error { get; set; }
+		public string Success { get; set; }
+		public string Warning { get; set; }
+		public string Border { get; set; }
+		public Dictionary<string, string> Custom { get; set; }
+	}
+
+	internal class FontsDto
+	{
+		public string DefaultPath { get; set; }
+		public string BoldPath { get; set; }
+		public int DefaultSize { get; set; }
+		public int LabelSize { get; set; }
+		public int Spacing { get; set; }
+	}
+
+	internal class RegionDto
+	{
+		public int X { get; set; }
+		public int Y { get; set; }
+		public int Width { get; set; }
+		public int Height { get; set; }
+		public int Top { get; set; }
+		public int Bottom { get; set; }
+		public int Left { get; set; }
+		public int Right { get; set; }
+		public string ImagePath { get; set; }
+	}
+
+	#endregion
+
+	/// <summary>
+	/// Loads and parses FishUI theme files using YamlDotNet.
 	/// </summary>
 	public class FishUIThemeLoader
 	{
 		private FishUI UI;
+		private readonly IDeserializer _deserializer;
 
 		public FishUIThemeLoader(FishUI ui)
 		{
 			UI = ui;
+			_deserializer = new DeserializerBuilder()
+				.WithNamingConvention(CamelCaseNamingConvention.Instance)
+				.IgnoreUnmatchedProperties()
+				.Build();
 		}
 
 		/// <summary>
@@ -41,99 +113,101 @@ namespace FishUI
 
 		private FishUITheme ParseTheme(string content, string baseDir)
 		{
+			var dto = _deserializer.Deserialize<ThemeYamlDto>(content);
 			var theme = new FishUITheme();
-			var lines = content.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
-			string currentSection = "";
-			string currentSubSection = "";
-			string currentControl = "";
-			FishUIThemeRegion currentRegion = null;
-
-			foreach (var rawLine in lines)
+			// Map theme metadata
+			if (dto.Theme != null)
 			{
-				string line = rawLine;
+				theme.Name = dto.Theme.Name ?? theme.Name;
+				theme.Description = dto.Theme.Description ?? theme.Description;
+				theme.Version = dto.Theme.Version ?? theme.Version;
+				theme.Author = dto.Theme.Author ?? theme.Author;
+			}
 
-				// Skip comments
-				if (line.TrimStart().StartsWith("#"))
-					continue;
-
-				// Calculate indentation level
-				int indent = GetIndentLevel(line);
-				line = line.Trim();
-
-				if (string.IsNullOrEmpty(line))
-					continue;
-
-				// Top-level sections (no indent)
-				if (indent == 0 && line.EndsWith(":"))
+			// Map atlas settings
+			if (dto.Atlas != null)
+			{
+				theme.UseAtlas = dto.Atlas.Enabled;
+				if (!string.IsNullOrEmpty(dto.Atlas.Path))
 				{
-					currentSection = line.TrimEnd(':').ToLower();
-					currentSubSection = "";
-					currentControl = "";
-					continue;
+					string atlasPath = dto.Atlas.Path;
+					if (!string.IsNullOrEmpty(baseDir) && !Path.IsPathRooted(atlasPath) && !atlasPath.StartsWith("data"))
+						atlasPath = Path.Combine(baseDir, atlasPath);
+					theme.AtlasPath = atlasPath;
 				}
+			}
 
-				// Parse key-value pairs
-				int colonIndex = line.IndexOf(':');
-				if (colonIndex > 0)
+			// Map colors
+			if (dto.Colors != null)
+			{
+				if (!string.IsNullOrEmpty(dto.Colors.Background))
+					theme.Colors.Background = ParseColorValue(dto.Colors.Background);
+				if (!string.IsNullOrEmpty(dto.Colors.Foreground))
+					theme.Colors.Foreground = ParseColorValue(dto.Colors.Foreground);
+				if (!string.IsNullOrEmpty(dto.Colors.Accent))
+					theme.Colors.Accent = ParseColorValue(dto.Colors.Accent);
+				if (!string.IsNullOrEmpty(dto.Colors.AccentSecondary))
+					theme.Colors.AccentSecondary = ParseColorValue(dto.Colors.AccentSecondary);
+				if (!string.IsNullOrEmpty(dto.Colors.Disabled))
+					theme.Colors.Disabled = ParseColorValue(dto.Colors.Disabled);
+				if (!string.IsNullOrEmpty(dto.Colors.Error))
+					theme.Colors.Error = ParseColorValue(dto.Colors.Error);
+				if (!string.IsNullOrEmpty(dto.Colors.Success))
+					theme.Colors.Success = ParseColorValue(dto.Colors.Success);
+				if (!string.IsNullOrEmpty(dto.Colors.Warning))
+					theme.Colors.Warning = ParseColorValue(dto.Colors.Warning);
+				if (!string.IsNullOrEmpty(dto.Colors.Border))
+					theme.Colors.Border = ParseColorValue(dto.Colors.Border);
+
+				if (dto.Colors.Custom != null)
 				{
-					string key = line.Substring(0, colonIndex).Trim().ToLower();
-					string value = colonIndex < line.Length - 1 ? line.Substring(colonIndex + 1).Trim() : "";
-
-					// Handle different sections
-					switch (currentSection)
+					foreach (var kvp in dto.Colors.Custom)
 					{
-						case "theme":
-							ParseThemeMetadata(theme, key, value);
-							break;
+						theme.Colors.Custom[kvp.Key.ToLower()] = ParseColorValue(kvp.Value);
+					}
+				}
+			}
 
-						case "atlas":
-							ParseAtlasSettings(theme, key, value, baseDir);
-							break;
+			// Map fonts
+			if (dto.Fonts != null)
+			{
+				if (!string.IsNullOrEmpty(dto.Fonts.DefaultPath))
+					theme.Fonts.DefaultFontPath = dto.Fonts.DefaultPath;
+				if (!string.IsNullOrEmpty(dto.Fonts.BoldPath))
+					theme.Fonts.BoldFontPath = dto.Fonts.BoldPath;
+				if (dto.Fonts.DefaultSize > 0)
+					theme.Fonts.DefaultSize = dto.Fonts.DefaultSize;
+				if (dto.Fonts.LabelSize > 0)
+					theme.Fonts.LabelSize = dto.Fonts.LabelSize;
+				theme.Fonts.Spacing = dto.Fonts.Spacing;
+			}
 
-						case "colors":
-							if (indent == 1)
-							{
-								if (string.IsNullOrEmpty(value))
-								{
-									currentSubSection = key;
-								}
-								else
-								{
-									ParseColor(theme.Colors, key, value);
-								}
-							}
-							else if (indent == 2 && currentSubSection == "custom")
-							{
-								theme.Colors.Custom[key] = ParseColorValue(value);
-							}
-							break;
+			// Map regions
+			if (dto.Regions != null)
+			{
+				foreach (var controlKvp in dto.Regions)
+				{
+					string controlName = controlKvp.Key;
+					foreach (var stateKvp in controlKvp.Value)
+					{
+						string stateName = stateKvp.Key;
+						var regionDto = stateKvp.Value;
 
-						case "fonts":
-							ParseFontSettings(theme.Fonts, key, value);
-							break;
+						var region = new FishUIThemeRegion
+						{
+							X = regionDto.X,
+							Y = regionDto.Y,
+							Width = regionDto.Width,
+							Height = regionDto.Height,
+							Top = regionDto.Top,
+							Bottom = regionDto.Bottom,
+							Left = regionDto.Left,
+							Right = regionDto.Right,
+							ImagePath = regionDto.ImagePath
+						};
 
-						case "regions":
-							if (indent == 1)
-							{
-								// New control type
-								currentControl = key;
-							}
-							else if (indent == 2)
-							{
-								// New state for current control
-								if (string.IsNullOrEmpty(value))
-								{
-									currentRegion = new FishUIThemeRegion();
-									theme.SetRegion(currentControl, key, currentRegion);
-								}
-							}
-							else if (indent == 3 && currentRegion != null)
-							{
-								// Region properties
-								ParseRegionProperty(currentRegion, key, value);
-							}
-							break;
+						theme.SetRegion(controlName, stateName, region);
 					}
 				}
 			}
@@ -141,93 +215,11 @@ namespace FishUI
 			return theme;
 		}
 
-		private int GetIndentLevel(string line)
-		{
-			int spaces = 0;
-			foreach (char c in line)
-			{
-				if (c == ' ') spaces++;
-				else if (c == '\t') spaces += 2;
-				else break;
-			}
-			return spaces / 2;
-		}
-
-		private void ParseThemeMetadata(FishUITheme theme, string key, string value)
-		{
-			switch (key)
-			{
-				case "name": theme.Name = value.Trim('"'); break;
-				case "description": theme.Description = value.Trim('"'); break;
-				case "version": theme.Version = value.Trim('"'); break;
-				case "author": theme.Author = value.Trim('"'); break;
-			}
-		}
-
-		private void ParseAtlasSettings(FishUITheme theme, string key, string value, string baseDir)
-		{
-			switch (key)
-			{
-				case "enabled":
-					theme.UseAtlas = value.ToLower() == "true";
-					break;
-				case "path":
-					string atlasPath = value.Trim('"');
-					if (!string.IsNullOrEmpty(baseDir) && !Path.IsPathRooted(atlasPath) && !atlasPath.StartsWith("data"))
-						atlasPath = Path.Combine(baseDir, atlasPath);
-					theme.AtlasPath = atlasPath;
-					break;
-			}
-		}
-
-		private void ParseColor(FishUIColorPalette palette, string key, string value)
-		{
-			FishColor color = ParseColorValue(value);
-
-			switch (key)
-			{
-				case "background": palette.Background = color; break;
-				case "foreground": palette.Foreground = color; break;
-				case "accent": palette.Accent = color; break;
-				case "accentsecondary": palette.AccentSecondary = color; break;
-				case "disabled": palette.Disabled = color; break;
-				case "error": palette.Error = color; break;
-				case "success": palette.Success = color; break;
-				case "warning": palette.Warning = color; break;
-				case "border": palette.Border = color; break;
-			}
-		}
-
-		private void ParseFontSettings(FishUIFontSettings fonts, string key, string value)
-		{
-			switch (key)
-			{
-				case "defaultpath": fonts.DefaultFontPath = value.Trim('"'); break;
-				case "boldpath": fonts.BoldFontPath = value.Trim('"'); break;
-				case "defaultsize": fonts.DefaultSize = int.Parse(value); break;
-				case "labelsize": fonts.LabelSize = int.Parse(value); break;
-				case "spacing": fonts.Spacing = int.Parse(value); break;
-			}
-		}
-
-		private void ParseRegionProperty(FishUIThemeRegion region, string key, string value)
-		{
-			switch (key)
-			{
-				case "x": region.X = int.Parse(value); break;
-				case "y": region.Y = int.Parse(value); break;
-				case "width": region.Width = int.Parse(value); break;
-				case "height": region.Height = int.Parse(value); break;
-				case "top": region.Top = int.Parse(value); break;
-				case "bottom": region.Bottom = int.Parse(value); break;
-				case "left": region.Left = int.Parse(value); break;
-				case "right": region.Right = int.Parse(value); break;
-				case "imagepath": region.ImagePath = value.Trim('"'); break;
-			}
-		}
-
 		private FishColor ParseColorValue(string value)
 		{
+			if (string.IsNullOrEmpty(value))
+				return FishColor.Black;
+
 			value = value.Trim().Trim('"');
 
 			// Hex format: #RRGGBB or #RRGGBBAA
