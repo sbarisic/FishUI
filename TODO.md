@@ -78,6 +78,13 @@ A list of planned features, improvements, and new controls for FishUI.
   - Vertical scrollbar integration
   - *GWEN atlas regions: Uses TextBox regions*
 
+- [ ] **Timeline** (3 CPX)
+  - Timeline control for LineChart navigation
+  - Displays time range with selectable window
+  - Current view shown as blue rectangle outline
+  - Allows selecting displayed time window and offset
+  - *Use case: Historical data browsing, LineChart companion*
+
 ### Lower Priority
 
 - [ ] **MultiColumnList / DataGrid** (4 CPX)
@@ -106,6 +113,14 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ### Textbox Enhancements
 - [ ] Multi-line mode with character wrap (3 CPX)
+
+### LineChart Enhancements
+- [ ] Vertical cursor with data point selection (2 CPX)
+  - Draggable vertical line to select time point
+  - Callback with selected time and data values
+- [ ] Pause/resume data recording (1 CPX)
+  - IsPaused property to freeze chart updates
+  - Data still collected but not displayed until resumed
 
 
 ---
@@ -168,6 +183,9 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - [ ] MultiLine textbox example (separate demo)
   - Add single line and multi line 
   - Requires multi-line textbox mode implementation
+- [ ] SampleLineChart improvements
+  - Add 4th series with slow updates (1.5s interval) for interpolation testing
+  - Double chart width, move temperature monitor below main chart
 
 ---
 
@@ -201,12 +219,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-- Add a 4th line in the line chart demo, but one which sends a data point every 1.5 seconds or so, to debug interpolated drawing
-- Add a vertical cursor to line charts, so you can get data points and selected time point in a callback
-- Add ability to pause data recording for line charts
-- Make the real time data visualization chart double in width, and move the temperature monitor style below so it's not in the way
-- Add a timeline control, which will display the timeline of a line chart, and where you can select the displayed time window and displayed offset
-- Timeline control should display current window as a blue rectangle outline, timeline should be as wide as the real time data visualization chart
+*No uncategorized items*
 
 ---
 
