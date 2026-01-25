@@ -192,32 +192,47 @@ namespace FishUIDemos
 			FUI.AddControl(usernameBox);
 		}
 
+		private const string SavedLayoutPath = "data/layouts/event_demo_saved.yaml";
+
 		private void SerializeCurrentLayout()
 		{
-			// Serialize current controls to YAML
-			string yaml = LayoutFormat.Serialize(FUI);
-			Log("Layout serialized to YAML:");
-
-			// Show first few lines of YAML in the log
-			string[] lines = yaml.Split('\n');
-			int linesToShow = Math.Min(8, lines.Length);
-			for (int i = 0; i < linesToShow; i++)
+			try
 			{
-				if (!string.IsNullOrWhiteSpace(lines[i]))
-					Log($"  {lines[i].TrimEnd()}");
+				// Serialize current controls to YAML and save to file
+				LayoutFormat.SerializeToFile(FUI, SavedLayoutPath);
+				Log($"Layout saved to: {SavedLayoutPath}");
+
+				// Show a preview of what was saved
+				string yaml = LayoutFormat.Serialize(FUI);
+				string[] lines = yaml.Split('\n');
+				int linesToShow = Math.Min(6, lines.Length);
+				for (int i = 0; i < linesToShow; i++)
+				{
+					if (!string.IsNullOrWhiteSpace(lines[i]))
+						Log($"  {lines[i].TrimEnd()}");
+				}
+				if (lines.Length > linesToShow)
+					Log($"  ... ({lines.Length - linesToShow} more lines)");
 			}
-			if (lines.Length > linesToShow)
-				Log($"  ... ({lines.Length - linesToShow} more lines)");
+			catch (Exception ex)
+			{
+				Log($"Error saving: {ex.Message}");
+			}
 		}
 
 		private void LoadLayoutFromYaml()
 		{
 			try
 			{
-				Log("Reloading layout from YAML file...");
+				// Try to load from saved file first, fall back to original
+				string pathToLoad = System.IO.File.Exists(SavedLayoutPath)
+				? SavedLayoutPath
+				: "data/layouts/event_demo.yaml";
+
+				Log($"Loading layout from: {pathToLoad}");
 
 				// Load the layout - this clears all controls and loads from YAML
-				LayoutFormat.DeserializeFromFile(FUI, "data/layouts/event_demo.yaml");
+				LayoutFormat.DeserializeFromFile(FUI, pathToLoad);
 
 				// Populate the ListBox items
 				var themeList = FUI.FindControlByID<ListBox>("themeList");

@@ -43,14 +43,16 @@
   OnCheckedChangedHandler: OnCheckboxToggled
 
 - !ListBox
-  ID: themeList
-  Position: { X: 20, Y: 217 }
-  Size: { X: 150, Y: 80 }
-  OnSelectionChangedHandler: OnItemSelected
+ID: themeList
+Position: { X: 20, Y: 217 }
+Size: { X: 150, Y: 80 }
+SelectedIndex: -1
+OnSelectionChangedHandler: OnItemSelected
 
 - !Textbox
-  ID: usernameBox
-  Position: { X: 190, Y: 217 }
-  Size: { X: 150, Y: 24 }
-  Placeholder: Enter username
-  OnTextChangedHandler: OnTextEdited
+ID: usernameBox
+Position: { X: 190, Y: 217 }
+Size: { X: 150, Y: 24 }
+Text: ""
+Placeholder: Enter username
+OnTextChangedHandler: OnTextEdited

@@ -51,6 +51,7 @@ namespace FishUI.Controls
 
 	public class ListBox : Control
 	{
+		[YamlMember]
 		List<ListBoxItem> Items = new List<ListBoxItem>();
 
 		[YamlIgnore]
@@ -65,14 +66,14 @@ namespace FishUI.Controls
 		/// Gets or sets the currently selected index. -1 means no selection.
 		/// Setting this property will trigger selection events.
 		/// </summary>
-		[YamlIgnore]
+		[YamlMember]
 		public int SelectedIndex
 		{
 			get => _selectedIndex;
 			set => SelectIndex(value);
 		}
 
-		[YamlMember]
+		[YamlIgnore]
 		int HoveredIndex = -1;
 
 		[YamlIgnore]
