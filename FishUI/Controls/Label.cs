@@ -16,7 +16,11 @@ namespace FishUI.Controls
 
 	public class Label : Control
 	{
-		public string Text;
+		/// <summary>
+		/// The text displayed on the label.
+		/// </summary>
+		[YamlMember]
+		public string Text { get; set; }
 
 		/// <summary>
 		/// Text alignment within the label bounds. Default is Left to prevent clipping in containers.
@@ -27,9 +31,9 @@ namespace FishUI.Controls
 		{
 		}
 
-		public Label(string Text)
+		public Label(string text)
 		{
-			this.Text = Text;
+			Text = text;
 			Position = new Vector2(18, 0);
 			Size = new Vector2(200, 16);
 		}

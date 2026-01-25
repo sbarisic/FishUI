@@ -148,6 +148,50 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ---
 
+## FishUIEditor - Layout Editor Application **HIGH PRIORITY**
+
+A visual layout editor for designing FishUI interfaces. Located in the `FishUIEditor` project.
+
+### Phase 1: Core Infrastructure (CPX 4) - COMPLETE
+- [x] Create inert control rendering mode - controls display visually but don't process input events
+- [x] Implement EditorCanvas control for displaying the design surface with grid, selection, resize handles
+- [x] Set up basic editor window layout with menu bar, toolbox, PropertyGrid panel, status bar
+
+### Phase 2: Selection & Manipulation (CPX 4) - COMPLETE
+- [x] Implement control selection (click to select, selection highlight/handles)
+- [x] Add drag-and-drop movement for selected controls
+- [x] Implement resize handles for selected controls
+- [ ] Multi-select support (Ctrl+click, drag rectangle)
+
+### Phase 3: Property Editor (CPX 3) - IN PROGRESS
+- [x] Integrate PropertyGrid on right panel for editing selected control properties
+- [x] Expose all editable properties (Button.Text, Label.Text, etc.) in PropertyGrid
+- [ ] Support "reset to default" for property changes
+
+### Phase 4: Control Toolbox (CPX 3) - COMPLETE
+- [x] Create control palette/toolbox panel listing available controls
+- [x] Click toolbox item to add control to design surface
+- [x] Drag controls from toolbox to design surface to create new instances
+- [x] Support control hierarchy (parenting controls)
+- [x] Add Layout Hierarchy TreeView showing all controls with parent/child nesting
+
+### Phase 5: Serialization (CPX 2) - COMPLETE
+- [x] Save layouts to YAML files using LayoutFormat
+- [x] Load existing YAML layouts for editing
+- [x] New/Open/Save/Save As file operations (via MenuBar dropdown MenuItem clicks; default path `data/layouts/editor_layout.yaml`)
+
+### Phase 6: Reparenting & Advanced Manipulation (CPX 3) - COMPLETE
+- [x] Drag existing control onto container to reparent
+- [x] Drag control out of container to unparent (move to root level)
+- [ ] Visual feedback when hovering over valid drop targets
+
+### Follow-ups
+- [ ] Add a FishUIDemos sample that loads `data/layouts/editor_layout.yaml` and renders it (fallback to blank if missing) (CPX 3)
+
+---
+
+
+
 ## Documentation **LOW PRIORITY**
 
 - [ ] API reference documentation
@@ -287,6 +331,7 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 - README.md: Complete rewrite with 35+ controls, code examples, theming, serialization, project structure
 
 ### Fixed Bugs
+- Button/Label: Text property now editable in PropertyGrid (converted from field to property with [YamlMember])
 - DropDown: Overlay rendering, click-through fixes, AlwaysOnTop handling, mouse leave behavior
 - Virtual cursor: Pick order, rendering order, arrow key handling
 - Serialization: TreeNode/TabControl YamlIgnore, Window/TabControl OnDeserialized

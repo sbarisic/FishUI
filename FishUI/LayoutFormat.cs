@@ -106,6 +106,37 @@ namespace FishUI
 			return yamlDoc;
 		}
 
+		/// <summary>
+		/// Deserializes YAML into a list of controls.
+		/// This does not attach them to a FishUI instance; the caller is responsible for adding controls to a UI.
+		/// </summary>
+		public static List<Control> DeserializeControls(string data)
+		{
+			DeserializerBuilder dbuild = new DeserializerBuilder();
+			dbuild = dbuild.WithNamingConvention(PascalCaseNamingConvention.Instance);
+			dbuild = dbuild.IncludeNonPublicProperties();
+
+			foreach (var KV in TypeMapping)
+			{
+				dbuild.WithTagMapping(KV.Key, KV.Value);
+			}
+
+			IDeserializer dser = dbuild.Build();
+
+			var objs = dser.Deserialize<List<object>>(data);
+			var controls = new List<Control>();
+			foreach (object obj in objs)
+			{
+				if (obj is Control c)
+				{
+					LinkParents(c);
+					controls.Add(c);
+				}
+			}
+
+			return controls;
+		}
+
 		static void LinkParents(Control ControlWithChildren)
 		{
 			foreach (Control Child in ControlWithChildren.GetAllChildren(false))

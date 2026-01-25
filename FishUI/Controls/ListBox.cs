@@ -397,6 +397,9 @@ namespace FishUI.Controls
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
+			Vector2 absPos = GetAbsolutePosition();
+			Vector2 absSize = GetAbsoluteSize();
+
 			if (ShowScrollBar)
 				CreateScrollBar(UI);
 			else if (ScrollBar != null)
@@ -413,19 +416,19 @@ namespace FishUI.Controls
 				AutoResizeHeight();
 
 			NPatch Cur = UI.Settings.ImgListBoxNormal;
-			UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), Color);
+			UI.Graphics.DrawNPatch(Cur, absPos, absSize, Color);
 
 			bool ShowSBar = false;
 
-			UI.Graphics.PushScissor(GetAbsolutePosition() + new Vector2(2, 2), GetAbsoluteSize() - new Vector2(4, 4));
+			UI.Graphics.PushScissor(absPos + new Vector2(2, 2), absSize - new Vector2(4, 4));
 			for (int i = 0; i < Items.Count; i++)
 			{
 				bool IsSelected = IsIndexSelected(i);
 				bool IsHovered = (i == HoveredIndex);
 
-				float Y = Position.Y + 2 + i * ListItemHeight;
+				float Y = absPos.Y + 2 + i * ListItemHeight;
 
-				if ((Y + ListItemHeight > Position.Y + GetAbsoluteSize().Y) && !ShowSBar)
+				if ((Y + ListItemHeight > absPos.Y + absSize.Y) && !ShowSBar)
 					ShowSBar = true;
 
 				// Calculate scrollbar width for row rendering
@@ -438,8 +441,8 @@ namespace FishUI.Controls
 				{
 					FishColor rowColor = (i % 2 == 0) ? EvenRowColor : OddRowColor;
 					UI.Graphics.DrawRectangle(
-					new Vector2(Position.X + 2, Y) + ScrollOffset,
-						new Vector2(GetAbsoluteSize().X - 4 - ScrollBarW, ListItemHeight),
+						new Vector2(absPos.X + 2, Y) + ScrollOffset,
+						new Vector2(absSize.X - 4 - ScrollBarW, ListItemHeight),
 						rowColor);
 				}
 
@@ -461,8 +464,8 @@ namespace FishUI.Controls
 					TxtColor = FishColor.White;
 				}
 
-				Vector2 itemPos = new Vector2(Position.X + 2, Y) + ScrollOffset;
-				Vector2 itemSize = new Vector2(GetAbsoluteSize().X - 4 - ScrollBarW, ListItemHeight);
+				Vector2 itemPos = new Vector2(absPos.X + 2, Y) + ScrollOffset;
+				Vector2 itemSize = new Vector2(absSize.X - 4 - ScrollBarW, ListItemHeight);
 
 				if (Cur != null)
 				{

@@ -1,0 +1,144 @@
+- !Button
+  Text: Sample Button
+  IconSpacing: 4
+  Position:
+    X: 320
+    Y: 192
+  Size:
+    X: 120
+    Y: 32
+  RepeatDelay: 0.4
+  RepeatInterval: 0.1
+  ImageButtonHoverTint: &o3
+    R: 220
+    G: 220
+    B: 220
+    A: 255
+  ImageButtonPressedTint: &o4
+    R: 180
+    G: 180
+    B: 180
+    A: 255
+  Anchor: TopLeft
+  Visible: true
+  Color: &o2
+    R: 255
+    G: 255
+    B: 255
+    A: 255
+  Opacity: 1
+  Focusable: true
+- !Label
+  Text: Sample Label
+  Alignment: Left
+  Position:
+    X: 256
+    Y: 144
+  Size:
+    X: 120
+    Y: 24
+  Anchor: TopLeft
+  Visible: true
+  Color: *o2
+  Opacity: 1
+- !Textbox
+  Position:
+    X: 112
+    Y: 192
+  Size:
+    X: 200
+    Y: 28
+  PasswordChar: '*'
+  Placeholder: Enter text...
+  PlaceholderColor:
+    R: 128
+    G: 128
+    B: 128
+    A: 255
+  SelectionColor:
+    R: 51
+    G: 153
+    B: 255
+    A: 128
+  Anchor: TopLeft
+  Visible: true
+  Color: *o2
+  Opacity: 1
+  Focusable: true
+- !CheckBox
+  Position:
+    X: 224
+    Y: 144
+  Size:
+    X: 20
+    Y: 20
+  DisableChildScissor: true
+  Anchor: TopLeft
+  Visible: true
+  Color: *o2
+  Opacity: 1
+- !Button
+  Text: Button
+  IconSpacing: 4
+  Position:
+    X: 256
+    Y: 288
+  Size:
+    X: 100
+    Y: 28
+  RepeatDelay: 0.4
+  RepeatInterval: 0.1
+  ImageButtonHoverTint: *o3
+  ImageButtonPressedTint: *o4
+  Anchor: TopLeft
+  Visible: true
+  Color: *o2
+  Opacity: 1
+  Focusable: true
+- !Slider
+  Position:
+    X: 224
+    Y: 256
+  Size:
+    X: 150
+    Y: 24
+  Value: 72
+  MaxValue: 100
+  TrackColor:
+    R: 60
+    G: 60
+    B: 60
+    A: 255
+  FillColor:
+    R: 76
+    G: 175
+    B: 80
+    A: 255
+  ThumbColor: *o2
+  BorderColor:
+    R: 100
+    G: 100
+    B: 100
+    A: 255
+  ShowBorder: true
+  ValueLabelFormat: 0
+  LabelColor: *o2
+  ThumbSize: 1.1
+  UseThemeColors: true
+  Anchor: TopLeft
+  Visible: true
+  Color: *o2
+  Opacity: 1
+- !ImageBox
+  Position:
+    X: 416
+    Y: 272
+  Size:
+    X: 100
+    Y: 100
+  ImagePath: data/images/win95_small.png
+  ScaleMode: Stretch
+  Anchor: TopLeft
+  Visible: true
+  Color: *o2
+  Opacity: 1

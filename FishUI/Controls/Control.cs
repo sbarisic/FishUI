@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -227,7 +227,7 @@ namespace FishUI.Controls
 		}
 
 		/// <summary>
-	/// Clears all color overrides for this control.
+		/// Clears all color overrides for this control.
 		/// </summary>
 		public void ClearAllColorOverrides()
 		{
@@ -723,6 +723,14 @@ namespace FishUI.Controls
 		}
 
 		/// <summary>
+		/// Clears the parent reference of this control (used for reparenting).
+		/// </summary>
+		public void ClearParent()
+		{
+			Parent = null;
+		}
+
+		/// <summary>
 		/// Updates the anchor offset values for a child control based on current parent size.
 		/// </summary>
 		private void UpdateChildAnchorOffsets(Control Child)
@@ -825,7 +833,7 @@ namespace FishUI.Controls
 		{
 		}
 
-	/// <summary>
+		/// <summary>
 		/// Called after this control and its children have been deserialized from a layout file.
 		/// Override this to reinitialize internal state that depends on child controls or load resources.
 		/// </summary>

@@ -28,10 +28,14 @@ namespace FishUI.Controls
 		[YamlIgnore]
 		NPatch ImgDisabled;
 
-		[YamlIgnore]
+	[YamlIgnore]
 		NPatch ImgPressed;
 
-		public string Text;
+		/// <summary>
+		/// The text displayed on the button.
+		/// </summary>
+		[YamlMember]
+		public string Text { get; set; }
 
 
 
