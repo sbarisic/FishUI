@@ -59,18 +59,18 @@ namespace FishUI.Controls
 
 		Vector2 ScrollOffset = new Vector2(0, 0);
 
-		[YamlMember]
+		[YamlMember(Alias = "SelectedIndex")]
 		int _selectedIndex = -1;
 
 		/// <summary>
 		/// Gets or sets the currently selected index. -1 means no selection.
 		/// Setting this property will trigger selection events.
 		/// </summary>
-		[YamlMember]
+		[YamlIgnore]
 		public int SelectedIndex
 		{
-			get => _selectedIndex;
-			set => SelectIndex(value);
+		get => _selectedIndex;
+		set => SelectIndex(value);
 		}
 
 		[YamlIgnore]
@@ -139,9 +139,15 @@ namespace FishUI.Controls
 		[YamlMember]
 		public float CustomItemHeight { get; set; } = 0;
 
+		/// <summary>
+		/// Gets the number of items in the list.
+		/// </summary>
+		[YamlIgnore]
+		public int ItemCount => Items.Count;
+
 		public ListBox()
 		{
-			Size = new Vector2(140, 120);
+		Size = new Vector2(140, 120);
 		}
 
 		public void AddItem(ListBoxItem Itm)

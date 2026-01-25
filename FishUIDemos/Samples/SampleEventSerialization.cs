@@ -94,9 +94,9 @@ namespace FishUIDemos
 				// Load the layout - this clears all controls and loads from YAML
 				LayoutFormat.DeserializeFromFile(FUI, "data/layouts/event_demo.yaml");
 
-				// Populate the ListBox items (not stored in YAML for this demo)
+				// Populate the ListBox items only if empty (items may be serialized)
 				var themeList = FUI.FindControlByID<ListBox>("themeList");
-				if (themeList != null)
+				if (themeList != null && themeList.ItemCount == 0)
 				{
 					themeList.AddItem("Default");
 					themeList.AddItem("Dark");
@@ -250,9 +250,9 @@ namespace FishUIDemos
 				// Load the layout - this clears all controls and loads from YAML
 				LayoutFormat.DeserializeFromFile(FUI, pathToLoad);
 
-				// Populate the ListBox items
+				// Populate the ListBox items only if empty (items may be serialized)
 				var themeList = FUI.FindControlByID<ListBox>("themeList");
-				if (themeList != null)
+				if (themeList != null && themeList.ItemCount == 0)
 				{
 					themeList.AddItem("Default");
 					themeList.AddItem("Dark");
