@@ -185,7 +185,7 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 - [x] Anchor support in editor (controls move/stretch correctly when parent is resized)
 - [x] Z-ordering support (controls render and pick in correct depth order)
 - [x] Invisible control visualization (pink outline with diagonal lines for Visible=false controls)
-- [ ] Visual feedback when hovering over valid drop targets
+- [x] Visual feedback when hovering over valid drop targets (green highlight with label)
 
 ### Follow-ups
 - [ ] Add a FishUIDemos sample that loads `data/layouts/editor_layout.yaml` and renders it (fallback to blank if missing) (CPX 3)
@@ -355,5 +355,6 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 - EditorCanvas: Fixed selection box not updating when parent is resized - now uses GetAnchorAdjustedRelativePosition/Size
 - EditorCanvas: Fixed mouse picking for anchor-adjusted controls - hit testing uses anchor-adjusted bounds
 - EditorCanvas: Added Z-ordering support - controls render and pick in ZDepth order
+- EditorCanvas: Added drop target visual feedback - green highlight with label when hovering over valid containers during drag
 - Control: Added GetAnchorAdjustedRelativePosition() for anchor-adjusted position without UI scaling
 - Control: Added GetAnchorAdjustedSize() for anchor-adjusted size (stretching when anchored to opposite edges)

@@ -109,10 +109,24 @@ namespace FishUIEditor
 				}
 			}
 
-			// Update drag position
+		// Update drag position
 			if (_isDraggingFromToolbox && mouseDown)
 			{
 				_dragPreviewPosition = mousePos;
+
+				// Update hovered drop target for visual feedback
+				Vector2 canvasAbsPos = _canvas.GetAbsolutePosition();
+				Vector2 canvasSize = _canvas.Size;
+				if (mousePos.X >= canvasAbsPos.X && mousePos.X <= canvasAbsPos.X + canvasSize.X &&
+					mousePos.Y >= canvasAbsPos.Y && mousePos.Y <= canvasAbsPos.Y + canvasSize.Y)
+				{
+					Vector2 canvasLocalPos = mousePos - canvasAbsPos;
+					_canvas.HoveredDropTarget = _canvas.FindContainerAtPosition(canvasLocalPos);
+				}
+				else
+				{
+					_canvas.HoveredDropTarget = null;
+				}
 			}
 
 			// Handle drop on mouse release
@@ -181,6 +195,7 @@ namespace FishUIEditor
 				// End drag
 				_isDraggingFromToolbox = false;
 				_draggedControlType = null;
+				_canvas.HoveredDropTarget = null;
 			}
 		}
 

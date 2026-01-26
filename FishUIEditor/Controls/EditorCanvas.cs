@@ -160,6 +160,12 @@ namespace FishUIEditor.Controls
 				DrawInertControl(UI, control, pos, Dt, Time);
 			}
 
+			// Draw drop target highlight during drag operations
+			if (HoveredDropTarget != null)
+			{
+				DrawDropTargetHighlight(UI, HoveredDropTarget, pos);
+			}
+
 			// Draw selection highlight
 			if (SelectedControl != null)
 			{
@@ -167,6 +173,29 @@ namespace FishUIEditor.Controls
 			}
 
 			UI.Graphics.EndScissor();
+		}
+
+		private void DrawDropTargetHighlight(FishUI.FishUI UI, Control target, Vector2 canvasPos)
+		{
+			Vector2 targetAbsPos = GetControlAbsolutePositionInCanvas(target, canvasPos);
+			Vector2 targetSize = target.GetAnchorAdjustedSize();
+
+			// Draw a thick outline around the drop target
+			const float outlineThickness = 3f;
+
+			// Draw multiple rectangles to create a thick outline effect
+			for (int i = 0; i < (int)outlineThickness; i++)
+			{
+				Vector2 offset = new Vector2(i, i);
+				UI.Graphics.DrawRectangleOutline(
+					targetAbsPos - offset,
+					targetSize + offset * 2,
+					DropTargetHighlightColor);
+			}
+
+			// Draw label showing the container name
+			string label = $"Drop into: {target.GetType().Name}";
+			UI.Graphics.DrawTextColor(UI.Settings.FontDefault, label, targetAbsPos + new Vector2(4, -18), DropTargetHighlightColor);
 		}
 
 		private void DrawGrid(FishUI.FishUI UI, Vector2 pos, Vector2 size)
@@ -234,10 +263,22 @@ namespace FishUIEditor.Controls
 
 
 
+
+
 		/// <summary>
 		/// Color used to outline controls that have Visible = false.
 		/// </summary>
 		public FishColor InvisibleControlColor { get; set; } = new FishColor(255, 105, 180, 200); // Hot pink
+
+		/// <summary>
+		/// Color used to highlight valid drop targets during drag operations.
+		/// </summary>
+		public FishColor DropTargetHighlightColor { get; set; } = new FishColor(0, 200, 100, 200); // Green
+
+		/// <summary>
+		/// The currently hovered drop target during a drag operation (null if not hovering over a valid target).
+		/// </summary>
+		public Control HoveredDropTarget { get; set; }
 
 		private void DrawInertControl(FishUI.FishUI UI, Control control, Vector2 canvasPos, float Dt, float Time)
 		{
@@ -505,10 +546,11 @@ namespace FishUIEditor.Controls
 				OnControlModified?.Invoke(SelectedControl);
 			}
 
-			_isDragging = false;
+		_isDragging = false;
 			_isResizing = false;
 			_activeHandle = ResizeHandle.None;
 			_dragStartParent = null;
+			HoveredDropTarget = null;
 		}
 
 		public override void HandleDrag(FishUI.FishUI UI, Vector2 StartPos, Vector2 EndPos, FishInputState InState)
@@ -523,6 +565,9 @@ namespace FishUIEditor.Controls
 
 			if (_isDragging)
 			{
+				// Track hovered drop target for visual feedback
+				HoveredDropTarget = FindContainerAtPositionExcluding(localPos, SelectedControl);
+
 				// Calculate new position - for child controls, subtract parent offset
 				Vector2 parentOffset = GetParentOffset(SelectedControl);
 				Vector2 newPos = localPos - _dragOffset - parentOffset;
