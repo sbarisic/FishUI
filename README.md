@@ -15,6 +15,28 @@ FishUI is a flexible GUI framework that separates UI logic from rendering, allow
 - **Game-Ready**: Designed for real-time applications with features like virtual cursor support
 - **Themeable**: YAML-based theme system with atlas/9-slice support
 
+## Screenshots
+
+<p align="center">
+  <img src="screenshots/SampleDefault_26012026_014122.png" width="400" alt="Default Sample"/>
+  <img src="screenshots/SampleBasicControls_26012026_014103.png" width="400" alt="Basic Controls"/>
+</p>
+<p align="center">
+  <img src="screenshots/Gauges_26012026_014153.png" width="400" alt="Gauges"/>
+  <img src="screenshots/PropertyGrid_26012026_014114.png" width="400" alt="PropertyGrid"/>
+</p>
+<p align="center">
+  <img src="screenshots/LayoutSystem_26012026_014108.png" width="400" alt="Layout System"/>
+  <img src="screenshots/Animations_26012026_014047.png" width="400" alt="Animations"/>
+</p>
+<p align="center">
+  <img src="screenshots/SampleDropDown_26012026_014218.png" width="400" alt="DropDown"/>
+  <img src="screenshots/MultiLineEditbox_26012026_014159.png" width="400" alt="MultiLineEditbox"/>
+</p>
+<p align="center">
+  <img src="screenshots/ImageBox_26012026_014135.png" width="400" alt="ImageBox"/>
+</p>
+
 ## Features
 
 ### Controls (40+ Built-in)
