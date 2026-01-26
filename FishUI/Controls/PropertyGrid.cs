@@ -422,7 +422,7 @@ namespace FishUI.Controls
 			};
 			// Capture the initial value as the default for reset functionality
 			item.CaptureDefaultValue();
-			return item;
+		return item;
 		}
 
 		private bool IsSupportedType(Type type)
@@ -432,6 +432,23 @@ namespace FishUI.Controls
 			if (type == typeof(bool)) return true;
 			if (type.IsEnum) return true;
 			if (type == typeof(Vector2) || type == typeof(Vector3) || type == typeof(Vector4)) return true;
+			// Support List<string> for collection editing (e.g., ListBox.Items text values)
+			if (IsStringCollection(type)) return true;
+			return false;
+		}
+
+		/// <summary>
+		/// Checks if a type is a supported string collection type.
+		/// </summary>
+		private bool IsStringCollection(Type type)
+		{
+			// Check for List<string>
+			if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>) &&
+				type.GetGenericArguments()[0] == typeof(string))
+				return true;
+			// Check for string[]
+			if (type == typeof(string[]))
+				return true;
 			return false;
 		}
 
@@ -559,9 +576,13 @@ namespace FishUI.Controls
 			{
 				CreateVectorEditor(UI, item, x, y, width, height, 3, currentValue);
 			}
-			else if (propType == typeof(Vector4))
+		else if (propType == typeof(Vector4))
 			{
 				CreateVectorEditor(UI, item, x, y, width, height, 4, currentValue);
+			}
+			else if (IsStringCollection(propType))
+			{
+				CreateStringCollectionEditor(UI, item, x, y, width, height, currentValue);
 			}
 			else // string and other types
 			{
@@ -679,6 +700,210 @@ namespace FishUI.Controls
 			// Focus the first component
 			if (numericControls.Length > 0)
 				UI.FocusControl(numericControls[0].InternalTextbox);
+		}
+
+		private void CreateStringCollectionEditor(FishUI UI, PropertyGridItem item, float x, float y, float width, float height, object currentValue)
+		{
+			// Get the list of strings from the collection
+			List<string> strings = new List<string>();
+			if (currentValue is List<string> stringList)
+			{
+				strings.AddRange(stringList);
+			}
+			else if (currentValue is string[] stringArray)
+			{
+				strings.AddRange(stringArray);
+			}
+			else if (currentValue is System.Collections.IEnumerable enumerable)
+			{
+				// Try to get text from items that have a Text property (like ListBoxItem)
+				foreach (var obj in enumerable)
+				{
+					if (obj == null)
+						continue;
+					var textProp = obj.GetType().GetProperty("Text");
+					if (textProp != null)
+						strings.Add(textProp.GetValue(obj)?.ToString() ?? "");
+					else
+						strings.Add(obj.ToString());
+				}
+			}
+
+			// Create an expanded panel for collection editing
+			var panel = new Panel();
+			panel.Position = new Vector2(x, y);
+			panel.Size = new Vector2(width, 150); // Expanded height for collection editor
+			panel.BorderStyle = BorderStyle.Solid;
+			AddChild(panel);
+			_activeEditor = panel;
+
+			float padding = 4f;
+			float buttonHeight = 22f;
+			float buttonWidth = 50f;
+			float listHeight = panel.Size.Y - buttonHeight - padding * 3;
+
+			// ListBox to display items
+			var listBox = new ListBox();
+			listBox.Position = new Vector2(padding, padding);
+			listBox.Size = new Vector2(width - padding * 2, listHeight);
+			foreach (var s in strings)
+				listBox.AddItem(s);
+			panel.AddChild(listBox);
+
+			// Button panel at the bottom
+			float buttonY = listHeight + padding * 2;
+			float buttonSpacing = 4f;
+			float currentX = padding;
+
+			// Add button
+			var addBtn = new Button { Text = "Add" };
+			addBtn.Position = new Vector2(currentX, buttonY);
+			addBtn.Size = new Vector2(buttonWidth, buttonHeight);
+			addBtn.OnButtonPressed += (sender, btn, pos) =>
+			{
+				listBox.AddItem("New Item");
+				ApplyStringCollectionChanges(item, listBox.Items.Select(i => i.Text).ToList());
+			};
+			panel.AddChild(addBtn);
+			currentX += buttonWidth + buttonSpacing;
+
+			// Remove button
+			var removeBtn = new Button { Text = "Remove" };
+			removeBtn.Position = new Vector2(currentX, buttonY);
+			removeBtn.Size = new Vector2(buttonWidth, buttonHeight);
+			removeBtn.OnButtonPressed += (sender, btn, pos) =>
+			{
+				if (listBox.SelectedIndex >= 0 && listBox.SelectedIndex < listBox.Items.Count)
+				{
+					listBox.Items.RemoveAt(listBox.SelectedIndex);
+					listBox.SelectedIndex = Math.Min(listBox.SelectedIndex, listBox.Items.Count - 1);
+					ApplyStringCollectionChanges(item, listBox.Items.Select(i => i.Text).ToList());
+				}
+			};
+			panel.AddChild(removeBtn);
+			currentX += buttonWidth + buttonSpacing;
+
+			// Move Up button
+			var upBtn = new Button { Text = "▲" };
+			upBtn.Position = new Vector2(currentX, buttonY);
+			upBtn.Size = new Vector2(28, buttonHeight);
+			upBtn.OnButtonPressed += (sender, btn, pos) =>
+			{
+				int idx = listBox.SelectedIndex;
+				if (idx > 0)
+				{
+					var temp = listBox.Items[idx];
+					listBox.Items[idx] = listBox.Items[idx - 1];
+					listBox.Items[idx - 1] = temp;
+					listBox.SelectedIndex = idx - 1;
+					ApplyStringCollectionChanges(item, listBox.Items.Select(i => i.Text).ToList());
+				}
+			};
+			panel.AddChild(upBtn);
+			currentX += 28 + buttonSpacing;
+
+			// Move Down button
+			var downBtn = new Button { Text = "▼" };
+			downBtn.Position = new Vector2(currentX, buttonY);
+			downBtn.Size = new Vector2(28, buttonHeight);
+			downBtn.OnButtonPressed += (sender, btn, pos) =>
+			{
+				int idx = listBox.SelectedIndex;
+				if (idx >= 0 && idx < listBox.Items.Count - 1)
+				{
+					var temp = listBox.Items[idx];
+					listBox.Items[idx] = listBox.Items[idx + 1];
+					listBox.Items[idx + 1] = temp;
+					listBox.SelectedIndex = idx + 1;
+					ApplyStringCollectionChanges(item, listBox.Items.Select(i => i.Text).ToList());
+				}
+			};
+			panel.AddChild(downBtn);
+			currentX += 28 + buttonSpacing;
+
+			// Edit inline textbox (shows when item selected)
+			var editBox = new Textbox();
+			editBox.Position = new Vector2(currentX, buttonY);
+			editBox.Size = new Vector2(width - currentX - padding * 2, buttonHeight);
+			editBox.Placeholder = "Select item to edit...";
+			panel.AddChild(editBox);
+
+			// Update editbox when selection changes
+			listBox.OnItemSelected += (sender, idx, itm) =>
+			{
+				if (itm != null)
+					editBox.Text = itm.Text;
+			};
+
+			// Apply edit when editbox text changes
+			editBox.OnTextChanged += (sender, text) =>
+			{
+				int idx = listBox.SelectedIndex;
+				if (idx >= 0 && idx < listBox.Items.Count)
+				{
+					listBox.Items[idx].Text = text;
+					ApplyStringCollectionChanges(item, listBox.Items.Select(i => i.Text).ToList());
+				}
+			};
+		}
+
+		private void ApplyStringCollectionChanges(PropertyGridItem item, List<string> newStrings)
+		{
+			var oldValue = item.GetValue();
+			var propType = item.PropertyType;
+
+			object newValue = null;
+
+			// Check if the property is List<ListBoxItem> (like ListBox.Items)
+			if (propType.IsGenericType && propType.GetGenericTypeDefinition() == typeof(List<>))
+			{
+				var elementType = propType.GetGenericArguments()[0];
+				if (elementType == typeof(string))
+				{
+					newValue = newStrings;
+				}
+				else
+				{
+					// For types like List<ListBoxItem>, update the existing list items
+					var currentList = oldValue as System.Collections.IList;
+					if (currentList != null)
+					{
+						// Clear and rebuild the list
+						currentList.Clear();
+						foreach (var s in newStrings)
+						{
+							// Try to create new instance with string constructor
+							var ctor = elementType.GetConstructor(new[] { typeof(string) });
+							if (ctor != null)
+							{
+								var newItem = ctor.Invoke(new object[] { s });
+								currentList.Add(newItem);
+							}
+							else
+							{
+								// Try default constructor + Text property
+								var defaultCtor = elementType.GetConstructor(Type.EmptyTypes);
+								if (defaultCtor != null)
+								{
+									var newItem = defaultCtor.Invoke(null);
+									var textProp = elementType.GetProperty("Text");
+									textProp?.SetValue(newItem, s);
+									currentList.Add(newItem);
+								}
+							}
+						}
+						OnPropertyValueChanged?.Invoke(this, item, oldValue, currentList);
+						return;
+					}
+				}
+			}
+			else if (propType == typeof(string[]))
+			{
+				newValue = newStrings.ToArray();
+			}
+
+			if (newValue != null && item.SetValue(newValue))
+				OnPropertyValueChanged?.Invoke(this, item, oldValue, newValue);
 		}
 
 		private void UpdateVisibleItems()

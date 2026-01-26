@@ -277,17 +277,40 @@ namespace FishUIEditor
 			_toolbox = new ListBox();
 			_toolbox.Position = new Vector2(PanelPadding, PanelPadding + HeaderHeight + HeaderSpacing);
 			_toolbox.Size = new Vector2(LeftPanelWidth - PanelPadding * 2, toolboxHeight - HeaderHeight - HeaderSpacing);
+			// Basic Controls
 			_toolbox.AddItem("Button");
 			_toolbox.AddItem("Label");
 			_toolbox.AddItem("Textbox");
 			_toolbox.AddItem("CheckBox");
+			_toolbox.AddItem("RadioButton");
+			_toolbox.AddItem("ToggleSwitch");
+			// Value Controls
 			_toolbox.AddItem("Slider");
 			_toolbox.AddItem("ProgressBar");
+			_toolbox.AddItem("NumericUpDown");
+			// List Controls
 			_toolbox.AddItem("ListBox");
+			_toolbox.AddItem("DropDown");
+			_toolbox.AddItem("TreeView");
+			// Container Controls
 			_toolbox.AddItem("Panel");
 			_toolbox.AddItem("GroupBox");
 			_toolbox.AddItem("Window");
+			_toolbox.AddItem("TabControl");
+			_toolbox.AddItem("ScrollablePane");
+			// Display Controls
 			_toolbox.AddItem("ImageBox");
+			_toolbox.AddItem("StaticText");
+			// Date/Time Controls
+			_toolbox.AddItem("DatePicker");
+			_toolbox.AddItem("TimePicker");
+			// Data Controls
+			_toolbox.AddItem("DataGrid");
+			_toolbox.AddItem("SpreadsheetGrid");
+			// Gauges
+			_toolbox.AddItem("BarGauge");
+			_toolbox.AddItem("RadialGauge");
+			_toolbox.AddItem("VUMeter");
 			_toolbox.OnItemSelected += OnToolboxItemSelected;
 			_leftPanel.AddChild(_toolbox);
 
@@ -531,21 +554,60 @@ namespace FishUIEditor
 
 		static Control CreateControlFromType(string typeName)
 		{
-			return typeName switch
-			{
-				"Button" => new Button { Text = "Button", Size = new Vector2(100, 28) },
-				"Label" => new Label("Label") { Size = new Vector2(100, 24) },
-				"Textbox" => new Textbox { Size = new Vector2(150, 28) },
-				"CheckBox" => new CheckBox { Size = new Vector2(20, 20) },
-				"Slider" => new Slider { Size = new Vector2(150, 24) },
-				"ProgressBar" => new ProgressBar { Size = new Vector2(150, 24), Value = 50 },
-				"ListBox" => new ListBox { Size = new Vector2(150, 100) },
-				"Panel" => new Panel { Size = new Vector2(200, 150) },
-				"GroupBox" => new GroupBox("Group") { Size = new Vector2(200, 150) },
-				"Window" => new Window { Size = new Vector2(300, 200) },
-				"ImageBox" => new ImageBox { Size = new Vector2(100, 100) },
-				_ => null
-			};
+		return typeName switch
+		{
+		// Basic Controls
+		"Button" => new Button { Text = "Button", Size = new Vector2(100, 28) },
+		"Label" => new Label("Label") { Size = new Vector2(100, 24) },
+		"Textbox" => new Textbox { Size = new Vector2(150, 28) },
+		"CheckBox" => new CheckBox { Size = new Vector2(20, 20) },
+		"RadioButton" => new RadioButton { Size = new Vector2(20, 20) },
+		"ToggleSwitch" => new ToggleSwitch { Size = new Vector2(50, 24) },
+		// Value Controls
+		"Slider" => new Slider { Size = new Vector2(150, 24) },
+		"ProgressBar" => new ProgressBar { Size = new Vector2(150, 24), Value = 50 },
+		"NumericUpDown" => new NumericUpDown { Size = new Vector2(100, 28) },
+		// List Controls
+		"ListBox" => new ListBox { Size = new Vector2(150, 100) },
+		"DropDown" => new DropDown { Size = new Vector2(150, 28) },
+		"TreeView" => new TreeView { Size = new Vector2(150, 120) },
+		// Container Controls
+		"Panel" => new Panel { Size = new Vector2(200, 150) },
+		"GroupBox" => new GroupBox("Group") { Size = new Vector2(200, 150) },
+		"Window" => new Window { Size = new Vector2(300, 200) },
+		"TabControl" => CreateDefaultTabControl(),
+		"ScrollablePane" => new ScrollablePane { Size = new Vector2(200, 150) },
+		// Display Controls
+		"ImageBox" => new ImageBox { Size = new Vector2(100, 100) },
+		"StaticText" => new StaticText("Static Text") { Size = new Vector2(100, 24) },
+		// Date/Time Controls
+		"DatePicker" => new DatePicker { Size = new Vector2(150, 28) },
+		"TimePicker" => new TimePicker { Size = new Vector2(120, 28) },
+		// Data Controls
+		"DataGrid" => CreateDefaultDataGrid(),
+		"SpreadsheetGrid" => new SpreadsheetGrid { Size = new Vector2(300, 200) },
+		// Gauges
+		"BarGauge" => new BarGauge { Size = new Vector2(200, 40), Value = 50 },
+		"RadialGauge" => new RadialGauge { Size = new Vector2(120, 120), Value = 50 },
+		"VUMeter" => new VUMeter { Size = new Vector2(30, 100) },
+		_ => null
+		};
+		}
+
+		static TabControl CreateDefaultTabControl()
+		{
+		var tabControl = new TabControl { Size = new Vector2(250, 180) };
+		tabControl.AddTab("Tab 1");
+		tabControl.AddTab("Tab 2");
+		return tabControl;
+		}
+
+		static DataGrid CreateDefaultDataGrid()
+		{
+		var dataGrid = new DataGrid { Size = new Vector2(300, 150) };
+		dataGrid.AddColumn("Column 1", 100);
+		dataGrid.AddColumn("Column 2", 100);
+		return dataGrid;
 		}
 
 		static void OnCanvasControlSelected(Control control)

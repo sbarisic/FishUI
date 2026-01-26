@@ -191,9 +191,14 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 
 *All follow-ups completed - see Completed section*
 
+### Phase 7: Collection Property Editing (CPX 3)
+- [ ] Add PropertyGrid support for editing collection properties (List<T>, arrays)
+- [ ] ListBox.Items editing - add/remove/reorder items in PropertyGrid
+- [ ] DropDown.Items editing - add/remove/reorder items in PropertyGrid
+- [ ] DataGrid.Columns editing - add/remove/configure columns
+- [ ] TabControl tabs editing - add/remove/rename tabs
+
 ---
-
-
 
 ## Documentation **LOW PRIORITY**
 
