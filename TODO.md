@@ -197,11 +197,12 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 
 ## Documentation **LOW PRIORITY**
 
-- [ ] API reference documentation
-- [ ] Getting started tutorial
+- [ ] API reference documentation (XML doc comments and/or generated docs)
 - [ ] Custom control creation guide
 - [ ] Backend implementation guide (beyond Raylib)
 - [ ] Theme creation guide
+
+> **Note:** Getting started tutorial is covered in README.md Quick Start section
 
 ---
 
@@ -334,6 +335,7 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 
 ### Documentation
 - README.md: Complete rewrite with 35+ controls, code examples, theming, serialization, project structure
+- Getting started tutorial: Covered in README.md Quick Start section (interface implementation, initialization, controls, update loop)
 
 ### Fixed Bugs
 - Button/Label: Text property now editable in PropertyGrid (converted from field to property with [YamlMember])
