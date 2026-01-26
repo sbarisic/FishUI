@@ -17,31 +17,35 @@ FishUI is a flexible GUI framework that separates UI logic from rendering, allow
 
 ## Features
 
-### Controls (35+ Built-in)
+### Controls (40+ Built-in)
 
 | Category | Controls |
 |----------|----------|
-| **Input** | Button, Textbox, CheckBox, RadioButton, ToggleSwitch, Slider, NumericUpDown |
-| **Selection** | ListBox, DropDown (ComboBox), TreeView, SelectionBox |
-| **Display** | Label, StaticText, ImageBox, AnimatedImageBox, ProgressBar |
-| **Containers** | Panel, Window, GroupBox, TabControl, ScrollablePane, StackLayout |
+| **Input** | Button, Textbox, CheckBox, RadioButton, ToggleSwitch, Slider, NumericUpDown, MultiLineEditbox |
+| **Selection** | ListBox, DropDown (ComboBox), TreeView, SelectionBox, DatePicker, TimePicker |
+| **Display** | Label, StaticText, ImageBox, AnimatedImageBox, ProgressBar, LineChart, Timeline |
+| **Containers** | Panel, Window, GroupBox, TabControl, ScrollablePane, StackLayout, FlowLayout, GridLayout |
 | **Navigation** | ScrollBarV, ScrollBarH, MenuBar, ContextMenu, MenuItem |
 | **Gauges** | RadialGauge, BarGauge, VUMeter |
-| **Advanced** | PropertyGrid, ItemListbox, Tooltip, Titlebar |
+| **Data** | DataGrid, SpreadsheetGrid, PropertyGrid, ItemListbox |
+| **Utility** | Tooltip, Titlebar |
 
 ### Framework Features
 
-- **Layout System**: Absolute positioning, anchoring, margins/padding, StackLayout
-- **Theme System**: YAML themes with atlas regions, 9-slice/NPatch rendering, color overrides
-- **Serialization**: Save/load UI layouts to YAML files
+- **Layout System**: Absolute positioning, anchoring, margins/padding, StackLayout, FlowLayout, GridLayout
+- **Theme System**: YAML themes with atlas regions, 9-slice/NPatch rendering, color overrides, inheritance
+- **Serialization**: Save/load UI layouts to YAML files with event handler binding
+- **Animation**: Built-in animation system with easing functions and tween helpers
 - **Input**: Mouse, keyboard, touch, and virtual cursor (gamepad/keyboard navigation)
-- **Events**: Control events, hotkey manager, event broadcasting
+- **Events**: Control events, serializable event handlers, event broadcasting
+- **UI Scaling**: Resolution-independent UI with configurable scale factor
 
 ## Projects
 
 | Project | Description |
 |---------|-------------|
 | **FishUI** | Core library - all controls and interfaces |
+| **FishUIEditor** | Visual layout editor for designing FishUI interfaces |
 | **FishUIDemos** | Sample implementations using ISample interface |
 | **FishUISample** | Raylib-based sample runner with GUI chooser |
 
@@ -341,6 +345,32 @@ if (gamepad.LeftStick.X != 0 || gamepad.LeftStick.Y != 0)
 }
 ```
 
+## FishUIEditor - Visual Layout Designer
+
+FishUI includes a visual layout editor for designing interfaces:
+
+```bash
+cd FishUIEditor
+dotnet run
+```
+
+**Features:**
+- Drag-and-drop control placement from toolbox
+- Visual resize handles and selection
+- PropertyGrid for editing control properties
+- Layout hierarchy tree view
+- Save/load layouts to YAML files
+- Parent/child control relationships
+- Anchor and Z-ordering support
+- Visual feedback for drop targets
+
+Layouts created in the editor can be loaded in your application:
+
+```csharp
+// Load a layout created in FishUIEditor
+LayoutFormat.DeserializeFromFile(ui, "data/layouts/my_layout.yaml");
+```
+
 ## Running Samples
 
 The `FishUISample` project includes a GUI-based sample chooser:
@@ -366,10 +396,20 @@ dotnet run -- --sample 0
 - **PropertyGrid**: Reflection-based property editor
 - **MenuBar**: Dropdown menus with submenus
 - **ScrollablePane**: Virtual scrolling container
-- **Layout System**: Anchoring, margins, StackLayout
+- **Layout System**: Anchoring, margins, StackLayout, FlowLayout, GridLayout
 - **Theme Switcher**: Runtime theme switching
 - **Virtual Cursor**: Keyboard/gamepad navigation
 - **Game Menu**: Example game-style UI
+- **Editor Layout**: Load and display layouts from FishUIEditor
+- **Data Controls**: DataGrid, SpreadsheetGrid, DatePicker, TimePicker
+- **Serialization**: Layout save/load with event handler binding
+
+## Documentation
+
+Additional documentation is available in the `docs/` folder:
+
+- **[Custom Control Creation Guide](docs/CUSTOM_CONTROLS.md)** - How to create your own controls
+- **[Theme Creation Guide](docs/THEMING.md)** - Creating custom themes with YAML
 
 ## Requirements
 
@@ -390,14 +430,21 @@ FishUI/
 │   ├── IFishUIGfx.cs       # Graphics interface
 │   ├── IFishUIInput.cs     # Input interface
 │   └── LayoutFormat.cs     # YAML serialization
+├── FishUIEditor/           # Visual layout editor
+│   ├── Controls/           # Editor-specific controls
+│   └── FishUIEditor.cs     # Editor application
 ├── FishUIDemos/            # Sample implementations
 │   └── Samples/            # ISample implementations
 ├── FishUISample/           # Raylib-based runner
 │   ├── RaylibGfx.cs        # IFishUIGfx implementation
 │   ├── RaylibInput.cs      # IFishUIInput implementation
 │   └── SampleChooser.cs    # GUI sample selector
+├── docs/                   # Documentation
+│   ├── CUSTOM_CONTROLS.md  # Custom control creation guide
+│   └── THEMING.md          # Theme creation guide
 └── data/                   # Assets
     ├── themes/             # YAML theme files
+    ├── layouts/            # Layout files (editor output)
     └── images/             # Sample images
 ```
 
