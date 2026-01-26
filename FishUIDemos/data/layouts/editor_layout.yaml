@@ -1,144 +1,204 @@
-- !Button
-  Text: Sample Button
-  IconSpacing: 4
+- !Panel
+  Children:
+  - !Button
+    IconSpacing: 4
+    Position:
+      X: 32
+      Y: 32
+    Size:
+      X: 192
+      Y: 48
+    Text: Btn
+    RepeatDelay: 0.4
+    RepeatInterval: 0.1
+    ImageButtonHoverTint: &o2
+      R: 220
+      G: 220
+      B: 220
+      A: 255
+    ImageButtonPressedTint: &o3
+      R: 180
+      G: 180
+      B: 180
+      A: 255
+    Anchor: Horizontal
+    Visible: true
+    Color: &o4
+      R: 255
+      G: 255
+      B: 255
+      A: 255
+    Opacity: 1
+    Focusable: true
+    TooltipText: Fage tooltip!
+  - !Button
+    IconSpacing: 4
+    Position:
+      X: 16
+      Y: 96
+    Size:
+      X: 128
+      Y: 64
+    Text: Button
+    RepeatDelay: 0.4
+    RepeatInterval: 0.1
+    ImageButtonHoverTint: *o2
+    ImageButtonPressedTint: *o3
+    Anchor: TopLeft
+    ZDepth: 1
+    Visible: true
+    Color: *o4
+    Opacity: 1
+    Focusable: true
   Position:
-    X: 320
-    Y: 192
-  Size:
-    X: 120
-    Y: 32
-  RepeatDelay: 0.4
-  RepeatInterval: 0.1
-  ImageButtonHoverTint: &o3
-    R: 220
-    G: 220
-    B: 220
-    A: 255
-  ImageButtonPressedTint: &o4
-    R: 180
-    G: 180
-    B: 180
-    A: 255
-  Anchor: TopLeft
-  Visible: true
-  Color: &o2
-    R: 255
-    G: 255
-    B: 255
-    A: 255
-  Opacity: 1
-  Focusable: true
-- !Label
-  Text: Sample Label
-  Alignment: Left
-  Position:
-    X: 256
-    Y: 144
-  Size:
-    X: 120
-    Y: 24
-  Anchor: TopLeft
-  Visible: true
-  Color: *o2
-  Opacity: 1
-- !Textbox
-  Position:
-    X: 112
-    Y: 192
-  Size:
-    X: 200
-    Y: 28
-  PasswordChar: '*'
-  Placeholder: Enter text...
-  PlaceholderColor:
-    R: 128
-    G: 128
-    B: 128
-    A: 255
-  SelectionColor:
-    R: 51
-    G: 153
-    B: 255
-    A: 128
-  Anchor: TopLeft
-  Visible: true
-  Color: *o2
-  Opacity: 1
-  Focusable: true
-- !CheckBox
-  Position:
-    X: 224
-    Y: 144
-  Size:
-    X: 20
-    Y: 20
-  DisableChildScissor: true
-  Anchor: TopLeft
-  Visible: true
-  Color: *o2
-  Opacity: 1
-- !Button
-  Text: Button
-  IconSpacing: 4
-  Position:
-    X: 256
-    Y: 288
-  Size:
-    X: 100
-    Y: 28
-  RepeatDelay: 0.4
-  RepeatInterval: 0.1
-  ImageButtonHoverTint: *o3
-  ImageButtonPressedTint: *o4
-  Anchor: TopLeft
-  Visible: true
-  Color: *o2
-  Opacity: 1
-  Focusable: true
-- !Slider
-  Position:
-    X: 224
+    X: 80
     Y: 256
   Size:
-    X: 150
-    Y: 24
-  Value: 72
-  MaxValue: 100
-  TrackColor:
-    R: 60
-    G: 60
-    B: 60
-    A: 255
-  FillColor:
-    R: 76
-    G: 175
-    B: 80
-    A: 255
-  ThumbColor: *o2
-  BorderColor:
-    R: 100
-    G: 100
-    B: 100
-    A: 255
-  ShowBorder: true
-  ValueLabelFormat: 0
-  LabelColor: *o2
-  ThumbSize: 1.1
-  UseThemeColors: true
+    X: 288
+    Y: 192
+  BorderColor: *o3
+  BorderThickness: 1
+  Anchor: TopLeft
+  ZDepth: 2
+  Visible: true
+  Color: *o4
+  Opacity: 1
+- !Window
+  Children:
+  - !Titlebar
+    Size:
+      X: 336
+      Y: 24
+    Title: Window
+    IsActive: true
+    ShowCloseButton: true
+    Anchor: TopLeft
+    Visible: true
+    Color: *o4
+    Opacity: 1
+    Draggable: true
+  - !Panel
+    Children:
+    - !Button
+      IconSpacing: 4
+      Position:
+        X: 144
+        Y: 64
+      Size:
+        X: 120
+        Y: 32
+      Text: Sample Button
+      RepeatDelay: 0.4
+      RepeatInterval: 0.1
+      ImageButtonHoverTint: *o2
+      ImageButtonPressedTint: *o3
+      Anchor: Right
+      Visible: true
+      Color: *o4
+      Opacity: 1
+      Focusable: true
+    - !Textbox
+      Position:
+        X: 16
+        Y: 16
+      Size:
+        X: 256
+        Y: 32
+      PasswordChar: '*'
+      Placeholder: Enter text...
+      PlaceholderColor:
+        R: 128
+        G: 128
+        B: 128
+        A: 255
+      SelectionColor:
+        R: 51
+        G: 153
+        B: 255
+        A: 128
+      Anchor: Horizontal
+      ZDepth: 1
+      Visible: true
+      Color: *o4
+      Opacity: 1
+      Focusable: true
+    - !Label
+      Alignment: Left
+      Position:
+        X: 64
+        Y: 96
+      Size:
+        X: 120
+        Y: 24
+      Text: Sample Label
+      Anchor: Bottom
+      ZDepth: 2
+      Visible: true
+      Color: *o4
+      Opacity: 1
+    - !CheckBox
+      Position:
+        X: 32
+        Y: 96
+      Size:
+        X: 20
+        Y: 20
+      DisableChildScissor: true
+      Anchor: Bottom
+      ZDepth: 3
+      Visible: true
+      Color: *o4
+      Opacity: 1
+    Position:
+      X: 6
+      Y: 24
+    Size:
+      X: 324
+      Y: 146
+    IsTransparent: true
+    BorderColor: *o3
+    BorderThickness: 1
+    Anchor: TopLeft
+    ZDepth: 1
+    Visible: true
+    Color: *o4
+    Opacity: 1
+  Position:
+    X: 256
+    Y: 48
+  Size:
+    X: 336
+    Y: 176
+  Title: Window
+  IsActive: true
+  ShowCloseButton: true
+  IsResizable: true
+  ShowShadow: true
+  ShadowOffset:
+    X: 8
+    Y: 8
+  ShadowSize: 8
+  MinSize:
+    X: 100
+    Y: 60
+  TitlebarHeight: 24
+  BottomBorderHeight: 4
+  SideBorderWidth: 4
+  ResizeHandleSize: 6
   Anchor: TopLeft
   Visible: true
-  Color: *o2
+  Color: *o4
   Opacity: 1
 - !ImageBox
   Position:
-    X: 416
-    Y: 272
+    X: 32
+    Y: 48
   Size:
-    X: 100
-    Y: 100
+    X: 176
+    Y: 176
   ImagePath: data/images/win95_small.png
   ScaleMode: Stretch
   Anchor: TopLeft
   Visible: true
-  Color: *o2
+  Color: *o4
   Opacity: 1

@@ -546,7 +546,7 @@ namespace FishUIEditor.Controls
 				OnControlModified?.Invoke(SelectedControl);
 			}
 
-		_isDragging = false;
+			_isDragging = false;
 			_isResizing = false;
 			_activeHandle = ResizeHandle.None;
 			_dragStartParent = null;

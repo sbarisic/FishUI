@@ -188,7 +188,8 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 - [x] Visual feedback when hovering over valid drop targets (green highlight with label)
 
 ### Follow-ups
-- [ ] Add a FishUIDemos sample that loads `data/layouts/editor_layout.yaml` and renders it (fallback to blank if missing) (CPX 3)
+
+*All follow-ups completed - see Completed section*
 
 ---
 
@@ -319,6 +320,7 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 - SampleDataGrid: DataGrid demo with employee database, multi-select, sorting, column resize
 - SampleSpreadsheetGrid: SpreadsheetGrid demo with sales data, cell editing, navigation, Clear/Fill actions
 - SampleEventSerialization: Serializable event handlers demo with named handlers for clicks, value changes, selections, text changes
+- SampleEditorLayout: Loads and renders layouts from FishUIEditor (data/layouts/editor_layout.yaml), fallback to instructions if missing
 
 ### Code Cleanup
 - ScreenCapture platform compatibility, YamlIgnore audit, naming conventions, XML docs, screenshot buttons, TODO extraction, debug flags refactor
