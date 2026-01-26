@@ -90,6 +90,58 @@ namespace FishUI.Controls
 		public bool HasChildren => Children.Count > 0;
 
 		/// <summary>
+		/// The default value captured when the property was first read.
+		/// </summary>
+		[YamlIgnore]
+		public object DefaultValue { get; private set; }
+
+		/// <summary>
+		/// Whether a default value has been captured.
+		/// </summary>
+		[YamlIgnore]
+		public bool HasDefaultValue { get; private set; }
+
+		/// <summary>
+		/// Captures the current value as the default value.
+		/// </summary>
+		public void CaptureDefaultValue()
+		{
+			if (PropertyInfo == null || Instance == null)
+				return;
+			try
+			{
+				DefaultValue = PropertyInfo.GetValue(Instance);
+				HasDefaultValue = true;
+			}
+			catch
+			{
+				HasDefaultValue = false;
+			}
+		}
+
+		/// <summary>
+		/// Returns true if the current value differs from the default value.
+		/// </summary>
+		public bool CanResetToDefault()
+		{
+			if (!HasDefaultValue || IsReadOnly)
+				return false;
+			var current = GetValue();
+			return !Equals(current, DefaultValue);
+		}
+
+		/// <summary>
+		/// Resets the property value to the captured default value.
+		/// </summary>
+		/// <returns>True if reset was successful.</returns>
+		public bool ResetToDefault()
+		{
+			if (!HasDefaultValue || IsReadOnly)
+				return false;
+			return SetValue(DefaultValue);
+		}
+
+		/// <summary>
 		/// Gets the current value of the property.
 		/// </summary>
 		public object GetValue()
@@ -279,6 +331,15 @@ namespace FishUI.Controls
 		[YamlIgnore]
 		private FontRef _font;
 
+		[YamlIgnore]
+		private ContextMenu _contextMenu;
+
+		[YamlIgnore]
+		private PropertyGridItem _contextMenuItem;
+
+		[YamlIgnore]
+		private bool _contextMenuAddedToRoot;
+
 		public PropertyGrid()
 		{
 			Size = new Vector2(300, 400);
@@ -359,6 +420,8 @@ namespace FishUI.Controls
 				Parent = parent,
 				Depth = depth
 			};
+			// Capture the initial value as the default for reset functionality
+			item.CaptureDefaultValue();
 			return item;
 		}
 
@@ -764,12 +827,26 @@ namespace FishUI.Controls
 		{
 			base.HandleMouseClick(UI, InState, Btn, Pos);
 
-			if (Btn != FishMouseButton.Left)
-				return;
-
 			Vector2 absPos = GetAbsolutePosition();
 			float localY = Pos.Y - absPos.Y + _scrollOffset;
 			int index = (int)(localY / RowHeight);
+
+			if (Btn == FishMouseButton.Right)
+			{
+				// Right-click: show context menu for reset to default
+				if (index >= 0 && index < _visibleItems.Count)
+				{
+					var item = _visibleItems[index];
+					if (!item.IsCategoryHeader)
+					{
+						ShowResetContextMenu(UI, item, Pos);
+					}
+				}
+				return;
+			}
+
+			if (Btn != FishMouseButton.Left)
+				return;
 
 			if (index >= 0 && index < _visibleItems.Count)
 			{
@@ -831,6 +908,59 @@ namespace FishUI.Controls
 			{
 				_scrollBar.ThumbPosition = _scrollOffset / maxScroll;
 			}
+		}
+
+		/// <summary>
+		/// Shows a context menu with reset to default option for the specified property item.
+		/// </summary>
+		private void ShowResetContextMenu(FishUI UI, PropertyGridItem item, Vector2 position)
+		{
+			// Close any existing context menu
+			if (_contextMenu != null)
+			{
+				_contextMenu.Close();
+			}
+
+			_contextMenuItem = item;
+
+			// Create context menu once and reuse
+			if (_contextMenu == null)
+			{
+				_contextMenu = new ContextMenu();
+				_contextMenu.MinWidth = 150f;
+				_contextMenu.OnClosed += _ =>
+				{
+					_contextMenuItem = null;
+				};
+			}
+
+			// Clear and rebuild menu items
+			_contextMenu.ClearItems();
+
+			var resetItem = _contextMenu.AddItem("Reset to Default");
+			resetItem.Disabled = !item.CanResetToDefault();
+			resetItem.OnClicked += _ =>
+			{
+				if (_contextMenuItem != null && _contextMenuItem.CanResetToDefault())
+				{
+					var oldValue = _contextMenuItem.GetValue();
+					if (_contextMenuItem.ResetToDefault())
+					{
+						var newValue = _contextMenuItem.GetValue();
+						OnPropertyValueChanged?.Invoke(this, _contextMenuItem, oldValue, newValue);
+						DestroyActiveEditor();
+					}
+				}
+			};
+
+			// Add to FishUI root if not already added
+			if (!_contextMenuAddedToRoot && UI != null)
+			{
+				UI.AddControl(_contextMenu);
+				_contextMenuAddedToRoot = true;
+			}
+
+			_contextMenu.Show(position);
 		}
 	}
 }

@@ -162,10 +162,10 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 - [x] Add drag-and-drop movement for selected controls
 - [x] Implement resize handles for selected controls
 
-### Phase 3: Property Editor (CPX 3) - IN PROGRESS
+### Phase 3: Property Editor (CPX 3) - COMPLETE
 - [x] Integrate PropertyGrid on right panel for editing selected control properties
 - [x] Expose all editable properties (Button.Text, Label.Text, etc.) in PropertyGrid
-- [ ] Support "reset to default" for property changes
+- [x] Support "reset to default" for property changes (right-click context menu)
 
 ### Phase 4: Control Toolbox (CPX 3) - COMPLETE
 - [x] Create control palette/toolbox panel listing available controls
@@ -277,6 +277,7 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 - BarGauge: Black tick marks, dashboard styling (larger size, range labels)
 - RadialGauge: Black text/ticks, wider draw angle (~260° sweep)
 - PropertyGrid: Vector2/Vector3/Vector4 component editors with X/Y/Z/W fields
+- PropertyGrid: Reset to default via right-click context menu with default value capture
 - Timeline: White label color for dark backgrounds
 - Button/ImageBox: IconPath/ImagePath properties for serialization with OnDeserialized image loading
 - MultiLineEditbox: Line numbers moved 4px left for better spacing
