@@ -161,7 +161,6 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 - [x] Implement control selection (click to select, selection highlight/handles)
 - [x] Add drag-and-drop movement for selected controls
 - [x] Implement resize handles for selected controls
-- [ ] Multi-select support (Ctrl+click, drag rectangle)
 
 ### Phase 3: Property Editor (CPX 3) - IN PROGRESS
 - [x] Integrate PropertyGrid on right panel for editing selected control properties
@@ -183,6 +182,9 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 ### Phase 6: Reparenting & Advanced Manipulation (CPX 3) - COMPLETE
 - [x] Drag existing control onto container to reparent
 - [x] Drag control out of container to unparent (move to root level)
+- [x] Anchor support in editor (controls move/stretch correctly when parent is resized)
+- [x] Z-ordering support (controls render and pick in correct depth order)
+- [x] Invisible control visualization (pink outline with diagonal lines for Visible=false controls)
 - [ ] Visual feedback when hovering over valid drop targets
 
 ### Follow-ups
@@ -344,3 +346,13 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 - Misc: ImageBox overlap, ScrollBar mouse wheel, ContextMenu submenu overlap
 - LineChart: Black labels (was light gray), increased MaxPoints (5000), throttled sample rate in demo, X-axis now uses 2 decimals (F2)
 - DatePicker: Fixed click-through and selection issues via IsPointInside override for calendar popup bounds
+
+### FishUIEditor Fixes
+- EditorCanvas: Fixed reparenting - RemoveChild now properly clears Parent reference, added ClearParent() method
+- EditorCanvas: Fixed nested control selection highlight position for deeply nested controls (Button in Panel in Window)
+- EditorCanvas: Fixed anchor offset sync - controls now call UpdateOwnAnchorOffsets() after move/resize
+- EditorCanvas: Fixed selection box not updating when parent is resized - now uses GetAnchorAdjustedRelativePosition/Size
+- EditorCanvas: Fixed mouse picking for anchor-adjusted controls - hit testing uses anchor-adjusted bounds
+- EditorCanvas: Added Z-ordering support - controls render and pick in ZDepth order
+- Control: Added GetAnchorAdjustedRelativePosition() for anchor-adjusted position without UI scaling
+- Control: Added GetAnchorAdjustedSize() for anchor-adjusted size (stretching when anchored to opposite edges)
