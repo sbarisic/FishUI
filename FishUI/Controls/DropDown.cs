@@ -55,7 +55,11 @@ namespace FishUI.Controls
 		/// </summary>
 		internal static List<DropDown> OpenDropdowns = new List<DropDown>();
 
-		List<DropDownItem> Items = new List<DropDownItem>();
+		/// <summary>
+		/// The list of items in the DropDown. Can be serialized to/from YAML.
+		/// </summary>
+		[YamlMember]
+		public List<DropDownItem> Items { get; set; } = new List<DropDownItem>();
 
 		[YamlIgnore]
 		Vector2 StartOffset = new Vector2(0, 2);

@@ -107,11 +107,11 @@ namespace FishUI.Controls
 			// Check for string[]
 			if (type == typeof(string[]))
 				return true;
-			// Check for List<T> where T has a Text property
+			// Check for List<T> where T has a Text property or field (e.g., ListBoxItem, DropDownItem)
 			if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
 			{
 				var elementType = type.GetGenericArguments()[0];
-				if (elementType.GetProperty("Text") != null)
+				if (elementType.GetProperty("Text") != null || elementType.GetField("Text") != null)
 					return true;
 			}
 			return false;
@@ -477,11 +477,11 @@ namespace FishUI.Controls
 			// Check for string[]
 			if (type == typeof(string[]))
 				return true;
-			// Check for List<T> where T has a Text property (e.g., ListBoxItem, DropDownItem)
+			// Check for List<T> where T has a Text property or field (e.g., ListBoxItem, DropDownItem)
 			if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
 			{
 				var elementType = type.GetGenericArguments()[0];
-				if (elementType.GetProperty("Text") != null)
+				if (elementType.GetProperty("Text") != null || elementType.GetField("Text") != null)
 					return true;
 			}
 			return false;
@@ -751,7 +751,7 @@ namespace FishUI.Controls
 			}
 			else if (currentValue is System.Collections.IEnumerable enumerable)
 			{
-				// Try to get text from items that have a Text property (like ListBoxItem)
+				// Try to get text from items that have a Text property or field (like ListBoxItem, DropDownItem)
 				foreach (var obj in enumerable)
 				{
 					if (obj == null)
@@ -760,7 +760,13 @@ namespace FishUI.Controls
 					if (textProp != null)
 						strings.Add(textProp.GetValue(obj)?.ToString() ?? "");
 					else
-						strings.Add(obj.ToString());
+					{
+						var textField = obj.GetType().GetField("Text");
+						if (textField != null)
+							strings.Add(textField.GetValue(obj)?.ToString() ?? "");
+						else
+							strings.Add(obj.ToString());
+					}
 				}
 			}
 
