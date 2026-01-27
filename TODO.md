@@ -144,8 +144,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ## Sample Application
 
-### Sample Improvements (CPX 2)
-- [ ] Persist selected theme across samples - save theme preference to file and restore on sample chooser startup
+### Sample Improvements (CPX 2) - COMPLETE
+- [x] Persist selected theme across samples - save theme preference to file and restore on sample chooser startup
 
 ---
 
@@ -235,7 +235,7 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-*No uncategorized items*
+- Themes do not get loaded in sample windows that launch after the sample chooser
 
 ---
 
@@ -321,7 +321,7 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 - SampleDropDown: Dedicated DropDown demo (basic, searchable, multi-select, custom rendering)
 - SampleListBox: Dedicated ListBox demo (alternating colors, multi-select, custom rendering)
 - SampleBasicControls refactored: Focused on input controls (Textbox, Sliders, NumericUpDown, etc.)
-- Sample chooser: Replaced button grid with ListBox for better scalability
+- Sample chooser: Replaced button grid with ListBox for better scalability, added theme selector dropdown with persistence
 - SampleLineChart: Real-time data visualization with multiple series, sine wave, noise, temperature monitor, 4th slow series (1.5s interval), wider chart layout
 - SampleMultiLineEditbox: Multi-line text editor demo with editable editor, read-only log viewer, simple editor examples
 - SampleSerialization: Layout serialization demo showing IconPath/ImagePath properties for image preservation
@@ -331,6 +331,7 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 - SampleSpreadsheetGrid: SpreadsheetGrid demo with sales data, cell editing, navigation, Clear/Fill actions
 - SampleEventSerialization: Serializable event handlers demo with named handlers for clicks, value changes, selections, text changes
 - SampleEditorLayout: Loads and renders layouts from FishUIEditor (data/layouts/editor_layout.yaml), fallback to instructions if missing
+- Theme persistence: ThemePreferences class saves/loads theme path to file, applied on sample chooser startup
 
 ### Code Cleanup
 - ScreenCapture platform compatibility, YamlIgnore audit, naming conventions, XML docs, screenshot buttons, TODO extraction, debug flags refactor

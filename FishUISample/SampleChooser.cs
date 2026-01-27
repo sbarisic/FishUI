@@ -18,7 +18,9 @@ namespace FishUISample.Samples
 		private ISample _selectedSample;
 		private bool _selectionMade;
 		private FishUI.FishUI _fui;
+		private FishUISettings _uiSettings;
 		private ListBox _sampleListBox;
+		private DropDown _themeDropdown;
 
 		public SampleChooser(ISample[] samples)
 		{
@@ -46,6 +48,7 @@ namespace FishUISample.Samples
 				}
 			}
 
+
 			// Create GUI chooser window
 			FishUISettings uiSettings = new FishUISettings();
 			RaylibGfx gfx = new RaylibGfx(800, 600, "FishUI - Sample Chooser");
@@ -55,8 +58,10 @@ namespace FishUISample.Samples
 			_fui = new FishUI.FishUI(uiSettings, gfx, input, events);
 			_fui.Init();
 
-			// Load theme
-			uiSettings.LoadTheme("data/themes/gwen.yaml", applyImmediately: true);
+			// Load saved theme preference (persisted across sessions)
+			string savedThemePath = ThemePreferences.LoadThemePath();
+			_uiSettings = uiSettings;
+			uiSettings.LoadTheme(savedThemePath, applyImmediately: true);
 
 			// Create UI
 			CreateChooserUI();
@@ -67,6 +72,7 @@ namespace FishUISample.Samples
 
 			Stopwatch swatch = Stopwatch.StartNew();
 			Stopwatch runtimeWatch = Stopwatch.StartNew();
+
 
 			while (!Raylib.WindowShouldClose() && !_selectionMade)
 			{
@@ -145,6 +151,42 @@ namespace FishUISample.Samples
 				}
 			};
 			_fui.AddControl(launchBtn);
+
+			// Theme selector
+			Label themeLabel = new Label("Theme:");
+			themeLabel.Position = new Vector2(20, 470);
+			themeLabel.Size = new Vector2(50, 24);
+			_fui.AddControl(themeLabel);
+
+			_themeDropdown = new DropDown();
+			_themeDropdown.Position = new Vector2(75, 467);
+			_themeDropdown.Size = new Vector2(150, 24);
+			_themeDropdown.TooltipText = "Select UI theme (saved automatically)";
+			
+			// Populate theme dropdown
+			string[] availableThemes = ThemePreferences.GetAvailableThemes();
+			string currentTheme = ThemePreferences.LoadThemePath();
+			int selectedThemeIndex = 0;
+			
+			for (int i = 0; i < availableThemes.Length; i++)
+			{
+				_themeDropdown.AddItem(ThemePreferences.GetThemeDisplayName(availableThemes[i]));
+				if (availableThemes[i] == currentTheme)
+					selectedThemeIndex = i;
+			}
+			_themeDropdown.SelectIndex(selectedThemeIndex);
+			
+			_themeDropdown.OnItemSelected += (dropdown, item) =>
+			{
+				int idx = dropdown.SelectedIndex;
+				if (idx >= 0 && idx < availableThemes.Length)
+				{
+					string themePath = availableThemes[idx];
+					_uiSettings.LoadTheme(themePath, applyImmediately: true);
+					ThemePreferences.SaveThemePath(themePath);
+				}
+			};
+			_fui.AddControl(_themeDropdown);
 
 			// Footer with instructions
 			Label footerLabel = new Label("Select a sample from the list and click 'Launch' to run it");
