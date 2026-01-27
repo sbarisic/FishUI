@@ -107,14 +107,106 @@ namespace FishUI.Controls
 			// Check for string[]
 			if (type == typeof(string[]))
 				return true;
-			// Check for List<T> where T has a Text property or field (e.g., ListBoxItem, DropDownItem)
+			// Check for List<T> where T has a Text or Header property/field (e.g., ListBoxItem, DropDownItem, DataGridColumn)
 			if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
 			{
 				var elementType = type.GetGenericArguments()[0];
-				if (elementType.GetProperty("Text") != null || elementType.GetField("Text") != null)
+				if (HasDisplayTextMember(elementType))
 					return true;
 			}
 			return false;
+		}
+
+		/// <summary>
+		/// Checks if a type has a display text member (Text or Header property/field).
+		/// </summary>
+		internal static bool HasDisplayTextMember(Type type)
+		{
+			return type.GetProperty("Text") != null || type.GetField("Text") != null ||
+			       type.GetProperty("Header") != null || type.GetField("Header") != null;
+		}
+
+		/// <summary>
+		/// Gets the display text member name for a type (Text or Header).
+		/// </summary>
+		private static string GetDisplayTextMemberName(Type type)
+		{
+			if (type.GetProperty("Text") != null || type.GetField("Text") != null)
+				return "Text";
+			if (type.GetProperty("Header") != null || type.GetField("Header") != null)
+				return "Header";
+			return null;
+		}
+
+		/// <summary>
+		/// Gets the display text value from an object (reads Text or Header property/field).
+		/// </summary>
+		internal static string GetDisplayTextValue(object obj)
+		{
+			if (obj == null) return "";
+			var type = obj.GetType();
+			
+			// Try Text property
+			var textProp = type.GetProperty("Text");
+			if (textProp != null)
+				return textProp.GetValue(obj)?.ToString() ?? "";
+			
+			// Try Text field
+			var textField = type.GetField("Text");
+			if (textField != null)
+				return textField.GetValue(obj)?.ToString() ?? "";
+			
+			// Try Header property
+			var headerProp = type.GetProperty("Header");
+			if (headerProp != null)
+				return headerProp.GetValue(obj)?.ToString() ?? "";
+			
+			// Try Header field
+			var headerField = type.GetField("Header");
+			if (headerField != null)
+				return headerField.GetValue(obj)?.ToString() ?? "";
+			
+			return obj.ToString();
+		}
+
+		/// <summary>
+		/// Sets the display text value on an object (sets Text or Header property/field).
+		/// </summary>
+		internal static void SetDisplayTextValue(object obj, string value)
+		{
+			if (obj == null) return;
+			var type = obj.GetType();
+			
+			// Try Text property
+			var textProp = type.GetProperty("Text");
+			if (textProp != null && textProp.CanWrite)
+			{
+				textProp.SetValue(obj, value);
+				return;
+			}
+			
+			// Try Text field
+			var textField = type.GetField("Text");
+			if (textField != null)
+			{
+				textField.SetValue(obj, value);
+				return;
+			}
+			
+			// Try Header property
+			var headerProp = type.GetProperty("Header");
+			if (headerProp != null && headerProp.CanWrite)
+			{
+				headerProp.SetValue(obj, value);
+				return;
+			}
+			
+			// Try Header field
+			var headerField = type.GetField("Header");
+			if (headerField != null)
+			{
+				headerField.SetValue(obj, value);
+			}
 		}
 
 		/// <summary>
@@ -477,11 +569,11 @@ namespace FishUI.Controls
 			// Check for string[]
 			if (type == typeof(string[]))
 				return true;
-			// Check for List<T> where T has a Text property or field (e.g., ListBoxItem, DropDownItem)
+		// Check for List<T> where T has a Text or Header property/field (e.g., ListBoxItem, DropDownItem, DataGridColumn)
 			if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
 			{
 				var elementType = type.GetGenericArguments()[0];
-				if (elementType.GetProperty("Text") != null || elementType.GetField("Text") != null)
+				if (PropertyGridItem.HasDisplayTextMember(elementType))
 					return true;
 			}
 			return false;
@@ -751,22 +843,12 @@ namespace FishUI.Controls
 			}
 			else if (currentValue is System.Collections.IEnumerable enumerable)
 			{
-				// Try to get text from items that have a Text property or field (like ListBoxItem, DropDownItem)
+				// Try to get text from items that have a Text or Header property/field (like ListBoxItem, DropDownItem, DataGridColumn)
 				foreach (var obj in enumerable)
 				{
 					if (obj == null)
 						continue;
-					var textProp = obj.GetType().GetProperty("Text");
-					if (textProp != null)
-						strings.Add(textProp.GetValue(obj)?.ToString() ?? "");
-					else
-					{
-						var textField = obj.GetType().GetField("Text");
-						if (textField != null)
-							strings.Add(textField.GetValue(obj)?.ToString() ?? "");
-						else
-							strings.Add(obj.ToString());
-					}
+					strings.Add(PropertyGridItem.GetDisplayTextValue(obj));
 				}
 			}
 

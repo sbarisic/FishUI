@@ -144,7 +144,8 @@ The following regions are defined in the CEGUI imageset but may not be fully uti
 
 ## Sample Application
 
-*Sample infrastructure complete - see Completed section for list of implemented samples*
+### Sample Improvements (CPX 2)
+- [ ] Persist selected theme across samples - save theme preference to file and restore on sample chooser startup
 
 ---
 
@@ -191,12 +192,12 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 
 *All follow-ups completed - see Completed section*
 
-### Phase 7: Collection Property Editing (CPX 3)
+### Phase 7: Collection Property Editing (CPX 3) - COMPLETE
 - [x] Add PropertyGrid support for editing collection properties (List<T>, arrays)
 - [x] ListBox.Items editing - add/remove/reorder items in PropertyGrid
 - [x] DropDown.Items editing - add/remove/reorder items in PropertyGrid
-- [ ] DataGrid.Columns editing - add/remove/configure columns
-- [ ] TabControl tabs editing - add/remove/rename tabs
+- [x] DataGrid.Columns editing - add/remove/configure columns
+- [x] TabControl tabs editing - add/remove/rename tabs
 
 ### Phase 8: Editor Enhancements (CPX 2)
 - [ ] Container selection mode - when selecting a container control (Window, ListBox, Panel, etc.), child controls should not be directly clickable on canvas; children should only be selectable via the Hierarchy TreeView
@@ -373,4 +374,4 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 - EditorCanvas: Added drop target visual feedback - green highlight with label when hovering over valid containers during drag
 - Control: Added GetAnchorAdjustedRelativePosition() for anchor-adjusted position without UI scaling
 - Control: Added GetAnchorAdjustedSize() for anchor-adjusted size (stretching when anchored to opposite edges)
-- PropertyGrid: Collection property editing for ListBox.Items and DropDown.Items (add/remove/reorder/edit), exposed DropDown.Items as public property
+- PropertyGrid: Collection property editing for ListBox.Items, DropDown.Items, DataGrid.Columns, TabControl.TabNames (add/remove/reorder/edit), exposed DropDown.Items and DataGrid.Columns as public properties, TabNames syncs to TabPages at runtime

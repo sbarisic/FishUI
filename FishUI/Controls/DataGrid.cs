@@ -110,7 +110,12 @@ namespace FishUI.Controls
 	/// </summary>
 	public class DataGrid : Control
 	{
-		private List<DataGridColumn> _columns = new List<DataGridColumn>();
+		/// <summary>
+		/// The columns in the DataGrid. Can be serialized to/from YAML.
+		/// </summary>
+		[YamlMember]
+		public List<DataGridColumn> Columns { get; set; } = new List<DataGridColumn>();
+		
 		private List<DataGridRow> _rows = new List<DataGridRow>();
 		private int _selectedIndex = -1;
 		private int _hoveredRowIndex = -1;
@@ -200,14 +205,12 @@ namespace FishUI.Controls
 
 		#region Column Management
 
-		public void AddColumn(DataGridColumn column) => _columns.Add(column);
+		public void AddColumn(DataGridColumn column) => Columns.Add(column);
 
 		public void AddColumn(string header, float width = 100f, bool sortable = true)
-			=> _columns.Add(new DataGridColumn(header, width, sortable));
+			=> Columns.Add(new DataGridColumn(header, width, sortable));
 
-		public IReadOnlyList<DataGridColumn> Columns => _columns;
-
-		public void ClearColumns() => _columns.Clear();
+		public void ClearColumns() => Columns.Clear();
 
 		#endregion
 
@@ -278,17 +281,17 @@ namespace FishUI.Controls
 
 		public void SortByColumn(int columnIndex, SortDirection direction)
 		{
-			if (columnIndex < 0 || columnIndex >= _columns.Count)
+			if (columnIndex < 0 || columnIndex >= Columns.Count)
 				return;
 
 			// Clear sort on other columns
-			for (int i = 0; i < _columns.Count; i++)
+			for (int i = 0; i < Columns.Count; i++)
 			{
 				if (i != columnIndex)
-					_columns[i].SortDirection = SortDirection.None;
+					Columns[i].SortDirection = SortDirection.None;
 			}
 
-			_columns[columnIndex].SortDirection = direction;
+			Columns[columnIndex].SortDirection = direction;
 
 			if (direction != SortDirection.None)
 			{
@@ -400,9 +403,9 @@ namespace FishUI.Controls
 				UI.Graphics.DrawRectangle(new Vector2(pos.X, pos.Y), new Vector2(width, height), new FishColor(220, 220, 220, 255));
 			}
 
-			for (int i = 0; i < _columns.Count; i++)
+			for (int i = 0; i < Columns.Count; i++)
 			{
-				var col = _columns[i];
+				var col = Columns[i];
 				float colW = Scale(col.Width);
 				if (x + colW > pos.X + width)
 					colW = pos.X + width - x;
@@ -493,9 +496,9 @@ namespace FishUI.Controls
 
 				// Draw cells
 				float x = pos.X;
-				for (int c = 0; c < _columns.Count; c++)
+				for (int c = 0; c < Columns.Count; c++)
 				{
-					float colW = Scale(_columns[c].Width);
+					float colW = Scale(Columns[c].Width);
 					if (x + colW > pos.X + width)
 						colW = pos.X + width - x;
 
@@ -552,20 +555,20 @@ namespace FishUI.Controls
 			{
 				float delta = Pos.X - _resizeStartX;
 				float scale = UI.Settings.UIScale > 0 ? UI.Settings.UIScale : 1f;
-				float newWidth = Math.Max(_columns[_resizingColumnIndex].MinWidth, _resizeStartWidth + delta / scale);
-				_columns[_resizingColumnIndex].Width = newWidth;
+				float newWidth = Math.Max(Columns[_resizingColumnIndex].MinWidth, _resizeStartWidth + delta / scale);
+				Columns[_resizingColumnIndex].Width = newWidth;
 				return;
 			}
 
 			// Check for resize handle hover
 			_hoverResizeColumnIndex = -1;
 			float x = ctrlPos.X;
-			for (int i = 0; i < _columns.Count; i++)
+			for (int i = 0; i < Columns.Count; i++)
 			{
-				x += Scale(_columns[i].Width);
+				x += Scale(Columns[i].Width);
 				if (Math.Abs(Pos.X - x) < 4 && Pos.Y >= ctrlPos.Y && Pos.Y < ctrlPos.Y + headerH)
 				{
-					if (_columns[i].Resizable)
+					if (Columns[i].Resizable)
 						_hoverResizeColumnIndex = i;
 					break;
 				}
@@ -576,9 +579,9 @@ namespace FishUI.Controls
 			if (localPos.Y >= 0 && localPos.Y < headerH && _hoverResizeColumnIndex < 0)
 			{
 				x = 0;
-				for (int i = 0; i < _columns.Count; i++)
+				for (int i = 0; i < Columns.Count; i++)
 				{
-					float colW = Scale(_columns[i].Width);
+					float colW = Scale(Columns[i].Width);
 					if (localPos.X >= x && localPos.X < x + colW)
 					{
 						_hoveredColumnIndex = i;
@@ -611,14 +614,14 @@ namespace FishUI.Controls
 			{
 				_resizingColumnIndex = _hoverResizeColumnIndex;
 				_resizeStartX = Pos.X;
-				_resizeStartWidth = _columns[_resizingColumnIndex].Width;
+				_resizeStartWidth = Columns[_resizingColumnIndex].Width;
 				return;
 			}
 
 			// Header click - sort
 			if (_hoveredColumnIndex >= 0 && Pos.Y >= ctrlPos.Y && Pos.Y < ctrlPos.Y + headerH)
 			{
-				var col = _columns[_hoveredColumnIndex];
+				var col = Columns[_hoveredColumnIndex];
 				if (col.Sortable)
 				{
 					SortDirection newDir = col.SortDirection == SortDirection.Ascending

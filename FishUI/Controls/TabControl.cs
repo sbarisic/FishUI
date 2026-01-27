@@ -60,7 +60,8 @@ namespace FishUI.Controls
 		public List<TabPage> TabPages { get; } = new List<TabPage>();
 
 		/// <summary>
-		/// Tab names for serialization. This property syncs with TabPages during save/load.
+		/// Tab names for serialization and PropertyGrid editing. 
+		/// Setting this property updates existing tabs, adds new tabs, or removes excess tabs.
 		/// </summary>
 		[YamlMember]
 		public List<string> TabNames
@@ -72,8 +73,48 @@ namespace FishUI.Controls
 			}
 			set
 			{
-				// Store for use during deserialization
+				if (value == null)
+				{
+					_tabNamesForDeserialization = null;
+					return;
+				}
+
+				// Store for use during deserialization (when Children haven't been populated yet)
 				_tabNamesForDeserialization = value;
+
+				// Also update TabPages at runtime if they already exist
+				if (TabPages.Count > 0)
+				{
+					SyncTabNamesToTabPages(value);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Syncs the TabNames list to the TabPages list.
+		/// Updates existing tab names, adds new tabs, or removes excess tabs.
+		/// </summary>
+		private void SyncTabNamesToTabPages(List<string> names)
+		{
+			// Update existing tabs
+			for (int i = 0; i < names.Count; i++)
+			{
+				if (i < TabPages.Count)
+				{
+					// Update existing tab's name
+					TabPages[i].Text = names[i];
+				}
+				else
+				{
+					// Add new tab
+					AddTab(names[i]);
+				}
+			}
+
+			// Remove excess tabs (from the end)
+			while (TabPages.Count > names.Count)
+			{
+				RemoveTabAt(TabPages.Count - 1);
 			}
 		}
 
