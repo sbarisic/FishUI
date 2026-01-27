@@ -90,6 +90,34 @@ namespace FishUI.Controls
 		public bool HasChildren => Children.Count > 0;
 
 		/// <summary>
+		/// Whether this property is a collection type (List&lt;string&gt;, string[], etc.).
+		/// </summary>
+		[YamlIgnore]
+		public bool IsCollection => PropertyType != null && IsCollectionType(PropertyType);
+
+		/// <summary>
+		/// Checks if a type is a supported collection type.
+		/// </summary>
+		private static bool IsCollectionType(Type type)
+		{
+			// Check for List<string>
+			if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>) &&
+				type.GetGenericArguments()[0] == typeof(string))
+				return true;
+			// Check for string[]
+			if (type == typeof(string[]))
+				return true;
+			// Check for List<T> where T has a Text property
+			if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
+			{
+				var elementType = type.GetGenericArguments()[0];
+				if (elementType.GetProperty("Text") != null)
+					return true;
+			}
+			return false;
+		}
+
+		/// <summary>
 		/// The default value captured when the property was first read.
 		/// </summary>
 		[YamlIgnore]
@@ -422,7 +450,7 @@ namespace FishUI.Controls
 			};
 			// Capture the initial value as the default for reset functionality
 			item.CaptureDefaultValue();
-		return item;
+			return item;
 		}
 
 		private bool IsSupportedType(Type type)
@@ -449,6 +477,13 @@ namespace FishUI.Controls
 			// Check for string[]
 			if (type == typeof(string[]))
 				return true;
+			// Check for List<T> where T has a Text property (e.g., ListBoxItem, DropDownItem)
+			if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
+			{
+				var elementType = type.GetGenericArguments()[0];
+				if (elementType.GetProperty("Text") != null)
+					return true;
+			}
 			return false;
 		}
 
@@ -576,7 +611,7 @@ namespace FishUI.Controls
 			{
 				CreateVectorEditor(UI, item, x, y, width, height, 3, currentValue);
 			}
-		else if (propType == typeof(Vector4))
+			else if (propType == typeof(Vector4))
 			{
 				CreateVectorEditor(UI, item, x, y, width, height, 4, currentValue);
 			}
