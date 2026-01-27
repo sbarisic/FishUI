@@ -77,7 +77,7 @@ namespace FishUI
 		public float DoubleClickDistance { get; set; } = 5f;
 
 		/// <summary>
-	/// Manager for global keyboard hotkeys.
+		/// Manager for global keyboard hotkeys.
 		/// </summary>
 		public FishUIHotkeyManager Hotkeys { get; } = new FishUIHotkeyManager();
 
@@ -122,7 +122,8 @@ namespace FishUI
 		/// <param name="Settings">UI settings for themes and appearance.</param>
 		/// <param name="Graphics">Graphics backend implementation.</param>
 		/// <param name="Input">Input backend implementation.</param>
-		/// <param name="Events">Events handler for control events.</param>
+		/// <param name="Events">Events handler for control events.</param>							
+		/// <param name="FS">File system implementation. If null, uses DefaultFishUIFileSystem.</param>
 		public FishUI(FishUISettings Settings, IFishUIGfx Graphics, IFishUIInput Input, IFishUIEvents Events, IFishUIFileSystem FS = null)
 		{
 			Controls = new List<Control>();
@@ -846,3 +847,4 @@ namespace FishUI
 		}
 	}
 }
+

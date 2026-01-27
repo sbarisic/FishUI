@@ -202,7 +202,7 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 
 ## Documentation **LOW PRIORITY**
 
-- [ ] API reference documentation (XML doc comments and/or generated docs)
+- [x] API reference documentation (XML doc comments and/or generated docs)
 - [ ] Backend implementation guide (beyond Raylib)
 
 > **Note:** Getting started tutorial is covered in README.md Quick Start section
@@ -343,6 +343,7 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 - Getting started tutorial: Covered in README.md Quick Start section (interface implementation, initialization, controls, update loop)
 - Custom control creation guide: docs/CUSTOM_CONTROLS.md with full examples, input handling, drawing, events, theming
 - Theme creation guide: docs/THEMING.md with YAML structure, colors, fonts, atlas regions, 9-slice, inheritance
+- API reference documentation: XML doc comments enabled in FishUI.csproj, core classes and interfaces documented (FishUI, Control, IFishUIGfx, IFishUIInput, IFishUIEvents, IFishUIFileSystem, IFishUILogger, LayoutFormat, EventHandlerRegistry, FishUISettings, FishUIAnimation)
 
 ### Fixed Bugs
 - Button/Label: Text property now editable in PropertyGrid (converted from field to property with [YamlMember])

@@ -9,19 +9,37 @@ using YamlDotNet.Serialization.NamingConventions;
 
 namespace FishUI
 {
+	/// <summary>
+	/// Provides serialization and deserialization of FishUI layouts to/from YAML format.
+	/// Supports all built-in control types and preserves parent-child hierarchies.
+	/// </summary>
 	public class LayoutFormat
 	{
+		/// <summary>
+		/// Creates a new LayoutFormat instance.
+		/// </summary>
 		public LayoutFormat()
 		{
 
 		}
 
+		/// <summary>
+		/// Serializes all controls from a FishUI instance to a YAML file.
+		/// </summary>
+		/// <param name="UI">The FishUI instance containing controls to serialize.</param>
+		/// <param name="FilePath">The file path to write the YAML output to.</param>
 		public static void SerializeToFile(FishUI UI, string FilePath)
 		{
 			string Data = Serialize(UI);
 			UI.FileSystem.WriteAllText(FilePath, Data);
 		}
 
+		/// <summary>
+		/// Deserializes controls from a YAML file and adds them to a FishUI instance.
+		/// Existing controls are removed before loading.
+		/// </summary>
+		/// <param name="UI">The FishUI instance to add deserialized controls to.</param>
+		/// <param name="FilePath">The file path to read the YAML from.</param>
 		public static void DeserializeFromFile(FishUI UI, string FilePath)
 		{
 			string Data = UI.FileSystem.ReadAllText(FilePath);
@@ -80,6 +98,11 @@ namespace FishUI
 			{ "!ListBoxItem", typeof(ListBoxItem) }
 		};
 
+		/// <summary>
+		/// Serializes all controls from a FishUI instance to a YAML string.
+		/// </summary>
+		/// <param name="UI">The FishUI instance containing controls to serialize.</param>
+		/// <returns>A YAML string representing all controls in the UI.</returns>
 		public static string Serialize(FishUI UI)
 		{
 			return SerializeControls(UI.GetAllControls());
@@ -88,6 +111,8 @@ namespace FishUI
 		/// <summary>
 		/// Serializes a list of controls to YAML.
 		/// </summary>
+		/// <param name="controls">The controls to serialize.</param>
+		/// <returns>A YAML string representing the controls.</returns>
 		public static string SerializeControls(IEnumerable<Control> controls)
 		{
 			SerializerBuilder sbuild = new SerializerBuilder();
@@ -110,6 +135,8 @@ namespace FishUI
 		/// Deserializes YAML into a list of controls.
 		/// This does not attach them to a FishUI instance; the caller is responsible for adding controls to a UI.
 		/// </summary>
+		/// <param name="data">The YAML string to deserialize.</param>
+		/// <returns>A list of deserialized controls with parent-child relationships linked.</returns>
 		public static List<Control> DeserializeControls(string data)
 		{
 			DeserializerBuilder dbuild = new DeserializerBuilder();
@@ -146,6 +173,12 @@ namespace FishUI
 			}
 		}
 
+		/// <summary>
+		/// Deserializes controls from a YAML string and adds them to a FishUI instance.
+		/// Existing controls are removed before loading.
+		/// </summary>
+		/// <param name="UI">The FishUI instance to add deserialized controls to.</param>
+		/// <param name="Data">The YAML string to deserialize.</param>
 		public static void Deserialize(FishUI UI, string Data)
 		{
 			DeserializerBuilder dbuild = new DeserializerBuilder();

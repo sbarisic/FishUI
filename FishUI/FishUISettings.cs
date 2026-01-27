@@ -80,13 +80,18 @@ namespace FishUI
 		public float ScaledFontSizeLabel => FontSizeLabel * UIScale;
 
 
-		// Fonts
+		#region Theme Fonts
+		/// <summary>Default font used for most controls.</summary>
 		public FontRef FontDefault { get; set; }
+		/// <summary>Bold variant of the default font.</summary>
 		public FontRef FontDefaultBold { get; set; }
+		/// <summary>Font used for Label controls.</summary>
 		public FontRef FontLabel { get; set; }
+		/// <summary>Font used for Textbox controls.</summary>
 		public FontRef FontTextboxDefault { get; set; }
+		#endregion
 
-		// Button
+		#region Button Theme Assets
 		public NPatch ImgButtonNormal { get; set; }
 		public NPatch ImgButtonHover { get; set; }
 		public NPatch ImgButtonDisabled { get; set; }
@@ -231,6 +236,7 @@ namespace FishUI
 		public NPatch ImgNumericUpDownDownHover { get; set; }
 		public NPatch ImgNumericUpDownDownPressed { get; set; }
 		public NPatch ImgNumericUpDownDownDisabled { get; set; }
+		#endregion
 
 		// Debug settings
 		/// <summary>

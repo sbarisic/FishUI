@@ -14,9 +14,24 @@ namespace FishUI.Controls
 		Bottom
 	}
 
+	/// <summary>
+	/// Delegate for button press events.
+	/// </summary>
+	/// <param name="Sender">The button that was pressed.</param>
+	/// <param name="Btn">The mouse button that was used.</param>
+	/// <param name="Pos">The mouse position when pressed.</param>
 	public delegate void ButtonPressFunc(Button Sender, FishMouseButton Btn, Vector2 Pos);
+
+	/// <summary>
+	/// Delegate for button toggle events.
+	/// </summary>
+	/// <param name="Sender">The button that was toggled.</param>
+	/// <param name="IsToggled">True if the button is now toggled on; false if toggled off.</param>
 	public delegate void ButtonToggledFunc(Button Sender, bool IsToggled);
 
+	/// <summary>
+	/// A clickable button control with support for text, icons, toggle mode, and repeat mode.
+	/// </summary>
 	public class Button : Control
 	{
 		[YamlIgnore]
