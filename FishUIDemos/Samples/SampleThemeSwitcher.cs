@@ -35,7 +35,7 @@ namespace FishUIDemos
 			FUI.Init();
 
 			// Load initial theme
-			FishUITheme theme = UISettings.LoadTheme("data/themes/gwen.yaml", applyImmediately: true);
+			FishUITheme theme = UISettings.LoadTheme(ThemePreferences.LoadThemePath(), applyImmediately: true);
 			UISettings.OnThemeChanged += OnThemeChanged;
 
 			return FUI;
@@ -123,3 +123,4 @@ namespace FishUIDemos
 		}
 	}
 }
+

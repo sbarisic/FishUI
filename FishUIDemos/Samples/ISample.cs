@@ -1,4 +1,4 @@
-﻿using FishUI;
+using FishUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,3 +31,4 @@ namespace FishUIDemos
 		public TakeScreenshotFunc TakeScreenshot { get; set; }
 	}
 }
+

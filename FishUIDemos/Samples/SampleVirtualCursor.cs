@@ -35,7 +35,7 @@ namespace FishUIDemos
 			InputRef = Input;
 
 			// Load theme
-			FishUITheme theme = UISettings.LoadTheme("data/themes/gwen.yaml", applyImmediately: true);
+			FishUITheme theme = UISettings.LoadTheme(ThemePreferences.LoadThemePath(), applyImmediately: true);
 
 			// Initialize virtual mouse at center of screen
 			FUI.VirtualMouse.Initialize(FUI.Width, FUI.Height);
@@ -297,3 +297,4 @@ namespace FishUIDemos
 		}
 	}
 }
+

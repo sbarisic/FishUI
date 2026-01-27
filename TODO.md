@@ -235,12 +235,13 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-- Themes do not get loaded in sample windows that launch after the sample chooser
+*No uncategorized items*
 
 ---
 
 ## Notes
 
+- Try to edit files and use tools WITHOUT POWERSHELL where possible, shell scripts get stuck and then manually terminate
 - Prioritize controls that are commonly needed in game development
 - Maintain the "dependency-free" philosophy - keep the core library minimal
 - Backend implementations should remain in separate sample projects
@@ -376,3 +377,4 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 - Control: Added GetAnchorAdjustedRelativePosition() for anchor-adjusted position without UI scaling
 - Control: Added GetAnchorAdjustedSize() for anchor-adjusted size (stretching when anchored to opposite edges)
 - PropertyGrid: Collection property editing for ListBox.Items, DropDown.Items, DataGrid.Columns, TabControl.TabNames (add/remove/reorder/edit), exposed DropDown.Items and DataGrid.Columns as public properties, TabNames syncs to TabPages at runtime
+- Theme persistence: Moved ThemePreferences to FishUIDemos, all samples now load saved theme preference instead of hardcoded default

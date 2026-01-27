@@ -37,7 +37,7 @@ namespace FishUIDemos
 			FUI = new FishUI.FishUI(UISettings, Gfx, Input, Events);
 			FUI.Init();
 
-			FishUITheme theme = UISettings.LoadTheme("data/themes/gwen.yaml", applyImmediately: true);
+			FishUITheme theme = UISettings.LoadTheme(ThemePreferences.LoadThemePath(), applyImmediately: true);
 
 			return FUI;
 		}
@@ -216,11 +216,12 @@ namespace FishUIDemos
 			// Remove all controls and reinitialize
 			FUI.RemoveAllControls();
 
+
 			// Reinitialize the settings to reload fonts at new scale
 			_settings.Init(FUI);
 
-			// Reload theme at new scale
-			_settings.LoadTheme("data/themes/gwen.yaml", applyImmediately: true);
+			// Reload theme at new scale (using saved preference)
+			_settings.LoadTheme(ThemePreferences.LoadThemePath(), applyImmediately: true);
 
 			// Recreate the demo UI
 			CreateDemoUI();
@@ -230,3 +231,4 @@ namespace FishUIDemos
 		}
 	}
 }
+

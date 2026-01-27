@@ -1,12 +1,12 @@
 using System;
 using System.IO;
 
-namespace FishUISample
+namespace FishUIDemos
 {
 	/// <summary>
 	/// Manages saving and loading of theme preferences across sample sessions.
 	/// </summary>
-	internal static class ThemePreferences
+	public static class ThemePreferences
 	{
 		private const string PreferencesFileName = "theme_preferences.txt";
 		private const string DefaultThemePath = "data/themes/gwen.yaml";
