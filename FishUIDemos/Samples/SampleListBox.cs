@@ -47,15 +47,17 @@ namespace FishUIDemos
 			screenshotBtn.OnButtonPressed += (btn, mbtn, pos) => TakeScreenshot?.Invoke(Name);
 			FUI.AddControl(screenshotBtn);
 
-			// === Basic ListBox with Alternating Colors ===
-			Label listLabel = new Label("ListBox (Alternating Colors)");
+			// ============ COLUMN 1: Basic ListBox ============
+
+			Label listLabel = new Label("Alternating Row Colors");
 			listLabel.Position = new Vector2(20, 60);
+			listLabel.Size = new Vector2(180, 20);
 			listLabel.Alignment = Align.Left;
 			FUI.AddControl(listLabel);
 
 			ListBox listBox = new ListBox();
 			listBox.Position = new Vector2(20, 85);
-			listBox.Size = new Vector2(150, 180);
+			listBox.Size = new Vector2(180, 220);
 			listBox.AlternatingRowColors = true;
 			listBox.EvenRowColor = new FishColor(200, 220, 255, 40);
 			listBox.OddRowColor = new FishColor(255, 255, 255, 10);
@@ -65,67 +67,70 @@ namespace FishUIDemos
 			for (int i = 0; i < 15; i++)
 				listBox.AddItem($"Item {i + 1}");
 
-			// === Multi-Select ListBox ===
-			Label multiSelectLabel = new Label("Multi-Select ListBox");
-			multiSelectLabel.Position = new Vector2(200, 60);
+			// ============ COLUMN 2: Multi-Select ListBox ============
+
+			Label multiSelectLabel = new Label("Multi-Select Mode");
+			multiSelectLabel.Position = new Vector2(220, 60);
+			multiSelectLabel.Size = new Vector2(180, 20);
 			multiSelectLabel.Alignment = Align.Left;
 			FUI.AddControl(multiSelectLabel);
 
-			Label multiSelectHint = new Label("Ctrl+click: toggle, Shift+click: range");
-			multiSelectHint.Position = new Vector2(200, 80);
+			Label multiSelectHint = new Label("Ctrl+click / Shift+click");
+			multiSelectHint.Position = new Vector2(220, 310);
 			multiSelectHint.Size = new Vector2(180, 16);
 			multiSelectHint.Alignment = Align.Left;
 			FUI.AddControl(multiSelectHint);
 
 			Label multiSelectInfo = new Label("Selected: 0 items");
-			multiSelectInfo.Position = new Vector2(200, 270);
-			multiSelectInfo.Size = new Vector2(150, 20);
+			multiSelectInfo.Position = new Vector2(220, 328);
+			multiSelectInfo.Size = new Vector2(180, 20);
 			multiSelectInfo.Alignment = Align.Left;
 			FUI.AddControl(multiSelectInfo);
 
 			ListBox multiSelectListBox = new ListBox();
-			multiSelectListBox.Position = new Vector2(200, 100);
-			multiSelectListBox.Size = new Vector2(150, 165);
+			multiSelectListBox.Position = new Vector2(220, 85);
+			multiSelectListBox.Size = new Vector2(180, 220);
 			multiSelectListBox.MultiSelect = true;
 			multiSelectListBox.AlternatingRowColors = true;
 			multiSelectListBox.TooltipText = "Multi-select enabled";
 			FUI.AddControl(multiSelectListBox);
 
-			for (int i = 0; i < 10; i++)
+			for (int i = 0; i < 15; i++)
 				multiSelectListBox.AddItem($"Entry {i + 1}");
 
-			// Update selection count label when selection changes
 			multiSelectListBox.OnItemSelected += (lb, idx, item) =>
 			{
 				int count = multiSelectListBox.GetSelectedIndices().Length;
 				multiSelectInfo.Text = $"Selected: {count} item{(count != 1 ? "s" : "")}";
 			};
 
-			// === Custom Rendered ListBox ===
-			Label customListLabel = new Label("Custom ListBox Items");
-			customListLabel.Position = new Vector2(380, 60);
+			// ============ COLUMN 3: Custom Rendered ListBox ============
+
+			Label customListLabel = new Label("Custom Item Rendering");
+			customListLabel.Position = new Vector2(420, 60);
+			customListLabel.Size = new Vector2(180, 20);
 			customListLabel.Alignment = Align.Left;
 			FUI.AddControl(customListLabel);
 
 			ListBox customListBox = new ListBox();
-			customListBox.Position = new Vector2(380, 85);
-			customListBox.Size = new Vector2(180, 180);
+			customListBox.Position = new Vector2(420, 85);
+			customListBox.Size = new Vector2(180, 220);
 			customListBox.CustomItemHeight = 28;
 			customListBox.ShowScrollBar = true;
-			customListBox.TooltipText = "ListBox with custom item rendering";
+			customListBox.TooltipText = "Priority indicators with custom rendering";
 			FUI.AddControl(customListBox);
 
-			// Add items with priority data
 			customListBox.AddItem(new ListBoxItem("Critical Issue", 1));
 			customListBox.AddItem(new ListBoxItem("High Priority", 2));
 			customListBox.AddItem(new ListBoxItem("Medium Task", 3));
 			customListBox.AddItem(new ListBoxItem("Low Priority", 4));
 			customListBox.AddItem(new ListBoxItem("Backlog Item", 5));
+			customListBox.AddItem(new ListBoxItem("Another Critical", 1));
+			customListBox.AddItem(new ListBoxItem("Another High", 2));
+			customListBox.AddItem(new ListBoxItem("Another Medium", 3));
 
-			// Set custom renderer that draws priority indicators
 			customListBox.CustomItemRenderer = (ui, item, index, pos, size, isSelected, isHovered) =>
 			{
-				// Draw priority indicator based on UserData
 				FishColor priorityColor = new FishColor(128, 128, 128, 255);
 				if (item.UserData is int priority)
 				{
@@ -138,11 +143,10 @@ namespace FishUIDemos
 						_ => new FishColor(128, 128, 128, 255)  // Backlog - Gray
 					};
 				}
-				ui.Graphics.DrawRectangle(pos + new Vector2(2, 6), new Vector2(12, 12), priorityColor);
+				ui.Graphics.DrawRectangle(pos + new Vector2(2, 6), new Vector2(14, 14), priorityColor);
 
-				// Draw text with offset
 				FishColor textColor = isSelected ? FishColor.White : FishColor.Black;
-				ui.Graphics.DrawTextColor(ui.Settings.FontDefault, item.Text, pos + new Vector2(18, 6), textColor);
+				ui.Graphics.DrawTextColor(ui.Settings.FontDefault, item.Text, pos + new Vector2(20, 6), textColor);
 			};
 		}
 	}

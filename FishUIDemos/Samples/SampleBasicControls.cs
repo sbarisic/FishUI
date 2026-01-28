@@ -200,12 +200,12 @@ namespace FishUIDemos
 
 			ScrollBarV scrollV = new ScrollBarV();
 			scrollV.Position = new Vector2(220, 265);
-			scrollV.Size = new Vector2(20, 80);
+			scrollV.Size = new Vector2(15, 120);
 			FUI.AddControl(scrollV);
 
 			ScrollBarH scrollH = new ScrollBarH();
-			scrollH.Position = new Vector2(250, 265);
-			scrollH.Size = new Vector2(120, 20);
+			scrollH.Position = new Vector2(245, 265);
+			scrollH.Size = new Vector2(150, 15);
 			FUI.AddControl(scrollH);
 
 			// ============ COLUMN 3 (X: 440-640) ============
