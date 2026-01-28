@@ -5,6 +5,9 @@ A dependency-free, immediate-mode-inspired GUI library for .NET applications wit
 [![.NET 9.0](https://img.shields.io/badge/.NET-9.0-purple.svg)](https://dotnet.microsoft.com/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
+It uses the Gwen skin
+[![GWEN Skin](https://github.com/benelot/CEGUI-GWEN-Skin)](GWEN Skin)
+
 ## Overview
 
 FishUI is a flexible GUI framework that separates UI logic from rendering, allowing integration with any graphics library. It provides a comprehensive set of controls suitable for game development, tools, and applications.

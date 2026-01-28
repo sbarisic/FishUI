@@ -960,6 +960,20 @@ namespace FishUI.Controls
 				UI.Graphics.PopScissor();
 		}
 
+
+		/// <summary>
+		/// Draws the control editor interface for the specified user interface element
+		/// </summary>
+		/// <remarks>Override this method in a derived class to implement custom drawing logic for specific control
+		/// editors. This method is intended for use within the UI rendering loop and may be called frequently.</remarks>
+		/// <param name="UI">The FishUI instance</param>
+		/// <param name="Dt">The time, in seconds, since the last frame</param>
+		/// <param name="Time">The total elapsed time, in seconds, since the start of the application</param>
+		public virtual void DrawControlEditor(FishUI UI, float Dt, float Time)
+		{
+			throw new NotImplementedException();
+		}
+
 		/// <summary>
 		/// Override this method to draw the control's visual appearance.
 		/// </summary>

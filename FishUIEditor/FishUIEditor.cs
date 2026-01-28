@@ -663,7 +663,6 @@ namespace FishUIEditor
 
 		static void OpenLayout()
 		{
-			// TODO: Replace with a proper file picker dialog
 			string path = string.IsNullOrWhiteSpace(_currentLayoutPath) ? DefaultLayoutPath : _currentLayoutPath;
 			LoadLayoutFromPath(path);
 		}
@@ -676,7 +675,6 @@ namespace FishUIEditor
 
 		static void SaveLayoutAs()
 		{
-			// TODO: Replace with a proper file picker dialog
 			SaveLayoutToPath(DefaultLayoutPath);
 		}
 
