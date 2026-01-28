@@ -53,10 +53,13 @@ namespace FishUIDemos
 			menuPanel.Size = new Vector2(250, 300);
 			FUI.AddControl(menuPanel);
 
-			// Game title label
-			Label titleLabel = new Label("My Awesome Game");
-			titleLabel.Position = new Vector2(20, 30);
-			menuPanel.AddChild(titleLabel);
+			// Game title image
+			ImageBox titleImage = new ImageBox();
+			titleImage.Image = FUI.Graphics.LoadImage("data/images/title.png");
+			titleImage.Position = new Vector2(10, 10);
+			titleImage.Size = new Vector2(230, 60);
+			titleImage.ScaleMode = ImageScaleMode.Fit;
+			menuPanel.AddChild(titleImage);
 
 			// New Game button
 			Button btnNewGame = new Button();

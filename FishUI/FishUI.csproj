@@ -211,6 +211,9 @@
     <None Update="data\images\cursors\help_win95.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="data\images\title.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="data\images\win95.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
