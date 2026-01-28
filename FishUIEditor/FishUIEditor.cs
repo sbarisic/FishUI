@@ -255,6 +255,8 @@ namespace FishUIEditor
 			fileMenu.AddItem("Save").OnClicked += _ => SaveLayout();
 			fileMenu.AddItem("Save As...").OnClicked += _ => SaveLayoutAs();
 			fileMenu.AddSeparator();
+			fileMenu.AddItem("Export as C#...").OnClicked += _ => ExportAsDesigner();
+			fileMenu.AddSeparator();
 			fileMenu.AddItem("Exit").OnClicked += _ => Environment.Exit(0);
 
 			// Edit menu
@@ -815,6 +817,133 @@ namespace FishUIEditor
 				{
 					OnDeserializedRecursive(child, ui);
 				}
+			}
+		}
+
+		static void ExportAsDesigner()
+		{
+			if (_canvas == null || _canvas.GetEditedControls().Count == 0)
+			{
+				SetStatus("No controls to export");
+				return;
+			}
+
+			// Create a dialog window for namespace and class name input
+			var dialog = new Window("Export as C# Designer");
+			dialog.Size = new Vector2(400, 200);
+			dialog.IsResizable = false;
+
+			var namespaceLabel = new Label("Namespace:");
+			namespaceLabel.Position = new Vector2(20, 20);
+			namespaceLabel.Size = new Vector2(100, 24);
+			dialog.AddChild(namespaceLabel);
+
+			var namespaceTextbox = new Textbox();
+			namespaceTextbox.Position = new Vector2(130, 20);
+			namespaceTextbox.Size = new Vector2(230, 28);
+			namespaceTextbox.Text = "MyApp.Forms";
+			dialog.AddChild(namespaceTextbox);
+
+			var classLabel = new Label("Class Name:");
+			classLabel.Position = new Vector2(20, 60);
+			classLabel.Size = new Vector2(100, 24);
+			dialog.AddChild(classLabel);
+
+			var classTextbox = new Textbox();
+			classTextbox.Position = new Vector2(130, 60);
+			classTextbox.Size = new Vector2(230, 28);
+			classTextbox.Text = "MainForm";
+			dialog.AddChild(classTextbox);
+
+			var exportButton = new Button();
+			exportButton.Text = "Export...";
+			exportButton.Position = new Vector2(130, 110);
+			exportButton.Size = new Vector2(100, 32);
+			dialog.AddChild(exportButton);
+
+			var cancelButton = new Button();
+			cancelButton.Text = "Cancel";
+			cancelButton.Position = new Vector2(240, 110);
+			cancelButton.Size = new Vector2(100, 32);
+			dialog.AddChild(cancelButton);
+
+			exportButton.OnButtonPressed += (btn, mouseBtn, pos) =>
+			{
+				string namespaceName = namespaceTextbox.Text.Trim();
+				string className = classTextbox.Text.Trim();
+
+				if (string.IsNullOrEmpty(namespaceName) || string.IsNullOrEmpty(className))
+				{
+					SetStatus("Namespace and class name are required");
+					return;
+				}
+
+				dialog.Close();
+				ShowExportFileDialog(namespaceName, className);
+			};
+
+			cancelButton.OnButtonPressed += (btn, mouseBtn, pos) =>
+			{
+				dialog.Close();
+				SetStatus("Export cancelled");
+			};
+
+			// Add to FUI first, then center and show
+			FUI.AddControl(dialog);
+
+			// Center using actual screen dimensions (like FilePickerDialog)
+			int screenWidth = FUI.Graphics.GetWindowWidth();
+			int screenHeight = FUI.Graphics.GetWindowHeight();
+			dialog.Position = new Vector2(
+				(screenWidth - dialog.Size.X) / 2,
+				(screenHeight - dialog.Size.Y) / 2
+			);
+
+			dialog.ShowModal();
+		}
+
+		static void ShowExportFileDialog(string namespaceName, string className)
+		{
+			string initialDir = string.IsNullOrWhiteSpace(_currentLayoutPath)
+				? FUI.FileSystem.GetFullPath(".")
+				: FUI.FileSystem.GetDirectoryName(_currentLayoutPath);
+
+			var dialog = new FilePickerDialog(FilePickerMode.Save, FUI.FileSystem, initialDir, "*.cs");
+			dialog.FileName = $"{className}.Designer.cs";
+
+			dialog.OnFileConfirmed += (dlg, path) =>
+			{
+				// Ensure .cs extension
+				if (!path.EndsWith(".cs", StringComparison.OrdinalIgnoreCase))
+				{
+					path += ".cs";
+				}
+				ExportDesignerToPath(path, namespaceName, className);
+			};
+			dialog.OnDialogCancelled += (dlg) =>
+			{
+				SetStatus("Export cancelled");
+			};
+			dialog.Show(FUI);
+		}
+
+		static void ExportDesignerToPath(string path, string namespaceName, string className)
+		{
+			try
+			{
+				if (_canvas == null)
+					return;
+
+				var ctrls = _canvas.GetEditedControls();
+				var generator = new DesignerCodeGenerator();
+				string code = generator.Generate(ctrls, namespaceName, className);
+
+				FUI.FileSystem.WriteAllText(path, code);
+				SetStatus($"Exported C# designer: {path}");
+			}
+			catch (Exception ex)
+			{
+				SetStatus($"Export failed: {ex.Message}");
 			}
 		}
 

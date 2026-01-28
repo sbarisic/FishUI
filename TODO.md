@@ -132,6 +132,25 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 - [x] Override `DrawControlEditor` in container controls (Panel, Window, GroupBox) to draw child container rectangles
 - [ ] Override `DrawControlEditor` in complex controls (TabControl, DataGrid) for simplified editor representation
 
+### Phase 10: C# Code Generation (CPX 4)
+Export layouts as C# code files that can be compiled directly into applications.
+
+- [x] Create `FishCSharpWriter` utility class in FishUI project for generating C# code
+  - Indentation management, namespace/class/method writing helpers
+  - Support for writing control instantiation code with property assignments
+  - Handle nested control hierarchies (AddChild calls)
+- [x] Implement `IFishUIForm` code generation
+  - Generate `.Designer.cs` partial class implementing `IFishUIForm`
+  - `Init()` - Create FishUI instance with settings
+  - `LoadControls(FishUI FUI)` - Instantiate and configure all controls, add to FUI
+  - `OnLoaded()` - Empty virtual method for user override
+  - Generate field declarations for controls with non-empty ID
+- [x] Add "Export as C#..." option to FishUIEditor File menu
+  - FilePickerDialog for .Designer.cs save location
+  - Prompt for namespace and class name
+- [x] Generate proper control property assignments (Position, Size, Text, Anchor, etc.)
+- [x] Handle special cases: Window children via ContentChildren, TabControl tabs, ListBox items
+
 ---
 
 ## Documentation **LOW PRIORITY**
@@ -216,6 +235,8 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 - Theme inheritance
 - Serializable event handlers via EventHandlerRegistry
 - RaylibGfx: UseBeginDrawing option for integration with existing game loops
+- FishCSharpWriter utility class for C# code generation
+- DesignerCodeGenerator for exporting layouts as .Designer.cs files implementing IFishUIForm
 
 ### Samples
 - Sample infrastructure: Runner loop, GUI chooser, theme switcher, auto-discovery
@@ -223,6 +244,7 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 - Feature demos: LayoutSystem, UIScaling, Animations, Serialization, EventSerialization
 - Data controls: DatePicker, TimePicker, DataGrid, SpreadsheetGrid, MultiLineEditbox
 - EditorLayout sample for testing FishUIEditor output
+- DesignerForm sample demonstrating IFishUIForm designer-generated forms
 - Theme persistence across samples
 - Demo layout fixes: BasicControls, ImageBox, ListBox, SpreadsheetGrid, GameMenu (TabControl anchoring)
 
@@ -238,6 +260,7 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 - Resize handle fix for nested controls (parent offset calculation)
 - Window child positioning fix (content panel offset)
 - FilePickerDialog control for Open/Save As operations
+- C# code export: "Export as C#..." menu option with namespace/class dialog, generates .Designer.cs files
 
 ### Code Cleanup
 - Interface abstractions: IFishUIEvents, IFishUILogger, IFishUIFileSystem
