@@ -162,5 +162,22 @@ namespace FishUI
 		/// <param name="pixelated">True for nearest-neighbor (pixelated), false for smooth (bilinear/trilinear).</param>
 		public void SetImageFilter(ImageRef Img, bool pixelated);
 
+		/// <summary>
+		/// Draws a filled circle.
+		/// </summary>
+		/// <param name="Center">Center position of the circle.</param>
+		/// <param name="Radius">Radius of the circle.</param>
+		/// <param name="Color">Fill color.</param>
+		public void DrawCircle(Vector2 Center, float Radius, FishColor Color);
+
+		/// <summary>
+		/// Draws a circle outline.
+		/// </summary>
+		/// <param name="Center">Center position of the circle.</param>
+		/// <param name="Radius">Radius of the circle.</param>
+		/// <param name="Color">Outline color.</param>
+		/// <param name="Thickness">Line thickness.</param>
+		public void DrawCircleOutline(Vector2 Center, float Radius, FishColor Color, float Thickness = 1f);
+
 	}
 }

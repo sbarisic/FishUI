@@ -90,9 +90,7 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ## Control Improvements
 
-### SpreadsheetGrid Enhancements (CPX 2)
-- [ ] Heat map mode - fixed size grid with color-coded cells based on values
-- [ ] Cursor display - circle with vertical/horizontal crosshair lines (ECU editor style)
+*All control improvements completed - see Completed section*
 
 ---
 
@@ -207,6 +205,7 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 - PropertyGrid: Vector2/3/4 editors, reset to default, collection editing
 - MultiLineEditbox: Text selection, copy/cut/paste
 - Gauges: Dashboard styling improvements
+- SpreadsheetGrid: Heat map mode, cursor display with crosshair lines (ECU editor style)
 
 ### Core Framework
 - Scalable UI via UIScale property

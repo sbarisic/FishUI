@@ -94,7 +94,7 @@ namespace FishUI.Controls
 		/// Padding inside the display border.
 		/// </summary>
 		[YamlMember]
-		public int Padding { get; set; } = 8;
+		public new int Padding { get; set; } = 8;
 
 		/// <summary>
 		/// Optional unit label to display after the value (e.g., "km/h", "RPM", "°C").

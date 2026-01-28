@@ -112,6 +112,72 @@ namespace FishUI.Controls
 		public FishColor HoveredCellColor { get; set; } = new FishColor(200, 220, 255, 100);
 
 		/// <summary>
+		/// Enables heat map mode where cells are colored based on their numeric values.
+		/// </summary>
+		[YamlMember]
+		public bool HeatMapMode { get; set; } = false;
+
+		/// <summary>
+		/// Color for the minimum value in heat map mode (cold).
+		/// </summary>
+		[YamlMember]
+		public FishColor HeatMapMinColor { get; set; } = new FishColor(0, 100, 255, 200);
+
+		/// <summary>
+		/// Color for the maximum value in heat map mode (hot).
+		/// </summary>
+		[YamlMember]
+		public FishColor HeatMapMaxColor { get; set; } = new FishColor(255, 50, 0, 200);
+
+		/// <summary>
+		/// Minimum value for heat map scaling. If null, auto-detects from cell data.
+		/// </summary>
+		[YamlMember]
+		public float? HeatMapMinValue { get; set; } = null;
+
+		/// <summary>
+		/// Maximum value for heat map scaling. If null, auto-detects from cell data.
+		/// </summary>
+		[YamlMember]
+		public float? HeatMapMaxValue { get; set; } = null;
+
+		/// <summary>
+		/// Enables cursor display mode with crosshair lines (ECU editor style).
+		/// </summary>
+		[YamlMember]
+		public bool CursorMode { get; set; } = false;
+
+		/// <summary>
+		/// Cursor X position (0.0 to 1.0, normalized across the grid width).
+		/// </summary>
+		[YamlMember]
+		public float CursorX { get; set; } = 0.5f;
+
+		/// <summary>
+		/// Cursor Y position (0.0 to 1.0, normalized across the grid height).
+		/// </summary>
+		[YamlMember]
+		public float CursorY { get; set; } = 0.5f;
+
+		/// <summary>
+		/// Color for the cursor crosshair lines.
+		/// </summary>
+		[YamlMember]
+		public FishColor CursorColor { get; set; } = new FishColor(255, 100, 0, 220);
+
+		/// <summary>
+		/// Radius of the cursor circle at the intersection point.
+		/// </summary>
+		[YamlMember]
+		public float CursorRadius { get; set; } = 8f;
+
+		/// <summary>
+		/// Thickness of the cursor crosshair lines.
+		/// </summary>
+		[YamlMember]
+		public float CursorLineThickness { get; set; } = 2f;
+
+		/// <summary>
 		/// Gets the currently selected row.
 		/// </summary>
 		[YamlIgnore]
@@ -278,6 +344,68 @@ namespace FishUI.Controls
 			return result;
 		}
 
+		/// <summary>
+		/// Calculates the heat map value range from cell data.
+		/// </summary>
+		private (float min, float max) CalculateHeatMapRange()
+		{
+			float minVal = HeatMapMinValue ?? float.MaxValue;
+			float maxVal = HeatMapMaxValue ?? float.MinValue;
+
+			// If either min or max is not set, scan the data
+			if (HeatMapMinValue == null || HeatMapMaxValue == null)
+			{
+				for (int r = 0; r < _rowCount; r++)
+				{
+					for (int c = 0; c < _columnCount; c++)
+					{
+						string cellValue = GetCell(r, c);
+						if (float.TryParse(cellValue, out float numValue))
+						{
+							if (HeatMapMinValue == null && numValue < minVal)
+								minVal = numValue;
+							if (HeatMapMaxValue == null && numValue > maxVal)
+								maxVal = numValue;
+						}
+					}
+				}
+			}
+
+			// Handle case where no numeric values were found
+			if (minVal == float.MaxValue) minVal = 0;
+			if (maxVal == float.MinValue) maxVal = 1;
+			if (minVal == maxVal) maxVal = minVal + 1;
+
+			return (minVal, maxVal);
+		}
+
+		/// <summary>
+		/// Interpolates between two colors based on a normalized value (0-1).
+		/// </summary>
+		private FishColor LerpColor(FishColor from, FishColor to, float t)
+		{
+			t = Math.Clamp(t, 0f, 1f);
+			return new FishColor(
+				(byte)(from.R + (to.R - from.R) * t),
+				(byte)(from.G + (to.G - from.G) * t),
+				(byte)(from.B + (to.B - from.B) * t),
+				(byte)(from.A + (to.A - from.A) * t)
+			);
+		}
+
+		/// <summary>
+		/// Gets the heat map color for a cell value.
+		/// </summary>
+		private FishColor? GetHeatMapColor(string cellValue, float minVal, float maxVal)
+		{
+			if (!float.TryParse(cellValue, out float numValue))
+				return null;
+
+			float range = maxVal - minVal;
+			float normalized = (numValue - minVal) / range;
+			return LerpColor(HeatMapMinColor, HeatMapMaxColor, normalized);
+		}
+
 		#endregion
 
 		#region Selection & Editing
@@ -428,6 +556,13 @@ namespace FishUI.Controls
 			Vector2 cellAreaSize = size - new Vector2(rowHeaderW + 16, colHeaderH + 16);
 			UI.Graphics.PushScissor(cellAreaPos, cellAreaSize);
 			DrawCells(UI, cellAreaPos, cellAreaSize, cellW, cellH, font, Time);
+
+			// Draw cursor overlay if enabled
+			if (CursorMode)
+			{
+				DrawCursor(UI, cellAreaPos, cellAreaSize);
+			}
+
 			UI.Graphics.PopScissor();
 		}
 
@@ -499,6 +634,13 @@ namespace FishUI.Controls
 		{
 			Vector2 startPos = areaPos + _scrollOffset;
 
+			// Calculate heat map range once if in heat map mode
+			float heatMapMin = 0, heatMapMax = 1;
+			if (HeatMapMode)
+			{
+				(heatMapMin, heatMapMax) = CalculateHeatMapRange();
+			}
+
 			for (int r = 0; r < _rowCount; r++)
 			{
 				for (int c = 0; c < _columnCount; c++)
@@ -517,6 +659,8 @@ namespace FishUI.Controls
 					bool isEditing = (r == _editingRow && c == _editingCol);
 					bool isHovered = (r == _hoveredRow && c == _hoveredCol);
 
+					string cellValue = GetCell(r, c);
+
 					// Cell background
 					if (isEditing)
 					{
@@ -530,12 +674,21 @@ namespace FishUI.Controls
 					{
 						UI.Graphics.DrawRectangle(cellPos, cellSize, HoveredCellColor);
 					}
+					else if (HeatMapMode)
+					{
+						// Draw heat map background
+						FishColor? heatColor = GetHeatMapColor(cellValue, heatMapMin, heatMapMax);
+						if (heatColor.HasValue)
+						{
+							UI.Graphics.DrawRectangle(cellPos, cellSize, heatColor.Value);
+						}
+					}
 
 					// Cell border
 					UI.Graphics.DrawRectangleOutline(cellPos, cellSize, new FishColor(220, 220, 220, 255));
 
 					// Cell text
-					string text = isEditing ? _editValue : GetCell(r, c);
+					string text = isEditing ? _editValue : cellValue;
 					if (font != null && !string.IsNullOrEmpty(text))
 					{
 						var textSize = UI.Graphics.MeasureText(font, text);
@@ -567,6 +720,35 @@ namespace FishUI.Controls
 					}
 				}
 			}
+		}
+
+		private void DrawCursor(FishUI UI, Vector2 areaPos, Vector2 areaSize)
+		{
+			// Calculate cursor position in pixels
+			float cursorPixelX = areaPos.X + CursorX * areaSize.X;
+			float cursorPixelY = areaPos.Y + CursorY * areaSize.Y;
+
+			float radius = Scale(CursorRadius);
+			float thickness = Scale(CursorLineThickness);
+
+			// Draw vertical crosshair line
+			UI.Graphics.DrawLine(
+				new Vector2(cursorPixelX, areaPos.Y),
+				new Vector2(cursorPixelX, areaPos.Y + areaSize.Y),
+				thickness, CursorColor);
+
+			// Draw horizontal crosshair line
+			UI.Graphics.DrawLine(
+				new Vector2(areaPos.X, cursorPixelY),
+				new Vector2(areaPos.X + areaSize.X, cursorPixelY),
+				thickness, CursorColor);
+
+			// Draw circle at intersection
+			UI.Graphics.DrawCircleOutline(new Vector2(cursorPixelX, cursorPixelY), radius, CursorColor, thickness);
+
+			// Draw filled inner circle (smaller)
+			float innerRadius = radius * 0.3f;
+			UI.Graphics.DrawCircle(new Vector2(cursorPixelX, cursorPixelY), innerRadius, CursorColor);
 		}
 
 		#endregion

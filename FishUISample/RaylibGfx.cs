@@ -331,6 +331,21 @@ namespace FishUISample
 			Raylib.SetTextureFilter(Tex, pixelated ? TextureFilter.Point : TextureFilter.Trilinear);
 		}
 
+		public void DrawCircle(Vector2 Center, float Radius, FishColor Color)
+		{
+			Raylib.DrawCircleV(Center, Radius, new Color(Color.R, Color.G, Color.B, Color.A));
+		}
+
+		public void DrawCircleOutline(Vector2 Center, float Radius, FishColor Color, float Thickness = 1f)
+		{
+			Color C = new Color(Color.R, Color.G, Color.B, Color.A);
+			// Raylib doesn't have a thick circle outline, so we draw multiple circles
+			for (float r = Radius - Thickness / 2; r <= Radius + Thickness / 2; r += 0.5f)
+			{
+				Raylib.DrawCircleLinesV(Center, r, C);
+			}
+		}
+
 		public Vector2 MeasureText(FontRef Fn, string Text)
 		{
 			Font F = (Font)Fn.Userdata;

@@ -13,6 +13,12 @@ namespace FishUIDemos
 		FishUI.FishUI FUI;
 		Label _statusLabel;
 		SpreadsheetGrid _mainGrid;
+		SpreadsheetGrid _heatMapGrid;
+		CheckBox _heatMapToggle;
+		SpreadsheetGrid _cursorGrid;
+		Slider _cursorXSlider;
+		Slider _cursorYSlider;
+		Label _cursorPosLabel;
 
 		public string Name => "SpreadsheetGrid";
 
@@ -160,6 +166,151 @@ namespace FishUIDemos
 			helpLabel.Size = new Vector2(400, 20);
 			helpLabel.Alignment = Align.Left;
 			FUI.AddControl(helpLabel);
+
+			yPos += 45;
+
+			// === Heat Map Demo ===
+			Label heatMapLabel = new Label("Heat Map Mode Demo:");
+			heatMapLabel.Position = new Vector2(20, yPos);
+			heatMapLabel.Size = new Vector2(200, 20);
+			heatMapLabel.Alignment = Align.Left;
+			FUI.AddControl(heatMapLabel);
+
+			_heatMapToggle = new CheckBox();
+			_heatMapToggle.Position = new Vector2(180, yPos);
+			_heatMapToggle.Size = new Vector2(20, 20);
+			_heatMapToggle.IsChecked = true;
+			_heatMapToggle.OnCheckedChanged += (cb, isChecked) =>
+			{
+				_heatMapGrid.HeatMapMode = isChecked;
+				_statusLabel.Text = isChecked ? "Heat map enabled" : "Heat map disabled";
+			};
+			FUI.AddControl(_heatMapToggle);
+
+			Label toggleLabel = new Label("Enable");
+			toggleLabel.Position = new Vector2(205, yPos);
+			toggleLabel.Size = new Vector2(60, 20);
+			toggleLabel.Alignment = Align.Left;
+			FUI.AddControl(toggleLabel);
+
+			yPos += 25;
+
+			// Heat map grid with linear data (tilted plane visualization)
+			_heatMapGrid = new SpreadsheetGrid();
+			_heatMapGrid.Position = new Vector2(20, yPos);
+			_heatMapGrid.Size = new Vector2(380, 200);
+			_heatMapGrid.RowCount = 8;
+			_heatMapGrid.ColumnCount = 10;
+			_heatMapGrid.CellWidth = 36;
+			_heatMapGrid.CellHeight = 24;
+			_heatMapGrid.HeatMapMode = true;
+			_heatMapGrid.HeatMapMinColor = new FishColor(50, 150, 255, 200);
+			_heatMapGrid.HeatMapMaxColor = new FishColor(255, 80, 50, 200);
+
+			// Fill with linear data creating a tilted plane effect
+			// Values increase from top-left (low) to bottom-right (high)
+			for (int r = 0; r < 8; r++)
+			{
+				for (int c = 0; c < 10; c++)
+				{
+					// Linear gradient: combine row and column contributions
+					int value = (r * 8) + (c * 6); // Creates a diagonal gradient
+					_heatMapGrid.SetCell(r, c, value.ToString());
+				}
+			}
+
+			FUI.AddControl(_heatMapGrid);
+
+			// Heat map legend
+			Label legendLabel = new Label("Tilted plane: Blue (0) at top-left, Red (110) at bottom-right");
+			legendLabel.Position = new Vector2(20, yPos + 205);
+			legendLabel.Size = new Vector2(380, 20);
+			legendLabel.Alignment = Align.Left;
+			FUI.AddControl(legendLabel);
+
+			// === Cursor Display Demo (right side) ===
+			float cursorDemoX = 420;
+
+			Label cursorLabel = new Label("Cursor Display Mode (ECU Editor Style):");
+			cursorLabel.Position = new Vector2(cursorDemoX, yPos);
+			cursorLabel.Size = new Vector2(280, 20);
+			cursorLabel.Alignment = Align.Left;
+			FUI.AddControl(cursorLabel);
+
+			// Cursor grid
+			_cursorGrid = new SpreadsheetGrid();
+			_cursorGrid.Position = new Vector2(cursorDemoX, yPos + 25);
+			_cursorGrid.Size = new Vector2(340, 170);
+			_cursorGrid.RowCount = 6;
+			_cursorGrid.ColumnCount = 6;
+			_cursorGrid.CellWidth = 52;
+			_cursorGrid.CellHeight = 26;
+			_cursorGrid.CursorMode = true;
+			_cursorGrid.CursorX = 0.5f;
+			_cursorGrid.CursorY = 0.5f;
+			_cursorGrid.CursorColor = new FishColor(255, 100, 0, 220);
+			_cursorGrid.CursorRadius = 10f;
+			_cursorGrid.CursorLineThickness = 2f;
+
+			// Fill with sample data (tilted plane like heat map)
+			for (int r = 0; r < 6; r++)
+			{
+				for (int c = 0; c < 6; c++)
+				{
+					int value = (r * 10) + (c * 8);
+					_cursorGrid.SetCell(r, c, value.ToString());
+				}
+			}
+
+			FUI.AddControl(_cursorGrid);
+
+			// X slider
+			Label xLabel = new Label("X:");
+			xLabel.Position = new Vector2(cursorDemoX, yPos + 200);
+			xLabel.Size = new Vector2(20, 20);
+			xLabel.Alignment = Align.Left;
+			FUI.AddControl(xLabel);
+
+			_cursorXSlider = new Slider();
+			_cursorXSlider.Position = new Vector2(cursorDemoX + 25, yPos + 200);
+			_cursorXSlider.Size = new Vector2(130, 20);
+			_cursorXSlider.Value = 50;
+			_cursorXSlider.OnValueChanged += (slider, value) =>
+			{
+				_cursorGrid.CursorX = value / 100f;
+				UpdateCursorPosLabel();
+			};
+			FUI.AddControl(_cursorXSlider);
+
+			// Y slider
+			Label yLabel = new Label("Y:");
+			yLabel.Position = new Vector2(cursorDemoX + 165, yPos + 200);
+			yLabel.Size = new Vector2(20, 20);
+			yLabel.Alignment = Align.Left;
+			FUI.AddControl(yLabel);
+
+			_cursorYSlider = new Slider();
+			_cursorYSlider.Position = new Vector2(cursorDemoX + 185, yPos + 200);
+			_cursorYSlider.Size = new Vector2(130, 20);
+			_cursorYSlider.Value = 50;
+			_cursorYSlider.OnValueChanged += (slider, value) =>
+			{
+				_cursorGrid.CursorY = value / 100f;
+				UpdateCursorPosLabel();
+			};
+			FUI.AddControl(_cursorYSlider);
+
+			// Cursor position label
+			_cursorPosLabel = new Label("Cursor: (0.50, 0.50)");
+			_cursorPosLabel.Position = new Vector2(cursorDemoX, yPos + 225);
+			_cursorPosLabel.Size = new Vector2(200, 20);
+			_cursorPosLabel.Alignment = Align.Left;
+			FUI.AddControl(_cursorPosLabel);
+		}
+
+		private void UpdateCursorPosLabel()
+		{
+			_cursorPosLabel.Text = $"Cursor: ({_cursorGrid.CursorX:F2}, {_cursorGrid.CursorY:F2})";
 		}
 
 		private void OnSelectionChanged(SpreadsheetGrid grid, int row, int column)

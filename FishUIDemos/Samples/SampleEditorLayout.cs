@@ -14,7 +14,6 @@ namespace FishUIDemos
 		FishUI.FishUI FUI;
 		Label _statusLabel;
 		Panel _layoutContainer;
-		bool _layoutLoaded = false;
 
 		public string Name => "Editor Layout";
 
@@ -112,7 +111,6 @@ namespace FishUIDemos
 					_layoutContainer.AddChild(control);
 				}
 
-				_layoutLoaded = true;
 				SetStatus($"Loaded {controls.Count} control(s) from {layoutPath}");
 			}
 			catch (Exception ex)
@@ -125,7 +123,6 @@ namespace FishUIDemos
 		{
 			// Clear container
 			_layoutContainer.RemoveAllChildren();
-			_layoutLoaded = false;
 
 			// Reload
 			LoadLayout();
@@ -133,7 +130,6 @@ namespace FishUIDemos
 
 		private void ShowEmptyState(string message)
 		{
-			_layoutLoaded = false;
 			SetStatus(message);
 
 			// Show instructions for creating a layout

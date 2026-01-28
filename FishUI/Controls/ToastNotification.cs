@@ -107,7 +107,7 @@ namespace FishUI.Controls
 		/// Padding inside toast.
 		/// </summary>
 		[YamlMember]
-		public float Padding { get; set; } = 10f;
+		public new float Padding { get; set; } = 10f;
 
 		/// <summary>
 		/// Color for Info type toasts.
