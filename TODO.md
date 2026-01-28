@@ -151,7 +151,11 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-*No uncategorized items*
+- Add all of the following as highest priority:
+- Change the layout of Basic Controls Demo, reorder the controls so they have more space, some are overlapping right now
+- Update ImageBox demo, reoder the controls, make the images use win95_pixel.png instead of current image
+- ListBox demo also needs to be reordered. The scroll bar also disappears on the Ctrl+click ListBox
+- Make the spreadsheet demo bigger
 
 ---
 
