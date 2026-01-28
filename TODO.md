@@ -105,7 +105,11 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ## Sample Application
 
-*All sample improvements completed - see Completed section*
+### Sample Demo Fixes **HIGH PRIORITY** (CPX 1)
+- [x] Basic Controls Demo - reorder controls to fix overlapping, add more spacing
+- [ ] ImageBox Demo - reorder controls, use `win95_pixel.png` for images
+- [ ] ListBox Demo - reorder controls layout
+- [ ] SpreadsheetGrid Demo - increase size for better visibility
 
 ---
 
@@ -151,11 +155,7 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-- Add all of the following as highest priority:
-- Change the layout of Basic Controls Demo, reorder the controls so they have more space, some are overlapping right now
-- Update ImageBox demo, reoder the controls, make the images use win95_pixel.png instead of current image
-- ListBox demo also needs to be reordered. The scroll bar also disappears on the Ctrl+click ListBox
-- Make the spreadsheet demo bigger
+- Make scroll bar controls in the basic demo longer, do not set their width, make it default (currently thumbs are wider than the buttons)
 
 ---
 
@@ -247,3 +247,4 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 - ScrollablePane scrolling and input bounds
 - Window resize handles, anchor recalculation
 - LineChart labels, DatePicker click-through
+- ListBox scrollbar visibility on multi-select Ctrl+click

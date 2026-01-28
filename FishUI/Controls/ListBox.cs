@@ -418,7 +418,16 @@ namespace FishUI.Controls
 			NPatch Cur = UI.Settings.ImgListBoxNormal;
 			UI.Graphics.DrawNPatch(Cur, absPos, absSize, Color);
 
-			bool ShowSBar = false;
+			// Calculate if scrollbar is needed before the loop
+			float contentHeight = Items.Count * ListItemHeight + 4; // +4 for padding
+			bool ShowSBar = ShowScrollBar && (contentHeight > absSize.Y);
+
+			// Set scrollbar visibility before drawing items so ScrollBarW is correct
+			if (ScrollBar != null)
+				ScrollBar.Visible = ShowSBar;
+
+			// Calculate scrollbar width for row rendering (now stable)
+			float ScrollBarW = (ScrollBar != null && ScrollBar.Visible) ? ScrollBar.GetAbsoluteSize().X : 0;
 
 			UI.Graphics.PushScissor(absPos + new Vector2(2, 2), absSize - new Vector2(4, 4));
 			for (int i = 0; i < Items.Count; i++)
@@ -427,14 +436,6 @@ namespace FishUI.Controls
 				bool IsHovered = (i == HoveredIndex);
 
 				float Y = absPos.Y + 2 + i * ListItemHeight;
-
-				if ((Y + ListItemHeight > absPos.Y + absSize.Y) && !ShowSBar)
-					ShowSBar = true;
-
-				// Calculate scrollbar width for row rendering
-				float ScrollBarW = ScrollBar?.GetAbsoluteSize().X ?? 0;
-				if (!ScrollBar?.Visible ?? true)
-					ScrollBarW = 0;
 
 				// Draw alternating row background colors
 				if (AlternatingRowColors && !IsSelected && !IsHovered)
@@ -481,12 +482,6 @@ namespace FishUI.Controls
 				{
 					UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Items[i].Text, itemPos + new Vector2(2, 0) + StartOffset, TxtColor);
 				}
-
-				if (!ShowScrollBar)
-					ShowSBar = false;
-
-				if (ScrollBar != null)
-					ScrollBar.Visible = ShowSBar;
 			}
 
 			UI.Graphics.PopScissor();
