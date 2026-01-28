@@ -41,6 +41,12 @@ namespace FishUIDemos
 
 		public void Init()
 		{
+			// Load icons
+			ImageRef iconPlay = FUI.Graphics.LoadImage("data/silk_icons/control_play_blue.png");
+			ImageRef iconCog = FUI.Graphics.LoadImage("data/silk_icons/cog.png");
+			ImageRef iconDoor = FUI.Graphics.LoadImage("data/silk_icons/door_out.png");
+			ImageRef iconCamera = FUI.Graphics.LoadImage("data/silk_icons/camera.png");
+
 			// Main menu panel (centered)
 			Panel menuPanel = new Panel();
 			menuPanel.Position = new Vector2(100, 150);
@@ -55,6 +61,8 @@ namespace FishUIDemos
 			// New Game button
 			Button btnNewGame = new Button();
 			btnNewGame.Text = "New Game";
+			btnNewGame.Icon = iconPlay;
+			btnNewGame.IconPosition = IconPosition.Left;
 			btnNewGame.Position = new Vector2(40, 80);
 			btnNewGame.Size = new Vector2(160, 40);
 			btnNewGame.OnButtonPressed += (ctrl, btn, pos) => OnNewGameClicked();
@@ -63,6 +71,8 @@ namespace FishUIDemos
 			// Options button
 			Button btnOptions = new Button();
 			btnOptions.Text = "Options";
+			btnOptions.Icon = iconCog;
+			btnOptions.IconPosition = IconPosition.Left;
 			btnOptions.Position = new Vector2(40, 140);
 			btnOptions.Size = new Vector2(160, 40);
 			btnOptions.OnButtonPressed += (ctrl, btn, pos) => OnOptionsClicked();
@@ -71,13 +81,14 @@ namespace FishUIDemos
 			// Quit button
 			Button btnQuit = new Button();
 			btnQuit.Text = "Quit";
+			btnQuit.Icon = iconDoor;
+			btnQuit.IconPosition = IconPosition.Left;
 			btnQuit.Position = new Vector2(40, 200);
 			btnQuit.Size = new Vector2(160, 40);
 			btnQuit.OnButtonPressed += (ctrl, btn, pos) => OnQuitClicked();
 			menuPanel.AddChild(btnQuit);
 
 			// Screenshot button
-			ImageRef iconCamera = FUI.Graphics.LoadImage("data/silk_icons/camera.png");
 			Button screenshotBtn = new Button();
 			screenshotBtn.Text = "Screenshot";
 			screenshotBtn.Icon = iconCamera;

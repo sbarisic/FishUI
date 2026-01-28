@@ -155,11 +155,15 @@ namespace FishUISample
 					Vector2 ImgSz = new Vector2(Tex.Width, Tex.Height);
 					Raylib.DrawTexturePro(Tex, new Rectangle(Vector2.Zero, ImgSz), new Rectangle(center, ImgSz), ImgSz / 2, angle, Color.White);
 
+					Raylib.DrawRectangleLinesEx(new Rectangle(center - ImgSz / 2, ImgSz), 2, Color.White);
+
 
 					// Call sample-specific update logic
 					Cur.Update(Dt);
 
 					FUI.Tick(Dt, (float)RuntimeWatch.Elapsed.TotalSeconds);
+
+					Raylib.DrawFPS(Gfx.GetWindowWidth() - 150, 25);
 					Raylib.EndDrawing();
 				}
 
