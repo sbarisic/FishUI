@@ -677,19 +677,66 @@ namespace FishUIEditor
 
 		static void OpenLayout()
 		{
-			string path = string.IsNullOrWhiteSpace(_currentLayoutPath) ? DefaultLayoutPath : _currentLayoutPath;
-			LoadLayoutFromPath(path);
+			// Get initial directory from current path or default
+			string initialDir = string.IsNullOrWhiteSpace(_currentLayoutPath)
+				? FUI.FileSystem.GetFullPath("data/layouts")
+				: FUI.FileSystem.GetDirectoryName(_currentLayoutPath);
+
+			var dialog = new FilePickerDialog(FilePickerMode.Open, FUI.FileSystem, initialDir, "*.yaml");
+			dialog.OnFileConfirmed += (dlg, path) =>
+			{
+				LoadLayoutFromPath(path);
+			};
+			dialog.OnDialogCancelled += (dlg) =>
+			{
+				SetStatus("Open cancelled");
+			};
+			dialog.Show(FUI);
 		}
 
 		static void SaveLayout()
 		{
-			string path = string.IsNullOrWhiteSpace(_currentLayoutPath) ? DefaultLayoutPath : _currentLayoutPath;
-			SaveLayoutToPath(path);
+			if (string.IsNullOrWhiteSpace(_currentLayoutPath))
+			{
+				SaveLayoutAs();
+				return;
+			}
+			SaveLayoutToPath(_currentLayoutPath);
 		}
 
 		static void SaveLayoutAs()
 		{
-			SaveLayoutToPath(DefaultLayoutPath);
+			// Get initial directory from current path or default
+			string initialDir = string.IsNullOrWhiteSpace(_currentLayoutPath)
+				? FUI.FileSystem.GetFullPath("data/layouts")
+				: FUI.FileSystem.GetDirectoryName(_currentLayoutPath);
+
+			var dialog = new FilePickerDialog(FilePickerMode.Save, FUI.FileSystem, initialDir, "*.yaml");
+
+			// Pre-fill filename if we have one
+			if (!string.IsNullOrWhiteSpace(_currentLayoutPath))
+			{
+				dialog.FileName = FUI.FileSystem.GetFileName(_currentLayoutPath);
+			}
+			else
+			{
+				dialog.FileName = "layout.yaml";
+			}
+
+			dialog.OnFileConfirmed += (dlg, path) =>
+			{
+				// Ensure .yaml extension
+				if (!path.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase))
+				{
+					path += ".yaml";
+				}
+				SaveLayoutToPath(path);
+			};
+			dialog.OnDialogCancelled += (dlg) =>
+			{
+				SetStatus("Save cancelled");
+			};
+			dialog.Show(FUI);
 		}
 
 		static void SaveLayoutToPath(string path)

@@ -525,12 +525,12 @@ namespace FishUIEditor.Controls
 
 						SelectedControl.Position = newRelativePos;
 
-												// Must cast to Window to call the correct AddChild (Window.AddChild is 'new', not override)
-												if (newParent is Window windowParent)
-													windowParent.AddChild(SelectedControl);
-												else
-													newParent.AddChild(SelectedControl);
-											}
+						// Must cast to Window to call the correct AddChild (Window.AddChild is 'new', not override)
+						if (newParent is Window windowParent)
+							windowParent.AddChild(SelectedControl);
+						else
+							newParent.AddChild(SelectedControl);
+					}
 					else
 					{
 						// Move to root level - clear any remaining parent reference

@@ -52,6 +52,42 @@ namespace FishUI
 		/// <param name="path2">The second path to combine.</param>
 		/// <returns>The combined paths.</returns>
 		string CombinePath(string path1, string path2);
+
+		/// <summary>
+		/// Gets the file name without the path.
+		/// </summary>
+		/// <param name="path">The file path.</param>
+		/// <returns>The file name.</returns>
+		string GetFileName(string path);
+
+		/// <summary>
+		/// Gets the directories in the specified directory.
+		/// </summary>
+		/// <param name="path">The directory path.</param>
+		/// <returns>An array of directory names (full paths).</returns>
+		string[] GetDirectories(string path);
+
+		/// <summary>
+		/// Gets the files in the specified directory.
+		/// </summary>
+		/// <param name="path">The directory path.</param>
+		/// <param name="searchPattern">The search pattern (e.g., "*.yaml").</param>
+		/// <returns>An array of file names (full paths).</returns>
+		string[] GetFiles(string path, string searchPattern = "*");
+
+		/// <summary>
+		/// Determines whether the specified path is a directory.
+		/// </summary>
+		/// <param name="path">The path to check.</param>
+		/// <returns>True if the path is a directory; otherwise, false.</returns>
+		bool IsDirectory(string path);
+
+		/// <summary>
+		/// Gets the parent directory path.
+		/// </summary>
+		/// <param name="path">The path.</param>
+		/// <returns>The parent directory path, or null if at root.</returns>
+		string GetParentDirectory(string path);
 	}
 
 	/// <summary>
@@ -93,6 +129,51 @@ namespace FishUI
 		public string CombinePath(string path1, string path2)
 		{
 			return Path.Combine(path1, path2);
+		}
+
+		/// <inheritdoc/>
+		public string GetFileName(string path)
+		{
+			return Path.GetFileName(path);
+		}
+
+		/// <inheritdoc/>
+		public string[] GetDirectories(string path)
+		{
+			try
+			{
+				return Directory.GetDirectories(path);
+			}
+			catch
+			{
+				return Array.Empty<string>();
+			}
+		}
+
+		/// <inheritdoc/>
+		public string[] GetFiles(string path, string searchPattern = "*")
+		{
+			try
+			{
+				return Directory.GetFiles(path, searchPattern);
+			}
+			catch
+			{
+				return Array.Empty<string>();
+			}
+		}
+
+		/// <inheritdoc/>
+		public bool IsDirectory(string path)
+		{
+			return Directory.Exists(path);
+		}
+
+		/// <inheritdoc/>
+		public string GetParentDirectory(string path)
+		{
+			var parent = Directory.GetParent(path);
+			return parent?.FullName;
 		}
 	}
 }

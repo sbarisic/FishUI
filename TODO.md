@@ -122,7 +122,8 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 *Phases 1-7 completed - see Completed section (core infrastructure, selection/manipulation, property editor, control toolbox, serialization, reparenting, collection editing)*
 
 ### Phase 8: Editor Enhancements (CPX 2)
-- [ ] File picker dialog - replace hardcoded paths with proper file picker dialogs for Open/Save As operations
+
+*Completed - File picker dialog implemented*
 
 ### Phase 9: Editor Rendering Refactor (CPX 3)
 - [ ] Implement `Control.DrawControlEditor` method in all supported controls - each control draws its own editor representation (e.g., Panel/Window draw child container rectangles)
@@ -232,6 +233,7 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 - Container selection mode: Window/TabControl block internal children, Panel/GroupBox allow child selection
 - Resize handle fix for nested controls (parent offset calculation)
 - Window child positioning fix (content panel offset)
+- FilePickerDialog control for Open/Save As operations
 
 ### Code Cleanup
 - Interface abstractions: IFishUIEvents, IFishUILogger, IFishUIFileSystem
