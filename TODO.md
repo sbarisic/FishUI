@@ -67,6 +67,7 @@ A list of planned features, improvements, and new controls for FishUI.
 | DataGrid | ✅ Complete | ✅ Atlas | ✅ | |
 | SpreadsheetGrid | ✅ Complete | ✅ Atlas | ✅ | |
 | BigDigitDisplay | ✅ Complete | N/A | ❌ | |
+| ToastNotification | ✅ Complete | ✅ Atlas | ❌ | |
 
 ---
 
@@ -74,7 +75,7 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ### High Priority
 
-- [ ] **ToastNotification** (CPX 2) - Toast notification system with auto-timeout, stacking in top-right corner, uses existing textures
+*All high priority controls have been implemented*
 
 ### Medium Priority
 
@@ -154,7 +155,8 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-*No uncategorized items*
+- Tab control in the game demo options window is anchored wrong. it seems like the right and bottom edges are attached to the window, not the client area
+
 
 ---
 
@@ -188,6 +190,7 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 - DatePicker, TimePicker - Date/time selection controls
 - DataGrid, SpreadsheetGrid - Grid/table controls
 - BigDigitDisplay - Large text display for digital speedometer/RPM readouts
+- ToastNotification - Auto-dismissing notifications with stacking, types, and titles
 
 ### Control Improvements
 - Button: Icon, Toggle, Repeat, ImageButton modes; IconPath serialization
@@ -209,15 +212,16 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 - Virtual cursor support
 - Theme inheritance
 - Serializable event handlers via EventHandlerRegistry
+- RaylibGfx: UseBeginDrawing option for integration with existing game loops
 
 ### Samples
 - Sample infrastructure: Runner loop, GUI chooser, theme switcher, auto-discovery
-- Control demos: BasicControls, ImageBox, Gauges, DropDown, ListBox, LineChart, BigDigitDisplay
+- Control demos: BasicControls, ImageBox, Gauges, DropDown, ListBox, LineChart, BigDigitDisplay, ToastNotification
 - Feature demos: LayoutSystem, UIScaling, Animations, Serialization, EventSerialization
 - Data controls: DatePicker, TimePicker, DataGrid, SpreadsheetGrid, MultiLineEditbox
 - EditorLayout sample for testing FishUIEditor output
 - Theme persistence across samples
-- Demo layout fixes: BasicControls, ImageBox, ListBox, SpreadsheetGrid reorganized with better spacing
+- Demo layout fixes: BasicControls, ImageBox, ListBox, SpreadsheetGrid, GameMenu (TabControl anchoring)
 
 ### FishUIEditor
 - Phases 1-7: Core infrastructure, EditorCanvas, selection/manipulation, resize handles

@@ -103,10 +103,12 @@ namespace FishUIDemos
 			OptionsWindow.OnClosed += (window) => OptionsWindow.Visible = false;
 			FUI.AddControl(OptionsWindow);
 
-			// TabControl for options categories
+			// TabControl for options categories - anchored to fill window
 			TabControl tabControl = new TabControl();
-			tabControl.Position = new Vector2(10, 40);
-			tabControl.Size = new Vector2(430, 340);
+			tabControl.Position = new Vector2(5, 5);
+			tabControl.Size = new Vector2(440, 365);
+			tabControl.Anchor = FishUIAnchor.All;
+			tabControl.Margin = new FishUIMargin(5, 5, 5, 5);
 			OptionsWindow.AddChild(tabControl);
 
 			// Input tab

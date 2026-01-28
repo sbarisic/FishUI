@@ -1,10 +1,11 @@
 using FishUI;
 using FishUI.Controls;
+using FishUIDemos;
 using FishUISample.Samples;
 using Raylib_cs;
 using System.Diagnostics;
 using System.Numerics;
-using FishUIDemos;
+using System.Reflection.Metadata;
 
 namespace FishUISample
 {
@@ -65,6 +66,13 @@ namespace FishUISample
 			}
 		}
 
+		static Vector2 RotatePoint(Vector2 point, float angle)
+		{
+			float cos = MathF.Cos(angle);
+			float sin = MathF.Sin(angle);
+
+			return new Vector2(point.X * cos - point.Y * sin, point.X * sin + point.Y * cos);
+		}
 		static void Main(string[] args)
 		{
 			// Auto-discover all ISample implementations using reflection
@@ -100,6 +108,7 @@ namespace FishUISample
 				UISettings.UIScale = 1.0f;
 
 				RaylibGfx Gfx = new RaylibGfx(1920, 1080, "FishUI - " + Cur.Name);
+				Gfx.UseBeginDrawing = false;
 				IFishUIInput Input = new RaylibInput();
 				IFishUIEvents Events = new EvtHandler();
 
@@ -112,6 +121,10 @@ namespace FishUISample
 				Stopwatch SWatch = Stopwatch.StartNew();
 				Stopwatch RuntimeWatch = Stopwatch.StartNew();
 
+				float angle = 0;
+				float radius = 480;
+				Vector2 center = new Vector2(Gfx.GetWindowWidth() / 2f, Gfx.GetWindowHeight() / 2f);
+
 				while (!Raylib.WindowShouldClose())
 				{
 					float Dt = SWatch.ElapsedMilliseconds / 1000.0f;
@@ -122,11 +135,24 @@ namespace FishUISample
 						FUI.Resized(Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
 					}
 
+
+					angle += Raylib.GetFrameTime() * 2.0f; // radians per second
+
+					// Compute triangle vertices
+					Vector2 v1 = RotatePoint(new Vector2(0, -radius), angle) + center;
+					Vector2 v2 = RotatePoint(new Vector2(-radius, radius), angle) + center;
+					Vector2 v3 = RotatePoint(new Vector2(radius, radius), angle) + center;
+
+					Raylib.BeginDrawing();
+					Raylib.ClearBackground(Color.SkyBlue);
+					Raylib.DrawTriangle(v1, v2, v3, Color.White);
+			
+
 					// Call sample-specific update logic
 					Cur.Update(Dt);
 
-					FUI.Tick(Dt, (float)RuntimeWatch.Elapsed.TotalSeconds);
-					//AutoScreenshot(Gfx as RaylibGfx);
+					FUI.Tick(Dt, (float)RuntimeWatch.Elapsed.TotalSeconds);							
+					Raylib.EndDrawing();
 				}
 
 				Raylib.CloseWindow();

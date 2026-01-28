@@ -20,6 +20,7 @@ Uses the [GWEN Skin](https://github.com/benelot/CEGUI-GWEN-Skin) atlas for themi
 - [Theming](#theming)
 - [Serialization](#serialization)
 - [Virtual Cursor](#virtual-cursor-gamepadkeyboard-navigation)
+- [Integrating with Existing Game Loops](#integrating-with-existing-game-loops)
 - [FishUIEditor](#fishuieditor---visual-layout-designer)
 - [Running Samples](#running-samples)
 - [Documentation](#documentation)
@@ -404,6 +405,60 @@ if (gamepad.LeftStick.X != 0 || gamepad.LeftStick.Y != 0)
     ui.VirtualMouse.Move(gamepad.LeftStick * deltaTime);
 }
 ```
+
+## Integrating with Existing Game Loops
+
+When integrating FishUI into an existing game that already handles `BeginDrawing()`/`EndDrawing()` calls (e.g., in Raylib), you can disable FishUI's automatic drawing frame management:
+
+```csharp
+// In your graphics backend implementation
+public class MyRaylibGfx : IFishUIGfx
+{
+    // Set to false to disable automatic BeginDrawing()/EndDrawing() calls
+    public bool UseBeginDrawing { get; set; } = false;
+
+    public void BeginDrawing(float dt)
+    {
+        if (UseBeginDrawing)
+        {
+            Raylib.BeginDrawing();
+            Raylib.ClearBackground(Color.Gray);
+        }
+        // Alpha blending is still enabled
+        Raylib.BeginBlendMode(BlendMode.Alpha);
+    }
+
+    public void EndDrawing()
+    {
+        Raylib.EndBlendMode();
+        if (UseBeginDrawing)
+        {
+            Raylib.EndDrawing();
+        }
+    }
+}
+```
+
+Then in your game loop:
+
+```csharp
+// Your existing game loop
+while (!Raylib.WindowShouldClose())
+{
+    Raylib.BeginDrawing();
+    Raylib.ClearBackground(Color.Black);
+
+    // Draw your game content...
+    DrawGameWorld();
+
+    // Draw FishUI on top (it won't call BeginDrawing/EndDrawing)
+    ui.Tick(deltaTime, currentTime);
+
+    Raylib.EndDrawing();
+}
+```
+
+This allows FishUI to render as an overlay on top of your existing game rendering without interfering with your drawing frame management.
 
 ## FishUIEditor - Visual Layout Designer
 
