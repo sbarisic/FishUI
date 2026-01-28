@@ -110,6 +110,7 @@ namespace FishUI.Controls
 			IsResizable = true;
 			ShowCloseButton = true;
 			MinSize = new Vector2(400, 300);
+			AlwaysOnTop = true; // Ensure dialog renders above other controls
 
 			OnClosed += (w) => OnDialogCancelled?.Invoke(this);
 
@@ -142,6 +143,7 @@ namespace FishUI.Controls
 
 			_upButton = new Button();
 			_upButton.Text = "";
+			_upButton.IsImageButton = true;
 			_upButton.IconPath = "data/silk_icons/arrow_up.png";
 			_upButton.Position = new Vector2(padding + 65, padding - 2);
 			_upButton.Size = new Vector2(28, textboxHeight);
@@ -151,14 +153,17 @@ namespace FishUI.Controls
 
 			_pathTextbox = new Textbox();
 			_pathTextbox.Position = new Vector2(padding + 98, padding - 2);
-			_pathTextbox.Size = new Vector2(contentSize.X - padding * 2 - 98 - 50, textboxHeight);
+			_pathTextbox.Size = new Vector2(contentSize.X - padding * 2 - 98 - 38, textboxHeight);
 			_pathTextbox.Anchor = FishUIAnchor.Top | FishUIAnchor.Left | FishUIAnchor.Right;
 			AddChild(_pathTextbox);
 
 			_goButton = new Button();
-			_goButton.Text = "Go";
-			_goButton.Position = new Vector2(contentSize.X - padding - 45, padding - 2);
-			_goButton.Size = new Vector2(40, textboxHeight);
+			_goButton.Text = "";
+			_goButton.IsImageButton = true;
+			_goButton.IconPath = "data/silk_icons/folder_go.png";
+			_goButton.Position = new Vector2(contentSize.X - padding - 30, padding - 2);
+			_goButton.Size = new Vector2(28, textboxHeight);
+			_goButton.TooltipText = "Navigate to path";
 			_goButton.Anchor = FishUIAnchor.Top | FishUIAnchor.Right;
 			_goButton.OnButtonPressed += (s, b, p) => NavigateToPath(_pathTextbox.Text);
 			AddChild(_goButton);
@@ -294,14 +299,21 @@ namespace FishUI.Controls
 				return;
 			}
 
-			Visible = false;
+			CloseDialog();
 			OnFileConfirmed?.Invoke(this, fullPath);
 		}
 
 		private void Cancel()
 		{
-			Visible = false;
+			CloseDialog();
 			OnDialogCancelled?.Invoke(this);
+		}
+
+		private void CloseDialog()
+		{
+			Visible = false;
+			// Remove from UI when closed
+			FishUI?.RemoveControl(this);
 		}
 
 		/// <summary>
@@ -322,6 +334,17 @@ namespace FishUI.Controls
 			Visible = true;
 			IsActive = true;
 
+			// Load icons for image buttons (they need the FishUI graphics context)
+			if (_upButton != null && _upButton.Icon == null && !string.IsNullOrEmpty(_upButton.IconPath))
+			{
+				_upButton.Icon = ui.Graphics.LoadImage(_upButton.IconPath);
+			}
+			if (_goButton != null && _goButton.Icon == null && !string.IsNullOrEmpty(_goButton.IconPath))
+			{
+				_goButton.Icon = ui.Graphics.LoadImage(_goButton.IconPath);
+			}
+
+			// Add to UI (will handle duplicates)
 			ui.AddControl(this);
 		}
 	}

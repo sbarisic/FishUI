@@ -282,11 +282,9 @@ namespace FishUIEditor.Controls
 
 		private void DrawInertControl(FishUI.FishUI UI, Control control, Vector2 canvasPos, float Dt, float Time)
 		{
-			// Get control's relative position as Vector2
-			Vector2 ctrlRelPos = new Vector2(control.Position.X, control.Position.Y);
-
 			// Store original position and adjust for canvas offset
 			FishUIPosition originalPos = control.Position;
+			Vector2 ctrlRelPos = new Vector2(control.Position.X, control.Position.Y);
 			control.Position = canvasPos + ctrlRelPos;
 
 			// Check if control is invisible - draw placeholder instead
@@ -296,16 +294,15 @@ namespace FishUIEditor.Controls
 			}
 			else
 			{
-				// Draw the control normally (it won't process input since it's not added to FishUI)
-				control.DrawControl(UI, Dt, Time);
+				// Draw control in editor mode (position already adjusted)
+				control.DrawControlEditor(UI, Dt, Time, canvasPos);
 			}
 
-			// Explicitly draw children while parent position is still in screen coordinates
-			// Don't modify child positions - let GetAbsolutePosition calculate correctly
-			// (Parent.GetAbsolutePosition() + child.Position = parentScreenPos + childRelativePos)
+			// Draw children while parent position is still offset
+			// This ensures child.GetAbsolutePosition() returns correct screen coordinates
 			DrawChildrenRecursive(UI, control, Dt, Time);
 
-			// Restore position after drawing children
+			// Restore original position after drawing children
 			control.Position = originalPos;
 		}
 
@@ -341,9 +338,9 @@ namespace FishUIEditor.Controls
 				}
 				else
 				{
-					// Draw child using its relative position - GetAbsolutePosition will
-					// correctly add the parent's current (screen) position
-					child.DrawControl(UI, Dt, Time);
+					// Use DrawControlEditor for inert rendering (no canvas offset for children,
+					// their position is already relative to parent which has been offset)
+					child.DrawControlEditor(UI, Dt, Time, Vector2.Zero);
 				}
 
 				// Recursively draw this child's children

@@ -123,7 +123,7 @@ namespace FishUI.Controls
 		internal static bool HasDisplayTextMember(Type type)
 		{
 			return type.GetProperty("Text") != null || type.GetField("Text") != null ||
-			       type.GetProperty("Header") != null || type.GetField("Header") != null;
+				   type.GetProperty("Header") != null || type.GetField("Header") != null;
 		}
 
 		/// <summary>
@@ -145,27 +145,27 @@ namespace FishUI.Controls
 		{
 			if (obj == null) return "";
 			var type = obj.GetType();
-			
+
 			// Try Text property
 			var textProp = type.GetProperty("Text");
 			if (textProp != null)
 				return textProp.GetValue(obj)?.ToString() ?? "";
-			
+
 			// Try Text field
 			var textField = type.GetField("Text");
 			if (textField != null)
 				return textField.GetValue(obj)?.ToString() ?? "";
-			
+
 			// Try Header property
 			var headerProp = type.GetProperty("Header");
 			if (headerProp != null)
 				return headerProp.GetValue(obj)?.ToString() ?? "";
-			
+
 			// Try Header field
 			var headerField = type.GetField("Header");
 			if (headerField != null)
 				return headerField.GetValue(obj)?.ToString() ?? "";
-			
+
 			return obj.ToString();
 		}
 
@@ -176,7 +176,7 @@ namespace FishUI.Controls
 		{
 			if (obj == null) return;
 			var type = obj.GetType();
-			
+
 			// Try Text property
 			var textProp = type.GetProperty("Text");
 			if (textProp != null && textProp.CanWrite)
@@ -184,7 +184,7 @@ namespace FishUI.Controls
 				textProp.SetValue(obj, value);
 				return;
 			}
-			
+
 			// Try Text field
 			var textField = type.GetField("Text");
 			if (textField != null)
@@ -192,7 +192,7 @@ namespace FishUI.Controls
 				textField.SetValue(obj, value);
 				return;
 			}
-			
+
 			// Try Header property
 			var headerProp = type.GetProperty("Header");
 			if (headerProp != null && headerProp.CanWrite)
@@ -200,7 +200,7 @@ namespace FishUI.Controls
 				headerProp.SetValue(obj, value);
 				return;
 			}
-			
+
 			// Try Header field
 			var headerField = type.GetField("Header");
 			if (headerField != null)
@@ -569,7 +569,7 @@ namespace FishUI.Controls
 			// Check for string[]
 			if (type == typeof(string[]))
 				return true;
-		// Check for List<T> where T has a Text or Header property/field (e.g., ListBoxItem, DropDownItem, DataGridColumn)
+			// Check for List<T> where T has a Text or Header property/field (e.g., ListBoxItem, DropDownItem, DataGridColumn)
 			if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
 			{
 				var elementType = type.GetGenericArguments()[0];
@@ -644,21 +644,45 @@ namespace FishUI.Controls
 				var dropdown = new DropDown();
 				dropdown.Position = new Vector2(x, y);
 				dropdown.Size = new Vector2(width, height);
+
+				// Get all defined enum values (names from the enum definition)
+				var names = Enum.GetNames(propType);
 				var values = Enum.GetValues(propType);
 
-				foreach (var val in values)
-					dropdown.AddItem(val.ToString());
+				// Set max visible items to show all enum values (or a reasonable max)
+				dropdown.MaxVisibleItems = Math.Max(names.Length, 12);
 
+				// Add all defined enum values to dropdown
+				foreach (var name in names)
+					dropdown.AddItem(name);
+
+				// Find current value's name - for flags enums, this handles combined values
 				if (currentValue != null)
-					dropdown.SelectIndex(Array.IndexOf(values, currentValue));
+				{
+					string currentName = currentValue.ToString();
+					int selectedIdx = Array.IndexOf(names, currentName);
+					if (selectedIdx >= 0)
+						dropdown.SelectIndex(selectedIdx);
+					else
+					{
+						// Current value might be a combination not in the list - find closest match
+						for (int i = 0; i < values.Length; i++)
+						{
+							if (values.GetValue(i)?.Equals(currentValue) == true)
+							{
+								dropdown.SelectIndex(i);
+								break;
+							}
+						}
+					}
+				}
 
 				dropdown.OnItemSelected += (sender, ddItem) =>
 				{
 					var oldValue = item.GetValue();
-					int idx = Array.FindIndex(Enum.GetNames(propType), n => n == ddItem.Text);
-					if (idx >= 0)
+					// Parse the selected name back to enum value
+					if (Enum.TryParse(propType, ddItem.Text, out object newValue))
 					{
-						var newValue = values.GetValue(idx);
 						if (item.SetValue(newValue))
 							OnPropertyValueChanged?.Invoke(this, item, oldValue, newValue);
 					}

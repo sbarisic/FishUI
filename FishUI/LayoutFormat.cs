@@ -168,6 +168,18 @@ namespace FishUI
 
 		static void LinkParents(Control ControlWithChildren)
 		{
+			// For Window, children are handled by the ContentChildren property setter during deserialization
+			// Skip Window's internal controls (Titlebar, content Panel) - they're created by constructor
+			if (ControlWithChildren is Window window)
+			{
+				// Just recurse into content panel children (user children)
+				foreach (Control Child in window.ContentChildren)
+				{
+					LinkParents(Child);
+				}
+				return;
+			}
+
 			foreach (Control Child in ControlWithChildren.GetAllChildren(false))
 			{
 				ControlWithChildren.AddChild(Child);

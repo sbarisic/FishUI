@@ -68,6 +68,7 @@ A list of planned features, improvements, and new controls for FishUI.
 | SpreadsheetGrid | ✅ Complete | ✅ Atlas | ✅ | |
 | BigDigitDisplay | ✅ Complete | N/A | ❌ | |
 | ToastNotification | ✅ Complete | ✅ Atlas | ❌ | |
+| FilePickerDialog | ✅ Complete | ✅ Atlas | ❌ | |
 
 ---
 
@@ -126,8 +127,10 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 *Completed - File picker dialog implemented*
 
 ### Phase 9: Editor Rendering Refactor (CPX 3)
-- [ ] Implement `Control.DrawControlEditor` method in all supported controls - each control draws its own editor representation (e.g., Panel/Window draw child container rectangles)
-- [ ] Refactor EditorCanvas "draw inert" to use `Control.DrawControlEditor` method instead of custom inert rendering logic
+- [x] Add `Control.DrawControlEditor` and `Control.DrawChildrenEditor` virtual methods to base Control class
+- [x] Refactor EditorCanvas to use `DrawControlEditor` instead of direct `DrawControl` calls
+- [ ] Override `DrawControlEditor` in container controls (Panel, Window, GroupBox) to draw child container rectangles
+- [ ] Override `DrawControlEditor` in complex controls (TabControl, DataGrid) for simplified editor representation
 
 ---
 
@@ -190,6 +193,7 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 - DataGrid, SpreadsheetGrid - Grid/table controls
 - BigDigitDisplay - Large text display for digital speedometer/RPM readouts
 - ToastNotification - Auto-dismissing notifications with stacking, types, and titles
+- FilePickerDialog - File browser dialog for Open/Save operations
 
 ### Control Improvements
 - Button: Icon, Toggle, Repeat, ImageButton modes; IconPath serialization
@@ -254,6 +258,11 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 - MenuBar dropdown rendering
 - ScrollablePane scrolling and input bounds
 - Window resize handles, anchor recalculation
+- Anchored control position preserved across save/load (serialize AnchorParentSize, skip adjustments when uninitialized)
 - LineChart labels, DatePicker click-through
 - ListBox scrollbar visibility on multi-select Ctrl+click
 - GameMenu TabControl size corrected for window client area
+- ListBox crash on empty list selection and when event handlers modify the list
+- FilePickerDialog centering (use Graphics.GetWindowWidth/Height instead of FishUI.Width/Height)
+- Window child serialization (ContentChildren property, proper parent linking for nested controls)
+- PropertyGrid enum dropdown showing all values (MaxVisibleItems)

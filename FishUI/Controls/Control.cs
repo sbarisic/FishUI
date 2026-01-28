@@ -143,9 +143,10 @@ namespace FishUI.Controls
 
 		/// <summary>
 		/// Stores the initial parent size when anchor offsets were calculated.
+		/// Serialized so anchor adjustments work correctly after layout reload.
 		/// </summary>
-		[YamlIgnore]
-		internal Vector2 AnchorParentSize { get; set; }
+		[YamlMember]
+		public Vector2 AnchorParentSize { get; set; }
 
 		/// <summary>
 		/// Unique identifier for this control. Used for finding controls and layout serialization.
@@ -551,7 +552,8 @@ namespace FishUI.Controls
 			}
 
 			// Apply anchor adjustments if parent exists and anchored to right or bottom
-			if (Parent != null && Anchor != FishUIAnchor.None && Anchor != FishUIAnchor.TopLeft)
+			// Skip if AnchorParentSize is zero (not yet initialized, e.g., during deserialization)
+			if (Parent != null && Anchor != FishUIAnchor.None && Anchor != FishUIAnchor.TopLeft && AnchorParentSize != Vector2.Zero)
 			{
 				Vector2 sizeDelta = parentSize - Scale(AnchorParentSize);
 
@@ -644,7 +646,8 @@ namespace FishUI.Controls
 			}
 
 			// Handle anchor stretching (when anchored to both left+right or top+bottom)
-			if (Parent != null && Anchor != FishUIAnchor.None && Anchor != FishUIAnchor.TopLeft)
+			// Skip if AnchorParentSize is zero (not yet initialized, e.g., during deserialization)
+			if (Parent != null && Anchor != FishUIAnchor.None && Anchor != FishUIAnchor.TopLeft && AnchorParentSize != Vector2.Zero)
 			{
 				Vector2 parentSize = Parent.GetAbsoluteSize();
 				Vector2 sizeDelta = parentSize - Scale(AnchorParentSize);
@@ -731,12 +734,27 @@ namespace FishUI.Controls
 		}
 
 		/// <summary>
+		/// Sets the parent reference of this control without adding to parent's Children list.
+		/// Used internally for deserialization and special cases.
+		/// </summary>
+		internal void SetParentInternal(Control parent)
+		{
+			Parent = parent;
+		}
+
+		/// <summary>
 		/// Updates the anchor offset values for a child control based on current parent size.
 		/// </summary>
 		private void UpdateChildAnchorOffsets(Control Child)
 		{
 			Vector2 parentSize = GetAbsoluteSize();
-			Child.AnchorParentSize = parentSize;
+
+			// Only set AnchorParentSize if not already set (e.g., from deserialization)
+			// This preserves the original parent size so anchor adjustments work correctly after reload
+			if (Child.AnchorParentSize == Vector2.Zero)
+			{
+				Child.AnchorParentSize = parentSize;
+			}
 
 			// Calculate distances from right and bottom edges
 			float childRight = Child.Position.X + Child.Size.X;
@@ -788,8 +806,9 @@ namespace FishUI.Controls
 			Vector2 pos = new Vector2(Position.X, Position.Y);
 
 			// Apply anchor adjustments if this control has a parent and uses anchoring
+			// Skip if AnchorParentSize is zero (not yet initialized, e.g., during deserialization)
 			Control parent = GetParent();
-			if (parent != null && Anchor != FishUIAnchor.None && Anchor != FishUIAnchor.TopLeft)
+			if (parent != null && Anchor != FishUIAnchor.None && Anchor != FishUIAnchor.TopLeft && AnchorParentSize != Vector2.Zero)
 			{
 				Vector2 currentParentSize = parent.Size;
 				Vector2 sizeDelta = currentParentSize - AnchorParentSize;
@@ -820,8 +839,9 @@ namespace FishUI.Controls
 			Vector2 size = Size;
 
 			// Apply anchor stretching if this control has a parent and uses stretching anchors
+			// Skip if AnchorParentSize is zero (not yet initialized, e.g., during deserialization)
 			Control parent = GetParent();
-			if (parent != null && Anchor != FishUIAnchor.None && Anchor != FishUIAnchor.TopLeft)
+			if (parent != null && Anchor != FishUIAnchor.None && Anchor != FishUIAnchor.TopLeft && AnchorParentSize != Vector2.Zero)
 			{
 				Vector2 currentParentSize = parent.Size;
 				Vector2 sizeDelta = currentParentSize - AnchorParentSize;
@@ -996,6 +1016,39 @@ namespace FishUI.Controls
 			}
 
 			//DrawChildren(UI, Dt, Time);
+		}
+
+		/// <summary>
+		/// Draws this control in editor mode (inert, no input processing).
+		/// Override in derived classes to provide custom editor visualization.
+		/// Default implementation calls DrawControl.
+		/// Note: Position is already adjusted by the caller (EditorCanvas) before this is called.
+		/// </summary>
+		/// <param name="UI">The FishUI instance.</param>
+		/// <param name="Dt">Delta time since last frame.</param>
+		/// <param name="Time">Total elapsed time.</param>
+		/// <param name="canvasOffset">Canvas offset (for information only, position already adjusted).</param>
+		public virtual void DrawControlEditor(FishUI UI, float Dt, float Time, Vector2 canvasOffset)
+		{
+			// Default: just draw the control normally
+			// Position is already adjusted by the caller (EditorCanvas)
+			DrawControl(UI, Dt, Time);
+		}
+
+		/// <summary>
+		/// Draws children in editor mode (inert, no input processing).
+		/// Override in derived classes to provide custom child rendering.
+		/// </summary>
+		/// <param name="UI">The FishUI instance.</param>
+		/// <param name="Dt">Delta time since last frame.</param>
+		/// <param name="Time">Total elapsed time.</param>
+		public virtual void DrawChildrenEditor(FishUI UI, float Dt, float Time)
+		{
+			foreach (var child in Children.OrderBy(c => c.ZDepth))
+			{
+				child.DrawControlEditor(UI, Dt, Time, Vector2.Zero);
+				child.DrawChildrenEditor(UI, Dt, Time);
+			}
 		}
 
 		[YamlIgnore]

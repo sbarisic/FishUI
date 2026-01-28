@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 
 namespace FishUI.Controls
@@ -276,6 +278,53 @@ namespace FishUI.Controls
 		}
 
 		/// <summary>
+		/// Shadows base Children to prevent serialization of internal controls.
+		/// Internal controls (Titlebar, content panel) are recreated by constructor.
+		/// User children are serialized via UserChildren property.
+		/// </summary>
+		[YamlDotNet.Serialization.YamlIgnore]
+		public new List<Control> Children
+		{
+			get => base.Children;
+			set
+			{
+				// Ignore during deserialization - we don't want to replace internal controls
+				// User children are handled by UserChildren property
+			}
+		}
+
+		/// <summary>
+		/// Gets the user-added children of this window (from the content panel).
+		/// Used for serialization to exclude internal controls (Titlebar, content panel).
+		/// </summary>
+		[YamlDotNet.Serialization.YamlMember]
+		public List<Control> UserChildren
+		{
+			get => _contentPanel?.Children ?? new List<Control>();
+			set
+			{
+				if (_contentPanel != null && value != null)
+				{
+					// Ensure content panel has correct size before adding children
+					// This is needed during deserialization when Size is set before UserChildren
+					UpdateInternalSizes();
+
+					_contentPanel.Children.Clear();
+					foreach (var child in value)
+					{
+						_contentPanel.AddChild(child);
+					}
+				}
+			}
+		}
+
+		/// <summary>
+		/// Gets the user-added children (alias for UserChildren for code compatibility).
+		/// </summary>
+		[YamlDotNet.Serialization.YamlIgnore]
+		public List<Control> ContentChildren => UserChildren;
+
+		/// <summary>
 		/// Gets the content area of the window (excluding titlebar and resize handles).
 		/// </summary>
 		public Vector2 GetContentPosition()
@@ -505,36 +554,67 @@ namespace FishUI.Controls
 		}
 
 		/// <summary>
-		/// Called after deserialization to reinitialize internal references.
+		/// Called after deserialization to reinitialize internal state.
 		/// </summary>
 		public override void OnDeserialized(FishUI UI)
 		{
-			// Find the titlebar and content panel in children
-			_titlebar = null;
-			_contentPanel = null;
+			// Ensure content panel has correct size first
+			UpdateInternalSizes();
 
-			foreach (var child in Children)
+			// Handle both legacy format (Children contains Titlebar+Panel) and new format (UserChildren)
+			// The YamlIgnore on the shadowing Children property doesn't fully prevent YamlDotNet
+			// from accessing the inherited Control.Children field during deserialization.
+
+			// Check if base.Children contains serialized internal controls (legacy format)
+			Titlebar serializedTitlebar = null;
+			Panel serializedContentPanel = null;
+
+			foreach (var child in base.Children)
 			{
-				if (child is Titlebar tb && _titlebar == null)
+				if (child is Titlebar tb && tb != _titlebar)
+					serializedTitlebar = tb;
+				else if (child is Panel p && p != _contentPanel)
+					serializedContentPanel = p;
+			}
+
+			if (serializedTitlebar != null && serializedContentPanel != null)
+			{
+				// Legacy format: internal controls were serialized
+				// Extract user children from the serialized content panel
+				var userChildren = serializedContentPanel.Children.ToList();
+
+				// Clear the serialized children - we'll use our constructor-created ones
+				base.Children.Clear();
+
+				// Re-add the constructor-created internal controls
+				base.Children.Add(_titlebar);
+				base.Children.Add(_contentPanel);
+
+				// Rewire parent references
+				_titlebar.SetParentInternal(this);
+				_contentPanel.SetParentInternal(this);
+
+				// Move user children to our content panel (only if not already there from UserChildren setter)
+				foreach (var child in userChildren)
 				{
-					_titlebar = tb;
-					// Rewire event handlers
-					_titlebar.OnCloseClicked += (t) => Close();
-					_titlebar.OnTitlebarDragged += (t, delta) => { Position += delta; };
-				}
-				else if (child is Panel p && _contentPanel == null)
-				{
-					_contentPanel = p;
+					if (!_contentPanel.Children.Contains(child))
+					{
+						_contentPanel.AddChild(child);
+					}
+					else
+					{
+						// Child already added via UserChildren setter
+						// Just ensure parent reference is correct
+						child.SetParentInternal(_contentPanel);
+					}
 				}
 			}
 
-			// If not found (shouldn't happen), recreate them
-			if (_titlebar == null || _contentPanel == null)
-			{
-				CreateInternalControls();
-			}
+			// Recalculate anchor offsets for all content panel children
+			// This ensures anchors are correct after content panel is properly sized
+			_contentPanel?.RecalculateChildAnchors();
 
-			// Call base to handle children recursively
+			// Call base to handle user children recursively
 			base.OnDeserialized(UI);
 		}
 	}

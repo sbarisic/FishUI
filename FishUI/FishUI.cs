@@ -213,6 +213,23 @@ namespace FishUI
 		}
 
 		/// <summary>
+		/// Removes a control from the UI.
+		/// </summary>
+		/// <param name="C">The control to remove.</param>
+		/// <returns>True if the control was found and removed, false otherwise.</returns>
+		public bool RemoveControl(Control C)
+		{
+			if (Controls.Remove(C))
+			{
+				C._FishUI = null;
+				if (ModalControl == C)
+					ModalControl = null;
+				return true;
+			}
+			return false;
+		}
+
+		/// <summary>
 		/// Removes all controls from the UI.
 		/// </summary>
 		public void RemoveAllControls()

@@ -3,6 +3,7 @@ using FishUI.Controls;
 using FishUIEditor.Controls;
 using Raylib_cs;
 using System.Diagnostics;
+using System.IO;
 using System.Numerics;
 
 namespace FishUIEditor
@@ -538,7 +539,9 @@ namespace FishUIEditor
 			node.UserData = control;
 
 			// Add children recursively
-			foreach (var child in control.Children)
+			// For Window, use ContentChildren to show user-added children only (not internal Titlebar/Panel)
+			var children = control is Window window ? window.ContentChildren : control.Children;
+			foreach (var child in children)
 			{
 				var childNode = AddControlToHierarchy(child);
 				node.AddChild(childNode);
@@ -771,7 +774,7 @@ namespace FishUIEditor
 				_canvas.ClearEditedControls();
 				foreach (var c in ctrls)
 				{
-					c.OnDeserialized(FUI);
+					OnDeserializedRecursive(c, FUI);
 					_canvas.AddEditedControl(c);
 				}
 
@@ -782,7 +785,36 @@ namespace FishUIEditor
 			}
 			catch (Exception ex)
 			{
+				// Log full error details to file for debugging
+				string errorDetails = $"[{DateTime.Now}] Load failed for: {path}\n{ex}\n\n";
+				try
+				{
+					File.AppendAllText("out.txt", errorDetails);
+				}
+				catch { }
+
 				SetStatus($"Load failed: {ex.Message}");
+			}
+		}
+
+		static void OnDeserializedRecursive(Control control, FishUI.FishUI ui)
+		{
+			control.OnDeserialized(ui);
+
+			// For Window, iterate content children
+			if (control is Window window)
+			{
+				foreach (var child in window.ContentChildren)
+				{
+					OnDeserializedRecursive(child, ui);
+				}
+			}
+			else
+			{
+				foreach (var child in control.Children)
+				{
+					OnDeserializedRecursive(child, ui);
+				}
 			}
 		}
 
