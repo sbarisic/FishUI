@@ -237,7 +237,11 @@ namespace FishUI.Controls
 		}
 
 
-		private void UpdateInternalSizes()
+		/// <summary>
+		/// Updates the internal titlebar and content panel sizes based on the current window size.
+		/// Call this after changing the window size to ensure internal controls are properly sized.
+		/// </summary>
+		protected void UpdateInternalSizes()
 		{
 			if (_titlebar != null)
 				_titlebar.Size = new Vector2(Size.X, TitlebarHeight);

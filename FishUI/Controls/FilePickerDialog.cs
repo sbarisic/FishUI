@@ -106,6 +106,7 @@ namespace FishUI.Controls
 
 			Title = mode == FilePickerMode.Open ? "Open File" : "Save File";
 			Size = new Vector2(500, 400);
+			UpdateInternalSizes(); // Ensure content panel is sized correctly before adding children
 			IsResizable = true;
 			ShowCloseButton = true;
 			MinSize = new Vector2(400, 300);
@@ -124,6 +125,9 @@ namespace FishUI.Controls
 
 		private void CreateControls()
 		{
+			// Get content area size (excludes titlebar and borders)
+			Vector2 contentSize = GetContentSize();
+
 			float padding = 8;
 			float buttonWidth = 80;
 			float buttonHeight = 28;
@@ -137,22 +141,23 @@ namespace FishUI.Controls
 			AddChild(pathLabel);
 
 			_upButton = new Button();
-			_upButton.Text = "Up";
+			_upButton.Text = "";
+			_upButton.IconPath = "data/silk_icons/arrow_up.png";
 			_upButton.Position = new Vector2(padding + 65, padding - 2);
-			_upButton.Size = new Vector2(35, textboxHeight);
+			_upButton.Size = new Vector2(28, textboxHeight);
 			_upButton.TooltipText = "Go to parent directory";
 			_upButton.OnButtonPressed += (s, b, p) => NavigateUp();
 			AddChild(_upButton);
 
 			_pathTextbox = new Textbox();
-			_pathTextbox.Position = new Vector2(padding + 105, padding - 2);
-			_pathTextbox.Size = new Vector2(Size.X - padding * 2 - 105 - 50 - 12, textboxHeight);
+			_pathTextbox.Position = new Vector2(padding + 98, padding - 2);
+			_pathTextbox.Size = new Vector2(contentSize.X - padding * 2 - 98 - 50, textboxHeight);
 			_pathTextbox.Anchor = FishUIAnchor.Top | FishUIAnchor.Left | FishUIAnchor.Right;
 			AddChild(_pathTextbox);
 
 			_goButton = new Button();
 			_goButton.Text = "Go";
-			_goButton.Position = new Vector2(Size.X - padding - 50 - 12, padding - 2);
+			_goButton.Position = new Vector2(contentSize.X - padding - 45, padding - 2);
 			_goButton.Size = new Vector2(40, textboxHeight);
 			_goButton.Anchor = FishUIAnchor.Top | FishUIAnchor.Right;
 			_goButton.OnButtonPressed += (s, b, p) => NavigateToPath(_pathTextbox.Text);
@@ -161,13 +166,13 @@ namespace FishUI.Controls
 			// File list
 			_fileListBox = new ListBox();
 			_fileListBox.Position = new Vector2(padding, padding + textboxHeight + 10);
-			_fileListBox.Size = new Vector2(Size.X - padding * 2 - 12, Size.Y - 140);
+			_fileListBox.Size = new Vector2(contentSize.X - padding * 2, contentSize.Y - 130);
 			_fileListBox.Anchor = FishUIAnchor.All;
 			_fileListBox.OnItemSelected += HandleFileSelected;
 			AddChild(_fileListBox);
 
 			// File name label and textbox
-			float bottomY = Size.Y - 80;
+			float bottomY = contentSize.Y - 70;
 			Label fileLabel = new Label("File name:");
 			fileLabel.Position = new Vector2(padding, bottomY);
 			fileLabel.Size = new Vector2(70, labelHeight);
@@ -176,7 +181,7 @@ namespace FishUI.Controls
 
 			_fileNameTextbox = new Textbox();
 			_fileNameTextbox.Position = new Vector2(padding + 75, bottomY - 3);
-			_fileNameTextbox.Size = new Vector2(Size.X - padding * 2 - 75 - 12, textboxHeight);
+			_fileNameTextbox.Size = new Vector2(contentSize.X - padding * 2 - 75, textboxHeight);
 			_fileNameTextbox.Anchor = FishUIAnchor.Bottom | FishUIAnchor.Left | FishUIAnchor.Right;
 			AddChild(_fileNameTextbox);
 
@@ -191,7 +196,7 @@ namespace FishUI.Controls
 			float buttonsY = bottomY + 28;
 			_cancelButton = new Button();
 			_cancelButton.Text = "Cancel";
-			_cancelButton.Position = new Vector2(Size.X - padding - buttonWidth - 12, buttonsY);
+			_cancelButton.Position = new Vector2(contentSize.X - padding - buttonWidth, buttonsY);
 			_cancelButton.Size = new Vector2(buttonWidth, buttonHeight);
 			_cancelButton.Anchor = FishUIAnchor.Bottom | FishUIAnchor.Right;
 			_cancelButton.OnButtonPressed += (s, b, p) => Cancel();
@@ -199,7 +204,7 @@ namespace FishUI.Controls
 
 			_okButton = new Button();
 			_okButton.Text = Mode == FilePickerMode.Open ? "Open" : "Save";
-			_okButton.Position = new Vector2(Size.X - padding - buttonWidth * 2 - 20 - 12, buttonsY);
+			_okButton.Position = new Vector2(contentSize.X - padding - buttonWidth * 2 - 10, buttonsY);
 			_okButton.Size = new Vector2(buttonWidth, buttonHeight);
 			_okButton.Anchor = FishUIAnchor.Bottom | FishUIAnchor.Right;
 			_okButton.OnButtonPressed += (s, b, p) => Confirm();
@@ -305,10 +310,14 @@ namespace FishUI.Controls
 		/// <param name="ui">The FishUI instance.</param>
 		public void Show(FishUI ui)
 		{
+			// Get screen dimensions from graphics backend
+			int screenWidth = ui.Graphics.GetWindowWidth();
+			int screenHeight = ui.Graphics.GetWindowHeight();
+
 			// Center on screen
 			Position = new Vector2(
-				(ui.Width - Size.X) / 2,
-				(ui.Height - Size.Y) / 2
+				(screenWidth - Size.X) / 2,
+				(screenHeight - Size.Y) / 2
 			);
 			Visible = true;
 			IsActive = true;

@@ -170,6 +170,13 @@ namespace FishUI.Controls
 
 		public void SelectIndex(int Idx)
 		{
+			// Can't select anything in an empty list
+			if (Items.Count == 0)
+			{
+				_selectedIndex = -1;
+				return;
+			}
+
 			int LastSelectedIndex = _selectedIndex;
 
 			if (Idx < 0)
@@ -182,17 +189,20 @@ namespace FishUI.Controls
 
 			if (LastSelectedIndex != _selectedIndex)
 			{
+				// Cache the item before invoking events (event handlers might modify the list)
+				var selectedItem = Items[_selectedIndex];
+
 				// Legacy broadcast for backward compatibility
-				FishUI.Events?.Broadcast(FishUI, this, "item_selected", new object[] { _selectedIndex, Items[_selectedIndex] });
+				FishUI.Events?.Broadcast(FishUI, this, "item_selected", new object[] { _selectedIndex, selectedItem });
 
 				// Fire new interface event
-				var eventArgs = new FishUISelectionChangedEventArgs(FishUI, this, _selectedIndex, Items[_selectedIndex]);
+				var eventArgs = new FishUISelectionChangedEventArgs(FishUI, this, _selectedIndex, selectedItem);
 				FishUI.Events?.OnControlSelectionChanged(eventArgs);
 
-				OnItemSelected?.Invoke(this, _selectedIndex, Items[_selectedIndex]);
+				OnItemSelected?.Invoke(this, _selectedIndex, selectedItem);
 
 				// Invoke serialized selection changed handler
-				InvokeHandler(OnSelectionChangedHandler, new SelectionChangedEventHandlerArgs(FishUI, _selectedIndex, Items[_selectedIndex]));
+				InvokeHandler(OnSelectionChangedHandler, new SelectionChangedEventHandlerArgs(FishUI, _selectedIndex, selectedItem));
 			}
 		}
 
