@@ -24,25 +24,13 @@ namespace MyApp.Forms
 		/// </summary>
 		protected Window window1;
 		/// <summary>
+		/// The DataGrid control.
+		/// </summary>
+		protected DataGrid dataGrid2;
+		/// <summary>
 		/// The Button control.
 		/// </summary>
-		protected Button button2;
-		/// <summary>
-		/// The Panel control.
-		/// </summary>
-		protected Panel panel3;
-		/// <summary>
-		/// The ListBox control.
-		/// </summary>
-		protected ListBox listBox4;
-		/// <summary>
-		/// The ScrollBarV control.
-		/// </summary>
-		protected ScrollBarV scrollBarV5;
-		/// <summary>
-		/// The Panel control.
-		/// </summary>
-		protected Panel panel6;
+		protected Button BtnRefresh;
 
 		#endregion
 
@@ -61,59 +49,31 @@ namespace MyApp.Forms
 		{
 			// Create Window
 			window1 = new Window();
-			window1.Position = new Vector2(80f, 128f);
-			window1.Size = new Vector2(688f, 336f);
+			window1.Position = new Vector2(64f, 64f);
+			window1.Size = new Vector2(576f, 464f);
+
+			// Create DataGrid
+			dataGrid2 = new DataGrid();
+			dataGrid2.Position = new Vector2(16f, 16f);
+			dataGrid2.Size = new Vector2(448f, 288f);
+			dataGrid2.Anchor = FishUIAnchor.All;
+			dataGrid2.AnchorParentSize = new Vector2(484f, 402f);
+
+			// Add DataGrid columns
+			dataGrid2.AddColumn("Column 1", 100f);
+			dataGrid2.AddColumn("Column 2", 100f);
 
 			// Create Button
-			button2 = new Button();
-			button2.Position = new Vector2(224f, 16f);
-			button2.Size = new Vector2(192f, 176f);
-			button2.Anchor = FishUIAnchor.All;
-			button2.AnchorParentSize = new Vector2(660f, 418f);
-			button2.Text = "Button";
-
-			// Create Panel
-			panel3 = new Panel();
-			panel3.Position = new Vector2(16f, 240f);
-			panel3.Size = new Vector2(240f, 192f);
-			panel3.Anchor = FishUIAnchor.BottomLeft;
-			panel3.AnchorParentSize = new Vector2(644f, 450f);
-
-			// Create ListBox
-			listBox4 = new ListBox();
-			listBox4.Position = new Vector2(32f, 16f);
-			listBox4.Size = new Vector2(160f, 144f);
-			listBox4.AnchorParentSize = new Vector2(240f, 192f);
-
-			// Create ScrollBarV
-			scrollBarV5 = new ScrollBarV();
-			scrollBarV5.Position = new Vector2(134f, 0f);
-			scrollBarV5.Size = new Vector2(16f, 100f);
-			scrollBarV5.AnchorParentSize = new Vector2(150f, 100f);
-			scrollBarV5.Visible = false;
-
-			// Add children to listBox4
-			listBox4.AddChild(scrollBarV5);
-
-			// Add ListBox items
-			listBox4.AddItem("Empty Item");
-			listBox4.AddItem("Empty Item");
-			listBox4.AddItem("Empty Item");
-
-			// Add children to panel3
-			panel3.AddChild(listBox4);
-
-			// Create Panel
-			panel6 = new Panel();
-			panel6.Position = new Vector2(384f, 240f);
-			panel6.Size = new Vector2(240f, 192f);
-			panel6.Anchor = FishUIAnchor.BottomRight;
-			panel6.AnchorParentSize = new Vector2(644f, 450f);
+			BtnRefresh = new Button();
+			BtnRefresh.Position = new Vector2(16f, 352f);
+			BtnRefresh.Size = new Vector2(100f, 28f);
+			BtnRefresh.Anchor = FishUIAnchor.BottomLeft;
+			BtnRefresh.AnchorParentSize = new Vector2(484f, 402f);
+			BtnRefresh.Text = "Refresh";
 
 			// Add children to window1
-			((Window)window1).AddChild(button2);
-			((Window)window1).AddChild(panel3);
-			((Window)window1).AddChild(panel6);
+			((Window)window1).AddChild(dataGrid2);
+			((Window)window1).AddChild(BtnRefresh);
 
 			// Add root controls to FishUI
 			FUI.AddControl(window1);
@@ -124,7 +84,14 @@ namespace MyApp.Forms
 		/// </summary>
 		public virtual void OnLoaded()
 		{
-			// Override this method to add event handlers and post-load logic
+			BtnRefresh.OnButtonPressed += OnBtnRefreshClicked;
+		}
+
+		static Random Rnd = new Random();
+
+		private void OnBtnRefreshClicked(Button Sender, FishMouseButton Btn, Vector2 Pos)
+		{
+			dataGrid2.AddRow(new string[] { "New Data " + Rnd.Next(), "New Data " + Rnd.Next() });
 		}
 	}
 }

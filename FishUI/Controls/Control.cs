@@ -155,6 +155,14 @@ namespace FishUI.Controls
 		public string ID;
 
 		/// <summary>
+		/// Variable name used when exporting to C# designer code.
+		/// If not set, falls back to ID, or auto-generates a name based on control type.
+		/// Should be a valid C# identifier (e.g., "btnSubmit", "lblTitle").
+		/// </summary>
+		[YamlMember]
+		public string DesignerName { get; set; }
+
+		/// <summary>
 		/// Z-depth for rendering order. Higher values are rendered on top.
 		/// </summary>
 		public virtual int ZDepth { get; set; }

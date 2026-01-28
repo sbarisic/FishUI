@@ -127,29 +127,12 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 *Completed - File picker dialog implemented*
 
 ### Phase 9: Editor Rendering Refactor (CPX 3)
-- [x] Add `Control.DrawControlEditor` and `Control.DrawChildrenEditor` virtual methods to base Control class
-- [x] Refactor EditorCanvas to use `DrawControlEditor` instead of direct `DrawControl` calls
-- [x] Override `DrawControlEditor` in container controls (Panel, Window, GroupBox) to draw child container rectangles
-- [ ] Override `DrawControlEditor` in complex controls (TabControl, DataGrid) for simplified editor representation
+
+*Completed - DrawControlEditor/DrawChildrenEditor virtual methods, EditorCanvas refactored, container and complex control overrides (Panel, Window, GroupBox, TabControl, DataGrid)*
 
 ### Phase 10: C# Code Generation (CPX 4)
-Export layouts as C# code files that can be compiled directly into applications.
 
-- [x] Create `FishCSharpWriter` utility class in FishUI project for generating C# code
-  - Indentation management, namespace/class/method writing helpers
-  - Support for writing control instantiation code with property assignments
-  - Handle nested control hierarchies (AddChild calls)
-- [x] Implement `IFishUIForm` code generation
-  - Generate `.Designer.cs` partial class implementing `IFishUIForm`
-  - `Init()` - Create FishUI instance with settings
-  - `LoadControls(FishUI FUI)` - Instantiate and configure all controls, add to FUI
-  - `OnLoaded()` - Empty virtual method for user override
-  - Generate field declarations for controls with non-empty ID
-- [x] Add "Export as C#..." option to FishUIEditor File menu
-  - FilePickerDialog for .Designer.cs save location
-  - Prompt for namespace and class name
-- [x] Generate proper control property assignments (Position, Size, Text, Anchor, etc.)
-- [x] Handle special cases: Window children via ContentChildren, TabControl tabs, ListBox items
+*Completed - Export layouts as C# .Designer.cs files implementing IFishUIForm*
 
 ---
 
@@ -261,6 +244,7 @@ Export layouts as C# code files that can be compiled directly into applications.
 - Window child positioning fix (content panel offset)
 - FilePickerDialog control for Open/Save As operations
 - C# code export: "Export as C#..." menu option with namespace/class dialog, generates .Designer.cs files
+- Phase 9: DrawControlEditor/DrawChildrenEditor for container and complex controls (TabControl, DataGrid)
 
 ### Code Cleanup
 - Interface abstractions: IFishUIEvents, IFishUILogger, IFishUIFileSystem
@@ -289,3 +273,4 @@ Export layouts as C# code files that can be compiled directly into applications.
 - FilePickerDialog centering (use Graphics.GetWindowWidth/Height instead of FishUI.Width/Height)
 - Window child serialization (ContentChildren property, proper parent linking for nested controls)
 - PropertyGrid enum dropdown showing all values (MaxVisibleItems)
+- DesignerCodeGenerator variable name consistency (cache names per control to avoid duplicate generation)

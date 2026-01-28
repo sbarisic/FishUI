@@ -728,5 +728,104 @@ namespace FishUI.Controls
 		}
 
 		#endregion
+
+		#region Editor Support
+
+		/// <summary>
+		/// Draws the DataGrid in editor mode with simplified header and content area visualization.
+		/// Shows column headers and a grid placeholder instead of actual data rows.
+		/// </summary>
+		public override void DrawControlEditor(FishUI UI, float Dt, float Time, Vector2 canvasOffset)
+		{
+			Vector2 pos = GetAbsolutePosition();
+			Vector2 size = GetAbsoluteSize();
+			float headerH = Scale(HeaderHeight);
+
+			// Draw background
+			NPatch bgImg = UI.Settings.ImgListBoxNormal;
+			if (bgImg != null)
+			{
+				UI.Graphics.DrawNPatch(bgImg, pos, size, Color);
+			}
+			else
+			{
+				UI.Graphics.DrawRectangle(pos, size, new FishColor(255, 255, 255));
+			}
+
+			// Draw header area
+			FishColor headerBgColor = new FishColor(230, 230, 230);
+			UI.Graphics.DrawRectangle(pos, new Vector2(size.X, headerH), headerBgColor);
+
+			// Draw column headers
+			FontRef font = UI.Settings.FontDefault;
+			float x = pos.X;
+			FishColor headerTextColor = new FishColor(60, 60, 60);
+			FishColor gridLineColor = new FishColor(180, 180, 180);
+
+			for (int i = 0; i < Columns.Count; i++)
+			{
+				var col = Columns[i];
+				float colW = Scale(col.Width);
+
+				// Draw column separator
+				if (i > 0)
+				{
+					UI.Graphics.DrawLine(new Vector2(x, pos.Y), new Vector2(x, pos.Y + size.Y), 1f, gridLineColor);
+				}
+
+				// Draw header text
+				if (font != null && !string.IsNullOrEmpty(col.Header))
+				{
+					Vector2 textSize = UI.Graphics.MeasureText(font, col.Header);
+					float textX = x + 4;
+					float textY = pos.Y + (headerH - textSize.Y) / 2;
+					UI.Graphics.DrawTextColor(font, col.Header, new Vector2(textX, textY), headerTextColor);
+				}
+
+				x += colW;
+			}
+
+			// Draw header separator line
+			UI.Graphics.DrawLine(new Vector2(pos.X, pos.Y + headerH), new Vector2(pos.X + size.X, pos.Y + headerH), 1f, gridLineColor);
+
+			// Draw placeholder rows to indicate data area
+			float contentY = pos.Y + headerH;
+			float contentH = size.Y - headerH;
+			int placeholderRows = Math.Min(5, (int)(contentH / _rowHeight));
+
+			for (int row = 0; row < placeholderRows; row++)
+			{
+				float rowY = contentY + row * _rowHeight;
+
+				// Alternating row background
+				if (AlternatingRowColors && row % 2 == 1)
+				{
+					FishColor altColor = new FishColor(245, 245, 250);
+					UI.Graphics.DrawRectangle(new Vector2(pos.X, rowY), new Vector2(size.X, _rowHeight), altColor);
+				}
+
+				// Draw row separator
+				UI.Graphics.DrawLine(new Vector2(pos.X, rowY + _rowHeight), new Vector2(pos.X + size.X, rowY + _rowHeight), 1f, new FishColor(220, 220, 220));
+			}
+
+			// Draw "(Data Grid)" label in the center of content area
+			if (font != null && _rows.Count == 0)
+			{
+				string label = "(DataGrid)";
+				Vector2 labelSize = UI.Graphics.MeasureText(font, label);
+				float labelX = pos.X + (size.X - labelSize.X) / 2;
+				float labelY = contentY + (contentH - labelSize.Y) / 2;
+				UI.Graphics.DrawTextColor(font, label, new Vector2(labelX, labelY), new FishColor(150, 150, 150));
+			}
+
+			// Draw container outline
+			FishColor containerColor = new FishColor(100, 150, 255, 150);
+			UI.Graphics.DrawRectangleOutline(pos, size, containerColor);
+
+			// Draw anchor visualization
+			DrawAnchorVisualization(UI);
+		}
+
+		#endregion
 	}
 }

@@ -555,10 +555,13 @@ namespace FishUIEditor
 		static string GetControlDisplayName(Control control)
 		{
 			string typeName = control.GetType().Name;
-			string id = control.ID;
 
-			if (!string.IsNullOrEmpty(id))
-				return $"{typeName} ({id})";
+			// Priority: DesignerName > ID > text content > type name only
+			if (!string.IsNullOrEmpty(control.DesignerName))
+				return $"{typeName} ({control.DesignerName})";
+
+			if (!string.IsNullOrEmpty(control.ID))
+				return $"{typeName} ({control.ID})";
 
 			// For controls with text, show a preview
 			if (control is Button btn && !string.IsNullOrEmpty(btn.Text))

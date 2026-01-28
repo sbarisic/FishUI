@@ -461,5 +461,130 @@ namespace FishUI.Controls
 			// Call base to handle children recursively
 			base.OnDeserialized(UI);
 		}
+
+		/// <summary>
+		/// Draws the TabControl in editor mode with tab panels and header visualization.
+		/// Shows all tab content panels with different colored outlines for easy identification.
+		/// </summary>
+		public override void DrawControlEditor(FishUI UI, float Dt, float Time, Vector2 canvasOffset)
+		{
+			Vector2 absPos = GetAbsolutePosition();
+			Vector2 absSize = GetAbsoluteSize();
+
+			// Draw the control background (simplified - just the frame)
+			NPatch bgImg = UI.Settings.ImgTabControlBackground;
+			Vector2 contentPos = new Vector2(absPos.X, absPos.Y + TabHeaderHeight);
+			Vector2 bgSize = new Vector2(absSize.X, absSize.Y - TabHeaderHeight);
+
+			if (bgImg != null)
+			{
+				UI.Graphics.DrawNPatch(bgImg, contentPos, bgSize, Color);
+			}
+			else
+			{
+				UI.Graphics.DrawRectangle(contentPos, bgSize, new FishColor(240, 240, 240));
+				UI.Graphics.DrawRectangleOutline(contentPos, bgSize, new FishColor(180, 180, 180));
+			}
+
+			// Draw tab header background
+			NPatch headerImg = UI.Settings.ImgTabTopInactive;
+			Vector2 headerPos = absPos;
+			Vector2 headerSize = new Vector2(absSize.X, TabHeaderHeight);
+
+			if (headerImg != null)
+			{
+				UI.Graphics.DrawNPatch(headerImg, headerPos, headerSize, Color);
+			}
+			else
+			{
+				UI.Graphics.DrawRectangle(headerPos, headerSize, new FishColor(200, 200, 200));
+			}
+
+			// Draw tab labels in header
+			float x = absPos.X;
+			FishColor[] tabColors = new FishColor[]
+			{
+				new FishColor(100, 150, 255, 180), // Blue
+				new FishColor(100, 200, 100, 180), // Green
+				new FishColor(200, 150, 100, 180), // Orange
+				new FishColor(180, 100, 180, 180), // Purple
+				new FishColor(200, 200, 100, 180), // Yellow
+			};
+
+			for (int i = 0; i < TabPages.Count; i++)
+			{
+				var page = TabPages[i];
+				float tabWidth = GetTabWidth(UI, page);
+				bool isSelected = (i == _selectedIndex);
+
+				Vector2 tabPos = new Vector2(x, absPos.Y);
+				Vector2 tabSize = new Vector2(tabWidth, TabHeaderHeight);
+
+				// Draw tab background with color coding
+				FishColor tabColor = tabColors[i % tabColors.Length];
+				if (isSelected)
+				{
+					tabColor = new FishColor(tabColor.R, tabColor.G, tabColor.B, 255);
+				}
+
+				UI.Graphics.DrawRectangle(tabPos, tabSize, tabColor);
+				UI.Graphics.DrawRectangleOutline(tabPos, tabSize, new FishColor(60, 60, 60));
+
+				// Draw tab text
+				if (!string.IsNullOrEmpty(page.Text) && UI.Settings.FontDefault != null)
+				{
+					Vector2 textSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, page.Text);
+					float textX = x + (tabWidth - textSize.X) / 2;
+					float textY = absPos.Y + (TabHeaderHeight - textSize.Y) / 2;
+					UI.Graphics.DrawText(UI.Settings.FontDefault, page.Text, new Vector2(textX, textY));
+				}
+
+				// Draw content panel outline with matching color
+				if (page.Content != null)
+				{
+					Vector2 panelPos = page.Content.GetAbsolutePosition();
+					Vector2 panelSize = page.Content.GetAbsoluteSize();
+					FishColor outlineColor = new FishColor(tabColor.R, tabColor.G, tabColor.B, (byte)(isSelected ? 200 : 100));
+					UI.Graphics.DrawRectangleOutline(panelPos, panelSize, outlineColor);
+
+					// Draw tab index label in the content area corner
+					if (UI.Settings.FontDefault != null)
+					{
+						string label = $"Tab {i + 1}";
+						UI.Graphics.DrawTextColor(UI.Settings.FontDefault, label, new Vector2(panelPos.X + 4, panelPos.Y + 2), outlineColor);
+					}
+				}
+
+				x += tabWidth;
+			}
+
+			// Draw container outline for the whole control
+			FishColor containerColor = new FishColor(100, 150, 255, 150);
+			UI.Graphics.DrawRectangleOutline(absPos, absSize, containerColor);
+
+			// Draw anchor visualization
+			DrawAnchorVisualization(UI);
+		}
+
+		/// <summary>
+		/// Draws children in editor mode. For TabControl, draws all tab content panels
+		/// regardless of which tab is selected, so all children are visible in the editor.
+		/// </summary>
+		public override void DrawChildrenEditor(FishUI UI, float Dt, float Time)
+		{
+			// Draw all tab page content panels (not just the selected one)
+			foreach (var page in TabPages)
+			{
+				if (page.Content != null)
+				{
+					// Draw the content panel's children
+					foreach (var child in page.Content.Children.OrderBy(c => c.ZDepth))
+					{
+						child.DrawControlEditor(UI, Dt, Time, Vector2.Zero);
+						child.DrawChildrenEditor(UI, Dt, Time);
+					}
+				}
+			}
+		}
 	}
 }

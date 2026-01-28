@@ -428,10 +428,22 @@ namespace FishUI
 
 		/// <summary>
 		/// Generates a unique variable name for a control.
+		/// Priority: DesignerName > ID > auto-generated name based on type.
 		/// </summary>
 		private string GenerateVariableName(Control control)
 		{
-			// If control has an ID, try to use it as the variable name
+			// If control has a DesignerName, try to use it as the variable name
+			if (!string.IsNullOrEmpty(control.DesignerName))
+			{
+				string varName = SanitizeIdentifier(control.DesignerName);
+				if (!_usedVariableNames.Contains(varName))
+				{
+					_usedVariableNames.Add(varName);
+					return varName;
+				}
+			}
+
+			// Fall back to ID if DesignerName is not set
 			if (!string.IsNullOrEmpty(control.ID))
 			{
 				string varName = SanitizeIdentifier(control.ID);
