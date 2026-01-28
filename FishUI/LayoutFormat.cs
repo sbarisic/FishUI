@@ -93,10 +93,11 @@ namespace FishUI
 			{ "!DatePicker", typeof(DatePicker) },
 			{ "!TimePicker", typeof(TimePicker) },
 			{ "!DataGrid", typeof(DataGrid) },
-			{ "!SpreadsheetGrid", typeof(SpreadsheetGrid) },
-			{ "!SpreadsheetCell", typeof(SpreadsheetCell) },
-			{ "!ListBoxItem", typeof(ListBoxItem) }
-		};
+				{ "!SpreadsheetGrid", typeof(SpreadsheetGrid) },
+				{ "!SpreadsheetCell", typeof(SpreadsheetCell) },
+				{ "!ListBoxItem", typeof(ListBoxItem) },
+				{ "!BigDigitDisplay", typeof(BigDigitDisplay) }
+			};
 
 		/// <summary>
 		/// Serializes all controls from a FishUI instance to a YAML string.

@@ -66,6 +66,7 @@ A list of planned features, improvements, and new controls for FishUI.
 | TimePicker | ✅ Complete | ✅ Atlas | ✅ | |
 | DataGrid | ✅ Complete | ✅ Atlas | ✅ | |
 | SpreadsheetGrid | ✅ Complete | ✅ Atlas | ✅ | |
+| BigDigitDisplay | ✅ Complete | N/A | ❌ | |
 
 ---
 
@@ -73,7 +74,6 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ### High Priority
 
-- [ ] **BigDigitDisplay** (CPX 1) - Large text display control for digital speedometer/RPM gauge style readouts
 - [ ] **ToastNotification** (CPX 2) - Toast notification system with auto-timeout, stacking in top-right corner, uses existing textures
 
 ### Medium Priority
@@ -108,7 +108,7 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ## Sample Application
 
-*All sample demo fixes completed - see Completed section*
+*All sample demos completed - see Completed section*
 
 ---
 
@@ -187,6 +187,7 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 - ScrollablePane, ItemListbox - Container and list controls
 - DatePicker, TimePicker - Date/time selection controls
 - DataGrid, SpreadsheetGrid - Grid/table controls
+- BigDigitDisplay - Large text display for digital speedometer/RPM readouts
 
 ### Control Improvements
 - Button: Icon, Toggle, Repeat, ImageButton modes; IconPath serialization
@@ -211,7 +212,7 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 
 ### Samples
 - Sample infrastructure: Runner loop, GUI chooser, theme switcher, auto-discovery
-- Control demos: BasicControls, ImageBox, Gauges, DropDown, ListBox, LineChart
+- Control demos: BasicControls, ImageBox, Gauges, DropDown, ListBox, LineChart, BigDigitDisplay
 - Feature demos: LayoutSystem, UIScaling, Animations, Serialization, EventSerialization
 - Data controls: DatePicker, TimePicker, DataGrid, SpreadsheetGrid, MultiLineEditbox
 - EditorLayout sample for testing FishUIEditor output
@@ -234,7 +235,7 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 - Generic FindControlByID<T>() method
 
 ### Documentation
-- README.md rewrite with examples
+- README.md rewrite with examples, table of contents, updated control list
 - docs/CUSTOM_CONTROLS.md and docs/THEMING.md guides
 - XML doc comments on core classes
 

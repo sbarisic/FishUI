@@ -146,6 +146,16 @@ namespace FishUI
 		public void DrawTextColor(FontRef Fn, string Text, Vector2 Pos, FishColor Color);
 
 		/// <summary>
+		/// Draws text with a custom color and scale factor.
+		/// </summary>
+		/// <param name="Fn">Font to use.</param>
+		/// <param name="Text">Text to draw.</param>
+		/// <param name="Pos">Position to draw at.</param>
+		/// <param name="Color">Color of the text.</param>
+		/// <param name="Scale">Scale multiplier (1.0 = normal size).</param>
+		public void DrawTextColorScale(FontRef Fn, string Text, Vector2 Pos, FishColor Color, float Scale);
+
+		/// <summary>
 		/// Sets the texture filter mode for an image. Call before drawing to change filtering.
 		/// </summary>
 		/// <param name="Img">The image to set the filter for.</param>

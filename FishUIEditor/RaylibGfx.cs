@@ -304,6 +304,14 @@ namespace FishUIEditor
             Raylib.DrawTextEx(F, Text, Pos.Round(), Fn.Size, Fn.Spacing, new Color(Color.R, Color.G, Color.B, Color.A));
         }
 
+        public void DrawTextColorScale(FontRef Fn, string Text, Vector2 Pos, FishColor Color, float Scale)
+        {
+            Font F = (Font)Fn.Userdata;
+            float fontSize = Fn.Size * Scale;
+            float spacing = Fn.Spacing * Scale;
+            Raylib.DrawTextEx(F, Text, Pos.Round(), fontSize, spacing, new Color(Color.R, Color.G, Color.B, Color.A));
+        }
+
         public void SetImageFilter(ImageRef Img, bool pixelated)
         {
             if (Img == null || Img.Userdata == null)
