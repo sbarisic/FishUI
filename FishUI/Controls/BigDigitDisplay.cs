@@ -91,10 +91,10 @@ namespace FishUI.Controls
 		public bool ShowBackground { get; set; } = true;
 
 		/// <summary>
-		/// Padding inside the display border.
+		/// Content padding inside the display border.
 		/// </summary>
 		[YamlMember]
-		public new int Padding { get; set; } = 8;
+		public int ContentPadding { get; set; } = 8;
 
 		/// <summary>
 		/// Optional unit label to display after the value (e.g., "km/h", "RPM", "°C").
@@ -155,10 +155,10 @@ namespace FishUI.Controls
 			}
 
 			// Calculate available area for text
-			float innerX = absPos.X + Padding + BorderThickness;
-			float innerY = absPos.Y + Padding + BorderThickness;
-			float innerWidth = absSize.X - (Padding + BorderThickness) * 2;
-			float innerHeight = absSize.Y - (Padding + BorderThickness) * 2;
+			float innerX = absPos.X + ContentPadding + BorderThickness;
+			float innerY = absPos.Y + ContentPadding + BorderThickness;
+			float innerWidth = absSize.X - (ContentPadding + BorderThickness) * 2;
+			float innerHeight = absSize.Y - (ContentPadding + BorderThickness) * 2;
 
 			if (innerWidth <= 0 || innerHeight <= 0)
 				return;

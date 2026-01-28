@@ -104,10 +104,10 @@ namespace FishUI.Controls
 		public float DefaultDuration { get; set; } = 3f;
 
 		/// <summary>
-		/// Padding inside toast.
+		/// Content padding inside toast.
 		/// </summary>
 		[YamlMember]
-		public new float Padding { get; set; } = 10f;
+		public float ContentPadding { get; set; } = 10f;
 
 		/// <summary>
 		/// Color for Info type toasts.
@@ -302,8 +302,8 @@ namespace FishUI.Controls
 
 			// Draw title if present
 			FishColor textColor = new FishColor(TextColor.R, TextColor.G, TextColor.B, alpha);
-			float textX = pos.X + Padding + 6; // +6 for indicator bar
-			float textY = pos.Y + Padding;
+			float textX = pos.X + ContentPadding + 6; // +6 for indicator bar
+			float textY = pos.Y + ContentPadding;
 
 			if (!string.IsNullOrEmpty(toast.Title))
 			{
