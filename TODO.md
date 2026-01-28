@@ -73,7 +73,8 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ### High Priority
 
-*All high priority controls have been implemented*
+- [ ] **BigDigitDisplay** (CPX 1) - Large text display control for digital speedometer/RPM gauge style readouts
+- [ ] **ToastNotification** (CPX 2) - Toast notification system with auto-timeout, stacking in top-right corner, uses existing textures
 
 ### Medium Priority
 
@@ -87,7 +88,9 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ## Control Improvements
 
-*All control improvements have been completed - see Completed section*
+### SpreadsheetGrid Enhancements (CPX 2)
+- [ ] Heat map mode - fixed size grid with color-coded cells based on values
+- [ ] Cursor display - circle with vertical/horizontal crosshair lines (ECU editor style)
 
 ---
 
@@ -105,12 +108,7 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ## Sample Application
 
-### Sample Demo Fixes **HIGH PRIORITY** (CPX 1)
-- [x] Basic Controls Demo - reorder controls to fix overlapping, add more spacing
-- [x] Basic Controls Demo - fix scrollbar sizes (make longer, use default width)
-- [x] ImageBox Demo - reorder controls, use `win95_pixel.png` for images
-- [x] ListBox Demo - reorder controls layout
-- [ ] SpreadsheetGrid Demo - increase size for better visibility
+*All sample demo fixes completed - see Completed section*
 
 ---
 
@@ -218,6 +216,7 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 - Data controls: DatePicker, TimePicker, DataGrid, SpreadsheetGrid, MultiLineEditbox
 - EditorLayout sample for testing FishUIEditor output
 - Theme persistence across samples
+- Demo layout fixes: BasicControls, ImageBox, ListBox, SpreadsheetGrid reorganized with better spacing
 
 ### FishUIEditor
 - Phases 1-7: Core infrastructure, EditorCanvas, selection/manipulation, resize handles
