@@ -617,5 +617,23 @@ namespace FishUI.Controls
 			// Call base to handle user children recursively
 			base.OnDeserialized(UI);
 		}
+
+		/// <summary>
+		/// Draws the window in editor mode with content area visualization.
+		/// </summary>
+		public override void DrawControlEditor(FishUI UI, float Dt, float Time, Vector2 canvasOffset)
+		{
+			// Draw normal control
+			DrawControl(UI, Dt, Time);
+
+			// Draw content area outline to show where children can be placed
+			Vector2 contentPos = GetContentPosition();
+			Vector2 contentSize = GetContentSize();
+			FishColor containerColor = new FishColor(100, 150, 255, 150);
+			UI.Graphics.DrawRectangleOutline(contentPos, contentSize, containerColor);
+
+			// Draw anchor visualization
+			DrawAnchorVisualization(UI);
+		}
 	}
 }

@@ -145,5 +145,23 @@ namespace FishUI.Controls
 			// Draw right border
 			UI.Graphics.DrawLine(new Vector2(pos.X + size.X, pos.Y), new Vector2(pos.X + size.X, pos.Y + size.Y), BorderThickness, bottomRight);
 		}
+
+		/// <summary>
+		/// Draws the panel in editor mode with container area visualization.
+		/// </summary>
+		public override void DrawControlEditor(FishUI UI, float Dt, float Time, Vector2 canvasOffset)
+		{
+			// Draw normal control
+			DrawControl(UI, Dt, Time);
+
+			// Draw container outline to indicate this is a container
+			Vector2 pos = GetAbsolutePosition();
+			Vector2 size = GetAbsoluteSize();
+			FishColor containerColor = new FishColor(100, 150, 255, 150);
+			UI.Graphics.DrawRectangleOutline(pos, size, containerColor);
+
+			// Draw anchor visualization
+			DrawAnchorVisualization(UI);
+		}
 	}
 }

@@ -111,5 +111,23 @@ namespace FishUI.Controls
 				UI.Graphics.DrawText(UI.Settings.FontDefault, Text, new Vector2(textX, textY));
 			}
 		}
+
+		/// <summary>
+		/// Draws the group box in editor mode with container area visualization.
+		/// </summary>
+		public override void DrawControlEditor(FishUI UI, float Dt, float Time, Vector2 canvasOffset)
+		{
+			// Draw normal control
+			DrawControl(UI, Dt, Time);
+
+			// Draw content area outline to show where children can be placed
+			Vector2 contentPos = GetContentPosition();
+			Vector2 contentSize = GetContentSize();
+			FishColor containerColor = new FishColor(100, 150, 255, 150);
+			UI.Graphics.DrawRectangleOutline(contentPos, contentSize, containerColor);
+
+			// Draw anchor visualization
+			DrawAnchorVisualization(UI);
+		}
 	}
 }

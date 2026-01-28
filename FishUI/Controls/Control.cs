@@ -1033,6 +1033,55 @@ namespace FishUI.Controls
 			// Default: just draw the control normally
 			// Position is already adjusted by the caller (EditorCanvas)
 			DrawControl(UI, Dt, Time);
+
+			// Draw anchor visualization lines
+			DrawAnchorVisualization(UI);
+		}
+
+		/// <summary>
+		/// Draws yellow lines to visualize anchor connections to parent control.
+		/// </summary>
+		protected void DrawAnchorVisualization(FishUI UI)
+		{
+			Control parent = GetParent();
+			if (parent == null || Anchor == FishUIAnchor.None || Anchor == FishUIAnchor.TopLeft)
+				return;
+
+			Vector2 pos = GetAbsolutePosition();
+			Vector2 size = GetAbsoluteSize();
+			Vector2 parentPos = parent.GetAbsolutePosition();
+			Vector2 parentSize = parent.GetAbsoluteSize();
+
+			FishColor anchorColor = new FishColor(255, 200, 0, 180); // Yellow
+			float lineThickness = 1.5f;
+
+			// Draw line from control's left edge to parent's left edge
+			if (Anchor.HasFlag(FishUIAnchor.Left))
+			{
+				float midY = pos.Y + size.Y / 2;
+				UI.Graphics.DrawLine(new Vector2(parentPos.X, midY), new Vector2(pos.X, midY), lineThickness, anchorColor);
+			}
+
+			// Draw line from control's right edge to parent's right edge
+			if (Anchor.HasFlag(FishUIAnchor.Right))
+			{
+				float midY = pos.Y + size.Y / 2;
+				UI.Graphics.DrawLine(new Vector2(pos.X + size.X, midY), new Vector2(parentPos.X + parentSize.X, midY), lineThickness, anchorColor);
+			}
+
+			// Draw line from control's top edge to parent's top edge
+			if (Anchor.HasFlag(FishUIAnchor.Top))
+			{
+				float midX = pos.X + size.X / 2;
+				UI.Graphics.DrawLine(new Vector2(midX, parentPos.Y), new Vector2(midX, pos.Y), lineThickness, anchorColor);
+			}
+
+			// Draw line from control's bottom edge to parent's bottom edge
+			if (Anchor.HasFlag(FishUIAnchor.Bottom))
+			{
+				float midX = pos.X + size.X / 2;
+				UI.Graphics.DrawLine(new Vector2(midX, pos.Y + size.Y), new Vector2(midX, parentPos.Y + parentSize.Y), lineThickness, anchorColor);
+			}
 		}
 
 		/// <summary>

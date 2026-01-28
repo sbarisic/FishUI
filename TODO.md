@@ -129,7 +129,7 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 ### Phase 9: Editor Rendering Refactor (CPX 3)
 - [x] Add `Control.DrawControlEditor` and `Control.DrawChildrenEditor` virtual methods to base Control class
 - [x] Refactor EditorCanvas to use `DrawControlEditor` instead of direct `DrawControl` calls
-- [ ] Override `DrawControlEditor` in container controls (Panel, Window, GroupBox) to draw child container rectangles
+- [x] Override `DrawControlEditor` in container controls (Panel, Window, GroupBox) to draw child container rectangles
 - [ ] Override `DrawControlEditor` in complex controls (TabControl, DataGrid) for simplified editor representation
 
 ---
