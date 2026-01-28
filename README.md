@@ -21,23 +21,39 @@ FishUI is a flexible GUI framework that separates UI logic from rendering, allow
 ## Screenshots
 
 <p align="center">
-  <img src="screenshots/SampleDefault_26012026_014122.png" width="400" alt="Default Sample"/>
-  <img src="screenshots/SampleBasicControls_26012026_014103.png" width="400" alt="Basic Controls"/>
+  <img src="screenshots/new/26.png" width="400" alt="Windows & Dialogs"/>
+  <img src="screenshots/new/26_2.png" width="400" alt="Windows & Dialogs"/>
 </p>
 <p align="center">
-  <img src="screenshots/Gauges_26012026_014153.png" width="400" alt="Gauges"/>
-  <img src="screenshots/PropertyGrid_26012026_014114.png" width="400" alt="PropertyGrid"/>
+  <img src="screenshots/new/1.png" width="400" alt="Animations"/>
+  <img src="screenshots/new/3.png" width="400" alt="Button Variants"/>
 </p>
 <p align="center">
-  <img src="screenshots/LayoutSystem_26012026_014108.png" width="400" alt="Layout System"/>
-  <img src="screenshots/Animations_26012026_014047.png" width="400" alt="Animations"/>
+  <img src="screenshots/new/4.png" width="400" alt="DataGrid"/>
+  <img src="screenshots/new/5.png" width="400" alt="DatePicker"/>
 </p>
 <p align="center">
-  <img src="screenshots/SampleDropDown_26012026_014218.png" width="400" alt="DropDown"/>
-  <img src="screenshots/MultiLineEditbox_26012026_014159.png" width="400" alt="MultiLineEditbox"/>
+  <img src="screenshots/new/6.png" width="400" alt="DropDown"/>
+  <img src="screenshots/new/7.png" width="400" alt="Editor Layout"/>
 </p>
 <p align="center">
-  <img src="screenshots/ImageBox_26012026_014135.png" width="400" alt="ImageBox"/>
+  <img src="screenshots/new/9.png" width="400" alt="Game Main Menu"/>
+  <img src="screenshots/new/10.png" width="400" alt="Gauges"/>
+</p>
+<p align="center">
+  <img src="screenshots/new/13.png" width="400" alt="LayoutSystem"/>
+  <img src="screenshots/new/14.png" width="400" alt="LineChart"/>
+</p>
+<p align="center">
+  <img src="screenshots/new/16.png" width="400" alt="MenuBar"/>
+  <img src="screenshots/new/17.png" width="400" alt="MultiLineEditbox"/>
+</p>
+<p align="center">
+  <img src="screenshots/new/18.png" width="400" alt="PropertyGrid"/>
+  <img src="screenshots/new/19.png" width="400" alt="ScrollablePane"/>
+</p>
+<p align="center">
+  <img src="screenshots/new/21.png" width="400" alt="SpreadsheetGrid"/>
 </p>
 
 ## Features
