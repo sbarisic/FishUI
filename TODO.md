@@ -122,7 +122,6 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 *Phases 1-7 completed - see Completed section (core infrastructure, selection/manipulation, property editor, control toolbox, serialization, reparenting, collection editing)*
 
 ### Phase 8: Editor Enhancements (CPX 2)
-- [ ] Container selection mode - when selecting a container control (Window, ListBox, Panel, etc.), child controls should not be directly clickable on canvas; children should only be selectable via the Hierarchy TreeView
 - [ ] File picker dialog - replace hardcoded paths with proper file picker dialogs for Open/Save As operations
 
 ### Phase 9: Editor Rendering Refactor (CPX 3)
@@ -230,6 +229,7 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 - Reparenting, anchors, Z-ordering, invisible control visualization
 - Collection property editing (ListBox.Items, DropDown.Items, DataGrid.Columns, TabControl)
 - Drop target feedback, nested control selection fixes
+- Container selection mode (children only selectable via hierarchy TreeView)
 
 ### Code Cleanup
 - Interface abstractions: IFishUIEvents, IFishUILogger, IFishUIFileSystem

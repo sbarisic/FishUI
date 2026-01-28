@@ -803,6 +803,8 @@ namespace FishUIEditor.Controls
 		/// Recursively searches for a control at the given position.
 		/// Children with higher ZDepth are checked first.
 		/// Uses anchor-adjusted positions and sizes for accurate hit testing.
+		/// Container controls (Panel, Window, GroupBox) do not recurse into children -
+		/// their children can only be selected via the hierarchy TreeView.
 		/// </summary>
 		private Control FindControlAtPositionRecursive(Control control, Vector2 localPos, Vector2 parentOffset)
 		{
@@ -814,7 +816,14 @@ namespace FishUIEditor.Controls
 			if (localPos.X >= ctrlPos.X && localPos.X <= ctrlPos.X + ctrlSize.X &&
 				localPos.Y >= ctrlPos.Y && localPos.Y <= ctrlPos.Y + ctrlSize.Y)
 			{
-				// Check children first (sorted by ZDepth descending - highest on top)
+				// Container controls don't recurse into children on canvas click
+				// Children of containers can only be selected via the hierarchy TreeView
+				if (IsContainerControl(control))
+				{
+					return control;
+				}
+
+				// For non-container controls, check children first (sorted by ZDepth descending - highest on top)
 				foreach (var child in control.Children.OrderByDescending(c => c.ZDepth))
 				{
 					var found = FindControlAtPositionRecursive(child, localPos, ctrlPos);
