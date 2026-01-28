@@ -27,6 +27,22 @@ namespace MyApp.Forms
 		/// The Button control.
 		/// </summary>
 		protected Button button2;
+		/// <summary>
+		/// The Panel control.
+		/// </summary>
+		protected Panel panel3;
+		/// <summary>
+		/// The ListBox control.
+		/// </summary>
+		protected ListBox listBox4;
+		/// <summary>
+		/// The ScrollBarV control.
+		/// </summary>
+		protected ScrollBarV scrollBarV5;
+		/// <summary>
+		/// The Panel control.
+		/// </summary>
+		protected Panel panel6;
 
 		#endregion
 
@@ -45,19 +61,59 @@ namespace MyApp.Forms
 		{
 			// Create Window
 			window1 = new Window();
-			window1.Position = new Vector2(128f, 112f);
-			window1.Size = new Vector2(320f, 224f);
+			window1.Position = new Vector2(80f, 128f);
+			window1.Size = new Vector2(688f, 336f);
 
 			// Create Button
 			button2 = new Button();
-			button2.Position = new Vector2(64f, 48f);
-			button2.Size = new Vector2(160f, 96f);
+			button2.Position = new Vector2(224f, 16f);
+			button2.Size = new Vector2(192f, 176f);
 			button2.Anchor = FishUIAnchor.All;
-			button2.AnchorParentSize = new Vector2(308f, 194f);
+			button2.AnchorParentSize = new Vector2(660f, 418f);
 			button2.Text = "Button";
+
+			// Create Panel
+			panel3 = new Panel();
+			panel3.Position = new Vector2(16f, 240f);
+			panel3.Size = new Vector2(240f, 192f);
+			panel3.Anchor = FishUIAnchor.BottomLeft;
+			panel3.AnchorParentSize = new Vector2(644f, 450f);
+
+			// Create ListBox
+			listBox4 = new ListBox();
+			listBox4.Position = new Vector2(32f, 16f);
+			listBox4.Size = new Vector2(160f, 144f);
+			listBox4.AnchorParentSize = new Vector2(240f, 192f);
+
+			// Create ScrollBarV
+			scrollBarV5 = new ScrollBarV();
+			scrollBarV5.Position = new Vector2(134f, 0f);
+			scrollBarV5.Size = new Vector2(16f, 100f);
+			scrollBarV5.AnchorParentSize = new Vector2(150f, 100f);
+			scrollBarV5.Visible = false;
+
+			// Add children to listBox4
+			listBox4.AddChild(scrollBarV5);
+
+			// Add ListBox items
+			listBox4.AddItem("Empty Item");
+			listBox4.AddItem("Empty Item");
+			listBox4.AddItem("Empty Item");
+
+			// Add children to panel3
+			panel3.AddChild(listBox4);
+
+			// Create Panel
+			panel6 = new Panel();
+			panel6.Position = new Vector2(384f, 240f);
+			panel6.Size = new Vector2(240f, 192f);
+			panel6.Anchor = FishUIAnchor.BottomRight;
+			panel6.AnchorParentSize = new Vector2(644f, 450f);
 
 			// Add children to window1
 			((Window)window1).AddChild(button2);
+			((Window)window1).AddChild(panel3);
+			((Window)window1).AddChild(panel6);
 
 			// Add root controls to FishUI
 			FUI.AddControl(window1);
