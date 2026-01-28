@@ -125,6 +125,8 @@ namespace FishUISample
 				float radius = 480;
 				Vector2 center = new Vector2(Gfx.GetWindowWidth() / 2f, Gfx.GetWindowHeight() / 2f);
 
+				Texture2D Tex = Raylib.LoadTexture("data/images/win95.png");
+
 				while (!Raylib.WindowShouldClose())
 				{
 					float Dt = SWatch.ElapsedMilliseconds / 1000.0f;
@@ -143,15 +145,21 @@ namespace FishUISample
 					Vector2 v2 = RotatePoint(new Vector2(-radius, radius), angle) + center;
 					Vector2 v3 = RotatePoint(new Vector2(radius, radius), angle) + center;
 
+					v1 = Vector2.Normalize(v1);
+					v2 = Vector2.Normalize(v2);
+					v3 = Vector2.Normalize(v3);
+
 					Raylib.BeginDrawing();
 					Raylib.ClearBackground(Color.SkyBlue);
-					Raylib.DrawTriangle(v1, v2, v3, Color.White);
-			
+
+					Vector2 ImgSz = new Vector2(Tex.Width, Tex.Height);
+					Raylib.DrawTexturePro(Tex, new Rectangle(Vector2.Zero, ImgSz), new Rectangle(center, ImgSz), ImgSz / 2, angle, Color.White);
+
 
 					// Call sample-specific update logic
 					Cur.Update(Dt);
 
-					FUI.Tick(Dt, (float)RuntimeWatch.Elapsed.TotalSeconds);							
+					FUI.Tick(Dt, (float)RuntimeWatch.Elapsed.TotalSeconds);
 					Raylib.EndDrawing();
 				}
 

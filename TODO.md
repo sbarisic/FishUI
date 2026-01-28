@@ -155,8 +155,7 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-- Tab control in the game demo options window is anchored wrong. it seems like the right and bottom edges are attached to the window, not the client area
-
+*No uncategorized items*
 
 ---
 
@@ -253,3 +252,4 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 - Window resize handles, anchor recalculation
 - LineChart labels, DatePicker click-through
 - ListBox scrollbar visibility on multi-select Ctrl+click
+- GameMenu TabControl size corrected for window client area
