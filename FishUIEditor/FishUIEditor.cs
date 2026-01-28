@@ -109,7 +109,7 @@ namespace FishUIEditor
 				}
 			}
 
-		// Update drag position
+			// Update drag position
 			if (_isDraggingFromToolbox && mouseDown)
 			{
 				_dragPreviewPosition = mousePos;
@@ -154,6 +154,14 @@ namespace FishUIEditor
 							Vector2 dropPos = canvasLocalPos - new Vector2(containerAtDrop.Position.X, containerAtDrop.Position.Y);
 							dropPos -= new Vector2(newControl.Size.X / 2, newControl.Size.Y / 2);
 
+							// For Window, account for content panel offset since AddChild adds to content panel
+							if (containerAtDrop is Window window)
+							{
+								float sideMargin = Math.Max(window.SideBorderWidth, window.ResizeHandleSize);
+								dropPos.X -= sideMargin;
+								dropPos.Y -= window.TitlebarHeight;
+							}
+
 							// Snap to grid if enabled
 							if (_canvas.ShowGrid)
 							{
@@ -162,7 +170,13 @@ namespace FishUIEditor
 							}
 
 							newControl.Position = dropPos;
-							containerAtDrop.AddChild(newControl);
+
+							// Must cast to Window to call the correct AddChild (Window.AddChild is 'new', not override)
+							if (containerAtDrop is Window windowContainer)
+								windowContainer.AddChild(newControl);
+							else
+								containerAtDrop.AddChild(newControl);
+
 							_canvas.SelectControl(newControl);
 							SetStatus($"Added {_draggedControlType} as child of {containerAtDrop.GetType().Name} at ({dropPos.X}, {dropPos.Y})");
 							RefreshHierarchyTree();
@@ -554,60 +568,60 @@ namespace FishUIEditor
 
 		static Control CreateControlFromType(string typeName)
 		{
-		return typeName switch
-		{
-		// Basic Controls
-		"Button" => new Button { Text = "Button", Size = new Vector2(100, 28) },
-		"Label" => new Label("Label") { Size = new Vector2(100, 24) },
-		"Textbox" => new Textbox { Size = new Vector2(150, 28) },
-		"CheckBox" => new CheckBox { Size = new Vector2(20, 20) },
-		"RadioButton" => new RadioButton { Size = new Vector2(20, 20) },
-		"ToggleSwitch" => new ToggleSwitch { Size = new Vector2(50, 24) },
-		// Value Controls
-		"Slider" => new Slider { Size = new Vector2(150, 24) },
-		"ProgressBar" => new ProgressBar { Size = new Vector2(150, 24), Value = 50 },
-		"NumericUpDown" => new NumericUpDown { Size = new Vector2(100, 28) },
-		// List Controls
-		"ListBox" => new ListBox { Size = new Vector2(150, 100) },
-		"DropDown" => new DropDown { Size = new Vector2(150, 28) },
-		"TreeView" => new TreeView { Size = new Vector2(150, 120) },
-		// Container Controls
-		"Panel" => new Panel { Size = new Vector2(200, 150) },
-		"GroupBox" => new GroupBox("Group") { Size = new Vector2(200, 150) },
-		"Window" => new Window { Size = new Vector2(300, 200) },
-		"TabControl" => CreateDefaultTabControl(),
-		"ScrollablePane" => new ScrollablePane { Size = new Vector2(200, 150) },
-		// Display Controls
-		"ImageBox" => new ImageBox { Size = new Vector2(100, 100) },
-		"StaticText" => new StaticText("Static Text") { Size = new Vector2(100, 24) },
-		// Date/Time Controls
-		"DatePicker" => new DatePicker { Size = new Vector2(150, 28) },
-		"TimePicker" => new TimePicker { Size = new Vector2(120, 28) },
-		// Data Controls
-		"DataGrid" => CreateDefaultDataGrid(),
-		"SpreadsheetGrid" => new SpreadsheetGrid { Size = new Vector2(300, 200) },
-		// Gauges
-		"BarGauge" => new BarGauge { Size = new Vector2(200, 40), Value = 50 },
-		"RadialGauge" => new RadialGauge { Size = new Vector2(120, 120), Value = 50 },
-		"VUMeter" => new VUMeter { Size = new Vector2(30, 100) },
-		_ => null
-		};
+			return typeName switch
+			{
+				// Basic Controls
+				"Button" => new Button { Text = "Button", Size = new Vector2(100, 28) },
+				"Label" => new Label("Label") { Size = new Vector2(100, 24) },
+				"Textbox" => new Textbox { Size = new Vector2(150, 28) },
+				"CheckBox" => new CheckBox { Size = new Vector2(20, 20) },
+				"RadioButton" => new RadioButton { Size = new Vector2(20, 20) },
+				"ToggleSwitch" => new ToggleSwitch { Size = new Vector2(50, 24) },
+				// Value Controls
+				"Slider" => new Slider { Size = new Vector2(150, 24) },
+				"ProgressBar" => new ProgressBar { Size = new Vector2(150, 24), Value = 50 },
+				"NumericUpDown" => new NumericUpDown { Size = new Vector2(100, 28) },
+				// List Controls
+				"ListBox" => new ListBox { Size = new Vector2(150, 100) },
+				"DropDown" => new DropDown { Size = new Vector2(150, 28) },
+				"TreeView" => new TreeView { Size = new Vector2(150, 120) },
+				// Container Controls
+				"Panel" => new Panel { Size = new Vector2(200, 150) },
+				"GroupBox" => new GroupBox("Group") { Size = new Vector2(200, 150) },
+				"Window" => new Window { Size = new Vector2(300, 200) },
+				"TabControl" => CreateDefaultTabControl(),
+				"ScrollablePane" => new ScrollablePane { Size = new Vector2(200, 150) },
+				// Display Controls
+				"ImageBox" => new ImageBox { Size = new Vector2(100, 100) },
+				"StaticText" => new StaticText("Static Text") { Size = new Vector2(100, 24) },
+				// Date/Time Controls
+				"DatePicker" => new DatePicker { Size = new Vector2(150, 28) },
+				"TimePicker" => new TimePicker { Size = new Vector2(120, 28) },
+				// Data Controls
+				"DataGrid" => CreateDefaultDataGrid(),
+				"SpreadsheetGrid" => new SpreadsheetGrid { Size = new Vector2(300, 200) },
+				// Gauges
+				"BarGauge" => new BarGauge { Size = new Vector2(200, 40), Value = 50 },
+				"RadialGauge" => new RadialGauge { Size = new Vector2(120, 120), Value = 50 },
+				"VUMeter" => new VUMeter { Size = new Vector2(30, 100) },
+				_ => null
+			};
 		}
 
 		static TabControl CreateDefaultTabControl()
 		{
-		var tabControl = new TabControl { Size = new Vector2(250, 180) };
-		tabControl.AddTab("Tab 1");
-		tabControl.AddTab("Tab 2");
-		return tabControl;
+			var tabControl = new TabControl { Size = new Vector2(250, 180) };
+			tabControl.AddTab("Tab 1");
+			tabControl.AddTab("Tab 2");
+			return tabControl;
 		}
 
 		static DataGrid CreateDefaultDataGrid()
 		{
-		var dataGrid = new DataGrid { Size = new Vector2(300, 150) };
-		dataGrid.AddColumn("Column 1", 100);
-		dataGrid.AddColumn("Column 2", 100);
-		return dataGrid;
+			var dataGrid = new DataGrid { Size = new Vector2(300, 150) };
+			dataGrid.AddColumn("Column 1", 100);
+			dataGrid.AddColumn("Column 2", 100);
+			return dataGrid;
 		}
 
 		static void OnCanvasControlSelected(Control control)

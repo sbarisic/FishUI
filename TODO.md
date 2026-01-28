@@ -229,7 +229,9 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 - Reparenting, anchors, Z-ordering, invisible control visualization
 - Collection property editing (ListBox.Items, DropDown.Items, DataGrid.Columns, TabControl)
 - Drop target feedback, nested control selection fixes
-- Container selection mode (children only selectable via hierarchy TreeView)
+- Container selection mode: Window/TabControl block internal children, Panel/GroupBox allow child selection
+- Resize handle fix for nested controls (parent offset calculation)
+- Window child positioning fix (content panel offset)
 
 ### Code Cleanup
 - Interface abstractions: IFishUIEvents, IFishUILogger, IFishUIFileSystem

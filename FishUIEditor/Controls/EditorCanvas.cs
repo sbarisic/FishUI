@@ -506,6 +506,16 @@ namespace FishUIEditor.Controls
 						Vector2 newParentAbsPos = GetControlAbsolutePositionInCanvas(newParent, Vector2.Zero);
 						Vector2 newRelativePos = controlAbsPos - newParentAbsPos;
 
+						// For Window, account for content panel offset since AddChild adds to content panel
+						if (newParent is Window window)
+						{
+							// Window.AddChild internally adds to content panel which is offset
+							// Subtract the content panel offset to get correct position
+							float sideMargin = Math.Max(window.SideBorderWidth, window.ResizeHandleSize);
+							newRelativePos.X -= sideMargin;
+							newRelativePos.Y -= window.TitlebarHeight;
+						}
+
 						// Snap to grid if enabled
 						if (ShowGrid)
 						{
@@ -514,8 +524,13 @@ namespace FishUIEditor.Controls
 						}
 
 						SelectedControl.Position = newRelativePos;
-						newParent.AddChild(SelectedControl);
-					}
+
+												// Must cast to Window to call the correct AddChild (Window.AddChild is 'new', not override)
+												if (newParent is Window windowParent)
+													windowParent.AddChild(SelectedControl);
+												else
+													newParent.AddChild(SelectedControl);
+											}
 					else
 					{
 						// Move to root level - clear any remaining parent reference
@@ -586,51 +601,55 @@ namespace FishUIEditor.Controls
 			}
 			else if (_isResizing && _activeHandle != ResizeHandle.None)
 			{
-				// Resize control - work with Vector2 for easier math
+				// Resize control - work in parent-relative coordinates
+				// Convert localPos (canvas-relative) to parent-relative by subtracting parent offset
+				Vector2 parentOffset = GetParentOffset(SelectedControl);
+				Vector2 localPosInParent = localPos - parentOffset;
+
 				Vector2 ctrlPos = new Vector2(SelectedControl.Position.X, SelectedControl.Position.Y);
 				Vector2 ctrlSize = SelectedControl.Size;
 
 				switch (_activeHandle)
 				{
 					case ResizeHandle.Right:
-						ctrlSize.X = localPos.X - ctrlPos.X;
+						ctrlSize.X = localPosInParent.X - ctrlPos.X;
 						break;
 					case ResizeHandle.Bottom:
-						ctrlSize.Y = localPos.Y - ctrlPos.Y;
+						ctrlSize.Y = localPosInParent.Y - ctrlPos.Y;
 						break;
 					case ResizeHandle.BottomRight:
-						ctrlSize.X = localPos.X - ctrlPos.X;
-						ctrlSize.Y = localPos.Y - ctrlPos.Y;
+						ctrlSize.X = localPosInParent.X - ctrlPos.X;
+						ctrlSize.Y = localPosInParent.Y - ctrlPos.Y;
 						break;
 					case ResizeHandle.Left:
 						float right = ctrlPos.X + ctrlSize.X;
-						ctrlPos.X = localPos.X;
+						ctrlPos.X = localPosInParent.X;
 						ctrlSize.X = right - ctrlPos.X;
 						break;
 					case ResizeHandle.Top:
 						float bottom = ctrlPos.Y + ctrlSize.Y;
-						ctrlPos.Y = localPos.Y;
+						ctrlPos.Y = localPosInParent.Y;
 						ctrlSize.Y = bottom - ctrlPos.Y;
 						break;
 					case ResizeHandle.TopLeft:
 						right = ctrlPos.X + ctrlSize.X;
 						bottom = ctrlPos.Y + ctrlSize.Y;
-						ctrlPos.X = localPos.X;
-						ctrlPos.Y = localPos.Y;
+						ctrlPos.X = localPosInParent.X;
+						ctrlPos.Y = localPosInParent.Y;
 						ctrlSize.X = right - ctrlPos.X;
 						ctrlSize.Y = bottom - ctrlPos.Y;
 						break;
 					case ResizeHandle.TopRight:
 						bottom = ctrlPos.Y + ctrlSize.Y;
-						ctrlPos.Y = localPos.Y;
-						ctrlSize.X = localPos.X - ctrlPos.X;
+						ctrlPos.Y = localPosInParent.Y;
+						ctrlSize.X = localPosInParent.X - ctrlPos.X;
 						ctrlSize.Y = bottom - ctrlPos.Y;
 						break;
 					case ResizeHandle.BottomLeft:
 						right = ctrlPos.X + ctrlSize.X;
-						ctrlPos.X = localPos.X;
+						ctrlPos.X = localPosInParent.X;
 						ctrlSize.X = right - ctrlPos.X;
-						ctrlSize.Y = localPos.Y - ctrlPos.Y;
+						ctrlSize.Y = localPosInParent.Y - ctrlPos.Y;
 						break;
 				}
 
@@ -665,6 +684,16 @@ namespace FishUIEditor.Controls
 		public static bool IsContainerControl(Control control)
 		{
 			return control is Panel || control is GroupBox || control is Window;
+		}
+
+		/// <summary>
+		/// Checks if a control has internal children that shouldn't be directly selectable.
+		/// Window has Titlebar and content panel; TabControl has internal tab structure.
+		/// Panel and GroupBox don't have internal children - all their children are user-added.
+		/// </summary>
+		private static bool HasInternalChildren(Control control)
+		{
+			return control is Window || control is TabControl;
 		}
 
 		/// <summary>
@@ -803,8 +832,10 @@ namespace FishUIEditor.Controls
 		/// Recursively searches for a control at the given position.
 		/// Children with higher ZDepth are checked first.
 		/// Uses anchor-adjusted positions and sizes for accurate hit testing.
-		/// Container controls (Panel, Window, GroupBox) do not recurse into children -
-		/// their children can only be selected via the hierarchy TreeView.
+		/// Window is handled specially - internal controls (Titlebar, content panel) are skipped,
+		/// but user-added children inside the content panel can be selected.
+		/// TabControl blocks all child selection (use hierarchy TreeView).
+		/// Simple containers (Panel, GroupBox) allow selecting their user-added children.
 		/// </summary>
 		private Control FindControlAtPositionRecursive(Control control, Vector2 localPos, Vector2 parentOffset)
 		{
@@ -816,14 +847,40 @@ namespace FishUIEditor.Controls
 			if (localPos.X >= ctrlPos.X && localPos.X <= ctrlPos.X + ctrlSize.X &&
 				localPos.Y >= ctrlPos.Y && localPos.Y <= ctrlPos.Y + ctrlSize.Y)
 			{
-				// Container controls don't recurse into children on canvas click
-				// Children of containers can only be selected via the hierarchy TreeView
-				if (IsContainerControl(control))
+				// Window: skip internal controls but allow selecting user children in content panel
+				if (control is Window)
+				{
+					foreach (var child in control.Children.OrderByDescending(c => c.ZDepth))
+					{
+						// Skip Titlebar (internal)
+						if (child is Titlebar)
+							continue;
+
+						// Content panel is any Panel child (not Titlebar) - recurse into its children
+						// but don't allow selecting the content panel itself
+						if (child is Panel panel)
+						{
+							Vector2 panelPos = ctrlPos + panel.GetAnchorAdjustedRelativePosition();
+							foreach (var userChild in panel.Children.OrderByDescending(c => c.ZDepth))
+							{
+								var found = FindControlAtPositionRecursive(userChild, localPos, panelPos);
+								if (found != null)
+									return found;
+							}
+						}
+					}
+					// No user child found, return Window
+					return control;
+				}
+
+				// TabControl: block all child selection (complex internal structure)
+				if (control is TabControl)
 				{
 					return control;
 				}
 
-				// For non-container controls, check children first (sorted by ZDepth descending - highest on top)
+				// For other controls (including Panel, GroupBox), check children first
+				// (sorted by ZDepth descending - highest on top)
 				foreach (var child in control.Children.OrderByDescending(c => c.ZDepth))
 				{
 					var found = FindControlAtPositionRecursive(child, localPos, ctrlPos);
