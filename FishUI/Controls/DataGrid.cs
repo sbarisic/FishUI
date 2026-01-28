@@ -316,8 +316,9 @@ namespace FishUI.Controls
 			RemoveAllChildren();
 
 			_scrollBar = new ScrollBarV();
-			_scrollBar.Position = new Vector2(Size.X - 16, Scale(HeaderHeight));
-			_scrollBar.Size = new Vector2(16, Size.Y - Scale(HeaderHeight));
+			// Use local coordinates (unscaled) - position relative to parent
+			_scrollBar.Position = new Vector2(Size.X - 16, HeaderHeight);
+			_scrollBar.Size = new Vector2(16, Size.Y - HeaderHeight);
 			_scrollBar.ThumbHeight = 0.5f;
 			_scrollBar.OnScrollChanged += (_, scroll, delta) =>
 			{
@@ -342,18 +343,30 @@ namespace FishUI.Controls
 			var font = UI.Settings.FontDefault;
 			float headerH = Scale(HeaderHeight);
 
+			// Calculate current local size (actual size after anchor stretching, unscaled for child positioning)
+			float scale = UI.Settings.UIScale > 0 ? UI.Settings.UIScale : 1f;
+			float localWidth = size.X / scale;
+			float localHeight = size.Y / scale;
+
 			// Create/update scrollbar
 			if (ShowScrollBar)
 			{
 				CreateScrollBar(UI);
 				if (_scrollBar != null)
 				{
-					_scrollBar.Position = new Vector2(Size.X - 16, HeaderHeight);
-					_scrollBar.Size = new Vector2(16, Size.Y - HeaderHeight);
+					// Use actual local dimensions (accounts for anchor stretching)
+					_scrollBar.Position = new Vector2(localWidth - 16, HeaderHeight);
+					_scrollBar.Size = new Vector2(16, localHeight - HeaderHeight);
 
 					float contentHeight = _rows.Count * _rowHeight;
 					float viewHeight = size.Y - headerH;
 					_scrollBar.Visible = contentHeight > viewHeight;
+
+					// Update thumb height ratio based on visible content
+					if (contentHeight > 0)
+					{
+						_scrollBar.ThumbHeight = Math.Clamp(viewHeight / contentHeight, 0.05f, 1.0f);
+					}
 				}
 			}
 			else if (_scrollBar != null)
