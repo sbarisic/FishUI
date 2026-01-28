@@ -74,17 +74,18 @@ FishUI is a flexible GUI framework that separates UI logic from rendering, allow
 </p>
 <p align="center">
   <img src="screenshots/new/21.png" width="400" alt="SpreadsheetGrid"/>
+  <img src="screenshots/new/game_window_sample.png" width="400" alt="Game Window Sample"/>
 </p>
 
 ## Features
 
-### Controls (45+ Built-in)
+### Controls (46+ Built-in)
 
 | Category | Controls |
 |----------|----------|
 | **Input** | Button, Textbox, CheckBox, RadioButton, ToggleSwitch, Slider, NumericUpDown, MultiLineEditbox |
 | **Selection** | ListBox, DropDown (ComboBox), TreeView, SelectionBox, DatePicker, TimePicker |
-| **Display** | Label, StaticText, ImageBox, AnimatedImageBox, ProgressBar, LineChart, Timeline, BigDigitDisplay |
+| **Display** | Label, StaticText, ImageBox, AnimatedImageBox, ProgressBar, LineChart, Timeline, BigDigitDisplay, ToastNotification |
 | **Containers** | Panel, Window, GroupBox, TabControl, ScrollablePane, StackLayout, FlowLayout, GridLayout |
 | **Navigation** | ScrollBarV, ScrollBarH, MenuBar, ContextMenu, MenuItem |
 | **Gauges** | RadialGauge, BarGauge, VUMeter |
@@ -475,9 +476,11 @@ dotnet run
 - PropertyGrid for editing control properties
 - Layout hierarchy tree view
 - Save/load layouts to YAML files
-- Parent/child control relationships
+- Parent/child control relationships with reparenting
 - Anchor and Z-ordering support
 - Visual feedback for drop targets
+- Container selection mode (Window/TabControl protect internal controls)
+- Nested control resizing with proper parent offset calculation
 
 Layouts created in the editor can be loaded in your application:
 
