@@ -127,7 +127,8 @@ Consolidated list of completed features, improvements, and controls.
 - ScreenCapture: GetDesktopWindow made private for consistency
 - Naming conventions, XML docs, warning fixes (CS0108, CS0219, CS0414)
 - Generic FindControlByID<T>() method
-- FishUITween API refactor: Animation methods moved to Control base class (AnimatePosition, AnimateSize, AnimateOpacity, FadeIn, FadeOut, SlideIn, SlideOut, ScaleBounce). Old extension methods marked obsolete.
+- FishUITween API refactor: Animation methods moved to Control base class. Old extension methods marked obsolete.
+- Control.cs refactored into partial classes: Control.Animation.cs, Control.Anchoring.cs, Control.AutoSize.cs, Control.Children.cs, Control.Drawing.cs, Control.Input.cs, Control.Position.cs
 
 ## Documentation
 - README.md rewrite with examples, table of contents, updated control list

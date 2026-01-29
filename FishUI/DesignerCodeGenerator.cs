@@ -181,7 +181,7 @@ namespace FishUI
 				foreach (var child in children)
 				{
 					string childVarName = GetVariableName(child);
-					
+
 					// Use appropriate AddChild method
 					if (control is Window)
 					{
@@ -534,8 +534,8 @@ namespace FishUI
 		private bool IsInternalControl(Control control)
 		{
 			// Filter out internal controls that are auto-created
-			return control is Titlebar || 
-			       (control is Panel p && p.IsTransparent && control.GetParent() is Window);
+			return control is Titlebar ||
+				   (control is Panel p && p.IsTransparent && control.GetParent() is Window);
 		}
 	}
 }
