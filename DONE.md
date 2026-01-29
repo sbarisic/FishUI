@@ -54,6 +54,7 @@ Consolidated list of completed features, improvements, and controls.
 | BigDigitDisplay | N/A | ? |
 | ToastNotification | ? Atlas | ? |
 | FilePickerDialog | ? Atlas | ? |
+| ParticleEmitter | N/A | ? |
 
 ---
 
@@ -68,6 +69,7 @@ Consolidated list of completed features, improvements, and controls.
 - BigDigitDisplay - Large text display for digital speedometer/RPM readouts
 - ToastNotification - Auto-dismissing notifications with stacking, types, and titles
 - FilePickerDialog - File browser dialog for Open/Save operations
+- ParticleEmitter - Animated particle effects with configurable emission shapes, physics, color interpolation, and preset configurations (Fire, Smoke, Sparkle, Explosion)
 
 ## Control Improvements
 - Button: Icon, Toggle, Repeat, ImageButton modes; IconPath serialization
@@ -98,7 +100,7 @@ Consolidated list of completed features, improvements, and controls.
 
 ## Samples
 - Sample infrastructure: Runner loop, GUI chooser, theme switcher, auto-discovery
-- Control demos: BasicControls, ImageBox, Gauges, DropDown, ListBox, LineChart, BigDigitDisplay, ToastNotification
+- Control demos: BasicControls, ImageBox, Gauges, DropDown, ListBox, LineChart, BigDigitDisplay, ToastNotification, Particles
 - Feature demos: LayoutSystem, UIScaling, Animations, Serialization, EventSerialization
 - Data controls: DatePicker, TimePicker, DataGrid, SpreadsheetGrid, MultiLineEditbox
 - EditorLayout sample for testing FishUIEditor output

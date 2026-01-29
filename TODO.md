@@ -21,19 +21,7 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ## New Controls
 
-### High Priority
-
-*All high priority controls have been implemented*
-
-### Medium Priority
-
-*All medium priority controls have been implemented*
-
-### Lower Priority
-
-- [ ] **Particle System** (CPX 4) - Animated particle effects for UI controls
-  - Support blending modes and rectangular image particles
-  - Integration with tween/animation system for control particle emission
+*All controls completed - see DONE.md*
 
 ---
 
