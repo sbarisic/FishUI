@@ -1,4 +1,7 @@
-﻿namespace NugetTest
+﻿using FishUI;
+using RaylibFishGfx;
+
+namespace NugetTest
 {
 	internal class NugetTest
 	{
