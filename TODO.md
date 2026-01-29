@@ -85,12 +85,12 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 
 ## Documentation **LOW PRIORITY**
 
-- [ ] Backend implementation guide (beyond Raylib)
 - [ ] IFishUIForm interface documentation - Document/finalize base interface for .Designer.cs files
 
 > **Note:** Getting started tutorial is covered in README.md Quick Start section
 > **Note:** Custom control creation guide is in docs/CUSTOM_CONTROLS.md
 > **Note:** Theme creation guide is in docs/THEMING.md
+> **Note:** Backend implementation guide is in docs/BACKEND_GUIDE.md
 
 ---
 
