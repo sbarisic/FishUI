@@ -5,14 +5,12 @@ using FishUISample.Samples;
 using Raylib_cs;
 using System.Diagnostics;
 using System.Numerics;
-using System.Reflection.Metadata;
 
 namespace FishUISample
 {
 	internal class Program
 	{
 		static bool ScreenshotMade = false;
-		//static int Ctr = 100;
 		static int Ctr = 10;
 
 

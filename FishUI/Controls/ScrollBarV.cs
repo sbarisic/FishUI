@@ -23,17 +23,9 @@ namespace FishUI.Controls
 
 		public event OnScrollChangedFunc OnScrollChanged;
 
+
 		[YamlIgnore]
 		Vector2 ButtonSize = new Vector2(15, 15);
-
-		[YamlIgnore]
-		bool ThumbHovered = false;
-
-		[YamlIgnore]
-		bool BtnUpHovered = false;
-
-		[YamlIgnore]
-		bool BtnDownHovered = false;
 
 		[YamlIgnore]
 		Button BtnThumb = null;
@@ -93,17 +85,7 @@ namespace FishUI.Controls
 		}
 
 
-		public override void HandleDrag(FishUI UI, Vector2 StartPos, Vector2 EndPos, FishInputState InState)
-		{
 
-		}
-
-		public override void HandleMouseMove(FishUI UI, FishInputState InState, Vector2 Pos)
-		{
-			ThumbHovered = IsInsideThumb(UI, Pos);
-			BtnUpHovered = IsInsideBtnUp(UI, Pos);
-			BtnDownHovered = IsInsideBtnDown(UI, Pos);
-		}
 
 		void CreateChildControls(FishUI UI)
 		{
@@ -129,7 +111,7 @@ namespace FishUI.Controls
 			};
 			AddChild(BtnUp);
 
-		BtnThumb = new Button(UI.Settings.ImgSBVBarNormal, UI.Settings.ImgSBVBarDisabled, UI.Settings.ImgSBVBarPressed, UI.Settings.ImgSBVBarHover);
+			BtnThumb = new Button(UI.Settings.ImgSBVBarNormal, UI.Settings.ImgSBVBarDisabled, UI.Settings.ImgSBVBarPressed, UI.Settings.ImgSBVBarHover);
 			BtnThumb.Draggable = true;
 			BtnThumb.OnDragged += (_, Delta) =>
 			{

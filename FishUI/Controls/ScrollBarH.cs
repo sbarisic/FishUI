@@ -23,17 +23,9 @@ namespace FishUI.Controls
 
 		public event OnScrollChangedFuncH OnScrollChanged;
 
+
 		[YamlIgnore]
 		Vector2 ButtonSize = new Vector2(15, 15);
-
-		[YamlIgnore]
-		bool ThumbHovered = false;
-
-		[YamlIgnore]
-		bool BtnLeftHovered = false;
-
-		[YamlIgnore]
-		bool BtnRightHovered = false;
 
 		[YamlIgnore]
 		Button BtnThumb = null;
@@ -93,17 +85,7 @@ namespace FishUI.Controls
 		}
 
 
-		public override void HandleDrag(FishUI UI, Vector2 StartPos, Vector2 EndPos, FishInputState InState)
-		{
 
-		}
-
-		public override void HandleMouseMove(FishUI UI, FishInputState InState, Vector2 Pos)
-		{
-			ThumbHovered = IsInsideThumb(UI, Pos);
-			BtnLeftHovered = IsInsideBtnLeft(UI, Pos);
-			BtnRightHovered = IsInsideBtnRight(UI, Pos);
-		}
 
 		void CreateChildControls(FishUI UI)
 		{
@@ -165,7 +147,7 @@ namespace FishUI.Controls
 			OnScrollChanged?.Invoke(this, ThumbPosition, -1);
 		}
 
-	public void ScrollRight()
+		public void ScrollRight()
 		{
 			ThumbPosition += ScrollStep;
 

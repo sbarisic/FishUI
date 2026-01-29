@@ -35,14 +35,14 @@ namespace FishUI
             return true;
         }
 
-        public static float Round(this float F)
+        public static float Truncate(this float F)
         {
             return (int)F;
         }
 
-        public static Vector2 Round(this Vector2 V)
+        public static Vector2 Truncate(this Vector2 V)
         {
-            return new Vector2(V.X.Round(), V.Y.Round());
+            return new Vector2(V.X.Truncate(), V.Y.Truncate());
         }
     }
 }

@@ -19,7 +19,7 @@ namespace FishUISample
         private static extern IntPtr GetForegroundWindow();
 
         [DllImport("user32", CharSet = CharSet.Auto, ExactSpelling = true)]
-        public static extern IntPtr GetDesktopWindow();
+        private static extern IntPtr GetDesktopWindow();
 
         [StructLayout(LayoutKind.Sequential)]
         private struct Rect
