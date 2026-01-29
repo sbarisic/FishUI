@@ -4,9 +4,8 @@ using FishUI.Controls;
 
 namespace FishUI
 {
-    /// <summary>
-    /// Static helper class for creating common animations with a fluent API.
-    /// </summary>
+    // TODO: Does this make sense to be a fluent API, shouldn't these extension methods be implemented in the base Control class?
+
     public static class FishUITween
     {
         /// <summary>
