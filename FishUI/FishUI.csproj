@@ -9,7 +9,7 @@
 
 		<!-- NuGet Package Metadata -->
 		<PackageId>FishUI</PackageId>
-		<Version>1.0.8</Version>
+		<Version>1.0.11</Version>
 		<Authors>sbarisic</Authors>
 		<Company>sbarisic</Company>
 		<Product>FishUI</Product>
@@ -27,14 +27,15 @@
 		<None Include="..\NUGET_FISHUI_README.md" Pack="true" PackagePath="\" />
 	</ItemGroup>
 
-	<!-- Include data folder in NuGet package as content files that copy to output -->
+	<!-- Include data folder in NuGet package at root level -->
 	<ItemGroup>
-		<None Include="data\**\*" Pack="true" PackagePath="contentFiles\any\any\data\%(RecursiveDir)" CopyToOutputDirectory="PreserveNewest" />
+		<Content Include="data\**\*" Pack="true" PackagePath="data\%(RecursiveDir)" CopyToOutputDirectory="PreserveNewest" />
 	</ItemGroup>
 
-	<!-- Include build props to configure content files behavior in consuming projects -->
+	<!-- Include build props and targets to configure content files behavior in consuming projects -->
 	<ItemGroup>
 		<None Include="build\FishUI.props" Pack="true" PackagePath="build\" />
+		<None Include="build\FishUI.targets" Pack="true" PackagePath="build\" />
 	</ItemGroup>
 
 	<ItemGroup>

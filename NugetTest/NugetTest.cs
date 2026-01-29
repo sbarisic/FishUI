@@ -29,6 +29,10 @@ namespace NugetTest
 			FishUI.FishUI fui = new FishUI.FishUI(settings, gfx, input, events);
 			fui.Init();
 
+			// Load theme (required for proper fonts and control rendering)
+			// data/themes/themes/ is correct!!
+			settings.LoadTheme("data/themes/themes/gwen.yaml", applyImmediately: true);
+
 			// Create some UI controls
 			CreateDemoUI(fui);
 
@@ -105,7 +109,7 @@ namespace NugetTest
 			// Checkbox
 			CheckBox checkBox = new CheckBox("Enable Feature");
 			checkBox.Position = new Vector2(10, 100);
-			checkBox.Size = new Vector2(150, 25);
+			checkBox.Size = new Vector2(20, 20);
 			checkBox.OnCheckedChanged += (cb, isChecked) =>
 			{
 				Console.WriteLine($"Checkbox: {isChecked}");
@@ -187,18 +191,18 @@ namespace NugetTest
 
 			RadioButton radio1 = new RadioButton("Option A");
 			radio1.Position = new Vector2(10, 55);
-			radio1.Size = new Vector2(120, 25);
+			radio1.Size = new Vector2(20, 20);
 			radio1.IsChecked = true;
 			panel2.AddChild(radio1);
 
 			RadioButton radio2 = new RadioButton("Option B");
-			radio2.Position = new Vector2(10, 85);
-			radio2.Size = new Vector2(120, 25);
+			radio2.Position = new Vector2(10, 80);
+			radio2.Size = new Vector2(20, 20);
 			panel2.AddChild(radio2);
 
 			RadioButton radio3 = new RadioButton("Option C");
-			radio3.Position = new Vector2(10, 115);
-			radio3.Size = new Vector2(120, 25);
+			radio3.Position = new Vector2(10, 105);
+			radio3.Size = new Vector2(20, 20);
 			panel2.AddChild(radio3);
 
 			// NumericUpDown
