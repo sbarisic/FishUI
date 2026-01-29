@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FishUIDemos", "FishUIDemos\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FishUIEditor", "FishUIEditor\FishUIEditor.csproj", "{8C8640B9-383F-4333-ADD6-F73262ADC26A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaylibFishGfx", "RaylibFishUI\RaylibFishGfx.csproj", "{C03363BC-0F39-4271-A30D-11530C20C00F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{8C8640B9-383F-4333-ADD6-F73262ADC26A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C8640B9-383F-4333-ADD6-F73262ADC26A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8C8640B9-383F-4333-ADD6-F73262ADC26A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C03363BC-0F39-4271-A30D-11530C20C00F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C03363BC-0F39-4271-A30D-11530C20C00F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C03363BC-0F39-4271-A30D-11530C20C00F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C03363BC-0F39-4271-A30D-11530C20C00F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

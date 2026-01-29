@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\FishUIDemos\FishUIDemos.csproj" />
     <ProjectReference Include="..\FishUI\FishUI.csproj" />
+    <ProjectReference Include="..\RaylibFishUI\RaylibFishGfx.csproj" />
   </ItemGroup>
 
 </Project>

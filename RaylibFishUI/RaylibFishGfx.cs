@@ -3,13 +3,9 @@ using Raylib_cs;
 using System;
 using System.Numerics;
 
-namespace FishUISample
+namespace RaylibFishGfx
 {
-	/// <summary>
-	/// Minimal Raylib graphics backend using SimpleFishUIGfx.
-	/// Only overrides the minimum required methods - other features use default implementations.
-	/// </summary>
-	class RaylibGfx : SimpleFishUIGfx
+	public class RaylibFishGfx : SimpleFishUIGfx
 	{
 		int W;
 		int H;
@@ -17,7 +13,7 @@ namespace FishUISample
 
 		public bool UseBeginDrawing { get; set; } = true;
 
-		public RaylibGfx(int W, int H, string Title)
+		public RaylibFishGfx(int W, int H, string Title)
 		{
 			this.W = W;
 			this.H = H;

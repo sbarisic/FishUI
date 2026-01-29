@@ -5,6 +5,8 @@ using Raylib_cs;
 using System.Diagnostics;
 using System.IO;
 using System.Numerics;
+using RaylibGfx = RaylibFishGfx.RaylibFishGfx;
+using RaylibInput = RaylibFishGfx.RaylibInput;
 
 namespace FishUIEditor
 {
