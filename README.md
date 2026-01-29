@@ -41,6 +41,10 @@ FishUI is a flexible GUI framework that separates UI logic from rendering, allow
 ## Screenshots
 
 <p align="center">
+  <img src="screenshots/new/anim_system.gif" width="600" alt="Animation & Particle System"/>
+</p>
+
+<p align="center">
   <img src="screenshots/new/26.png" width="400" alt="Windows & Dialogs"/>
   <img src="screenshots/new/26_2.png" width="400" alt="Windows & Dialogs"/>
 </p>
@@ -79,7 +83,7 @@ FishUI is a flexible GUI framework that separates UI logic from rendering, allow
 
 ## Features
 
-### Controls (46+ Built-in)
+### Controls (47+ Built-in)
 
 | Category | Controls |
 |----------|----------|
@@ -90,6 +94,7 @@ FishUI is a flexible GUI framework that separates UI logic from rendering, allow
 | **Navigation** | ScrollBarV, ScrollBarH, MenuBar, ContextMenu, MenuItem |
 | **Gauges** | RadialGauge, BarGauge, VUMeter |
 | **Data** | DataGrid, SpreadsheetGrid, PropertyGrid, ItemListbox |
+| **Effects** | ParticleEmitter |
 | **Utility** | Tooltip, Titlebar |
 
 ### Framework Features
@@ -97,7 +102,7 @@ FishUI is a flexible GUI framework that separates UI logic from rendering, allow
 - **Layout System**: Absolute positioning, anchoring, margins/padding, StackLayout, FlowLayout, GridLayout
 - **Theme System**: YAML themes with atlas regions, 9-slice/NPatch rendering, color overrides, inheritance
 - **Serialization**: Save/load UI layouts to YAML files with event handler binding
-- **Animation**: Built-in animation system with easing functions and tween helpers
+- **Animation**: Built-in animation system with easing functions, tween helpers, and particle effects
 - **Input**: Mouse, keyboard, touch, and virtual cursor (gamepad/keyboard navigation)
 - **Events**: Control events, serializable event handlers, event broadcasting
 - **UI Scaling**: Resolution-independent UI with configurable scale factor
