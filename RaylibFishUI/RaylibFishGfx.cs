@@ -63,6 +63,7 @@ namespace RaylibFishGfx
 
 		#region Resource Loading
 
+		/// <inheritdoc/>
 		public override ImageRef LoadImage(string FileName)
 		{
 			Texture2D tex = Raylib.LoadTexture(FileName);
@@ -79,6 +80,7 @@ namespace RaylibFishGfx
 			};
 		}
 
+		/// <inheritdoc/>
 		public override ImageRef LoadImage(string FileName, int X, int Y, int W, int H)
 		{
 			Image img = Raylib.LoadImage(FileName);
@@ -96,6 +98,7 @@ namespace RaylibFishGfx
 			};
 		}
 
+		/// <inheritdoc/>
 		public override ImageRef LoadImage(ImageRef Orig, int X, int Y, int W, int H)
 		{
 			Image img = Raylib.ImageFromImage((Image)Orig.Userdata2, new Rectangle(X, Y, W, H));
@@ -112,11 +115,13 @@ namespace RaylibFishGfx
 			};
 		}
 
+		/// <inheritdoc/>
 		public override FontRef LoadFont(string FileName, float Size, float Spacing, FishColor Color)
 		{
 			return LoadFont(FileName, Size, Spacing, Color, FontStyle.Regular);
 		}
 
+		/// <inheritdoc/>
 		public override FontRef LoadFont(string FileName, float Size, float Spacing, FishColor Color, FontStyle Style)
 		{
 			Font font = Raylib.LoadFontEx(FileName, (int)Size, null, 250);
@@ -138,6 +143,7 @@ namespace RaylibFishGfx
 			};
 		}
 
+		/// <inheritdoc/>
 		public override FishUIFontMetrics GetFontMetrics(FontRef Fn)
 		{
 			Font font = (Font)Fn.Userdata;
@@ -154,13 +160,15 @@ namespace RaylibFishGfx
 
 		#endregion
 
-		#region Required: Scissor Clipping
+		#region Scissor Clipping
 
+		/// <inheritdoc/>
 		public override void BeginScissor(Vector2 Pos, Vector2 Size)
 		{
 			Raylib.BeginScissorMode((int)Pos.X, (int)Pos.Y, (int)Size.X, (int)Size.Y);
 		}
 
+		/// <inheritdoc/>
 		public override void EndScissor()
 		{
 			Raylib.EndScissorMode();
@@ -168,28 +176,33 @@ namespace RaylibFishGfx
 
 		#endregion
 
-		#region Required: Primitive Drawing
+		#region Primitive Drawing
 
+		/// <inheritdoc/>
 		public override void DrawLine(Vector2 Pos1, Vector2 Pos2, float Thick, FishColor Clr)
 		{
 			Raylib.DrawLineEx(Pos1, Pos2, Thick, new Color(Clr.R, Clr.G, Clr.B, Clr.A));
 		}
 
+		/// <inheritdoc/>
 		public override void DrawRectangle(Vector2 Position, Vector2 Size, FishColor Color)
 		{
 			Raylib.DrawRectangleV(Position, Size, new Color(Color.R, Color.G, Color.B, Color.A));
 		}
 
+		/// <inheritdoc/>
 		public override void DrawRectangleOutline(Vector2 Position, Vector2 Size, FishColor Color)
 		{
 			Raylib.DrawRectangleLinesEx(new Rectangle(Position, Size), 1, new Color(Color.R, Color.G, Color.B, Color.A));
 		}
 
+		/// <inheritdoc/>
 		public override void DrawCircle(Vector2 Center, float Radius, FishColor Color)
 		{
 			Raylib.DrawCircleV(Center, Radius, new Color(Color.R, Color.G, Color.B, Color.A));
 		}
 
+		/// <inheritdoc/>
 		public override void DrawCircleOutline(Vector2 Center, float Radius, FishColor Color, float Thickness = 1)
 		{
 			Color c = new Color(Color.R, Color.G, Color.B, Color.A);
@@ -201,14 +214,16 @@ namespace RaylibFishGfx
 
 		#endregion
 
-		#region Required: Image Drawing
+		#region Image Drawing
 
+		/// <inheritdoc/>
 		public override void DrawImage(ImageRef Img, Vector2 Pos, float Rot, float Scale, FishColor Color)
 		{
 			Texture2D tex = (Texture2D)Img.Userdata;
 			Raylib.DrawTextureEx(tex, Pos, Rot, Scale, new Color(Color.R, Color.G, Color.B, Color.A));
 		}
 
+		/// <inheritdoc/>
 		public override void DrawImage(ImageRef Img, Vector2 Pos, Vector2 Size, float Rot, float Scale, FishColor Color)
 		{
 			Texture2D tex = (Texture2D)Img.Userdata;
@@ -217,11 +232,13 @@ namespace RaylibFishGfx
 			Raylib.DrawTexturePro(tex, src, dest, Vector2.Zero, Rot, new Color(Color.R, Color.G, Color.B, Color.A));
 		}
 
+		/// <inheritdoc/>
 		public override void DrawNPatch(NPatch NP, Vector2 Pos, Vector2 Size, FishColor Color)
 		{
 			DrawNPatch(NP, Pos, Size, Color, 0);
 		}
 
+		/// <inheritdoc/>
 		public override void DrawNPatch(NPatch NP, Vector2 Pos, Vector2 Size, FishColor Color, float Rotation)
 		{
 			Texture2D tex = (Texture2D)NP.Image.Userdata;
@@ -242,6 +259,7 @@ namespace RaylibFishGfx
 				new Color(Color.R, Color.G, Color.B, Color.A));
 		}
 
+		/// <inheritdoc/>
 		public override void SetImageFilter(ImageRef Img, bool pixelated)
 		{
 			if (Img?.Userdata == null) return;
@@ -249,15 +267,14 @@ namespace RaylibFishGfx
 			Raylib.SetTextureFilter(tex, pixelated ? TextureFilter.Point : TextureFilter.Trilinear);
 		}
 
+		/// <inheritdoc/>
 		public override FishColor GetImageColor(ImageRef Img, Vector2 Pos)
 		{
 			Color c = Raylib.GetImageColor((Image)Img.Userdata2, (int)Pos.X, (int)Pos.Y);
 			return new FishColor(c.R, c.G, c.B, c.A);
 		}
 
-		/// <summary>
-		/// Draws a region of an image to a destination rectangle using Raylib's DrawTexturePro.
-		/// </summary>
+		/// <inheritdoc/>
 		protected override void DrawImageRegion(ImageRef Img, Vector2 srcPos, Vector2 srcSize, Vector2 destPos, Vector2 destSize, FishColor Color)
 		{
 			Texture2D tex = (Texture2D)Img.Userdata;
@@ -270,12 +287,14 @@ namespace RaylibFishGfx
 
 		#region Text Rendering
 
+		/// <inheritdoc/>
 		public override Vector2 MeasureText(FontRef Fn, string Text)
 		{
 			Font font = (Font)Fn.Userdata;
 			return Raylib.MeasureTextEx(font, Text, Fn.Size, Fn.Spacing);
 		}
 
+		/// <inheritdoc/>
 		public override void DrawText(FontRef Fn, string Text, Vector2 Pos)
 		{
 			Font font = (Font)Fn.Userdata;
@@ -283,6 +302,7 @@ namespace RaylibFishGfx
 				new Color(Fn.Color.R, Fn.Color.G, Fn.Color.B, Fn.Color.A));
 		}
 
+		/// <inheritdoc/>
 		public override void DrawTextColor(FontRef Fn, string Text, Vector2 Pos, FishColor Color)
 		{
 			Font font = (Font)Fn.Userdata;
@@ -290,6 +310,7 @@ namespace RaylibFishGfx
 				new Color(Color.R, Color.G, Color.B, Color.A));
 		}
 
+		/// <inheritdoc/>
 		public override void DrawTextColorScale(FontRef Fn, string Text, Vector2 Pos, FishColor Color, float Scale)
 		{
 			Font font = (Font)Fn.Userdata;
