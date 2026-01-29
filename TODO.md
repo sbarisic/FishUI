@@ -158,11 +158,30 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
-
 - Add animated particle system
 - Particles should support blending modes, particles can be rectangular images 
 - Add ability for controls to emit particles when animating using tweens
-- 
+
+#### TODOs from code comments:
+- FishUITween.cs: Consider moving fluent API extension methods to base Control class instead of static class
+- IFishUIForm.cs: Document/finalize base interface for .Designer.cs files
+
+#### Unused variables:
+- ScrollBarV.cs: ThumbHovered, BtnUpHovered, BtnDownHovered fields assigned but never read - remove or use for hover styling
+- ScrollBarH.cs: ThumbHovered, BtnLeftHovered, BtnRightHovered fields assigned but never read - remove or use for hover styling
+
+#### Empty/stub methods:
+- ScrollBarV.cs: HandleDrag() override is empty - remove or implement drag handling
+- ScrollBarH.cs: HandleDrag() override is empty - remove or implement drag handling
+
+#### Code cleanup:
+- Program.cs: Remove unused `using System.Reflection.Metadata`
+- Program.cs: Remove commented-out code `//static int Ctr = 100;`
+- Utils.cs: Round() method uses cast truncation `(int)F` instead of Math.Round - rename to Truncate() or fix behavior
+- LayoutFormat.cs: Fix inconsistent indentation in TypeMapping dictionary (lines 96-100)
+- ScrollBarH.cs: Fix inconsistent indentation on ScrollRight method (line 168)
+- ScrollBarV.cs: Fix incorrect indentation on BtnThumb assignment (line 132)
+- ScreenCapture.cs: Make GetDesktopWindow private for consistency with GetForegroundWindow, or make both public
 
 ---
 
