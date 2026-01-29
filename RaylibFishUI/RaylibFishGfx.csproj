@@ -4,6 +4,20 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+
+    <!-- NuGet Package Metadata -->
+    <PackageId>RaylibFishGfx</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>sbarisic</Authors>
+    <Company>sbarisic</Company>
+    <Product>RaylibFishGfx</Product>
+    <Description>Raylib graphics and input backend for FishUI. Provides a complete, production-ready implementation of IFishUIGfx and IFishUIInput using Raylib-cs.</Description>
+    <PackageTags>gui;ui;raylib;fishui;graphics;backend;gamedev</PackageTags>
+    <PackageProjectUrl>https://github.com/sbarisic/FishUI</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/sbarisic/FishUI</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>

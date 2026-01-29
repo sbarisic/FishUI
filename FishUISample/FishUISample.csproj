@@ -24,4 +24,16 @@
     <ProjectReference Include="..\RaylibFishUI\RaylibFishGfx.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="data\cegui_theme\GWEN.imageset.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="data\cegui_theme\GWEN.looknfeel.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="data\cegui_theme\GWEN.scheme.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

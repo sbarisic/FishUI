@@ -6,7 +6,36 @@
     <Nullable>disable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
+
+    <!-- NuGet Package Metadata -->
+    <PackageId>FishUI</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>sbarisic</Authors>
+    <Company>sbarisic</Company>
+    <Product>FishUI</Product>
+    <Description>A dependency-free, immediate-mode-inspired GUI library for .NET applications with backend-agnostic rendering. Features 47+ built-in controls, YAML-based theming, animation system, and visual layout editor support.</Description>
+    <PackageTags>gui;ui;controls;gamedev;raylib;immediate-mode;theme;yaml</PackageTags>
+    <PackageProjectUrl>https://github.com/sbarisic/FishUI</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/sbarisic/FishUI</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <!-- Include data folder in NuGet package as content files that copy to output -->
+  <ItemGroup>
+    <Content Include="data\**\*" Exclude="data\cegui_theme\**">
+      <Pack>true</Pack>
+      <PackagePath>contentFiles\any\any\data;content\data</PackagePath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
+    </Content>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="YamlDotNet" Version="16.3.0" />
@@ -107,15 +136,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="data\button_pressed.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="data\cegui_theme\GWEN.imageset.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="data\cegui_theme\GWEN.looknfeel.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="data\cegui_theme\GWEN.scheme.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="data\checkbox_checked_hover.png">
@@ -3371,7 +3391,6 @@
 
   <ItemGroup>
     <Folder Include="data\anim_images\stargate\" />
-    <Folder Include="data\cegui_theme\" />
     <Folder Include="data\images\cursors\" />
     <Folder Include="data\sb\" />
   </ItemGroup>
