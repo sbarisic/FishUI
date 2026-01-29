@@ -1,0 +1,12 @@
+<PropertyGroup>
+  <MyPackageCopyData Condition="'$(MyPackageCopyData)' == ''">
+    true
+  </MyPackageCopyData>
+</PropertyGroup>
+
+<ItemGroup Condition="'$(MyPackageCopyData)' == 'true'">
+  <None Include="$(MSBuildThisFileDirectory)..\data\**\*"
+        Link="data\%(RecursiveDir)%(Filename)%(Extension)"
+        CopyToOutputDirectory="PreserveNewest"
+        Visible="false" />
+</ItemGroup>
