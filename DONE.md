@@ -93,6 +93,8 @@ Consolidated list of completed features, improvements, and controls.
 - RaylibGfx: UseBeginDrawing option for integration with existing game loops
 - FishCSharpWriter utility class for C# code generation
 - DesignerCodeGenerator for exporting layouts as .Designer.cs files implementing IFishUIForm
+- SimpleFishUIGfx: Simplified base class for graphics backends with default implementations (reduces required overrides from 25+ to ~10)
+- RaylibGfx2: Minimal Raylib backend example using SimpleFishUIGfx
 
 ## Samples
 - Sample infrastructure: Runner loop, GUI chooser, theme switcher, auto-discovery
