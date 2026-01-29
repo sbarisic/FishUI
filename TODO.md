@@ -10,7 +10,7 @@ A list of planned features, improvements, and new controls for FishUI.
 > - **5** - Large feature spanning multiple components and subsystems, major architecture changes
 
 > Instructions for the TODO list:
-- Move all completed TODO items into a separate Completed section and simplify by consolidating/combining similar ones and shortening the descriptions where possible
+- Move all completed TODO items into a separate Completed document (DONE.md) and simplify by consolidating/combining similar ones and shortening the descriptions where possible
 
 > How TODO file should be iterated:
 - First handle the Uncategorized section, if any similar issues already are on the TODO list, increase their priority instead of adding duplicates (categorize all at once)
@@ -152,15 +152,11 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 ### High Priority (CPX 1-2)
 
 - [ ] **FishUITween API refactor** (CPX 2) - Consider moving fluent API extension methods from static FishUITween class to base Control class
-- [ ] **ScrollBar cleanup** (CPX 1) - Remove unused hover state fields (ThumbHovered, BtnUpHovered, etc.) or implement hover styling
-- [ ] **ScrollBar HandleDrag** (CPX 1) - Remove empty HandleDrag() overrides in ScrollBarV/ScrollBarH or implement drag handling
-- [ ] **Code style fixes** (CPX 1) - Fix indentation issues:
-  - LayoutFormat.cs TypeMapping dictionary (lines 96-100)
-  - ScrollBarH.cs ScrollRight method (line 168)
-  - ScrollBarV.cs BtnThumb assignment (line 132)
-- [ ] **Dead code removal** (CPX 1) - Program.cs: Remove unused `using System.Reflection.Metadata` and commented-out `Ctr` variable
-- [ ] **Utils.Round() fix** (CPX 1) - Rename to Truncate() or change implementation to use Math.Round()
-- [ ] **ScreenCapture consistency** (CPX 1) - Make GetDesktopWindow private to match GetForegroundWindow
+- [x] **ScrollBar cleanup** (CPX 1) - Remove unused hover state fields (ThumbHovered, BtnUpHovered, etc.) and empty HandleDrag/HandleMouseMove methods ✅
+- [x] **Code style fixes** (CPX 1) - Fixed indentation issues in LayoutFormat.cs, ScrollBarH.cs, ScrollBarV.cs ✅
+- [x] **Dead code removal** (CPX 1) - Program.cs: Removed unused import and commented-out variable ✅
+- [x] **Utils.Round() fix** (CPX 1) - Renamed to Truncate() to accurately reflect behavior ✅
+- [x] **ScreenCapture consistency** (CPX 1) - Made GetDesktopWindow private to match GetForegroundWindow ✅
 
 ---
 
