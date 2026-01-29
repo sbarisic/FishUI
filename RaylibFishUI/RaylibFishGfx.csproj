@@ -17,8 +17,13 @@
     <RepositoryUrl>https://github.com/sbarisic/FishUI</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>NUGET_RAYLIBFISHGFX_README.md</PackageReadmeFile>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\NUGET_RAYLIBFISHGFX_README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Raylib-cs" Version="7.0.2" />

@@ -19,12 +19,12 @@
     <RepositoryUrl>https://github.com/sbarisic/FishUI</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReadmeFile>NUGET_FISHUI_README.md</PackageReadmeFile>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\NUGET_FISHUI_README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <!-- Include data folder in NuGet package as content files that copy to output -->
