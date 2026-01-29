@@ -8,7 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="RaylibFishGfx" Version="1.0.1" />
+    <PackageReference Include="FishUI" Version="1.0.4" />
+    <PackageReference Include="Raylib-cs" Version="7.0.2" />
+    <PackageReference Include="RaylibFishGfx" Version="1.0.4" />
+    <PackageReference Include="YamlDotNet" Version="16.3.0" />
   </ItemGroup>
 
 </Project>

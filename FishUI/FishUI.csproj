@@ -9,7 +9,7 @@
 
 		<!-- NuGet Package Metadata -->
 		<PackageId>FishUI</PackageId>
-		<Version>1.0.2</Version>
+		<Version>1.0.4</Version>
 		<Authors>sbarisic</Authors>
 		<Company>sbarisic</Company>
 		<Product>FishUI</Product>
@@ -29,12 +29,7 @@
 
 	<!-- Include data folder in NuGet package as content files that copy to output -->
 	<ItemGroup>
-		<ContentWithTargetPath Include="data\**\*">
-			<Pack>true</Pack>
-			<PackagePath>contentFiles\any\any\data\%(RecursiveDir)%(Filename)%(Extension)</PackagePath>
-			<TargetPath>data\%(RecursiveDir)%(Filename)%(Extension)</TargetPath>
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</ContentWithTargetPath>
+		<None Include="data\**\*" Pack="true" PackagePath="contentFiles\any\any\data\%(RecursiveDir)" CopyToOutputDirectory="PreserveNewest" />
 	</ItemGroup>
 
 	<!-- Include build props to configure content files behavior in consuming projects -->
