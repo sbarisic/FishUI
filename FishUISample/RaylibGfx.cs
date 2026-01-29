@@ -8,7 +8,7 @@ using System.Text;
 
 namespace FishUISample
 {
-	class RaylibGfx : IFishUIGfx
+	class RaylibGfx_old : IFishUIGfx
 	{
 		class Scissor
 		{
@@ -28,7 +28,7 @@ namespace FishUISample
 
 		public bool UseBeginDrawing { get; set; } = true;
 
-		public RaylibGfx(int W, int H, string Title)
+		public RaylibGfx_old(int W, int H, string Title)
 		{
 			this.W = W;
 			this.H = H;
