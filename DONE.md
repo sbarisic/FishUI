@@ -137,6 +137,7 @@ Consolidated list of completed features, improvements, and controls.
 - README.md rewrite with examples, table of contents, updated control list
 - docs/CUSTOM_CONTROLS.md and docs/THEMING.md guides
 - docs/BACKEND_GUIDE.md - Custom graphics backend implementation guide with SimpleFishUIGfx examples
+- docs/FORMS_GUIDE.md - IFishUIForm and designer-generated forms guide
 - XML doc comments on core classes
 
 ## Fixed Bugs

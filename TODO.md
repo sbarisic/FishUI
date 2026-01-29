@@ -85,12 +85,13 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 
 ## Documentation **LOW PRIORITY**
 
-- [ ] IFishUIForm interface documentation - Document/finalize base interface for .Designer.cs files
+*All documentation completed - see DONE.md*
 
 > **Note:** Getting started tutorial is covered in README.md Quick Start section
 > **Note:** Custom control creation guide is in docs/CUSTOM_CONTROLS.md
 > **Note:** Theme creation guide is in docs/THEMING.md
 > **Note:** Backend implementation guide is in docs/BACKEND_GUIDE.md
+> **Note:** Designer forms guide is in docs/FORMS_GUIDE.md
 
 ---
 
