@@ -129,6 +129,7 @@ Consolidated list of completed features, improvements, and controls.
 - Generic FindControlByID<T>() method
 - FishUITween API refactor: Animation methods moved to Control base class. Old extension methods marked obsolete.
 - Control.cs refactored into partial classes: Control.Animation.cs, Control.Anchoring.cs, Control.AutoSize.cs, Control.Children.cs, Control.Drawing.cs, Control.Input.cs, Control.Position.cs
+- SimpleFishUIGfx enhanced with default implementations: DrawRectangleOutline (4 lines), DrawCircle/DrawCircleOutline (polygon), DrawNPatch (9-slice from DrawImageRegion), PushScissor/PopScissor (stack-based), DrawText chain, LoadImage sub-regions, GetFontMetrics estimate
 
 ## Documentation
 - README.md rewrite with examples, table of contents, updated control list
