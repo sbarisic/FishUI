@@ -8,8 +8,280 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Raylib-cs" Version="7.0.2" />
+    <PackageReference Include="Raylib-cs" Version="7.0.2" />	
     <PackageReference Include="YamlDotNet" Version="16.3.0" />
+	<PackageReference Include="FishUI" Version="1.0.8" />
+    <PackageReference Include="RaylibFishGfx" Version="1.0.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\anim_images\stargate\anim_images\stargate\frame_00_delay-0.1s.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\anim_images\stargate\anim_images\stargate\frame_01_delay-0.1s.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\anim_images\stargate\anim_images\stargate\frame_02_delay-0.1s.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\anim_images\stargate\anim_images\stargate\frame_03_delay-0.1s.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\anim_images\stargate\anim_images\stargate\frame_04_delay-0.1s.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\anim_images\stargate\anim_images\stargate\frame_05_delay-0.1s.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\anim_images\stargate\anim_images\stargate\frame_06_delay-0.1s.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\anim_images\stargate\anim_images\stargate\frame_07_delay-0.1s.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\anim_images\stargate\anim_images\stargate\frame_08_delay-0.1s.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\anim_images\stargate\anim_images\stargate\frame_09_delay-0.1s.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\anim_images\stargate\anim_images\stargate\frame_10_delay-0.1s.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\anim_images\stargate\anim_images\stargate\frame_11_delay-0.1s.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\anim_images\stargate\anim_images\stargate\frame_12_delay-0.1s.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\anim_images\stargate\anim_images\stargate\frame_13_delay-0.1s.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\anim_images\stargate\anim_images\stargate\frame_14_delay-0.1s.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\anim_images\stargate\anim_images\stargate\frame_15_delay-0.1s.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\anim_images\stargate\anim_images\stargate\frame_16_delay-0.1s.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\anim_images\stargate\anim_images\stargate\frame_17_delay-0.1s.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\anim_images\stargate\anim_images\stargate\frame_18_delay-0.1s.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\anim_images\stargate\anim_images\stargate\frame_19_delay-0.1s.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\anim_images\stargate\anim_images\stargate\frame_20_delay-0.1s.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\anim_images\stargate\anim_images\stargate\frame_21_delay-0.1s.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\anim_images\stargate\anim_images\stargate\frame_22_delay-0.1s.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\anim_images\stargate\anim_images\stargate\frame_23_delay-0.1s.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\anim_images\stargate\anim_images\stargate\frame_24_delay-0.1s.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\anim_images\stargate\anim_images\stargate\frame_25_delay-0.1s.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\anim_images\stargate\anim_images\stargate\frame_26_delay-0.1s.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\anim_images\stargate\anim_images\stargate\frame_27_delay-0.1s.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\button_disabled.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\button_hover.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\button_normal.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\button_pressed.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\checkbox_checked.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\checkbox_checked_hover.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\checkbox_disabled_checked.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\checkbox_disabled_unchecked.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\checkbox_unchecked.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\checkbox_unchecked_hover.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\dropdown_arrow_black.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\dropdown_arrow_white.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\dropdown_disabled.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\dropdown_hover.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\dropdown_normal.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\dropdown_pressed.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\fonts\fonts\ubuntu_mono.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\fonts\fonts\ubuntu_mono_bold.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\gwen.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\gwen2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\images\cursors\images\cursors\arrow.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\images\cursors\images\cursors\Beam.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\images\cursors\images\cursors\Cursor_10.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\images\cursors\images\cursors\Cursor_11.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\images\cursors\images\cursors\Cursor_14.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\images\cursors\images\cursors\Cursor_15.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\images\cursors\images\cursors\Cursor_17.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\images\cursors\images\cursors\Cursor_3.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\images\cursors\images\cursors\Cursor_4.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\images\cursors\images\cursors\Cursor_5.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\images\cursors\images\cursors\Cursor_6.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\images\cursors\images\cursors\Cursor_7.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\images\cursors\images\cursors\Cursor_8.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\images\cursors\images\cursors\Cursor_9.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\images\cursors\images\cursors\help_win95.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\images\images\title.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\images\images\win95.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\images\images\win95_pixel.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\images\images\win95_small.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\listbox_itm_hovered.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\listbox_itm_selected.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\listbox_itm_selected_hovered.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\listbox_normal.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\panel2_disabled.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\panel2_normal.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\panel_disabled.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\panel_hover.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\panel_normal.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\panel_pressed.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\radiobutton_checked.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\radiobutton_checked_hover.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\radiobutton_disabled_checked.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\radiobutton_disabled_unchecked.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\radiobutton_unchecked.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\radiobutton_unchecked_hover.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\selectionbox_normal.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\textbox_active.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\textbox_disabled.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\textbox_normal.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\themes\themes\gwen.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="C:\Users\cartm\.nuget\packages\fishui\1.0.8\contentFiles\any\any\data\themes\themes\gwen2.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
