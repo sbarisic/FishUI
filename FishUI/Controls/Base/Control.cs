@@ -44,7 +44,7 @@ namespace FishUI.Controls
 	/// Base class for all FishUI controls. Provides common functionality for positioning,
 	/// sizing, rendering, input handling, and parent-child relationships.
 	/// </summary>
-	public abstract class Control
+	public abstract partial class Control
 	{
 		[YamlIgnore]
 		internal FishUI _FishUI;

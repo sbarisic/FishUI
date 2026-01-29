@@ -96,9 +96,7 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 
 ## Code Cleanup & Technical Debt
 
-### High Priority (CPX 1-2)
-
-- [ ] **FishUITween API refactor** (CPX 2) - Consider moving fluent API extension methods from static FishUITween class to base Control class
+*All cleanup items completed - see DONE.md*
 
 ---
 
