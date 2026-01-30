@@ -163,5 +163,127 @@ namespace UnitTest
 
 			Assert.NotEmpty(fixture.Events.MouseLeaveEvents);
 		}
+
+		[Fact]
+		public void Button_NestedInPanel_OnButtonPressed_EventFires()
+		{
+			using var fixture = new FishUITestFixture();
+
+			var panel = new Panel
+			{
+				Size = new Vector2(200, 200),
+				Position = new FishUIPosition(PositionMode.Relative, new Vector2(50, 50))
+			};
+
+			var button = new Button
+			{
+				Size = new Vector2(100, 30),
+				Position = new FishUIPosition(PositionMode.Relative, new Vector2(20, 20))
+			};
+
+			panel.AddChild(button);
+			fixture.UI.AddControl(panel);
+
+			bool clicked = false;
+			button.OnButtonPressed += (sender, btn, pos) => clicked = true;
+
+			// Button absolute position is panel position + button position = (50+20, 50+20) = (70, 70)
+			// Click in the middle of the button: (70 + 50, 70 + 15) = (120, 85)
+			fixture.Input.SimulateMouseMove(new Vector2(120, 85));
+			fixture.Update();
+
+			fixture.Input.SimulateMouseDown(FishMouseButton.Left);
+			fixture.Update();
+
+			fixture.Input.SimulateMouseUp(FishMouseButton.Left);
+			fixture.Update();
+
+			Assert.True(clicked);
+		}
+
+		[Fact]
+		public void Button_NestedTwoLevelsDeep_OnButtonPressed_EventFires()
+		{
+			using var fixture = new FishUITestFixture();
+
+			var outerPanel = new Panel
+			{
+				Size = new Vector2(300, 300),
+				Position = new FishUIPosition(PositionMode.Relative, new Vector2(10, 10))
+			};
+
+			var innerPanel = new Panel
+			{
+				Size = new Vector2(200, 200),
+				Position = new FishUIPosition(PositionMode.Relative, new Vector2(30, 30))
+			};
+
+			var button = new Button
+			{
+				Size = new Vector2(80, 25),
+				Position = new FishUIPosition(PositionMode.Relative, new Vector2(15, 15))
+			};
+
+			innerPanel.AddChild(button);
+			outerPanel.AddChild(innerPanel);
+			fixture.UI.AddControl(outerPanel);
+
+			bool clicked = false;
+			button.OnButtonPressed += (sender, btn, pos) => clicked = true;
+
+			// Button absolute position:
+			// outerPanel: (10, 10)
+			// innerPanel: (10+30, 10+30) = (40, 40)
+			// button: (40+15, 40+15) = (55, 55)
+			// Click in the middle of the button: (55 + 40, 55 + 12) = (95, 67)
+			fixture.Input.SimulateMouseMove(new Vector2(95, 67));
+			fixture.Update();
+
+			fixture.Input.SimulateMouseDown(FishMouseButton.Left);
+			fixture.Update();
+
+			fixture.Input.SimulateMouseUp(FishMouseButton.Left);
+			fixture.Update();
+
+			Assert.True(clicked);
+		}
+
+		[Fact]
+		public void Button_NestedInPanel_ClickOutsideButton_NoEvent()
+		{
+			using var fixture = new FishUITestFixture();
+
+			var panel = new Panel
+			{
+				Size = new Vector2(200, 200),
+				Position = new FishUIPosition(PositionMode.Relative, new Vector2(50, 50))
+			};
+
+			var button = new Button
+			{
+				Size = new Vector2(100, 30),
+				Position = new FishUIPosition(PositionMode.Relative, new Vector2(20, 20))
+			};
+
+			panel.AddChild(button);
+			fixture.UI.AddControl(panel);
+
+			bool clicked = false;
+			button.OnButtonPressed += (sender, btn, pos) => clicked = true;
+
+			// Click inside panel but outside button
+			// Panel is at (50, 50), button is at (70, 70) with size (100, 30)
+			// Click at (60, 60) - inside panel, outside button
+			fixture.Input.SimulateMouseMove(new Vector2(60, 60));
+			fixture.Update();
+
+			fixture.Input.SimulateMouseDown(FishMouseButton.Left);
+			fixture.Update();
+
+			fixture.Input.SimulateMouseUp(FishMouseButton.Left);
+			fixture.Update();
+
+			Assert.False(clicked);
+		}
 	}
 }
