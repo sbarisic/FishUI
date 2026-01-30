@@ -4,6 +4,8 @@ A dependency-free, immediate-mode-inspired GUI library for .NET applications wit
 
 [![.NET 9.0](https://img.shields.io/badge/.NET-9.0-purple.svg)](https://dotnet.microsoft.com/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![NuGet FishUI](https://img.shields.io/nuget/v/FishUI.svg?label=FishUI)](https://www.nuget.org/packages/FishUI)
+[![NuGet RaylibFishGfx](https://img.shields.io/nuget/v/RaylibFishGfx.svg?label=RaylibFishGfx)](https://www.nuget.org/packages/RaylibFishGfx)
 [![DeepWiki](https://img.shields.io/badge/DeepWiki-sbarisic%2FFishUI-blue.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAAyCAYAAAAnWDnqAAAAAXNSR0IArs4c6QAAA05JREFUaEPtmUtyEzEQhtWTQyQLHNak2AB7ZnyXZMEjXMGeK/AIi+QuHrMnbChYY7MIh8g01fJoopFb0uhhEqqcbWTp06/uv1saEDv4O3n3dV60RfP947Mm9/SQc0ICFQgzfc4CYZoTPAswgSJCCUJUnAAoRHOAUOcATwbmVLWdGoH//PB8mnKqScAhsD0kYP3j/Yt5LPQe2KvcXmGvRHcDnpxfL2zOYJ1mFwrryWTz0advv1Ut4CJgf5uhDuDj5eUcAUoahrdY/56ebRWeraTjMt/00Sh3UDtjgHtQNHwcRGOC98BJEAEymycmYcWwOprTgcB6VZ5JK5TAJ+fXGLBm3FDAmn6oPPjR4rKCAoJCal2eAiQp2x0vxTPB3ALO2CRkwmDy5WohzBDwSEFKRwPbknEggCPB/imwrycgxX2NzoMCHhPkDwqYMr9tRcP5qNrMZHkVnOjRMWwLCcr8ohBVb1OMjxLwGCvjTikrsBOiA6fNyCrm8V1rP93iVPpwaE+gO0SsWmPiXB+jikdf6SizrT5qKasx5j8ABbHpFTx+vFXp9EnYQmLx02h1QTTrl6eDqxLnGjporxl3NL3agEvXdT0WmEost648sQOYAeJS9Q7bfUVoMGnjo4AZdUMQku50McDcMWcBPvr0SzbTAFDfvJqwLzgxwATnCgnp4wDl6Aa+Ax283gghmj+vj7feE2KBBRMW3FzOpLOADl0Isb5587h/U4gGvkt5v60Z1VLG8BhYjbzRwyQZemwAd6cCR5/XFWLYZRIMpX39AR0tjaGGiGzLVyhse5C9RKC6ai42ppWPKiBagOvaYk8lO7DajerabOZP46Lby5wKjw1HCRx7p9sVMOWGzb/vA1hwiWc6jm3MvQDTogQkiqIhJV0nBQBTU+3okKCFDy9WwferkHjtxib7t3xIUQtHxnIwtx4mpg26/HfwVNVDb4oI9RHmx5WGelRVlrtiw43zboCLaxv46AZeB3IlTkwouebTr1y2NjSpHz68WNFjHvupy3q8TFn3Hos2IAk4Ju5dCo8B3wP7VPr/FGaKiG+T+v+TQqIrOqMTL1VdWV1DdmcbO8KXBz6esmYWYKPwDL5b5FA1a0hwapHiom0r/cKaoqr+27/XcrS5UwSMbQAAAABJRU5ErkJggg==)](https://deepwiki.com/sbarisic/FishUI)
 
 Uses the [GWEN Skin](https://github.com/benelot/CEGUI-GWEN-Skin) atlas for theming.
@@ -13,6 +15,7 @@ Uses the [GWEN Skin](https://github.com/benelot/CEGUI-GWEN-Skin) atlas for themi
 - [Overview](#overview)
 - [Screenshots](#screenshots)
 - [Features](#features)
+- [Installation](#installation)
 - [Projects](#projects)
 - [Quick Start](#quick-start)
 - [Control Examples](#control-examples)
@@ -106,6 +109,39 @@ FishUI is a flexible GUI framework that separates UI logic from rendering, allow
 - **Input**: Mouse, keyboard, touch, and virtual cursor (gamepad/keyboard navigation)
 - **Events**: Control events, serializable event handlers, event broadcasting
 - **UI Scaling**: Resolution-independent UI with configurable scale factor
+
+## Installation
+
+### NuGet Packages
+
+FishUI is available on NuGet. Choose the package that fits your needs:
+
+#### Option 1: Raylib Backend (Recommended for Quick Start)
+
+If you're using Raylib for graphics/input, install the all-in-one package:
+
+```bash
+dotnet add package RaylibFishGfx
+```
+
+This includes:
+- **FishUI** - Core library with all controls
+- **Raylib-cs** - Raylib bindings
+- Pre-built `IFishUIGfx` and `IFishUIInput` implementations
+
+#### Option 2: Core Library Only
+
+If you're implementing your own graphics backend:
+
+```bash
+dotnet add package FishUI
+```
+
+Then implement `IFishUIGfx` and `IFishUIInput` interfaces for your graphics library.
+
+### Data Files
+
+The NuGet packages automatically include theme files, fonts, and icons. These are copied to your output directory on build under the `data/` folder.
 
 ## Projects
 
