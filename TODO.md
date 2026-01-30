@@ -89,6 +89,22 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 
 ---
 
+## Unit Testing **MEDIUM PRIORITY**
+
+Unit tests for FishUI core functionality without requiring a backend implementation.
+
+### Core Unit Tests (CPX 3)
+
+- [x] Create mock implementations of `IFishUIGfx`, `IFishUIInput`, `IFishUIEvents`, `IFishUIFileSystem` for testing
+- [x] Test control hierarchy (add/remove children, parent relationships)
+- [x] Test layout and positioning (anchoring, margins, auto-size)
+- [x] Test input handling (focus, hover, click state management)
+- [x] Test event system (event handlers, event propagation)
+- [ ] Test serialization/deserialization (YAML layout loading)
+- [x] Test control-specific logic (visibility, enabled state, z-order)
+
+---
+
 ## Known Issues / Bugs
 
 ### Active Bugs
