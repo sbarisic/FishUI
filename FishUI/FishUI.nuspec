@@ -2,20 +2,21 @@
 <package>
   <metadata>
     <id>FishUI</id>
-    <version>1.0.15</version>
+    <version>1.1.1</version>
     <authors>sbarisic</authors>
     <description>A dependency-free, immediate-mode-inspired GUI library for .NET applications with backend-agnostic rendering.</description>
     <!-- Dependencies, license, etc., can be added here -->
 	<readme>NUGET_FISHUI_README.md</readme>
+	<license type="expression">MIT</license>
 	<dependencies>
 		<group targetFramework="net9.0">
 			<dependency id="YamlDotNet" version="16.3.0" />
 		</group>
 	</dependencies>
 	
-	  <contentFiles>
-      <files include="any/net9.0/data/**/*" buildAction="None" copyToOutput="true" flatten="false" />
-    </contentFiles>
+	<contentFiles>
+		<files include="any/net9.0/data/**/*" buildAction="None" copyToOutput="true" flatten="false" />
+	</contentFiles>
   </metadata>
   
   <files>

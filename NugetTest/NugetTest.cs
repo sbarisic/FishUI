@@ -31,7 +31,7 @@ namespace NugetTest
 
 			// Load theme (required for proper fonts and control rendering)
 			// data/themes/themes/ is correct!!
-			settings.LoadTheme("data/themes/themes/gwen.yaml", applyImmediately: true);
+			settings.LoadTheme("data/themes/gwen.yaml", applyImmediately: true);
 
 			// Create some UI controls
 			CreateDemoUI(fui);
