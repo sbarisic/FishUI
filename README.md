@@ -86,7 +86,7 @@ FishUI is a flexible GUI framework that separates UI logic from rendering, allow
 
 ## Features
 
-### Controls (47+ Built-in)
+### Controls (50+ Built-in)
 
 | Category | Controls |
 |----------|----------|
@@ -148,6 +148,7 @@ The NuGet packages automatically include theme files, fonts, and icons. These ar
 | Project | Description |
 |---------|-------------|
 | **FishUI** | Core library - all controls and interfaces |
+| **RaylibFishGfx** | Raylib graphics/input backend (NuGet package) |
 | **FishUIEditor** | Visual layout editor for designing FishUI interfaces |
 | **FishUIDemos** | Sample implementations using ISample interface |
 | **FishUISample** | Raylib-based sample runner with GUI chooser |
@@ -156,26 +157,29 @@ The NuGet packages automatically include theme files, fonts, and icons. These ar
 
 ### 1. Implement Required Interfaces
 
-FishUI requires three interfaces for your graphics backend:
+FishUI requires two interfaces for your graphics backend (or use the pre-built Raylib backend):
 
 ```csharp
 // Graphics rendering
 public class MyGfx : IFishUIGfx
 {
-    public int ScreenWidth { get; set; }
-    public int ScreenHeight { get; set; }
-    
     public void Init() { }
     public void BeginDrawing(float dt) { }
     public void EndDrawing() { }
-    
+
+    public int GetWindowWidth() { /* ... */ }
+    public int GetWindowHeight() { /* ... */ }
+
     public ImageRef LoadImage(string path) { /* ... */ }
     public FontRef LoadFont(string path, int size) { /* ... */ }
-    
+
     public void DrawRectangle(Vector2 pos, Vector2 size, FishColor color) { /* ... */ }
     public void DrawImage(ImageRef img, Vector2 pos, float rot, float scale, FishColor color) { /* ... */ }
     public void DrawNPatch(NPatch patch, Vector2 pos, Vector2 size, FishColor color) { /* ... */ }
-    public void DrawText(FontRef font, string text, Vector2 pos) { /* ... */ }
+    public void DrawText(FontRef font, string text, Vector2 pos, float size, float spacing, FishColor color) { /* ... */ }
+
+    public void BeginScissor(Vector2 pos, Vector2 size) { /* ... */ }
+    public void EndScissor() { /* ... */ }
     // ... see IFishUIGfx for full interface
 }
 
@@ -187,29 +191,36 @@ public class MyInput : IFishUIInput
     public bool IsMousePressed(FishMouseButton button) { /* ... */ }
     public bool IsKeyDown(FishKey key) { /* ... */ }
     public bool IsKeyPressed(FishKey key) { /* ... */ }
-    public string GetTextInput() { /* ... */ }
+    public FishKey GetKeyPressed() { /* ... */ }
+    public int GetCharPressed() { /* ... */ }
+    public float GetMouseWheelMove() { /* ... */ }
     // ... see IFishUIInput for full interface
 }
 
-// Event broadcasting (optional)
+// Event handling (optional - can use empty implementation)
 public class MyEvents : IFishUIEvents
 {
-    public void Broadcast(FishUI ui, Control sender, string eventName, object[] data) { /* ... */ }
+    public void Broadcast(FishUI.FishUI ui, Control sender, string eventName, object[] args) { }
 }
 ```
 
 ### 2. Initialize FishUI
 
 ```csharp
+// Using the Raylib backend (recommended)
+using RaylibGfx = RaylibFishGfx.RaylibFishGfx;
+using RaylibInput = RaylibFishGfx.RaylibInput;
+
 FishUISettings settings = new FishUISettings();
-IFishUIGfx gfx = new MyGfx(800, 600);
-IFishUIInput input = new MyInput();
-IFishUIEvents events = new MyEvents();
+RaylibGfx gfx = new RaylibGfx(800, 600, "My App");
+gfx.UseBeginDrawing = false;  // Set to false if managing draw calls yourself
+IFishUIInput input = new RaylibInput();
+IFishUIEvents events = new MyEvents();  // Or use a simple empty implementation
 
 FishUI.FishUI ui = new FishUI.FishUI(settings, gfx, input, events);
 ui.Init();
 
-// Load a theme
+// Load a theme (required for proper rendering)
 settings.LoadTheme("data/themes/gwen.yaml", applyImmediately: true);
 ```
 
@@ -232,6 +243,7 @@ ui.AddControl(panel);
 
 CheckBox check = new CheckBox("Enable Feature");
 check.Position = new Vector2(10, 10);
+check.Size = new Vector2(20, 20);  // Size for the checkbox icon
 panel.AddChild(check);
 
 // ListBox with items
@@ -248,16 +260,73 @@ panel.AddChild(list);
 ### 4. Run the Update Loop
 
 ```csharp
-Stopwatch timer = Stopwatch.StartNew();
-float lastTime = 0;
-
-while (running)
+// Main game loop
+while (!Raylib.WindowShouldClose())
 {
-    float currentTime = (float)timer.Elapsed.TotalSeconds;
-    float deltaTime = currentTime - lastTime;
-    lastTime = currentTime;
-    
-    ui.Tick(deltaTime, currentTime);
+    float dt = Raylib.GetFrameTime();
+
+    // Handle window resize
+    if (Raylib.IsWindowResized())
+        ui.Resized(Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
+
+    Raylib.BeginDrawing();
+    Raylib.ClearBackground(Color.DarkGray);
+
+    // Update and render UI
+    ui.Tick(dt, (float)Raylib.GetTime());
+
+    Raylib.EndDrawing();
+}
+
+Raylib.CloseWindow();
+```
+
+### Complete Minimal Example
+
+Here's a complete working example using the Raylib backend:
+
+```csharp
+using FishUI;
+using FishUI.Controls;
+using Raylib_cs;
+using System.Numerics;
+using RaylibGfx = RaylibFishGfx.RaylibFishGfx;
+using RaylibInput = RaylibFishGfx.RaylibInput;
+
+// Simple event handler
+class SimpleEvents : IFishUIEvents
+{
+    public void Broadcast(FishUI.FishUI ui, Control ctrl, string name, object[] args) { }
+}
+
+class Program
+{
+    static void Main()
+    {
+        // Setup
+        var settings = new FishUISettings();
+        var gfx = new RaylibGfx(800, 600, "FishUI Demo");
+        gfx.UseBeginDrawing = false;
+
+        var ui = new FishUI.FishUI(settings, gfx, new RaylibInput(), new SimpleEvents());
+        ui.Init();
+        settings.LoadTheme("data/themes/gwen.yaml", applyImmediately: true);
+
+        // Create a button
+        var button = new Button { Text = "Click Me!", Position = new Vector2(100, 100), Size = new Vector2(120, 40) };
+        button.OnButtonPressed += (btn, mouse, pos) => Console.WriteLine("Clicked!");
+        ui.AddControl(button);
+
+        // Main loop
+        while (!Raylib.WindowShouldClose())
+        {
+            Raylib.BeginDrawing();
+            Raylib.ClearBackground(Color.DarkGray);
+            ui.Tick(Raylib.GetFrameTime(), (float)Raylib.GetTime());
+            Raylib.EndDrawing();
+        }
+        Raylib.CloseWindow();
+    }
 }
 ```
 
@@ -582,29 +651,33 @@ For the sample application:
 
 ```
 FishUI/
-├── FishUI/                 # Core library
-│   ├── Controls/           # All UI controls
+├── FishUI/                 # Core library (NuGet: FishUI)
+│   ├── Controls/           # All UI controls (50+)
 │   ├── FishUI.cs           # Main UI manager
 │   ├── FishUISettings.cs   # Settings and theme loading
 │   ├── IFishUIGfx.cs       # Graphics interface
 │   ├── IFishUIInput.cs     # Input interface
-│   └── LayoutFormat.cs     # YAML serialization
+│   ├── IFishUIEvents.cs    # Event handling interface
+│   ├── LayoutFormat.cs     # YAML serialization
+│   ├── build/              # NuGet build props/targets
+│   └── data/               # Themes, fonts, icons
+├── RaylibFishUI/           # Raylib backend (NuGet: RaylibFishGfx)
+│   ├── RaylibFishGfx.cs    # IFishUIGfx implementation
+│   └── RaylibInput.cs      # IFishUIInput implementation
 ├── FishUIEditor/           # Visual layout editor
 │   ├── Controls/           # Editor-specific controls
 │   └── FishUIEditor.cs     # Editor application
 ├── FishUIDemos/            # Sample implementations
-│   └── Samples/            # ISample implementations
-├── FishUISample/           # Raylib-based runner
-│   ├── RaylibGfx.cs        # IFishUIGfx implementation
-│   ├── RaylibInput.cs      # IFishUIInput implementation
+│   ├── Samples/            # ISample implementations
+│   └── Forms/              # Designer form examples
+├── FishUISample/           # Raylib-based sample runner
+│   ├── Program.cs          # Sample chooser entry point
 │   └── SampleChooser.cs    # GUI sample selector
+├── NugetTest/              # NuGet package testing project
 ├── docs/                   # Documentation
 │   ├── CUSTOM_CONTROLS.md  # Custom control creation guide
 │   └── THEMING.md          # Theme creation guide
-└── data/                   # Assets
-    ├── themes/             # YAML theme files
-    ├── layouts/            # Layout files (editor output)
-    └── images/             # Sample images
+└── screenshots/            # Screenshot gallery
 ```
 
 ## License
