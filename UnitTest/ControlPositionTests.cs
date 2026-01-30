@@ -84,7 +84,7 @@ namespace UnitTest
 			var button = new Button
 			{
 				Size = new Vector2(50, 30),
-				Position = new FishUIPosition(PositionMode.Relative, new Vector2(20, 20))
+				Position = new FishUIPosition(PositionMode.Relative, new Vector2(20, 21))
 			};
 
 			fixture.UI.AddControl(panel);
@@ -94,7 +94,7 @@ namespace UnitTest
 			// Button's global position should be panel position + local position
 			var globalPos = button.GetAbsolutePosition();
 			Assert.Equal(120, globalPos.X); // 100 + 20
-			Assert.Equal(120, globalPos.Y); // 100 + 20
+			Assert.Equal(121, globalPos.Y); // 100 + 20
 		}
 
 		[Fact]
