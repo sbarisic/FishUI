@@ -83,18 +83,12 @@ namespace FishUI
 		/// <summary>
 		/// Sets the scissor clipping region. Must be overridden.
 		/// </summary>
-		public virtual void BeginScissor(Vector2 Pos, Vector2 Size)
-		{
-			throw new NotImplementedException("BeginScissor must be implemented by the graphics backend.");
-		}
+		public abstract void BeginScissor(Vector2 Pos, Vector2 Size);
 
 		/// <summary>
 		/// Ends scissor clipping. Must be overridden.
 		/// </summary>
-		public virtual void EndScissor()
-		{
-			throw new NotImplementedException("EndScissor must be implemented by the graphics backend.");
-		}
+		public abstract void EndScissor();
 
 		/// <summary>
 		/// Pushes a new scissor region onto the stack. Default implementation uses BeginScissor/EndScissor.
@@ -156,10 +150,7 @@ namespace FishUI
 		/// <summary>
 		/// Loads a font from a file. Must be overridden for text rendering.
 		/// </summary>
-		public virtual FontRef LoadFont(string FileName, float Size, float Spacing, FishColor Color)
-		{
-			throw new NotImplementedException("LoadFont must be implemented by the graphics backend.");
-		}
+		public abstract FontRef LoadFont(string FileName, float Size, float Spacing, FishColor Color);
 
 		/// <summary>
 		/// Loads a font with style. Default implementation ignores style and calls base LoadFont.
@@ -173,10 +164,7 @@ namespace FishUI
 		/// <summary>
 		/// Loads an image from a file. Must be overridden.
 		/// </summary>
-		public virtual ImageRef LoadImage(string FileName)
-		{
-			throw new NotImplementedException("LoadImage must be implemented by the graphics backend.");
-		}
+		public abstract ImageRef LoadImage(string FileName);
 
 		/// <summary>
 		/// Loads a sub-region of an image. Default implementation loads full image then creates atlas region.
@@ -198,10 +186,7 @@ namespace FishUI
 		/// <summary>
 		/// Gets the color of a pixel in an image. Override for pixel-level image operations.
 		/// </summary>
-		public virtual FishColor GetImageColor(ImageRef Img, Vector2 Pos)
-		{
-			throw new NotImplementedException("GetImageColor must be implemented by the graphics backend.");
-		}
+		public abstract FishColor GetImageColor(ImageRef Img, Vector2 Pos);
 
 		/// <summary>
 		/// Sets the texture filter mode. Override if your backend supports texture filtering.
@@ -218,10 +203,7 @@ namespace FishUI
 		/// <summary>
 		/// Measures text size. Must be overridden for text rendering.
 		/// </summary>
-		public virtual Vector2 MeasureText(FontRef Fn, string Text)
-		{
-			throw new NotImplementedException("MeasureText must be implemented by the graphics backend.");
-		}
+		public abstract Vector2 MeasureText(FontRef Fn, string Text);
 
 		/// <summary>
 		/// Gets font metrics. Default implementation estimates from MeasureText.
@@ -242,10 +224,7 @@ namespace FishUI
 		/// <summary>
 		/// Draws text with color and scale. Must be overridden for text rendering.
 		/// </summary>
-		public virtual void DrawTextColorScale(FontRef Fn, string Text, Vector2 Pos, FishColor Color, float Scale)
-		{
-			throw new NotImplementedException("DrawTextColorScale must be implemented by the graphics backend.");
-		}
+		public abstract void DrawTextColorScale(FontRef Fn, string Text, Vector2 Pos, FishColor Color, float Scale);
 
 		/// <summary>
 		/// Draws text with color. Default implementation calls DrawTextColorScale with scale 1.0.
@@ -270,18 +249,12 @@ namespace FishUI
 		/// <summary>
 		/// Draws a line. Must be overridden.
 		/// </summary>
-		public virtual void DrawLine(Vector2 Pos1, Vector2 Pos2, float Thick, FishColor Clr)
-		{
-			throw new NotImplementedException("DrawLine must be implemented by the graphics backend.");
-		}
+		public abstract void DrawLine(Vector2 Pos1, Vector2 Pos2, float Thick, FishColor Clr);
 
 		/// <summary>
 		/// Draws a filled rectangle. Must be overridden.
 		/// </summary>
-		public virtual void DrawRectangle(Vector2 Position, Vector2 Size, FishColor Color)
-		{
-			throw new NotImplementedException("DrawRectangle must be implemented by the graphics backend.");
-		}
+		public abstract void DrawRectangle(Vector2 Position, Vector2 Size, FishColor Color);
 
 		/// <summary>
 		/// Draws a rectangle outline. Default implementation uses 4 DrawLine calls.
@@ -351,10 +324,7 @@ namespace FishUI
 		/// <summary>
 		/// Draws an image at position with rotation and scale. Must be overridden.
 		/// </summary>
-		public virtual void DrawImage(ImageRef Img, Vector2 Pos, float Rot, float Scale, FishColor Color)
-		{
-			throw new NotImplementedException("DrawImage must be implemented by the graphics backend.");
-		}
+		public abstract void DrawImage(ImageRef Img, Vector2 Pos, float Rot, float Scale, FishColor Color);
 
 		/// <summary>
 		/// Draws an image scaled to fit a specific size. Default implementation calculates scale from size.
