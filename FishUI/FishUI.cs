@@ -117,6 +117,7 @@ namespace FishUI
 		/// </summary>
 		public FishUIAnimationManager Animations { get; } = new FishUIAnimationManager();
 
+		Control[] OrderedControls;
 
 		/// <summary>
 		/// Creates a new FishUI instance.
@@ -696,6 +697,21 @@ namespace FishUI
 		/// <param name="Time">Total elapsed time in seconds.</param>
 		public void Tick(float Dt, float Time)
 		{
+			TickUpdate(Dt, Time);
+			TickDraw(Dt, Time);
+		}
+
+		/// <summary>
+		/// Updates the input state for the current frame based on mouse, touch, and virtual mouse input, and processes
+		/// control updates and tooltips accordingly.
+		/// </summary>
+		/// <remarks>This method processes both physical and virtual mouse input, updates the state of mouse buttons
+		/// and modifier keys, and manages tooltip timing. It should be called once per frame to ensure consistent input
+		/// handling and UI responsiveness.</remarks>
+		/// <param name="Dt">The elapsed time, in seconds, since the last update. Used for time-based input processing and animations.</param>
+		/// <param name="Time">The current time, in seconds, used for time-dependent calculations and animations.</param>
+		public void TickUpdate(float Dt, float Time)
+		{
 			Vector2 MousePos = Input.GetMousePosition();
 			bool MouseLeft = Input.IsMouseDown(FishMouseButton.Left);
 			bool MouseRight = Input.IsMouseDown(FishMouseButton.Right);
@@ -742,19 +758,28 @@ namespace FishUI
 			InState.CtrlDown = Input.IsKeyDown(FishKey.LeftControl) || Input.IsKeyDown(FishKey.RightControl);
 			InState.AltDown = Input.IsKeyDown(FishKey.LeftAlt) || Input.IsKeyDown(FishKey.RightAlt);
 
-			Control[] OrderedControls = GetOrderedControls();
+			OrderedControls = GetOrderedControls();
 
 			Update(OrderedControls, InState, InLast, Time);
 
 			// Update tooltip
 			UpdateTooltip(Dt, InState.MousePos);
 
-			Draw(OrderedControls, Dt, Time);
-
 			// Clear virtual mouse one-frame states
 			VirtualMouse.EndFrame();
 
 			InLast = InState;
+		}
+
+		/// <summary>
+		/// Draws all ordered controls, updating their visual state based on the elapsed and current time values. Should be called after TickUpdate
+		/// </summary>
+		/// <param name="Dt">The time elapsed since the last draw operation, in seconds. This value is typically used to update animations or
+		/// time-dependent visual effects.</param>
+		/// <param name="Time">The current time, in seconds, used to determine the state of controls during the draw operation.</param>
+		public void TickDraw(float Dt, float Time)
+		{
+			Draw(OrderedControls, Dt, Time);
 		}
 
 		private void UpdateTooltip(float dt, Vector2 mousePos)
