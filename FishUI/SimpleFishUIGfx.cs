@@ -26,7 +26,7 @@ namespace FishUI
 	{
 		#region Scissor Stack
 
-		private readonly Stack<(Vector2 Pos, Vector2 Size)> _scissorStack = new();
+		private readonly Stack<(Vector2 Pos, Vector2 Size)> _scissorStack = new Stack<(Vector2 Pos, Vector2 Size)>();
 
 		#endregion
 

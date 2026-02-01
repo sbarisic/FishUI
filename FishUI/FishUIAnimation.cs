@@ -307,9 +307,9 @@ namespace FishUI
     /// </summary>
     public class FishUIAnimationManager
     {
-        private readonly List<FishUIAnimation> _floatAnimations = new();
-        private readonly List<FishUIAnimationVector2> _vector2Animations = new();
-        private readonly List<FishUIAnimationColor> _colorAnimations = new();
+        private readonly List<FishUIAnimation> _floatAnimations = new List<FishUIAnimation>();
+        private readonly List<FishUIAnimationVector2> _vector2Animations = new List<FishUIAnimationVector2>();
+        private readonly List<FishUIAnimationColor> _colorAnimations = new List<FishUIAnimationColor>();
 
         /// <summary>
         /// Gets the count of active animations.

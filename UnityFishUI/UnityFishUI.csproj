@@ -1,0 +1,112 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\FishUI\Controls\AnimatedImageBox.cs" Link="Controls\AnimatedImageBox.cs" />
+    <Compile Include="..\FishUI\Controls\BarGauge.cs" Link="Controls\BarGauge.cs" />
+    <Compile Include="..\FishUI\Controls\Base\Control.Anchoring.cs" Link="Controls\Base\Control.Anchoring.cs" />
+    <Compile Include="..\FishUI\Controls\Base\Control.Animation.cs" Link="Controls\Base\Control.Animation.cs" />
+    <Compile Include="..\FishUI\Controls\Base\Control.AutoSize.cs" Link="Controls\Base\Control.AutoSize.cs" />
+    <Compile Include="..\FishUI\Controls\Base\Control.Children.cs" Link="Controls\Base\Control.Children.cs" />
+    <Compile Include="..\FishUI\Controls\Base\Control.cs" Link="Controls\Base\Control.cs" />
+    <Compile Include="..\FishUI\Controls\Base\Control.Drawing.cs" Link="Controls\Base\Control.Drawing.cs" />
+    <Compile Include="..\FishUI\Controls\Base\Control.Input.cs" Link="Controls\Base\Control.Input.cs" />
+    <Compile Include="..\FishUI\Controls\Base\Control.Position.cs" Link="Controls\Base\Control.Position.cs" />
+    <Compile Include="..\FishUI\Controls\BigDigitDisplay.cs" Link="Controls\BigDigitDisplay.cs" />
+    <Compile Include="..\FishUI\Controls\Button.cs" Link="Controls\Button.cs" />
+    <Compile Include="..\FishUI\Controls\CheckBox.cs" Link="Controls\CheckBox.cs" />
+    <Compile Include="..\FishUI\Controls\ContextMenu.cs" Link="Controls\ContextMenu.cs" />
+    <Compile Include="..\FishUI\Controls\ControlScrollable.cs" Link="Controls\ControlScrollable.cs" />
+    <Compile Include="..\FishUI\Controls\DataGrid.cs" Link="Controls\DataGrid.cs" />
+    <Compile Include="..\FishUI\Controls\DatePicker.cs" Link="Controls\DatePicker.cs" />
+    <Compile Include="..\FishUI\Controls\DropDown.cs" Link="Controls\DropDown.cs" />
+    <Compile Include="..\FishUI\Controls\FilePickerDialog.cs" Link="Controls\FilePickerDialog.cs" />
+    <Compile Include="..\FishUI\Controls\FlowLayout.cs" Link="Controls\FlowLayout.cs" />
+    <Compile Include="..\FishUI\Controls\GridLayout.cs" Link="Controls\GridLayout.cs" />
+    <Compile Include="..\FishUI\Controls\GroupBox.cs" Link="Controls\GroupBox.cs" />
+    <Compile Include="..\FishUI\Controls\ImageBox.cs" Link="Controls\ImageBox.cs" />
+    <Compile Include="..\FishUI\Controls\ItemListbox.cs" Link="Controls\ItemListbox.cs" />
+    <Compile Include="..\FishUI\Controls\Label.cs" Link="Controls\Label.cs" />
+    <Compile Include="..\FishUI\Controls\LineChart.cs" Link="Controls\LineChart.cs" />
+    <Compile Include="..\FishUI\Controls\ListBox.cs" Link="Controls\ListBox.cs" />
+    <Compile Include="..\FishUI\Controls\MenuBar.cs" Link="Controls\MenuBar.cs" />
+    <Compile Include="..\FishUI\Controls\MenuBarItem.cs" Link="Controls\MenuBarItem.cs" />
+    <Compile Include="..\FishUI\Controls\MenuItem.cs" Link="Controls\MenuItem.cs" />
+    <Compile Include="..\FishUI\Controls\MultiLineEditbox.cs" Link="Controls\MultiLineEditbox.cs" />
+    <Compile Include="..\FishUI\Controls\NumericUpDown.cs" Link="Controls\NumericUpDown.cs" />
+    <Compile Include="..\FishUI\Controls\Panel.cs" Link="Controls\Panel.cs" />
+    <Compile Include="..\FishUI\Controls\ParticleEmitter.cs" Link="Controls\ParticleEmitter.cs" />
+    <Compile Include="..\FishUI\Controls\ProgressBar.cs" Link="Controls\ProgressBar.cs" />
+    <Compile Include="..\FishUI\Controls\PropertyGrid.cs" Link="Controls\PropertyGrid.cs" />
+    <Compile Include="..\FishUI\Controls\RadialGauge.cs" Link="Controls\RadialGauge.cs" />
+    <Compile Include="..\FishUI\Controls\RadioButton.cs" Link="Controls\RadioButton.cs" />
+    <Compile Include="..\FishUI\Controls\ScrollablePane.cs" Link="Controls\ScrollablePane.cs" />
+    <Compile Include="..\FishUI\Controls\ScrollBarH.cs" Link="Controls\ScrollBarH.cs" />
+    <Compile Include="..\FishUI\Controls\ScrollBarV.cs" Link="Controls\ScrollBarV.cs" />
+    <Compile Include="..\FishUI\Controls\SelectionBox.cs" Link="Controls\SelectionBox.cs" />
+    <Compile Include="..\FishUI\Controls\Slider.cs" Link="Controls\Slider.cs" />
+    <Compile Include="..\FishUI\Controls\SpreadsheetCell.cs" Link="Controls\SpreadsheetCell.cs" />
+    <Compile Include="..\FishUI\Controls\SpreadsheetGrid.cs" Link="Controls\SpreadsheetGrid.cs" />
+    <Compile Include="..\FishUI\Controls\StackLayout.cs" Link="Controls\StackLayout.cs" />
+    <Compile Include="..\FishUI\Controls\StaticText.cs" Link="Controls\StaticText.cs" />
+    <Compile Include="..\FishUI\Controls\TabControl.cs" Link="Controls\TabControl.cs" />
+    <Compile Include="..\FishUI\Controls\Textbox.cs" Link="Controls\Textbox.cs" />
+    <Compile Include="..\FishUI\Controls\Timeline.cs" Link="Controls\Timeline.cs" />
+    <Compile Include="..\FishUI\Controls\TimePicker.cs" Link="Controls\TimePicker.cs" />
+    <Compile Include="..\FishUI\Controls\Titlebar.cs" Link="Controls\Titlebar.cs" />
+    <Compile Include="..\FishUI\Controls\ToastNotification.cs" Link="Controls\ToastNotification.cs" />
+    <Compile Include="..\FishUI\Controls\ToggleSwitch.cs" Link="Controls\ToggleSwitch.cs" />
+    <Compile Include="..\FishUI\Controls\Tooltip.cs" Link="Controls\Tooltip.cs" />
+    <Compile Include="..\FishUI\Controls\TreeView.cs" Link="Controls\TreeView.cs" />
+    <Compile Include="..\FishUI\Controls\VUMeter.cs" Link="Controls\VUMeter.cs" />
+    <Compile Include="..\FishUI\Controls\Window.cs" Link="Controls\Window.cs" />
+    <Compile Include="..\FishUI\DesignerCodeGenerator.cs" Link="DesignerCodeGenerator.cs" />
+    <Compile Include="..\FishUI\EventHandlerRegistry.cs" Link="EventHandlerRegistry.cs" />
+    <Compile Include="..\FishUI\FishColor.cs" Link="FishColor.cs" />
+    <Compile Include="..\FishUI\FishCSharpWriter.cs" Link="FishCSharpWriter.cs" />
+    <Compile Include="..\FishUI\FishInputState.cs" Link="FishInputState.cs" />
+    <Compile Include="..\FishUI\FishKey.cs" Link="FishKey.cs" />
+    <Compile Include="..\FishUI\FishMouseButton.cs" Link="FishMouseButton.cs" />
+    <Compile Include="..\FishUI\FishTouchPoint.cs" Link="FishTouchPoint.cs" />
+    <Compile Include="..\FishUI\FishUI.cs" Link="FishUI.cs" />
+    <Compile Include="..\FishUI\FishUIAnchor.cs" Link="FishUIAnchor.cs" />
+    <Compile Include="..\FishUI\FishUIAnimation.cs" Link="FishUIAnimation.cs" />
+    <Compile Include="..\FishUI\FishUIDebug.cs" Link="FishUIDebug.cs" />
+    <Compile Include="..\FishUI\FishUIEventArgs.cs" Link="FishUIEventArgs.cs" />
+    <Compile Include="..\FishUI\FishUIFontMetrics.cs" Link="FishUIFontMetrics.cs" />
+    <Compile Include="..\FishUI\FishUIHotkey.cs" Link="FishUIHotkey.cs" />
+    <Compile Include="..\FishUI\FishUIMargin.cs" Link="FishUIMargin.cs" />
+    <Compile Include="..\FishUI\FishUIPosition.cs" Link="FishUIPosition.cs" />
+    <Compile Include="..\FishUI\FishUISettings.cs" Link="FishUISettings.cs" />
+    <Compile Include="..\FishUI\FishUITheme.cs" Link="FishUITheme.cs" />
+    <Compile Include="..\FishUI\FishUIThemeLoader.cs" Link="FishUIThemeLoader.cs" />
+    <Compile Include="..\FishUI\FishUIThemeRegion.cs" Link="FishUIThemeRegion.cs" />
+    <Compile Include="..\FishUI\FishUITween.cs" Link="FishUITween.cs" />
+    <Compile Include="..\FishUI\FishUIVirtualMouse.cs" Link="FishUIVirtualMouse.cs" />
+    <Compile Include="..\FishUI\FontRef.cs" Link="FontRef.cs" />
+    <Compile Include="..\FishUI\IFishUIEvents.cs" Link="IFishUIEvents.cs" />
+    <Compile Include="..\FishUI\IFishUIFileSystem.cs" Link="IFishUIFileSystem.cs" />
+    <Compile Include="..\FishUI\IFishUIForm.cs" Link="IFishUIForm.cs" />
+    <Compile Include="..\FishUI\IFishUIGfx.cs" Link="IFishUIGfx.cs" />
+    <Compile Include="..\FishUI\IFishUIInput.cs" Link="IFishUIInput.cs" />
+    <Compile Include="..\FishUI\IFishUILogger.cs" Link="IFishUILogger.cs" />
+    <Compile Include="..\FishUI\ImageRef.cs" Link="ImageRef.cs" />
+    <Compile Include="..\FishUI\LayoutFormat.cs" Link="LayoutFormat.cs" />
+    <Compile Include="..\FishUI\NPatch.cs" Link="NPatch.cs" />
+    <Compile Include="..\FishUI\SimpleFishUIGfx.cs" Link="SimpleFishUIGfx.cs" />
+    <Compile Include="..\FishUI\Utils.cs" Link="Utils.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Controls\Base\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="YamlDotNet" Version="16.3.0" />
+  </ItemGroup>
+
+</Project>

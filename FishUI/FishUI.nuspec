@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>FishUI</id>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
     <authors>sbarisic</authors>
     <description>A dependency-free, immediate-mode-inspired GUI library for .NET applications with backend-agnostic rendering.</description>
     <!-- Dependencies, license, etc., can be added here -->
@@ -22,6 +22,7 @@
   <files>
 	<file src="..\NUGET_FISHUI_README.md" target="" />
     <file src="bin\Release\net9.0\*.dll" target="lib\net9.0" />
+	<file src="bin\Release\net9.0\*.xml" target="lib\net9.0" />
 	<file src="bin\Release\net9.0\data\**\*" target="contentFiles\any\net9.0\data" />
   </files>
 </package>

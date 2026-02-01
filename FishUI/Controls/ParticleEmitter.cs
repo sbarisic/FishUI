@@ -201,8 +201,8 @@ namespace FishUI.Controls
 	/// </summary>
 	public class ParticleEmitter : Control
 	{
-		private readonly List<Particle> _particles = new();
-		private readonly Random _random = new();
+		private readonly List<Particle> _particles = new List<Particle>();
+		private readonly Random _random = new Random();
 		private float _emitAccumulator;
 
 		/// <summary>
