@@ -14,6 +14,9 @@ namespace FishUI.Controls
 		Right
 	}
 
+	/// <summary>
+	/// Represents a text label control that displays text with configurable alignment.
+	/// </summary>
 	public class Label : Control
 	{
 		/// <summary>
