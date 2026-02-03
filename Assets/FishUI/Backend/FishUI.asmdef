@@ -1,0 +1,10 @@
+{
+  "name": "FishUI.Backend",
+  "references": [
+    "FishUI",
+    "Unity.InputSystem"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false
+}
