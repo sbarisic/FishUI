@@ -414,10 +414,14 @@ namespace FishUI.Controls
 			bool bottom = point.Y > absPos.Y + absSize.Y - ResizeHandleSize && point.Y <= absPos.Y + absSize.Y;
 
 			ResizeDirection dir = ResizeDirection.None;
-			if (left) dir |= ResizeDirection.Left;
-			if (right) dir |= ResizeDirection.Right;
-			if (top) dir |= ResizeDirection.Top;
-			if (bottom) dir |= ResizeDirection.Bottom;
+			if (left)
+				dir |= ResizeDirection.Left;
+			if (right)
+				dir |= ResizeDirection.Right;
+			if (top)
+				dir |= ResizeDirection.Top;
+			if (bottom)
+				dir |= ResizeDirection.Bottom;
 
 			return dir;
 		}
@@ -484,8 +488,10 @@ namespace FishUI.Controls
 					newSize.Y = MinSize.Y;
 				}
 
-				if (MaxSize.X > 0 && newSize.X > MaxSize.X) newSize.X = MaxSize.X;
-				if (MaxSize.Y > 0 && newSize.Y > MaxSize.Y) newSize.Y = MaxSize.Y;
+				if (MaxSize.X > 0 && newSize.X > MaxSize.X)
+					newSize.X = MaxSize.X;
+				if (MaxSize.Y > 0 && newSize.Y > MaxSize.Y)
+					newSize.Y = MaxSize.Y;
 
 				Size = newSize;
 				Position.X = newPos.X;

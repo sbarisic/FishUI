@@ -289,7 +289,8 @@ namespace FishUI.Controls
 				UI.Graphics.DrawRectangleOutline(calPos, calSize, new FishColor(128, 128, 128, 255));
 			}
 
-			if (font == null) return;
+			if (font == null)
+				return;
 
 			float headerH = Scale(HeaderHeight);
 			float dowH = Scale(DayOfWeekHeight);

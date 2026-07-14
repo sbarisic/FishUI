@@ -393,7 +393,8 @@ namespace FishUI.Controls
 				p.Position += p.Velocity * Dt;
 				p.Rotation += p.RotationSpeed * Dt;
 				p.Scale += p.ScaleSpeed * Dt;
-				if (p.Scale < 0) p.Scale = 0;
+				if (p.Scale < 0)
+					p.Scale = 0;
 
 				// Update lifetime
 				p.Lifetime -= Dt;

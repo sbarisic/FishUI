@@ -99,8 +99,10 @@ namespace FishUI.Controls
 		/// <returns>The interpolated value, or null if not available.</returns>
 		public float? GetValueAt(float time)
 		{
-			if (Points.Count == 0) return null;
-			if (Points.Count == 1) return Points[0].Y;
+			if (Points.Count == 0)
+				return null;
+			if (Points.Count == 1)
+				return Points[0].Y;
 
 			// Find the two points surrounding the time
 			for (int i = 0; i < Points.Count - 1; i++)
@@ -114,8 +116,10 @@ namespace FishUI.Controls
 			}
 
 			// Time is outside the data range
-			if (time < Points[0].X) return null;
-			if (time > Points[Points.Count - 1].X) return null;
+			if (time < Points[0].X)
+				return null;
+			if (time > Points[Points.Count - 1].X)
+				return null;
 
 			return null;
 		}
@@ -531,7 +535,8 @@ namespace FishUI.Controls
 		private void DrawYAxisLabels(FishUI UI, Vector2 pos, Vector2 chartSize, float labelWidth)
 		{
 			var font = UI.Settings.FontDefault;
-			if (font == null) return;
+			if (font == null)
+				return;
 
 			for (int i = 0; i <= HorizontalGridDivisions; i++)
 			{
@@ -553,7 +558,8 @@ namespace FishUI.Controls
 		private void DrawXAxisLabels(FishUI UI, Vector2 chartPos, Vector2 chartSize, float labelHeight)
 		{
 			var font = UI.Settings.FontDefault;
-			if (font == null) return;
+			if (font == null)
+				return;
 
 			float timeStart = AutoScroll ? CurrentTime - TimeWindow : ViewStart;
 			float timeEnd = AutoScroll ? CurrentTime : ViewStart + TimeWindow;
@@ -633,7 +639,8 @@ namespace FishUI.Controls
 		/// </summary>
 		private void FireCursorMoved()
 		{
-			if (OnCursorMoved == null) return;
+			if (OnCursorMoved == null)
+				return;
 
 			var args = new LineChartCursorEventArgs { Time = CursorTime };
 			foreach (var series in Series)

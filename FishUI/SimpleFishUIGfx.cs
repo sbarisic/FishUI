@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -389,8 +389,10 @@ namespace FishUI
 			float destCenterH = Size.Y - srcTop - srcBottom;
 
 			// Ensure minimum sizes
-			if (destCenterW < 0) destCenterW = 0;
-			if (destCenterH < 0) destCenterH = 0;
+			if (destCenterW < 0)
+				destCenterW = 0;
+			if (destCenterH < 0)
+				destCenterH = 0;
 
 			// Source rectangles (9 regions)
 			// Row 1: Top-Left, Top-Center, Top-Right

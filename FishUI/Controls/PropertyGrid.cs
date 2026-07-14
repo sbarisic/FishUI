@@ -143,7 +143,8 @@ namespace FishUI.Controls
 		/// </summary>
 		internal static string GetDisplayTextValue(object obj)
 		{
-			if (obj == null) return "";
+			if (obj == null)
+				return "";
 			var type = obj.GetType();
 
 			// Try Text property
@@ -174,7 +175,8 @@ namespace FishUI.Controls
 		/// </summary>
 		internal static void SetDisplayTextValue(object obj, string value)
 		{
-			if (obj == null) return;
+			if (obj == null)
+				return;
 			var type = obj.GetType();
 
 			// Try Text property
@@ -547,13 +549,19 @@ namespace FishUI.Controls
 
 		private bool IsSupportedType(Type type)
 		{
-			if (type == typeof(string)) return true;
-			if (type == typeof(int) || type == typeof(float) || type == typeof(double)) return true;
-			if (type == typeof(bool)) return true;
-			if (type.IsEnum) return true;
-			if (type == typeof(Vector2) || type == typeof(Vector3) || type == typeof(Vector4)) return true;
+			if (type == typeof(string))
+				return true;
+			if (type == typeof(int) || type == typeof(float) || type == typeof(double))
+				return true;
+			if (type == typeof(bool))
+				return true;
+			if (type.IsEnum)
+				return true;
+			if (type == typeof(Vector2) || type == typeof(Vector3) || type == typeof(Vector4))
+				return true;
 			// Support List<string> for collection editing (e.g., ListBox.Items text values)
-			if (IsStringCollection(type)) return true;
+			if (IsStringCollection(type))
+				return true;
 			return false;
 		}
 

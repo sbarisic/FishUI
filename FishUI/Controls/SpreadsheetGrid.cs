@@ -372,9 +372,12 @@ namespace FishUI.Controls
 			}
 
 			// Handle case where no numeric values were found
-			if (minVal == float.MaxValue) minVal = 0;
-			if (maxVal == float.MinValue) maxVal = 1;
-			if (minVal == maxVal) maxVal = minVal + 1;
+			if (minVal == float.MaxValue)
+				minVal = 0;
+			if (maxVal == float.MinValue)
+				maxVal = 1;
+			if (minVal == maxVal)
+				maxVal = minVal + 1;
 
 			return (minVal, maxVal);
 		}
@@ -436,7 +439,8 @@ namespace FishUI.Controls
 		/// </summary>
 		public void BeginEdit()
 		{
-			if (IsEditing) return;
+			if (IsEditing)
+				return;
 			_editingRow = _selectedRow;
 			_editingCol = _selectedCol;
 			_editValue = GetCell(_editingRow, _editingCol);
@@ -448,7 +452,8 @@ namespace FishUI.Controls
 		/// </summary>
 		public void CommitEdit()
 		{
-			if (!IsEditing) return;
+			if (!IsEditing)
+				return;
 			SetCell(_editingRow, _editingCol, _editValue);
 			_editingRow = -1;
 			_editingCol = -1;
@@ -459,7 +464,8 @@ namespace FishUI.Controls
 		/// </summary>
 		public void CancelEdit()
 		{
-			if (!IsEditing) return;
+			if (!IsEditing)
+				return;
 			_editingRow = -1;
 			_editingCol = -1;
 		}
@@ -576,8 +582,10 @@ namespace FishUI.Controls
 			for (int c = 0; c < _columnCount; c++)
 			{
 				float x = startX + c * cellW;
-				if (x + cellW < pos.X + rowHeaderW) continue;
-				if (x > pos.X + size.X) break;
+				if (x + cellW < pos.X + rowHeaderW)
+					continue;
+				if (x > pos.X + size.X)
+					break;
 
 				// Header background
 				FishColor bgColor = (c == _selectedCol) ? new FishColor(200, 200, 200, 255) : HeaderColor;
@@ -608,8 +616,10 @@ namespace FishUI.Controls
 			for (int r = 0; r < _rowCount; r++)
 			{
 				float y = startY + r * cellH;
-				if (y + cellH < pos.Y + colHeaderH) continue;
-				if (y > pos.Y + size.Y) break;
+				if (y + cellH < pos.Y + colHeaderH)
+					continue;
+				if (y > pos.Y + size.Y)
+					break;
 
 				// Header background
 				FishColor bgColor = (r == _selectedRow) ? new FishColor(200, 200, 200, 255) : HeaderColor;
@@ -649,8 +659,10 @@ namespace FishUI.Controls
 					float y = startPos.Y + r * cellH;
 
 					// Skip cells outside visible area
-					if (x + cellW < areaPos.X || x > areaPos.X + areaSize.X) continue;
-					if (y + cellH < areaPos.Y || y > areaPos.Y + areaSize.Y) continue;
+					if (x + cellW < areaPos.X || x > areaPos.X + areaSize.X)
+						continue;
+					if (y + cellH < areaPos.Y || y > areaPos.Y + areaSize.Y)
+						continue;
 
 					Vector2 cellPos = new Vector2(x, y);
 					Vector2 cellSize = new Vector2(cellW, cellH);
@@ -786,7 +798,8 @@ namespace FishUI.Controls
 
 		public override void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
 		{
-			if (Btn != FishMouseButton.Left) return;
+			if (Btn != FishMouseButton.Left)
+				return;
 
 			var (row, col) = GetCellFromPosition(Pos);
 			if (row >= 0 && col >= 0)
@@ -797,7 +810,8 @@ namespace FishUI.Controls
 
 		public override void HandleMouseDoubleClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
 		{
-			if (Btn != FishMouseButton.Left) return;
+			if (Btn != FishMouseButton.Left)
+				return;
 
 			var (row, col) = GetCellFromPosition(Pos);
 			if (row >= 0 && col >= 0 && row == _selectedRow && col == _selectedCol)
@@ -817,7 +831,8 @@ namespace FishUI.Controls
 					_editValue = "";
 					_cursorPos = 0;
 				}
-				else return;
+				else
+					return;
 			}
 
 			if (!char.IsControl(Character))
@@ -874,10 +889,12 @@ namespace FishUI.Controls
 					}
 					break;
 				case FishKey.Left:
-					if (_cursorPos > 0) _cursorPos--;
+					if (_cursorPos > 0)
+						_cursorPos--;
 					break;
 				case FishKey.Right:
-					if (_cursorPos < _editValue.Length) _cursorPos++;
+					if (_cursorPos < _editValue.Length)
+						_cursorPos++;
 					break;
 				case FishKey.Home:
 					_cursorPos = 0;

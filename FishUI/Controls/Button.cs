@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
@@ -157,8 +157,10 @@ namespace FishUI.Controls
 			if (!string.IsNullOrEmpty(Text))
 			{
 				textSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, Text);
-				if (float.IsNaN(textSize.X)) textSize.X = 0;
-				if (float.IsNaN(textSize.Y)) textSize.Y = 0;
+				if (float.IsNaN(textSize.X))
+					textSize.X = 0;
+				if (float.IsNaN(textSize.Y))
+					textSize.Y = 0;
 			}
 
 			// Measure icon if present

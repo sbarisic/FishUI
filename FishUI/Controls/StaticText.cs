@@ -84,10 +84,12 @@ namespace FishUI.Controls
 			if (!string.IsNullOrEmpty(Text))
 			{
 				Vector2 textSize = UI.Graphics.MeasureText(UI.Settings.FontLabel, Text);
-				
+
 				// Handle NaN values
-				if (float.IsNaN(textSize.X)) textSize.X = 0;
-				if (float.IsNaN(textSize.Y)) textSize.Y = 0;
+				if (float.IsNaN(textSize.X))
+					textSize.X = 0;
+				if (float.IsNaN(textSize.Y))
+					textSize.Y = 0;
 
 				// Calculate horizontal position
 				float x = pos.X;

@@ -115,7 +115,7 @@ namespace FishUI.Controls
 		/// </summary>
 		[YamlMember]
 		public List<DataGridColumn> Columns { get; set; } = new List<DataGridColumn>();
-		
+
 		private List<DataGridRow> _rows = new List<DataGridRow>();
 		private int _selectedIndex = -1;
 		private int _hoveredRowIndex = -1;
@@ -239,8 +239,10 @@ namespace FishUI.Controls
 
 		public void SelectRow(int index)
 		{
-			if (index < 0) index = -1;
-			if (index >= _rows.Count) index = _rows.Count - 1;
+			if (index < 0)
+				index = -1;
+			if (index >= _rows.Count)
+				index = _rows.Count - 1;
 
 			int lastIndex = _selectedIndex;
 			_selectedIndex = index;
@@ -423,7 +425,8 @@ namespace FishUI.Controls
 				if (x + colW > pos.X + width)
 					colW = pos.X + width - x;
 
-				if (colW <= 0) break;
+				if (colW <= 0)
+					break;
 
 				// Column separator
 				if (i > 0)
@@ -470,8 +473,10 @@ namespace FishUI.Controls
 				float y = pos.Y + i * _rowHeight + _scrollOffset.Y;
 
 				// Skip rows outside visible area
-				if (y + _rowHeight < pos.Y) continue;
-				if (y > pos.Y + height) break;
+				if (y + _rowHeight < pos.Y)
+					continue;
+				if (y > pos.Y + height)
+					break;
 
 				bool isSelected = IsIndexSelected(i);
 				bool isHovered = (i == _hoveredRowIndex);
@@ -515,7 +520,8 @@ namespace FishUI.Controls
 					if (x + colW > pos.X + width)
 						colW = pos.X + width - x;
 
-					if (colW <= 0) break;
+					if (colW <= 0)
+						break;
 
 					string cellText = row[c];
 					if (font != null && !string.IsNullOrEmpty(cellText))
@@ -541,7 +547,8 @@ namespace FishUI.Controls
 		private int PickRowFromPosition(Vector2 localPos)
 		{
 			float headerH = Scale(HeaderHeight);
-			if (localPos.Y < headerH) return -1;
+			if (localPos.Y < headerH)
+				return -1;
 
 			float relY = localPos.Y - headerH - _scrollOffset.Y;
 			int rowIdx = (int)(relY / _rowHeight);
@@ -654,7 +661,8 @@ namespace FishUI.Controls
 
 		private void HandleRowSelection(FishInputState InState)
 		{
-			if (_hoveredRowIndex < 0) return;
+			if (_hoveredRowIndex < 0)
+				return;
 
 			if (MultiSelect)
 			{

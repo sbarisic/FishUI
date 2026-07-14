@@ -146,7 +146,7 @@ namespace FishUI.Controls
 		public string ValueFormat { get; set; } = "F0";
 
 		/// <summary>
-		/// Optional unit suffix for value display (e.g., "°C", "%", "L").
+		/// Optional unit suffix for value display (e.g., "Â°C", "%", "L").
 		/// </summary>
 		[YamlMember]
 		public string UnitSuffix { get; set; } = "";

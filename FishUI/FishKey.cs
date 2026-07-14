@@ -1,12 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace FishUI
 {
-    public enum FishKey
-    {
-        None = 0,
+	public enum FishKey
+	{
+		None = 0,
 
 		Apostrophe = 39,
 		Comma = 44,

@@ -144,8 +144,8 @@ namespace FishUI.Controls
 		/// Gets the currently selected tab page, or null if none selected.
 		/// </summary>
 		[YamlIgnore]
-		public TabPage SelectedTab => _selectedIndex >= 0 && _selectedIndex < TabPages.Count 
-			? TabPages[_selectedIndex] 
+		public TabPage SelectedTab => _selectedIndex >= 0 && _selectedIndex < TabPages.Count
+			? TabPages[_selectedIndex]
 			: null;
 
 		/// <summary>
@@ -196,19 +196,19 @@ namespace FishUI.Controls
 		public void AddTab(TabPage page)
 		{
 			TabPages.Add(page);
-			
+
 			// Setup content panel positioning
 			page.Content.Position = new Vector2(ContentPadding, TabHeaderHeight + ContentPadding);
 			page.Content.Size = GetContentSize() - new Vector2(ContentPadding * 2, ContentPadding * 2);
-			
+
 			AddChild(page.Content);
-			
+
 			// If this is the first tab, select it
 			if (TabPages.Count == 1)
 			{
 				_selectedIndex = 0;
 			}
-			
+
 			UpdateContentVisibility();
 		}
 
@@ -239,7 +239,7 @@ namespace FishUI.Controls
 				{
 					_selectedIndex = Math.Max(0, TabPages.Count - 1);
 				}
-				
+
 				UpdateContentVisibility();
 			}
 		}
@@ -268,8 +268,10 @@ namespace FishUI.Controls
 			Vector2 textSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, page.Text ?? "");
 			float width = textSize.X + 20; // padding
 
-			if (width < MinTabWidth) width = MinTabWidth;
-			if (MaxTabWidth > 0 && width > MaxTabWidth) width = MaxTabWidth;
+			if (width < MinTabWidth)
+				width = MinTabWidth;
+			if (MaxTabWidth > 0 && width > MaxTabWidth)
+				width = MaxTabWidth;
 
 			return width;
 		}
@@ -277,7 +279,7 @@ namespace FishUI.Controls
 		private int GetTabAtPosition(FishUI UI, Vector2 pos)
 		{
 			Vector2 absPos = GetAbsolutePosition();
-			
+
 			// Check if in header area
 			if (pos.Y < absPos.Y || pos.Y > absPos.Y + TabHeaderHeight)
 				return -1;
@@ -331,11 +333,11 @@ namespace FishUI.Controls
 			Vector2 contentSize = GetContentSize() - new Vector2(ContentPadding * 2, ContentPadding * 2);
 			foreach (var page in TabPages)
 			{
-			page.Content.Position = new Vector2(ContentPadding, TabHeaderHeight + ContentPadding);
-			page.Content.Size = contentSize;
+				page.Content.Position = new Vector2(ContentPadding, TabHeaderHeight + ContentPadding);
+				page.Content.Size = contentSize;
 			}
 
-		// Draw tab control background (content area)
+			// Draw tab control background (content area)
 			NPatch bgImg = UI.Settings.ImgTabControlBackground;
 			Vector2 contentPos = new Vector2(absPos.X, absPos.Y + TabHeaderHeight);
 			Vector2 bgSize = new Vector2(absSize.X, absSize.Y - TabHeaderHeight);
@@ -364,7 +366,7 @@ namespace FishUI.Controls
 			{
 				Vector2 headerPos = new Vector2(absPos.X + totalTabWidth, absPos.Y);
 				Vector2 headerSize = new Vector2(absSize.X - totalTabWidth, TabHeaderHeight);
-				
+
 				NPatch inactiveTabImg = UI.Settings.ImgTabTopInactive;
 				if (inactiveTabImg != null)
 				{
@@ -390,8 +392,8 @@ namespace FishUI.Controls
 				Vector2 tabSize = new Vector2(tabWidth, TabHeaderHeight);
 
 				// Draw tab background
-				NPatch tabImg = isSelected 
-					? UI.Settings.ImgTabTopActive 
+				NPatch tabImg = isSelected
+					? UI.Settings.ImgTabTopActive
 					: UI.Settings.ImgTabTopInactive;
 
 				if (tabImg != null)
@@ -402,8 +404,8 @@ namespace FishUI.Controls
 				else
 				{
 					// Fallback
-					FishColor bgColor = isSelected 
-						? new FishColor(240, 240, 240) 
+					FishColor bgColor = isSelected
+						? new FishColor(240, 240, 240)
 						: (isHovered ? new FishColor(220, 220, 220) : new FishColor(200, 200, 200));
 					UI.Graphics.DrawRectangle(tabPos, tabSize, bgColor);
 					UI.Graphics.DrawRectangleOutline(tabPos, tabSize, new FishColor(150, 150, 150));

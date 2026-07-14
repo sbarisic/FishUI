@@ -153,7 +153,8 @@ namespace FishUI.Controls
 		/// </summary>
 		public void NextFrame()
 		{
-			if (Frames.Count == 0) return;
+			if (Frames.Count == 0)
+				return;
 
 			int oldFrame = _currentFrame;
 			_currentFrame++;
@@ -171,7 +172,8 @@ namespace FishUI.Controls
 		/// </summary>
 		public void PreviousFrame()
 		{
-			if (Frames.Count == 0) return;
+			if (Frames.Count == 0)
+				return;
 
 			int oldFrame = _currentFrame;
 			_currentFrame--;

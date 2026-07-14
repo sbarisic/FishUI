@@ -1,4 +1,4 @@
-﻿using FishUI.Controls;
+using FishUI.Controls;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Collections.Generic;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Numerics;
 
 namespace FishUI.Controls
@@ -19,7 +19,8 @@ namespace FishUI.Controls
 		/// <param name="onComplete">Callback when animation completes.</param>
 		public void AnimatePosition(Vector2 to, float duration, Easing easing = Easing.EaseOutQuad, Action onComplete = null)
 		{
-			if (Animations == null) return;
+			if (Animations == null)
+				return;
 			var from = new Vector2(Position.X, Position.Y);
 			FishUITween.Vector2(Animations, this, "Position", from, to, duration, easing,
 				v => Position = new FishUIPosition(Position.Mode, v),
@@ -35,7 +36,8 @@ namespace FishUI.Controls
 		/// <param name="onComplete">Callback when animation completes.</param>
 		public void AnimateSize(Vector2 to, float duration, Easing easing = Easing.EaseOutQuad, Action onComplete = null)
 		{
-			if (Animations == null) return;
+			if (Animations == null)
+				return;
 			var from = Size;
 			FishUITween.Vector2(Animations, this, "Size", from, to, duration, easing,
 				v => Size = v,
@@ -51,7 +53,8 @@ namespace FishUI.Controls
 		/// <param name="onComplete">Callback when animation completes.</param>
 		public void AnimateOpacity(float to, float duration, Easing easing = Easing.EaseOutQuad, Action onComplete = null)
 		{
-			if (Animations == null) return;
+			if (Animations == null)
+				return;
 			var from = Opacity;
 			FishUITween.Float(Animations, this, "Opacity", from, to, duration, easing,
 				v => Opacity = v,

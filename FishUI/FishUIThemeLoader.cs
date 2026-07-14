@@ -303,14 +303,22 @@ namespace FishUI
 			// Named colors
 			switch (value.ToLower())
 			{
-				case "white": return FishColor.White;
-				case "black": return FishColor.Black;
-				case "red": return FishColor.Red;
-				case "green": return FishColor.Green;
-				case "blue": return FishColor.Blue;
-				case "cyan": return FishColor.Cyan;
-				case "yellow": return FishColor.Yellow;
-				case "teal": return FishColor.Teal;
+				case "white":
+					return FishColor.White;
+				case "black":
+					return FishColor.Black;
+				case "red":
+					return FishColor.Red;
+				case "green":
+					return FishColor.Green;
+				case "blue":
+					return FishColor.Blue;
+				case "cyan":
+					return FishColor.Cyan;
+				case "yellow":
+					return FishColor.Yellow;
+				case "teal":
+					return FishColor.Teal;
 			}
 
 			return FishColor.Black;
