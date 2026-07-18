@@ -358,8 +358,32 @@ namespace FishUI
 		/// <returns>The topmost control at the position, or null if none.</returns>
 		public Control PickControl(Vector2 GlobalPos)
 		{
+			Control openDropDown = PickOpenDropDown(GlobalPos);
+			if (openDropDown != null)
+				return openDropDown;
+
 			// Reverse the order so we check front controls (higher Z-depth) first
 			return PickControl(GetOrderedControls().Reverse().ToArray(), GlobalPos);
+		}
+
+		private Control PickOpenDropDown(Vector2 globalPosition)
+		{
+			foreach (DropDown dropDown in DropDown.OpenDropdowns.ToArray().Reverse())
+			{
+				if (!dropDown.BelongsTo(this))
+					continue;
+
+				if (!dropDown.IsHierarchyVisible())
+				{
+					dropDown.Close();
+					continue;
+				}
+
+				if (IsControlInputAllowed(dropDown) && dropDown.IsPointInside(globalPosition))
+					return dropDown;
+			}
+
+			return null;
 		}
 
 		Control FindControlByIDEx(Control[] Ctrls, string ID)
@@ -590,8 +614,17 @@ namespace FishUI
 			}
 
 			// Draw open dropdown lists on top of all controls
-			foreach (var dropdown in global::FishUI.Controls.DropDown.OpenDropdowns)
+			foreach (DropDown dropdown in DropDown.OpenDropdowns.ToArray())
 			{
+				if (!dropdown.BelongsTo(this))
+					continue;
+
+				if (!dropdown.IsHierarchyVisible())
+				{
+					dropdown.Close();
+					continue;
+				}
+
 				dropdown.DrawDropdownListOverlay(this);
 			}
 

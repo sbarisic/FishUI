@@ -270,6 +270,24 @@ namespace FishUI.Controls
 			OpenDropdowns.Remove(this);
 		}
 
+		internal bool BelongsTo(FishUI ui)
+		{
+			return FishUI == ui;
+		}
+
+		internal bool IsHierarchyVisible()
+		{
+			Control control = this;
+			while (control != null)
+			{
+				if (!control.Visible)
+					return false;
+				control = control.GetParent();
+			}
+
+			return true;
+		}
+
 		/// <summary>
 		/// Updates the filtered item indices based on the current search text.
 		/// </summary>
