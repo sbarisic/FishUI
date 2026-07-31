@@ -8,7 +8,7 @@ namespace FishUI.Controls
 {
 	public delegate void CheckBoxCheckedChangedFunc(CheckBox Sender, bool IsChecked);
 
-	public class CheckBox : Control
+	public class CheckBox : Control, IFishUIDebugSnapshotProvider
 	{
 		/// <summary>
 		/// Whether the checkbox is currently checked.
@@ -21,7 +21,9 @@ namespace FishUI.Controls
 			{
 				if (_isChecked != value)
 				{
+					bool oldValue = _isChecked;
 					_isChecked = value;
+					RecordDiagnosticState("isChecked", oldValue.ToString(), _isChecked.ToString());
 					OnCheckedChanged?.Invoke(this, _isChecked);
 
 					// Invoke serialized checked changed handler
@@ -50,6 +52,19 @@ namespace FishUI.Controls
 			Label Lbl = new Label(LabelText);
 			Lbl.Alignment = Align.Left;
 			AddChild(Lbl);
+		}
+
+		public void WriteDebugSnapshot(FishUIDebugSnapshotWriter writer)
+		{
+			writer.Write("isChecked", IsChecked);
+		}
+
+		private void RecordDiagnosticState(string name, string oldValue, string newValue)
+		{
+			if (FishUI?.Diagnostics.IsEventRecordingEnabled != true) return;
+			FishUI.Diagnostics.Record(FishUIDiagnosticEventCategory.StateChange,
+				FishUIDiagnosticEventType.StateChanged, this, null,
+				state: new FishUIStateEventData { Name = name, OldValue = oldValue, NewValue = newValue });
 		}
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)

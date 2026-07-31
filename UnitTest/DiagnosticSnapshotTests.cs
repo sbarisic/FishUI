@@ -795,6 +795,149 @@ public sealed class DiagnosticSnapshotTests
 	}
 
 	[Fact]
+	public async Task UnchangedPointerStateIsRecordedOnceAndSummaryAggregatesMovement()
+	{
+		using var fixture = new FishUITestFixture();
+		fixture.UI.Diagnostics.Enabled = true;
+		fixture.UI.Diagnostics.RollingEventHistoryEnabled = true;
+		var panel = new Panel { Size = new Vector2(400, 300) };
+		fixture.UI.AddControl(panel);
+		fixture.Input.SimulateMouseMove(new Vector2(10, 10));
+		fixture.Update();
+		fixture.Update();
+		fixture.Update();
+		fixture.Input.SimulateMouseMove(new Vector2(20, 10));
+		fixture.Update();
+		Task<FishUIDebugSnapshot> capture = FishUIDiagnostics.CaptureAsync(fixture.UI, StructuredOptions());
+
+		fixture.Update();
+		FishUIDebugSnapshot snapshot = await capture;
+
+		Assert.Equal(2, snapshot.RecentEvents.Count(item => item.Type == FishUIDiagnosticEventType.PointerState));
+		Assert.Contains(snapshot.RecentEvents, item => item.Type == FishUIDiagnosticEventType.MouseMoved);
+		Assert.Contains("routine mouse-movement", snapshot.InteractionSummary);
+		Assert.DoesNotContain(" MouseMoved", snapshot.InteractionSummary);
+	}
+
+	[Fact]
+	public async Task TextRedactionAlsoHidesPrintableKeyIdentity()
+	{
+		using var fixture = new FishUITestFixture();
+		fixture.UI.Diagnostics.Enabled = true;
+		fixture.UI.Diagnostics.RollingEventHistoryEnabled = true;
+		var textbox = new Textbox { Size = new Vector2(100, 20) };
+		fixture.UI.AddControl(textbox);
+		fixture.UI.FocusControl(textbox);
+		fixture.Input.SimulateKeyDown(FishKey.Kp5);
+		fixture.Input.SimulateCharTyped('5');
+		Task<FishUIDebugSnapshot> capture = FishUIDiagnostics.CaptureAsync(fixture.UI, StructuredOptions());
+
+		fixture.Update();
+		FishUIDebugSnapshot snapshot = await capture;
+		FishUIDiagnosticEvent key = Assert.Single(snapshot.RecentEvents,
+			item => item.Type == FishUIDiagnosticEventType.KeyPressed);
+
+		Assert.Null(key.Key?.Key);
+		Assert.Null(key.Key?.BackendKeyCode);
+		Assert.Null(key.Message);
+		Assert.Contains(snapshot.RecentEvents, item => item.Type == FishUIDiagnosticEventType.CharacterAccepted &&
+			item.Text?.Redacted == true && item.Text.Character == null);
+	}
+
+	[Fact]
+	public async Task DiagnosticDragEventsRequireThresholdMovement()
+	{
+		using var fixture = new FishUITestFixture();
+		fixture.UI.Diagnostics.Enabled = true;
+		fixture.UI.Diagnostics.RollingEventHistoryEnabled = true;
+		fixture.UI.Diagnostics.DragStartThresholdPixels = 3;
+		fixture.UI.AddControl(new Panel { Size = new Vector2(200, 100) });
+		fixture.Input.SimulateMouseClick(FishMouseButton.Left, new Vector2(20, 20));
+		fixture.Update();
+		fixture.Input.SimulateMouseUp(FishMouseButton.Left);
+		fixture.Update();
+		Assert.DoesNotContain(fixture.UI.DiagnosticsEvents.GetRecentEvents(),
+			item => item.Type == FishUIDiagnosticEventType.DragStarted || item.Type == FishUIDiagnosticEventType.DragEnded);
+
+		fixture.Input.SimulateMouseClick(FishMouseButton.Left, new Vector2(20, 20));
+		fixture.Update();
+		fixture.Input.SimulateMouseMove(new Vector2(24, 20));
+		fixture.Update();
+		fixture.Input.SimulateMouseUp(FishMouseButton.Left);
+		Task<FishUIDebugSnapshot> capture = FishUIDiagnostics.CaptureAsync(fixture.UI, StructuredOptions());
+		fixture.Update();
+		FishUIDebugSnapshot snapshot = await capture;
+
+		Assert.Single(snapshot.RecentEvents, item => item.Type == FishUIDiagnosticEventType.DragStarted);
+		Assert.Contains(snapshot.RecentEvents, item => item.Type == FishUIDiagnosticEventType.DragUpdated);
+		Assert.Single(snapshot.RecentEvents, item => item.Type == FishUIDiagnosticEventType.DragEnded);
+	}
+
+	[Fact]
+	public async Task GeometryClippingUsesAnEpsilonWithoutHidingRealClipping()
+	{
+		using var fixture = new FishUITestFixture();
+		var parent = new Panel { ID = "parent", Size = new Vector2(100, 100) };
+		parent.AddChild(new Panel { ID = "rounding", Size = new Vector2(100.00001f, 100.00001f) });
+		parent.AddChild(new Panel { ID = "actual", Size = new Vector2(100.1f, 100.1f) });
+		fixture.UI.AddControl(parent);
+		Task<FishUIDebugSnapshot> capture = FishUIDiagnostics.CaptureAsync(fixture.UI, StructuredOptions());
+
+		fixture.Update();
+		FishUIDebugSnapshot snapshot = await capture;
+
+		Assert.False(Assert.Single(snapshot.Controls, control => control.Id == "rounding").Geometry.PartiallyClipped);
+		Assert.True(Assert.Single(snapshot.Controls, control => control.Id == "actual").Geometry.PartiallyClipped);
+	}
+
+	[Fact]
+	public async Task SpreadsheetAndCompanionControlsExposeBoundedStateAndTransitions()
+	{
+		using var fixture = new FishUITestFixture();
+		fixture.Settings.FontDefault = new FontRef { Size = 14 };
+		fixture.UI.Diagnostics.Enabled = true;
+		fixture.UI.Diagnostics.RollingEventHistoryEnabled = true;
+		var grid = new SpreadsheetGrid
+		{
+			ID = "grid", Position = new Vector2(10, 10), Size = new Vector2(260, 140),
+			RowCount = 20, ColumnCount = 10, CellWidth = 40, CellHeight = 20
+		};
+		var checkBox = new CheckBox { ID = "check", Position = new Vector2(300, 10), Size = new Vector2(20, 20) };
+		var slider = new Slider { ID = "slider", Position = new Vector2(300, 40), Size = new Vector2(100, 20) };
+		fixture.UI.AddControl(grid);
+		fixture.UI.AddControl(checkBox);
+		fixture.UI.AddControl(slider);
+		fixture.Update();
+		grid.SelectCell(3, 4);
+		grid.BeginEdit();
+		grid.HandleTextInput(fixture.UI, new FishInputState(), 'x');
+		grid.CommitEdit();
+		checkBox.IsChecked = true;
+		slider.Value = 42;
+		Task<FishUIDebugSnapshot> capture = FishUIDiagnostics.CaptureAsync(fixture.UI, StructuredOptions());
+
+		fixture.Update();
+		FishUIDebugSnapshot snapshot = await capture;
+		FishUIControlSnapshot gridState = Assert.Single(snapshot.Controls, control => control.Id == "grid");
+		FishUIControlSnapshot checkState = Assert.Single(snapshot.Controls, control => control.Id == "check");
+		FishUIControlSnapshot sliderState = Assert.Single(snapshot.Controls, control => control.Id == "slider");
+
+		Assert.Equal(20, gridState.ControlData!["rowCount"]);
+		Assert.Equal(4, gridState.ControlData["selectedColumn"]);
+		Assert.Equal(false, gridState.ControlData["isEditing"]);
+		Assert.Equal(1, gridState.ControlData["nonEmptyScannedCellCount"]);
+		Assert.IsType<FishUIDebugRect>(gridState.ControlData["cellAreaPixels"]);
+		Assert.Equal(true, checkState.ControlData!["isChecked"]);
+		Assert.Equal(42f, sliderState.ControlData!["value"]);
+		Assert.Contains(snapshot.RecentEvents, item => item.State?.Name == "selectedCell" && item.State.NewValue == "3,4");
+		Assert.Contains(snapshot.RecentEvents, item => item.State?.Name == "editState" && item.State.NewValue == "committed");
+		Assert.Contains(snapshot.RecentEvents, item => item.State?.Name == "isChecked");
+		Assert.Contains(snapshot.RecentEvents, item => item.State?.Name == "value" && item.ControlId == sliderState.ControlId);
+		Assert.Contains(snapshot.GraphicsCalls, call => call.ControlId == gridState.ControlId && call.Semantic == FishUIRenderSemantic.Viewport);
+		Assert.Contains(snapshot.GraphicsCalls, call => call.ControlId == gridState.ControlId && call.Semantic == FishUIRenderSemantic.Selection);
+	}
+
+	[Fact]
 	public async Task MixedScissorsAreRecordedAndCustomSemanticsAreOptional()
 	{
 		using var fixture = new FishUITestFixture();

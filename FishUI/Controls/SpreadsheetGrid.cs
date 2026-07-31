@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Numerics;
 using YamlDotNet.Serialization;
 
@@ -18,8 +19,9 @@ namespace FishUI.Controls
 	/// <summary>
 	/// A spreadsheet-like grid control with editable cells, row/column headers, and navigation.
 	/// </summary>
-	public class SpreadsheetGrid : Control
+	public class SpreadsheetGrid : Control, IFishUIDebugSnapshotProvider
 	{
+		private const int MaximumDiagnosticCellsScanned = 100000;
 		private int _rowCount = 10;
 		private int _columnCount = 5;
 		private List<List<string>> _cellData = new List<List<string>>();
@@ -50,8 +52,10 @@ namespace FishUI.Controls
 			get => _rowCount;
 			set
 			{
+				int oldValue = _rowCount;
 				_rowCount = Math.Max(1, value);
 				EnsureDataSize();
+				RecordDiagnosticState("rowCount", oldValue, _rowCount);
 			}
 		}
 
@@ -64,8 +68,10 @@ namespace FishUI.Controls
 			get => _columnCount;
 			set
 			{
+				int oldValue = _columnCount;
 				_columnCount = Math.Max(1, value);
 				EnsureDataSize();
+				RecordDiagnosticState("columnCount", oldValue, _columnCount);
 			}
 		}
 
@@ -212,6 +218,84 @@ namespace FishUI.Controls
 			EnsureDataSize();
 		}
 
+		public void WriteDebugSnapshot(FishUIDebugSnapshotWriter writer)
+		{
+			float cellWidth = Scale(CellWidth);
+			float cellHeight = Scale(CellHeight);
+			float rowHeaderWidth = Scale(RowHeaderWidth);
+			float columnHeaderHeight = Scale(ColumnHeaderHeight);
+			Vector2 absolutePosition = GetAbsolutePosition();
+			Vector2 absoluteSize = GetAbsoluteSize();
+			Vector2 cellAreaPosition = absolutePosition + new Vector2(rowHeaderWidth, columnHeaderHeight);
+			Vector2 cellAreaSize = absoluteSize - new Vector2(rowHeaderWidth + 16, columnHeaderHeight + 16);
+			GetVisibleRange(cellWidth, cellHeight, cellAreaSize,
+				out int firstVisibleRow, out int lastVisibleRow, out int firstVisibleColumn, out int lastVisibleColumn);
+
+			long totalCells = (long)_rowCount * _columnCount;
+			int scanLimit = (int)Math.Min(totalCells, MaximumDiagnosticCellsScanned);
+			int scanned = 0;
+			int nonEmpty = 0;
+			for (int row = 0; row < _rowCount && scanned < scanLimit; row++)
+			{
+				int columns = Math.Min(_columnCount, _cellData[row].Count);
+				for (int column = 0; column < columns && scanned < scanLimit; column++)
+				{
+					if (!string.IsNullOrEmpty(_cellData[row][column])) nonEmpty++;
+					scanned++;
+				}
+			}
+
+			writer.Write("rowCount", _rowCount);
+			writer.Write("columnCount", _columnCount);
+			writer.Write("selectedRow", _selectedRow);
+			writer.Write("selectedColumn", _selectedCol);
+			writer.Write("isEditing", IsEditing);
+			writer.Write("editingRow", _editingRow);
+			writer.Write("editingColumn", _editingCol);
+			writer.Write("editValueLength", _editValue?.Length ?? 0);
+			writer.Write("cursorPosition", _cursorPos);
+			writer.Write("hoveredRow", _hoveredRow);
+			writer.Write("hoveredColumn", _hoveredCol);
+			writer.Write("scrollOffsetPixels", FishUIDebugPoint.From(_scrollOffset));
+			writer.Write("cellWidthPixels", cellWidth);
+			writer.Write("cellHeightPixels", cellHeight);
+			writer.Write("rowHeaderWidthPixels", rowHeaderWidth);
+			writer.Write("columnHeaderHeightPixels", columnHeaderHeight);
+			writer.Write("cellAreaPixels", new FishUIDebugRect(cellAreaPosition.X, cellAreaPosition.Y,
+				Math.Max(0, cellAreaSize.X), Math.Max(0, cellAreaSize.Y)));
+			writer.Write("firstVisibleRow", firstVisibleRow);
+			writer.Write("lastVisibleRow", lastVisibleRow);
+			writer.Write("visibleRowCount", firstVisibleRow < 0 ? 0 : lastVisibleRow - firstVisibleRow + 1);
+			writer.Write("firstVisibleColumn", firstVisibleColumn);
+			writer.Write("lastVisibleColumn", lastVisibleColumn);
+			writer.Write("visibleColumnCount", firstVisibleColumn < 0 ? 0 : lastVisibleColumn - firstVisibleColumn + 1);
+			writer.Write("heatMapMode", HeatMapMode);
+			writer.Write("heatMapMinimumConfigured", HeatMapMinValue.HasValue);
+			writer.Write("heatMapMaximumConfigured", HeatMapMaxValue.HasValue);
+			if (HeatMapMinValue.HasValue) writer.Write("heatMapMinimum", HeatMapMinValue.Value);
+			if (HeatMapMaxValue.HasValue) writer.Write("heatMapMaximum", HeatMapMaxValue.Value);
+			writer.Write("cursorMode", CursorMode);
+			writer.Write("cursorX", CursorX);
+			writer.Write("cursorY", CursorY);
+			writer.Write("totalCellCount", totalCells);
+			writer.Write("scannedCellCount", scanned);
+			writer.Write("nonEmptyScannedCellCount", nonEmpty);
+			writer.Write("cellScanTruncated", scanned < totalCells);
+			writer.Write("verticalScrollbarControlId", _scrollBarV?.DiagnosticRuntimeId ?? 0);
+			writer.Write("horizontalScrollbarControlId", _scrollBarH?.DiagnosticRuntimeId ?? 0);
+		}
+
+		private void GetVisibleRange(float cellWidth, float cellHeight, Vector2 areaSize,
+			out int firstRow, out int lastRow, out int firstColumn, out int lastColumn)
+		{
+			firstRow = lastRow = firstColumn = lastColumn = -1;
+			if (cellWidth <= 0 || cellHeight <= 0 || areaSize.X <= 0 || areaSize.Y <= 0) return;
+			firstRow = Math.Clamp((int)Math.Floor(-_scrollOffset.Y / cellHeight), 0, _rowCount - 1);
+			lastRow = Math.Clamp((int)Math.Ceiling((areaSize.Y - _scrollOffset.Y) / cellHeight) - 1, firstRow, _rowCount - 1);
+			firstColumn = Math.Clamp((int)Math.Floor(-_scrollOffset.X / cellWidth), 0, _columnCount - 1);
+			lastColumn = Math.Clamp((int)Math.Ceiling((areaSize.X - _scrollOffset.X) / cellWidth) - 1, firstColumn, _columnCount - 1);
+		}
+
 		private void CreateScrollBars()
 		{
 			if (_scrollBarV == null)
@@ -219,9 +303,11 @@ namespace FishUI.Controls
 				_scrollBarV = new ScrollBarV();
 				_scrollBarV.OnScrollChanged += (_, scroll, delta) =>
 				{
+					Vector2 oldOffset = _scrollOffset;
 					float cellH = Scale(CellHeight);
 					float contentHeight = _rowCount * cellH;
 					_scrollOffset.Y = -scroll * contentHeight;
+					RecordScrollOffset(oldOffset);
 				};
 				AddRuntimeChild(_scrollBarV);
 			}
@@ -231,9 +317,11 @@ namespace FishUI.Controls
 				_scrollBarH = new ScrollBarH();
 				_scrollBarH.OnScrollChanged += (_, scroll, delta) =>
 				{
+					Vector2 oldOffset = _scrollOffset;
 					float cellW = Scale(CellWidth);
 					float contentWidth = _columnCount * cellW;
 					_scrollOffset.X = -scroll * contentWidth;
+					RecordScrollOffset(oldOffset);
 				};
 				AddRuntimeChild(_scrollBarH);
 			}
@@ -310,6 +398,9 @@ namespace FishUI.Controls
 			_cellData[row][column] = value ?? "";
 			if (oldValue != _cellData[row][column])
 			{
+				RecordDiagnosticState("cell[" + row.ToString(CultureInfo.InvariantCulture) + "," +
+					column.ToString(CultureInfo.InvariantCulture) + "].length",
+					oldValue?.Length ?? 0, _cellData[row][column].Length);
 				OnCellChanged?.Invoke(this, row, column, oldValue, _cellData[row][column]);
 			}
 		}
@@ -319,13 +410,16 @@ namespace FishUI.Controls
 		/// </summary>
 		public void ClearAll()
 		{
+			int cleared = 0;
 			for (int r = 0; r < _cellData.Count; r++)
 			{
 				for (int c = 0; c < _cellData[r].Count; c++)
 				{
+					if (!string.IsNullOrEmpty(_cellData[r][c])) cleared++;
 					_cellData[r][c] = "";
 				}
 			}
+			if (cleared > 0) RecordDiagnosticState("nonEmptyCellCount", cleared, 0);
 		}
 
 		/// <summary>
@@ -427,8 +521,10 @@ namespace FishUI.Controls
 
 			if (_selectedRow != row || _selectedCol != column)
 			{
+				string oldCell = FormatCell(_selectedRow, _selectedCol);
 				_selectedRow = row;
 				_selectedCol = column;
+				RecordDiagnosticState("selectedCell", oldCell, FormatCell(row, column));
 				OnSelectionChanged?.Invoke(this, row, column);
 				EnsureCellVisible(row, column);
 			}
@@ -445,6 +541,7 @@ namespace FishUI.Controls
 			_editingCol = _selectedCol;
 			_editValue = GetCell(_editingRow, _editingCol);
 			_cursorPos = _editValue.Length;
+			RecordDiagnosticState("editState", "idle", "editing:" + FormatCell(_editingRow, _editingCol));
 		}
 
 		/// <summary>
@@ -454,9 +551,11 @@ namespace FishUI.Controls
 		{
 			if (!IsEditing)
 				return;
+			string cell = FormatCell(_editingRow, _editingCol);
 			SetCell(_editingRow, _editingCol, _editValue);
 			_editingRow = -1;
 			_editingCol = -1;
+			RecordDiagnosticState("editState", "editing:" + cell, "committed");
 		}
 
 		/// <summary>
@@ -466,12 +565,15 @@ namespace FishUI.Controls
 		{
 			if (!IsEditing)
 				return;
+			string cell = FormatCell(_editingRow, _editingCol);
 			_editingRow = -1;
 			_editingCol = -1;
+			RecordDiagnosticState("editState", "editing:" + cell, "cancelled");
 		}
 
 		private void EnsureCellVisible(int row, int column)
 		{
+			Vector2 oldOffset = _scrollOffset;
 			float cellW = Scale(CellWidth);
 			float cellH = Scale(CellHeight);
 			float rowHeaderW = Scale(RowHeaderWidth);
@@ -498,6 +600,7 @@ namespace FishUI.Controls
 
 			// Sync scrollbar positions
 			SyncScrollBarsFromOffset();
+			RecordScrollOffset(oldOffset);
 		}
 
 		private void SyncScrollBarsFromOffset()
@@ -538,13 +641,16 @@ namespace FishUI.Controls
 
 
 			// Background
-			NPatch bgPatch = UI.Settings.ImgListBoxNormal;
-			if (bgPatch != null)
-				UI.Graphics.DrawNPatch(bgPatch, pos, size, Color);
-			else
+			using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.ControlBounds))
 			{
-				UI.Graphics.DrawRectangle(pos, size, new FishColor(255, 255, 255, 255));
-				UI.Graphics.DrawRectangleOutline(pos, size, new FishColor(128, 128, 128, 255));
+				NPatch bgPatch = UI.Settings.ImgListBoxNormal;
+				if (bgPatch != null)
+					UI.Graphics.DrawNPatch(bgPatch, pos, size, Color);
+				else
+				{
+					UI.Graphics.DrawRectangle(pos, size, new FishColor(255, 255, 255, 255));
+					UI.Graphics.DrawRectangleOutline(pos, size, new FishColor(128, 128, 128, 255));
+				}
 			}
 
 			// Draw corner header cell
@@ -560,16 +666,19 @@ namespace FishUI.Controls
 			// Draw cells with scissoring
 			Vector2 cellAreaPos = pos + new Vector2(rowHeaderW, colHeaderH);
 			Vector2 cellAreaSize = size - new Vector2(rowHeaderW + 16, colHeaderH + 16);
-			UI.Graphics.PushScissor(cellAreaPos, cellAreaSize);
-			DrawCells(UI, cellAreaPos, cellAreaSize, cellW, cellH, font, Time);
-
-			// Draw cursor overlay if enabled
-			if (CursorMode)
+			using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Viewport))
 			{
-				DrawCursor(UI, cellAreaPos, cellAreaSize);
-			}
+				UI.Graphics.PushScissor(cellAreaPos, cellAreaSize);
+				DrawCells(UI, cellAreaPos, cellAreaSize, cellW, cellH, font, Time);
 
-			UI.Graphics.PopScissor();
+				// Draw cursor overlay if enabled
+				if (CursorMode)
+				{
+					DrawCursor(UI, cellAreaPos, cellAreaSize);
+				}
+
+				UI.Graphics.PopScissor();
+			}
 		}
 
 		private void DrawColumnHeaders(FishUI UI, Vector2 pos, Vector2 size, float cellW, float headerH, float rowHeaderW, FontRef font)
@@ -599,7 +708,8 @@ namespace FishUI.Controls
 					var textSize = UI.Graphics.MeasureText(font, text);
 					float textX = x + (cellW - textSize.X) / 2;
 					float textY = pos.Y + (headerH - textSize.Y) / 2;
-					UI.Graphics.DrawTextColor(font, text, new Vector2(textX, textY), FishColor.Black);
+					using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Text))
+						UI.Graphics.DrawTextColor(font, text, new Vector2(textX, textY), FishColor.Black);
 				}
 			}
 
@@ -633,7 +743,8 @@ namespace FishUI.Controls
 					var textSize = UI.Graphics.MeasureText(font, text);
 					float textX = pos.X + (headerW - textSize.X) / 2;
 					float textY = y + (cellH - textSize.Y) / 2;
-					UI.Graphics.DrawTextColor(font, text, new Vector2(textX, textY), FishColor.Black);
+					using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Text))
+						UI.Graphics.DrawTextColor(font, text, new Vector2(textX, textY), FishColor.Black);
 				}
 			}
 
@@ -676,11 +787,13 @@ namespace FishUI.Controls
 					// Cell background
 					if (isEditing)
 					{
-						UI.Graphics.DrawRectangle(cellPos, cellSize, new FishColor(255, 255, 255, 255));
+						using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Selection))
+							UI.Graphics.DrawRectangle(cellPos, cellSize, new FishColor(255, 255, 255, 255));
 					}
 					else if (isSelected)
 					{
-						UI.Graphics.DrawRectangle(cellPos, cellSize, SelectedCellColor);
+						using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Selection))
+							UI.Graphics.DrawRectangle(cellPos, cellSize, SelectedCellColor);
 					}
 					else if (isHovered)
 					{
@@ -708,7 +821,8 @@ namespace FishUI.Controls
 						float textY = y + (cellH - textSize.Y) / 2;
 
 						UI.Graphics.PushScissor(cellPos + new Vector2(2, 0), cellSize - new Vector2(4, 0));
-						UI.Graphics.DrawTextColor(font, text, new Vector2(textX, textY), FishColor.Black);
+						using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Text))
+							UI.Graphics.DrawTextColor(font, text, new Vector2(textX, textY), FishColor.Black);
 						UI.Graphics.PopScissor();
 					}
 
@@ -720,15 +834,19 @@ namespace FishUI.Controls
 
 						if ((int)(time * 2) % 2 == 0)
 						{
-							UI.Graphics.DrawLine(new Vector2(cursorX, y + 3), new Vector2(cursorX, y + cellH - 3), 1f, FishColor.Black);
+							using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Caret))
+								UI.Graphics.DrawLine(new Vector2(cursorX, y + 3), new Vector2(cursorX, y + cellH - 3), 1f, FishColor.Black);
 						}
 					}
 
 					// Selection border (thicker for selected cell)
 					if (isSelected && !isEditing)
 					{
-						UI.Graphics.DrawRectangleOutline(cellPos, cellSize, new FishColor(51, 153, 255, 255));
-						UI.Graphics.DrawRectangleOutline(cellPos + new Vector2(1, 1), cellSize - new Vector2(2, 2), new FishColor(51, 153, 255, 255));
+						using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Selection))
+						{
+							UI.Graphics.DrawRectangleOutline(cellPos, cellSize, new FishColor(51, 153, 255, 255));
+							UI.Graphics.DrawRectangleOutline(cellPos + new Vector2(1, 1), cellSize - new Vector2(2, 2), new FishColor(51, 153, 255, 255));
+						}
 					}
 				}
 			}
@@ -822,6 +940,7 @@ namespace FishUI.Controls
 
 		public override void HandleTextInput(FishUI UI, FishInputState InState, char Character)
 		{
+			int oldLength = _editValue?.Length ?? 0;
 			if (!IsEditing)
 			{
 				// Start editing on any printable character
@@ -840,6 +959,7 @@ namespace FishUI.Controls
 				_editValue = _editValue.Insert(_cursorPos, Character.ToString());
 				_cursorPos++;
 			}
+			RecordDiagnosticState("editValueLength", oldLength, _editValue?.Length ?? 0);
 		}
 
 		public override void HandleKeyPress(FishUI UI, FishInputState InState, FishKey Key)
@@ -856,6 +976,7 @@ namespace FishUI.Controls
 
 		private void HandleEditingKeyPress(FishKey Key, FishInputState InState)
 		{
+			int oldLength = _editValue?.Length ?? 0;
 			switch (Key)
 			{
 				case FishKey.Enter:
@@ -903,6 +1024,7 @@ namespace FishUI.Controls
 					_cursorPos = _editValue.Length;
 					break;
 			}
+			RecordDiagnosticState("editValueLength", oldLength, _editValue?.Length ?? 0);
 		}
 
 		private void HandleNavigationKeyPress(FishKey Key, FishInputState InState)
@@ -967,6 +1089,7 @@ namespace FishUI.Controls
 
 		public override void HandleMouseWheel(FishUI UI, FishInputState InState, float Delta)
 		{
+			Vector2 oldOffset = _scrollOffset;
 			float cellH = Scale(CellHeight);
 			float colHeaderH = Scale(ColumnHeaderHeight);
 			float viewHeight = GetAbsoluteSize().Y - colHeaderH - 16;
@@ -981,7 +1104,35 @@ namespace FishUI.Controls
 
 			// Sync scrollbar position
 			SyncScrollBarsFromOffset();
+			RecordScrollOffset(oldOffset);
 		}
+
+		private void RecordScrollOffset(Vector2 oldOffset)
+		{
+			if (oldOffset == _scrollOffset) return;
+			RecordDiagnosticState("scrollOffsetPixels", FormatPoint(oldOffset), FormatPoint(_scrollOffset));
+		}
+
+		private void RecordDiagnosticState(string name, int oldValue, int newValue)
+		{
+			if (oldValue == newValue) return;
+			RecordDiagnosticState(name, oldValue.ToString(CultureInfo.InvariantCulture),
+				newValue.ToString(CultureInfo.InvariantCulture));
+		}
+
+		private void RecordDiagnosticState(string name, string oldValue, string newValue)
+		{
+			if (oldValue == newValue || FishUI?.Diagnostics.IsEventRecordingEnabled != true) return;
+			FishUI.Diagnostics.Record(FishUIDiagnosticEventCategory.StateChange,
+				FishUIDiagnosticEventType.StateChanged, this, null,
+				state: new FishUIStateEventData { Name = name, OldValue = oldValue, NewValue = newValue });
+		}
+
+		private static string FormatCell(int row, int column) =>
+			row.ToString(CultureInfo.InvariantCulture) + "," + column.ToString(CultureInfo.InvariantCulture);
+
+		private static string FormatPoint(Vector2 point) =>
+			point.X.ToString("R", CultureInfo.InvariantCulture) + "," + point.Y.ToString("R", CultureInfo.InvariantCulture);
 
 		#endregion
 	}

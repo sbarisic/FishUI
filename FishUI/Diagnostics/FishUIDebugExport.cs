@@ -115,14 +115,22 @@ namespace FishUI
 				: "The rolling history was not truncated by capacity.");
 			if (events == null || events.Count == 0) return text.ToString();
 			text.AppendLine();
+			int omittedMoves = 0;
 			foreach (var record in events)
 			{
 				if (record.Category == FishUIDiagnosticEventCategory.RawInput && record.Type == FishUIDiagnosticEventType.PointerState) continue;
+				if (record.Type == FishUIDiagnosticEventType.MouseMoved)
+				{
+					omittedMoves += Math.Max(1, record.Pointer?.SampleCount ?? 1);
+					continue;
+				}
 				text.Append('#').Append(record.Sequence).Append(' ').Append(record.Type);
 				if (record.ControlId.HasValue) text.Append(" control ").Append(record.ControlId.Value);
 				if (!string.IsNullOrEmpty(record.Message)) text.Append(": ").Append(record.Message);
 				text.AppendLine();
 			}
+			if (omittedMoves > 0)
+				text.Append("Omitted ").Append(omittedMoves).AppendLine(" routine mouse-movement samples; they remain in recent-events.json.");
 			return text.ToString();
 		}
 	}

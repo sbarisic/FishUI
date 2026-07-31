@@ -9,6 +9,7 @@ namespace FishUI
 {
 	internal sealed class FishUIControlSnapshotBuilder
 	{
+		private const float GeometryEpsilon = 0.001f;
 		private readonly FishUIDiagnosticsSession _session;
 		private readonly FishUI _ui;
 		private readonly List<FishUIDiagnosticWarning> _warnings;
@@ -63,7 +64,7 @@ namespace FishUI
 			var visible = FishUIDebugRect.Intersect(bounds, inheritedClip);
 			var onScreenBounds = FishUIDebugRect.Intersect(bounds, _window);
 			bool fullyClipped = visible == null || visible.IsEmpty;
-			bool partiallyClipped = !fullyClipped && (visible.X != bounds.X || visible.Y != bounds.Y || visible.Width != bounds.Width || visible.Height != bounds.Height);
+			bool partiallyClipped = !fullyClipped && !RectEquals(visible, bounds);
 			bool actualVisible = hierarchyVisible && control.Visible;
 
 			var snapshot = new FishUIControlSnapshot
@@ -198,8 +199,11 @@ namespace FishUI
 		private static bool RectEquals(FishUIDebugRect left, FishUIDebugRect right)
 		{
 			if (left == null || right == null) return left == null && right == null;
-			return left.X == right.X && left.Y == right.Y && left.Width == right.Width && left.Height == right.Height;
+			return NearlyEqual(left.X, right.X) && NearlyEqual(left.Y, right.Y) &&
+				NearlyEqual(left.Width, right.Width) && NearlyEqual(left.Height, right.Height);
 		}
+
+		private static bool NearlyEqual(float left, float right) => Math.Abs(left - right) <= GeometryEpsilon;
 
 		private sealed class ReferenceComparer : IEqualityComparer<Control>
 		{

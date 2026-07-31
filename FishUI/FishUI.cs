@@ -64,6 +64,7 @@ namespace FishUI
 		Control RightClickedControl;
 		long? ActiveDragInteractionId;
 		Vector2 ActiveDragStart;
+		bool ActiveDiagnosticDragStarted;
 
 		// Double-click detection
 		float LastLeftClickTime = -1f;
@@ -667,13 +668,9 @@ namespace FishUI
 					{
 						if (recordDiagnostics)
 						{
-							ActiveDragInteractionId = Diagnostics.NextInteractionId(); ActiveDragStart = InState.MousePos;
-							Diagnostics.Record(FishUIDiagnosticEventCategory.Drag, FishUIDiagnosticEventType.DragStarted,
-								ControlUnderMouse, MBtn.ToString(), new FishUIPointerEventData
-								{
-									StartPositionPixels = FishUIDebugPoint.From(InState.MousePos),
-									PositionPixels = FishUIDebugPoint.From(InState.MousePos)
-								}, interactionId: ActiveDragInteractionId);
+							ActiveDragInteractionId = Diagnostics.NextInteractionId();
+							ActiveDragStart = InState.MousePos;
+							ActiveDiagnosticDragStarted = false;
 						}
 					}
 				}
@@ -712,7 +709,7 @@ namespace FishUI
 					diagnosticEvent = Diagnostics.Record(FishUIDiagnosticEventCategory.Pointer,
 						FishUIDiagnosticEventType.MouseButtonReleased, ControlUnderMouse, MBtn.ToString(),
 						new FishUIPointerEventData { Button = MBtn.ToString(), PositionPixels = FishUIDebugPoint.From(InState.MousePos) },
-						interactionId: MBtn == FishMouseButton.Left ? ActiveDragInteractionId : null);
+						interactionId: MBtn == FishMouseButton.Left && ActiveDiagnosticDragStarted ? ActiveDragInteractionId : null);
 				using (Diagnostics.EnterCause(diagnosticEvent?.Sequence))
 				{
 				if (ControlUnderMouse != null)
@@ -772,12 +769,16 @@ namespace FishUI
 					}
 				}
 				}
-				if (recordDiagnostics && MBtn == FishMouseButton.Left && ActiveDragInteractionId.HasValue)
+				if (recordDiagnostics && MBtn == FishMouseButton.Left && ActiveDragInteractionId.HasValue && ActiveDiagnosticDragStarted)
 					Diagnostics.Record(FishUIDiagnosticEventCategory.Drag, FishUIDiagnosticEventType.DragEnded, pressOwner,
 						"released", new FishUIPointerEventData { StartPositionPixels = FishUIDebugPoint.From(ActiveDragStart), PositionPixels = FishUIDebugPoint.From(InState.MousePos), TotalDeltaPixels = FishUIDebugPoint.From(InState.MousePos - ActiveDragStart) }, interactionId: ActiveDragInteractionId);
 
 				ClickedControl = null;
-				if (MBtn == FishMouseButton.Left) ActiveDragInteractionId = null;
+				if (MBtn == FishMouseButton.Left)
+				{
+					ActiveDragInteractionId = null;
+					ActiveDiagnosticDragStarted = false;
+				}
 			}
 		}
 
@@ -857,8 +858,24 @@ namespace FishUI
 			if (LeftClickedControl != null && InState.MouseLeft && InState.MouseDelta != Vector2.Zero)
 			{
 				if (recordDiagnostics)
+				{
+					Vector2 totalDelta = InState.MousePos - ActiveDragStart;
+					if (!ActiveDiagnosticDragStarted && ActiveDragInteractionId.HasValue &&
+						totalDelta.LengthSquared() >= Diagnostics.DragStartThresholdPixels * Diagnostics.DragStartThresholdPixels)
+					{
+						ActiveDiagnosticDragStarted = true;
+						Diagnostics.Record(FishUIDiagnosticEventCategory.Drag, FishUIDiagnosticEventType.DragStarted,
+							LeftClickedControl, "thresholdExceeded", new FishUIPointerEventData
+							{
+								StartPositionPixels = FishUIDebugPoint.From(ActiveDragStart),
+								PositionPixels = FishUIDebugPoint.From(InState.MousePos),
+								TotalDeltaPixels = FishUIDebugPoint.From(totalDelta)
+							}, interactionId: ActiveDragInteractionId);
+					}
+					if (ActiveDiagnosticDragStarted)
 					Diagnostics.Record(FishUIDiagnosticEventCategory.Drag, FishUIDiagnosticEventType.DragUpdated, LeftClickedControl,
 						"drag", new FishUIPointerEventData { StartPositionPixels = FishUIDebugPoint.From(ActiveDragStart), PreviousPositionPixels = FishUIDebugPoint.From(InLast.MousePos), PositionPixels = FishUIDebugPoint.From(InState.MousePos), DeltaPixels = FishUIDebugPoint.From(InState.MouseDelta), TotalDeltaPixels = FishUIDebugPoint.From(InState.MousePos - ActiveDragStart) }, interactionId: ActiveDragInteractionId);
+				}
 				LeftClickedControl.HandleDrag(this, InLast.MousePos, InState.MousePos, InState);
 			}
 

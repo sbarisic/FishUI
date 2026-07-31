@@ -68,7 +68,7 @@ namespace FishUIDemos
 			// === Main SpreadsheetGrid ===
 			_mainGrid = new SpreadsheetGrid();
 			_mainGrid.Position = new Vector2(20, yPos);
-			_mainGrid.Size = new Vector2(600, 300);
+			_mainGrid.Size = new Vector2(600, 285);
 			_mainGrid.RowCount = 20;
 			_mainGrid.ColumnCount = 10;
 			_mainGrid.CellWidth = 80;
@@ -120,7 +120,7 @@ namespace FishUIDemos
 
 			FUI.AddControl(_mainGrid);
 
-			yPos += 310;
+			yPos += 295;
 
 			// Status label
 			_statusLabel = new Label("Selected: A1");

@@ -139,6 +139,9 @@ namespace FishUI
 		private int _maximumCaptureEvents = 20000;
 		private bool _clearTemporaryHistoryWhenIdle;
 		private bool _lifetimeCtsDisposed;
+		private bool _eventRecordingWasEnabled;
+		private bool _hasRecordedPointerState;
+		private float _dragStartThresholdPixels = 3f;
 		private FishUIPointerSnapshot _backendPointer;
 		private FishUIPointerSnapshot _effectivePointer;
 		private FishUIModifierSnapshot _modifiers;
@@ -195,6 +198,11 @@ namespace FishUI
 		public int MaximumFramebufferWidth { get; set; } = 16384;
 		public int MaximumFramebufferHeight { get; set; } = 16384;
 		public long MaximumFramebufferBytes { get; set; } = 256L * 1024 * 1024;
+		public float DragStartThresholdPixels
+		{
+			get => _dragStartThresholdPixels;
+			set => _dragStartThresholdPixels = float.IsFinite(value) ? Math.Max(0, value) : 0;
+		}
 		public Func<FishUIDebugSnapshot, CancellationToken, Task> AutoExportAsync { get; set; }
 		public event EventHandler<FishUICaptureCompletedEventArgs> CaptureCompleted;
 		public event EventHandler<FishUIDebugExportEventArgs> ExportCompleted;
@@ -259,6 +267,9 @@ namespace FishUI
 				shouldRecord = !_disposed && (_active != null || _pending.Any(request => !request.Cancelled) ||
 					(_enabled && _rollingEventHistoryEnabled));
 				Events.Options.Enabled = shouldRecord;
+				if (shouldRecord && !_eventRecordingWasEnabled)
+					_hasRecordedPointerState = false;
+				_eventRecordingWasEnabled = shouldRecord;
 				clear = !shouldRecord && !_rollingEventHistoryEnabled && _clearTemporaryHistoryWhenIdle;
 				if (clear) _clearTemporaryHistoryWhenIdle = false;
 			}
@@ -274,6 +285,7 @@ namespace FishUI
 		private void ScrubBufferedDiagnosticData()
 		{
 			Events.ClearSensitiveHistory();
+			_hasRecordedPointerState = false;
 			_currentPaths.Clear();
 			_pathIds.Clear();
 			_paths.Clear();
@@ -389,14 +401,16 @@ namespace FishUI
 			Frame++;
 			DeltaTimeSeconds = dt;
 			TimeSeconds = time;
-			_backendPointer = backendPointer;
-			_effectivePointer = effectivePointer;
 			_modifiers = modifiers;
-			if (IsEventRecordingEnabled)
+			if (IsEventRecordingEnabled && (!_hasRecordedPointerState ||
+				!PointerEquals(_backendPointer, backendPointer) || !PointerEquals(_effectivePointer, effectivePointer)))
 			{
 				Record(FishUIDiagnosticEventCategory.RawInput, FishUIDiagnosticEventType.PointerState, null, null,
 					new FishUIPointerEventData { BackendPointer = backendPointer, EffectivePointer = effectivePointer });
+				_hasRecordedPointerState = true;
 			}
+			_backendPointer = backendPointer;
+			_effectivePointer = effectivePointer;
 		}
 
 		internal RecordingFishUIGfx BeginDraw(IFishUIGfx original)
@@ -619,6 +633,13 @@ namespace FishUI
 			{
 				text.Redacted = true; text.Character = null; text.CodePoint = null;
 			}
+			if (type == FishUIDiagnosticEventType.KeyPressed && key != null &&
+				PrivacyPolicy.EffectiveRedactText && IsPotentialTextKey(key.Key))
+			{
+				key.Key = null;
+				key.BackendKeyCode = null;
+				message = null;
+			}
 			if (state != null && PrivacyPolicy.EffectiveRedactValues)
 			{
 				state.OldValue = null;
@@ -816,7 +837,16 @@ namespace FishUI
 				ordered = ordered.Select(CloneEvent).ToList();
 			var result = ordered;
 			if (options.RedactText || PrivacyPolicy.EffectiveRedactText)
-				foreach (var record in result) if (record.Text != null) { record.Text.Redacted = true; record.Text.Character = null; record.Text.CodePoint = null; }
+				foreach (var record in result)
+				{
+					if (record.Text != null) { record.Text.Redacted = true; record.Text.Character = null; record.Text.CodePoint = null; }
+					if (record.Type == FishUIDiagnosticEventType.KeyPressed && record.Key != null && IsPotentialTextKey(record.Key.Key))
+					{
+						record.Key.Key = null;
+						record.Key.BackendKeyCode = null;
+						record.Message = null;
+					}
+				}
 			if (options.RedactValues || PrivacyPolicy.EffectiveRedactValues)
 				foreach (var record in result) if (record.State != null) { record.State.OldValue = null; record.State.NewValue = null; }
 			return result;
@@ -868,6 +898,52 @@ namespace FishUI
 					Name = value.State.Name, OldValue = value.State.OldValue, NewValue = value.State.NewValue
 				}
 			};
+		}
+
+		private static bool PointerEquals(FishUIPointerSnapshot left, FishUIPointerSnapshot right)
+		{
+			if (ReferenceEquals(left, right)) return true;
+			if (left == null || right == null) return false;
+			return left.Source == right.Source && left.LeftDown == right.LeftDown && left.RightDown == right.RightDown &&
+				left.WheelDelta == right.WheelDelta && PointEquals(left.PositionPixels, right.PositionPixels);
+		}
+
+		private static bool PointEquals(FishUIDebugPoint left, FishUIDebugPoint right)
+		{
+			if (ReferenceEquals(left, right)) return true;
+			return left != null && right != null && left.X == right.X && left.Y == right.Y;
+		}
+
+		private static bool IsPotentialTextKey(string key)
+		{
+			if (string.IsNullOrEmpty(key)) return false;
+			if (key.Length == 1 && key[0] >= 'A' && key[0] <= 'Z') return true;
+			if (key.Length == 1 && key[0] >= '0' && key[0] <= '9') return true;
+			if (key.StartsWith("Kp", StringComparison.Ordinal) && key.Length == 3 && char.IsDigit(key[2])) return true;
+			switch (key)
+			{
+				case nameof(FishKey.Space):
+				case nameof(FishKey.Apostrophe):
+				case nameof(FishKey.Comma):
+				case nameof(FishKey.Minus):
+				case nameof(FishKey.Period):
+				case nameof(FishKey.Slash):
+				case nameof(FishKey.Semicolon):
+				case nameof(FishKey.Equal):
+				case nameof(FishKey.LeftBracket):
+				case nameof(FishKey.Backslash):
+				case nameof(FishKey.RightBracket):
+				case nameof(FishKey.Grave):
+				case nameof(FishKey.KpDecimal):
+				case nameof(FishKey.KpDivide):
+				case nameof(FishKey.KpMultiply):
+				case nameof(FishKey.KpSubtract):
+				case nameof(FishKey.KpAdd):
+				case nameof(FishKey.KpEqual):
+					return true;
+				default:
+					return false;
+			}
 		}
 
 		private static FishUIGraphicsCall CloneGraphicsCall(FishUIGraphicsCall value)

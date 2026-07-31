@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Numerics;
 using YamlDotNet.Serialization;
 
@@ -12,7 +13,7 @@ namespace FishUI.Controls
 
 	public delegate void SliderValueChangedFunc(Slider Sender, float Value);
 
-	public class Slider : Control
+	public class Slider : Control, IFishUIDebugSnapshotProvider
 	{
 		[YamlMember]
 		public SliderOrientation Orientation { get; set; } = SliderOrientation.Horizontal;
@@ -31,6 +32,7 @@ namespace FishUI.Controls
 				{
 					float oldValue = _value;
 					_value = newValue;
+					RecordDiagnosticState("value", oldValue, _value);
 					OnValueChanged?.Invoke(this, _value);
 
 					// Invoke serialized value changed handler
@@ -129,6 +131,31 @@ namespace FishUI.Controls
 		public Slider()
 		{
 			Size = new Vector2(200, 20);
+		}
+
+		public void WriteDebugSnapshot(FishUIDebugSnapshotWriter writer)
+		{
+			writer.Write("value", Value);
+			writer.Write("minimum", MinValue);
+			writer.Write("maximum", MaxValue);
+			writer.Write("step", Step);
+			writer.Write("normalizedValue", GetNormalizedValue());
+			writer.Write("orientation", Orientation.ToString());
+			writer.Write("isDragging", _isDragging);
+			writer.Write("showValueLabel", ShowValueLabel);
+		}
+
+		private void RecordDiagnosticState(string name, float oldValue, float newValue)
+		{
+			if (FishUI?.Diagnostics.IsEventRecordingEnabled != true) return;
+			FishUI.Diagnostics.Record(FishUIDiagnosticEventCategory.StateChange,
+				FishUIDiagnosticEventType.StateChanged, this, null,
+				state: new FishUIStateEventData
+				{
+					Name = name,
+					OldValue = oldValue.ToString("R", CultureInfo.InvariantCulture),
+					NewValue = newValue.ToString("R", CultureInfo.InvariantCulture)
+				});
 		}
 
 		private FishColor GetTrackColor(FishUI UI)

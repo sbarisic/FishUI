@@ -29,6 +29,8 @@ Date pickers add bounded calendar state to their control record: whether the pop
 
 Drop-down controls record bounded structural state: popup and search-box bounds, selected indices, selection count, hovered and filtered indices, item counts, and scrolling metrics. Open/close, selection, and search-length changes appear in the event timeline. Item text, custom-renderer delegates, and item `UserData` are never copied into control data; the selected-index list is capped at 256 entries and reports truncation.
 
+Spreadsheet grids record selection, edit state, scroll position, visible row and column ranges, cell geometry, cursor and heat-map modes, and bounded occupancy counts. Cell contents are never copied. Cell-change events contain coordinates and old/new lengths only. Check boxes and sliders also record their current values and state transitions. See [Diagnostic control coverage](DIAGNOSTIC_CONTROL_COVERAGE.md) for the remaining control inventory.
+
 `Ctrl+Shift+F12` queues the default capture when diagnostics and the diagnostic hotkey are enabled. In Debug builds, rolling event history is enabled by default; in Release builds it is disabled until the application enables it. The hotkey capture includes up to the configured rolling-history duration before the trigger plus events from the captured frame. Enabling only the hotkey does not enable continuous recording.
 
 ```csharp
@@ -39,6 +41,8 @@ ui.Diagnostics.MaximumRollingHistoryEvents = 20_000;
 
 History is bounded by both time and capacity. A high-volume burst can retain less than the requested duration; snapshot metadata reports the actual duration, projected event count, and capacity truncation. Disabling rolling history clears it as soon as no capture is active or pending. Enabling it later records only future activity.
 
+Unchanged raw pointer state is not repeated every frame. Actual mouse movement remains in `recent-events.json`, while the human interaction summary reports its sample count instead of listing every movement. Diagnostic drag events begin only after `DragStartThresholdPixels` is exceeded; this does not change control drag behavior.
+
 ## Thread and lifetime rules
 
 Request enqueueing and cancellation are thread-safe. Capture batching, UI traversal, event routing, hit-test inspection, and rendering occur on the FishUI thread. Other diagnostic inspection APIs are not thread-safe unless their API says otherwise.
@@ -48,6 +52,8 @@ Dispose `FishUI` to cancel outstanding requests. Disposal is idempotent and does
 ## Privacy
 
 Text is redacted by default. Password text, clipboard contents, delegates, `UserData`, and arbitrary application objects are never recorded. Framebuffers are disabled by default because pixels can expose text that structured redaction hides.
+
+When text redaction is active, printable `KeyPressed` identities and backend key codes are also removed. This prevents the key event from revealing a character that the corresponding text-input event redacted. Navigation, function, modifier, and hotkey identities remain available.
 
 ```csharp
 ui.Diagnostics.PrivacyPolicy.AllowFramebufferCapture = true;
