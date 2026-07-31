@@ -628,6 +628,7 @@ dotnet run -- --sample 0
 - **Theme Switcher**: Runtime theme switching
 - **Virtual Cursor**: Keyboard/gamepad navigation
 - **Game Menu**: Example game-style UI
+- **Windows 98 Notepad**: Classic text editor clone with in-memory Open/Save, Find, clipboard commands, and Word Wrap
 - **Editor Layout**: Load and display layouts from FishUIEditor
 - **Data Controls**: DataGrid, SpreadsheetGrid, DatePicker, TimePicker
 - **Serialization**: Layout save/load with event handler binding

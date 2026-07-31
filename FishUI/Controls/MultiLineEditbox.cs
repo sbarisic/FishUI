@@ -16,7 +16,23 @@ namespace FishUI.Controls
 	/// </summary>
 	public class MultiLineEditbox : Control
 	{
+		private readonly struct VisualLine
+		{
+			public int LogicalRow { get; }
+			public int StartColumn { get; }
+			public int Length { get; }
+			public int EndColumn => StartColumn + Length;
+
+			public VisualLine(int logicalRow, int startColumn, int length)
+			{
+				LogicalRow = logicalRow;
+				StartColumn = startColumn;
+				Length = length;
+			}
+		}
+
 		private List<string> _lines = new List<string> { "" };
+		private List<VisualLine> _visualLines = new List<VisualLine> { new VisualLine(0, 0, 0) };
 		private float _scrollOffsetPixels = 0f;
 
 		/// <summary>
@@ -211,6 +227,122 @@ namespace FishUI.Controls
 		// Track when scrollbar is driving the scroll (to avoid feedback loop)
 		[YamlIgnore]
 		private bool _scrollBarDriving = false;
+
+		private void EnsureVisualLayout()
+		{
+			FishUI ui = FishUI;
+			if (ui?.Settings?.FontDefault == null)
+			{
+				_visualLines = BuildVisualLines(null, float.MaxValue);
+				return;
+			}
+
+			_cachedFont = ui.Settings.FontDefault;
+			_lineHeight = ui.Graphics.MeasureText(_cachedFont, "Mg").Y;
+			if (_lineHeight <= 0)
+				_lineHeight = 16f;
+
+			Vector2 size = ScaledSize;
+			float leftOffset = ShowLineNumbers ? Scale(LineNumberWidth) : 0;
+			float availableWidth = Math.Max(1f, size.X - leftOffset - Scale(TextPadding) * 2);
+			_visualLines = BuildVisualLines(ui, availableWidth);
+
+			float viewHeight = GetTextAreaHeight();
+			if (WordWrap && ShowScrollBar && _visualLines.Count * _lineHeight > viewHeight)
+			{
+				availableWidth = Math.Max(1f, availableWidth - Scale(ScrollBarWidth));
+				_visualLines = BuildVisualLines(ui, availableWidth);
+			}
+		}
+
+		private List<VisualLine> BuildVisualLines(FishUI ui, float availableWidth)
+		{
+			List<VisualLine> result = new List<VisualLine>();
+
+			for (int row = 0; row < _lines.Count; row++)
+			{
+				string line = _lines[row] ?? "";
+				if (!WordWrap || ui == null || line.Length == 0)
+				{
+					result.Add(new VisualLine(row, 0, line.Length));
+					continue;
+				}
+
+				int start = 0;
+				while (start < line.Length)
+				{
+					int remaining = line.Length - start;
+					int fit = 0;
+					for (int length = 1; length <= remaining; length++)
+					{
+						float width = ui.Graphics.MeasureText(_cachedFont, line.Substring(start, length)).X;
+						if (width > availableWidth)
+							break;
+						fit = length;
+					}
+
+					if (fit == 0)
+						fit = 1;
+
+					if (fit < remaining)
+					{
+						int whitespaceBreak = -1;
+						for (int i = start + fit - 1; i >= start; i--)
+						{
+							if (char.IsWhiteSpace(line[i]))
+							{
+								whitespaceBreak = i;
+								break;
+							}
+						}
+
+						if (whitespaceBreak >= start)
+							fit = whitespaceBreak - start + 1;
+					}
+
+					result.Add(new VisualLine(row, start, fit));
+					start += fit;
+				}
+			}
+
+			if (result.Count == 0)
+				result.Add(new VisualLine(0, 0, 0));
+
+			return result;
+		}
+
+		private int GetVisualLineIndex(int logicalRow, int column)
+		{
+			int lastMatch = 0;
+			for (int i = 0; i < _visualLines.Count; i++)
+			{
+				VisualLine visual = _visualLines[i];
+				if (visual.LogicalRow != logicalRow)
+					continue;
+
+				lastMatch = i;
+				bool isLastSegment = i == _visualLines.Count - 1 || _visualLines[i + 1].LogicalRow != logicalRow;
+				if (column < visual.EndColumn || (isLastSegment && column <= visual.EndColumn))
+					return i;
+			}
+
+			return lastMatch;
+		}
+
+		private void MoveCursorByVisualLines(int delta)
+		{
+			EnsureVisualLayout();
+			if (_visualLines.Count == 0)
+				return;
+
+			int currentIndex = GetVisualLineIndex(CursorRow, CursorColumn);
+			VisualLine current = _visualLines[currentIndex];
+			int visualColumn = Math.Max(0, CursorColumn - current.StartColumn);
+			int targetIndex = Math.Clamp(currentIndex + delta, 0, _visualLines.Count - 1);
+			VisualLine target = _visualLines[targetIndex];
+			CursorRow = target.LogicalRow;
+			CursorColumn = target.StartColumn + Math.Min(visualColumn, target.Length);
+		}
 
 		public MultiLineEditbox()
 		{
@@ -471,7 +603,8 @@ namespace FishUI.Controls
 		/// </summary>
 		private float GetMaxScrollPixels()
 		{
-			float contentHeight = _lines.Count * _lineHeight;
+			EnsureVisualLayout();
+			float contentHeight = _visualLines.Count * _lineHeight;
 			float viewHeight = GetTextAreaHeight();
 			return Math.Max(0, contentHeight - viewHeight);
 		}
@@ -489,7 +622,7 @@ namespace FishUI.Controls
 			if (_scrollBar == null)
 				return;
 
-			float contentHeight = _lines.Count * _lineHeight;
+			float contentHeight = _visualLines.Count * _lineHeight;
 			float viewHeight = GetTextAreaHeight();
 
 			// Update scrollbar position and size
@@ -538,7 +671,7 @@ namespace FishUI.Controls
 			Vector2 size = ScaledSize;
 
 			float leftOffset = ShowLineNumbers ? Scale(LineNumberWidth) : 0;
-			float contentHeight = _lines.Count * _lineHeight;
+			float contentHeight = _visualLines.Count * _lineHeight;
 			float viewHeight = GetTextAreaHeight();
 			float rightOffset = (ShowScrollBar && contentHeight > viewHeight) ? Scale(ScrollBarWidth) : 0;
 
@@ -570,18 +703,9 @@ namespace FishUI.Controls
 				_cursorVisible = false;
 			}
 
-			// Get font and calculate line height
+			// Get font metrics and build visual rows for the current width.
 			var font = UI.Settings.FontDefault;
-			_cachedFont = font;
-			if (font != null)
-			{
-				var textSize = UI.Graphics.MeasureText(font, "Mg");
-				_lineHeight = textSize.Y;
-			}
-			else
-			{
-				_lineHeight = 16f;
-			}
+			EnsureVisualLayout();
 
 			// Draw background using textbox NPatch
 			NPatch bg = HasFocus ? UI.Settings.ImgTextboxActive : UI.Settings.ImgTextboxNormal;
@@ -608,7 +732,7 @@ namespace FishUI.Controls
 
 			// Calculate text area
 			var (textAreaPos, textAreaSize) = GetTextAreaBounds();
-			float contentHeight = _lines.Count * _lineHeight;
+			float contentHeight = _visualLines.Count * _lineHeight;
 			float viewHeight = GetTextAreaHeight();
 
 			// Clamp scroll offset
@@ -622,45 +746,35 @@ namespace FishUI.Controls
 			var (selStart, selEnd) = GetSelectionRange();
 			bool hasSelection = HasSelection && HasFocus;
 
-			// Draw all lines with pixel offset
-			for (int lineIndex = 0; lineIndex < _lines.Count; lineIndex++)
+			// Draw all visual rows with pixel offset. Logical text remains unchanged.
+			for (int visualIndex = 0; visualIndex < _visualLines.Count; visualIndex++)
 			{
-				string line = _lines[lineIndex];
-				float lineY = textAreaPos.Y + lineIndex * _lineHeight - _scrollOffsetPixels;
+				VisualLine visual = _visualLines[visualIndex];
+				string logicalLine = _lines[visual.LogicalRow];
+				string line = logicalLine.Substring(visual.StartColumn, visual.Length);
+				float lineY = textAreaPos.Y + visualIndex * _lineHeight - _scrollOffsetPixels;
 
 				// Skip lines completely outside visible area
 				if (lineY + _lineHeight < textAreaPos.Y || lineY > textAreaPos.Y + viewHeight)
 					continue;
 
 				// Draw selection highlight for this line
-				if (hasSelection && font != null && lineIndex >= selStart.Row && lineIndex <= selEnd.Row)
+				if (hasSelection && font != null && visual.LogicalRow >= selStart.Row && visual.LogicalRow <= selEnd.Row)
 				{
-					int startCol = 0;
-					int endCol = line.Length;
+					int logicalStartCol = visual.LogicalRow == selStart.Row ? selStart.Col : 0;
+					int logicalEndCol = visual.LogicalRow == selEnd.Row ? selEnd.Col : logicalLine.Length;
+					int startCol = Math.Max(visual.StartColumn, logicalStartCol);
+					int endCol = Math.Min(visual.EndColumn, logicalEndCol);
 
-					if (lineIndex == selStart.Row)
-						startCol = selStart.Col;
-					if (lineIndex == selEnd.Row)
-						endCol = selEnd.Col;
-
-					if (startCol < endCol || (lineIndex > selStart.Row && lineIndex < selEnd.Row))
+					if (startCol < endCol)
 					{
 						float selStartX = textAreaPos.X;
 						float selEndX = textAreaPos.X;
 
-						if (line.Length > 0)
-						{
-							if (startCol > 0)
-								selStartX += UI.Graphics.MeasureText(font, line.Substring(0, Math.Min(startCol, line.Length))).X;
-							if (endCol > 0)
-								selEndX += UI.Graphics.MeasureText(font, line.Substring(0, Math.Min(endCol, line.Length))).X;
-						}
-
-						// For full line selections (middle lines), extend to a minimum width
-						if (lineIndex > selStart.Row && lineIndex < selEnd.Row && line.Length == 0)
-						{
-							selEndX = selStartX + UI.Graphics.MeasureText(font, " ").X;
-						}
+						if (startCol > visual.StartColumn)
+							selStartX += UI.Graphics.MeasureText(font, logicalLine.Substring(visual.StartColumn, startCol - visual.StartColumn)).X;
+						if (endCol > visual.StartColumn)
+							selEndX += UI.Graphics.MeasureText(font, logicalLine.Substring(visual.StartColumn, endCol - visual.StartColumn)).X;
 
 						float selWidth = selEndX - selStartX;
 						if (selWidth > 0)
@@ -680,9 +794,11 @@ namespace FishUI.Controls
 				}
 
 				// Draw cursor on this line
-				if (HasFocus && _cursorVisible && CursorRow == lineIndex)
+				if (HasFocus && _cursorVisible && CursorRow == visual.LogicalRow &&
+					visualIndex == GetVisualLineIndex(CursorRow, CursorColumn))
 				{
-					string textBeforeCursor = line.Substring(0, Math.Min(CursorColumn, line.Length));
+					int cursorInVisual = Math.Clamp(CursorColumn - visual.StartColumn, 0, visual.Length);
+					string textBeforeCursor = line.Substring(0, cursorInVisual);
 					float cursorX = textAreaPos.X;
 					if (font != null && textBeforeCursor.Length > 0)
 					{
@@ -706,13 +822,17 @@ namespace FishUI.Controls
 				float gutterW = Scale(LineNumberWidth);
 				UI.Graphics.BeginScissor(new Vector2(gutterX, pos.Y), new Vector2(gutterW, size.Y));
 
-				for (int lineIndex = 0; lineIndex < _lines.Count; lineIndex++)
+				for (int visualIndex = 0; visualIndex < _visualLines.Count; visualIndex++)
 				{
-					float lineY = textAreaPos.Y + lineIndex * _lineHeight - _scrollOffsetPixels;
+					VisualLine visual = _visualLines[visualIndex];
+					if (visual.StartColumn != 0)
+						continue;
+
+					float lineY = textAreaPos.Y + visualIndex * _lineHeight - _scrollOffsetPixels;
 					if (lineY + _lineHeight < pos.Y || lineY > pos.Y + size.Y)
 						continue;
 
-					string lineNum = (lineIndex + 1).ToString();
+					string lineNum = (visual.LogicalRow + 1).ToString();
 					var numSize = UI.Graphics.MeasureText(font, lineNum);
 					float numX = gutterX + gutterW - numSize.X - Scale(8);
 					UI.Graphics.DrawTextColor(font, lineNum, new Vector2(numX, lineY), LineNumberColor);
@@ -742,10 +862,11 @@ namespace FishUI.Controls
 
 		private void EnsureCursorVisible()
 		{
+			EnsureVisualLayout();
 			if (_lineHeight <= 0)
 				return;
 
-			float cursorY = CursorRow * _lineHeight;
+			float cursorY = GetVisualLineIndex(CursorRow, CursorColumn) * _lineHeight;
 			float viewHeight = GetTextAreaHeight();
 
 			// Scroll up if cursor is above visible area
@@ -857,57 +978,92 @@ namespace FishUI.Controls
 					if (InState.ShiftDown)
 					{
 						StartSelection();
-						MoveCursorUpInternal();
+						if (WordWrap)
+							MoveCursorByVisualLines(-1);
+						else
+							MoveCursorUpInternal();
 						ExtendSelection();
 					}
 					else
 					{
 						ClearSelection();
-						MoveCursorUpInternal();
+						if (WordWrap)
+							MoveCursorByVisualLines(-1);
+						else
+							MoveCursorUpInternal();
 					}
 					break;
 				case FishKey.Down:
 					if (InState.ShiftDown)
 					{
 						StartSelection();
-						MoveCursorDownInternal();
+						if (WordWrap)
+							MoveCursorByVisualLines(1);
+						else
+							MoveCursorDownInternal();
 						ExtendSelection();
 					}
 					else
 					{
 						ClearSelection();
-						MoveCursorDownInternal();
+						if (WordWrap)
+							MoveCursorByVisualLines(1);
+						else
+							MoveCursorDownInternal();
 					}
 					break;
 				case FishKey.Home:
+					int homeColumn = 0;
+					if (WordWrap)
+					{
+						EnsureVisualLayout();
+						homeColumn = _visualLines[GetVisualLineIndex(CursorRow, CursorColumn)].StartColumn;
+					}
 					if (InState.ShiftDown)
 					{
 						StartSelection();
-						CursorColumn = 0;
+						CursorColumn = homeColumn;
 						ExtendSelection();
 					}
 					else
 					{
-						CursorColumn = 0;
+						CursorColumn = homeColumn;
 						ClearSelection();
 					}
 					break;
 				case FishKey.End:
+					int endColumn = _lines[CursorRow].Length;
+					if (WordWrap)
+					{
+						EnsureVisualLayout();
+						endColumn = _visualLines[GetVisualLineIndex(CursorRow, CursorColumn)].EndColumn;
+					}
 					if (InState.ShiftDown)
 					{
 						StartSelection();
-						CursorColumn = _lines[CursorRow].Length;
+						CursorColumn = endColumn;
 						ExtendSelection();
 					}
 					else
 					{
-						CursorColumn = _lines[CursorRow].Length;
+						CursorColumn = endColumn;
 						ClearSelection();
 					}
 					break;
 				case FishKey.PageUp:
 					{
 						int visibleLines = GetVisibleLineCount();
+						if (WordWrap)
+						{
+							if (InState.ShiftDown)
+								StartSelection();
+							else
+								ClearSelection();
+							MoveCursorByVisualLines(-visibleLines);
+							if (InState.ShiftDown)
+								ExtendSelection();
+							break;
+						}
 						if (InState.ShiftDown)
 						{
 							StartSelection();
@@ -926,6 +1082,17 @@ namespace FishUI.Controls
 				case FishKey.PageDown:
 					{
 						int visibleLines = GetVisibleLineCount();
+						if (WordWrap)
+						{
+							if (InState.ShiftDown)
+								StartSelection();
+							else
+								ClearSelection();
+							MoveCursorByVisualLines(visibleLines);
+							if (InState.ShiftDown)
+								ExtendSelection();
+							break;
+						}
 						if (InState.ShiftDown)
 						{
 							StartSelection();
@@ -1089,22 +1256,24 @@ namespace FishUI.Controls
 
 		private void PositionCursorFromMouse(FishUI UI, Vector2 mousePos)
 		{
+			EnsureVisualLayout();
 			var (textAreaPos, textAreaSize) = GetTextAreaBounds();
 
-			// Calculate clicked row based on pixel position
-			int clickedRow = (int)((mousePos.Y - textAreaPos.Y + _scrollOffsetPixels) / _lineHeight);
-			clickedRow = Math.Clamp(clickedRow, 0, _lines.Count - 1);
-			CursorRow = clickedRow;
+			// Calculate clicked visual row based on pixel position.
+			int visualIndex = (int)((mousePos.Y - textAreaPos.Y + _scrollOffsetPixels) / _lineHeight);
+			visualIndex = Math.Clamp(visualIndex, 0, _visualLines.Count - 1);
+			VisualLine visual = _visualLines[visualIndex];
+			CursorRow = visual.LogicalRow;
 
 			// Calculate clicked column
 			string line = _lines[CursorRow];
-			if (_cachedFont != null && line.Length > 0)
+			if (_cachedFont != null && visual.Length > 0)
 			{
 				float relativeX = mousePos.X - textAreaPos.X;
-				int col = 0;
+				int col = visual.StartColumn;
 				float accumulatedWidth = 0f;
 
-				for (int i = 0; i < line.Length; i++)
+				for (int i = visual.StartColumn; i < visual.EndColumn; i++)
 				{
 					float charWidth = UI.Graphics.MeasureText(_cachedFont, line[i].ToString()).X;
 					if (accumulatedWidth + charWidth / 2 >= relativeX)
@@ -1116,7 +1285,7 @@ namespace FishUI.Controls
 			}
 			else
 			{
-				CursorColumn = 0;
+				CursorColumn = visual.StartColumn;
 			}
 		}
 

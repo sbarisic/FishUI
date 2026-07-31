@@ -16,6 +16,8 @@ namespace FishUISample.Samples
 	/// </summary>
 	internal class SampleChooser
 	{
+		private const string FeaturedSampleName = "Windows 98 Notepad";
+
 		private ISample[] _samples;
 		private ISample _selectedSample;
 		private bool _selectionMade;
@@ -127,10 +129,17 @@ namespace FishUISample.Samples
 			_sampleListBox.TooltipText = "Select a sample to launch";
 			_fui.AddControl(_sampleListBox);
 
-			// Add samples to ListBox
+			// Keep the featured sample visible instead of hiding it below the fold.
+			// UserData preserves the original sample object and command-line numbering.
+			int featuredIndex = Array.FindIndex(_samples,
+				sample => sample.Name.Equals(FeaturedSampleName, StringComparison.OrdinalIgnoreCase));
+			if (featuredIndex >= 0)
+				AddSampleListItem(featuredIndex);
+
 			for (int i = 0; i < _samples.Length; i++)
 			{
-				_sampleListBox.AddItem($"{i + 1}. {_samples[i].Name}");
+				if (i != featuredIndex)
+					AddSampleListItem(i);
 			}
 
 			// Select first item by default
@@ -146,9 +155,10 @@ namespace FishUISample.Samples
 			launchBtn.OnButtonPressed += (btn, mbtn, pos) =>
 			{
 				int idx = _sampleListBox.SelectedIndex;
-				if (idx >= 0 && idx < _samples.Length)
+				if (idx >= 0 && idx < _sampleListBox.Items.Count &&
+					_sampleListBox.Items[idx].UserData is ISample sample)
 				{
-					_selectedSample = _samples[idx];
+					_selectedSample = sample;
 					_selectionMade = true;
 				}
 			};
@@ -208,6 +218,12 @@ namespace FishUISample.Samples
 			infoLabel.Size = new Vector2(740, 20);
 			infoLabel.Alignment = Align.Center;
 			infoPanel.AddChild(infoLabel);
+		}
+
+		private void AddSampleListItem(int sampleIndex)
+		{
+			ISample sample = _samples[sampleIndex];
+			_sampleListBox.AddItem(new ListBoxItem($"{sampleIndex + 1}. {sample.Name}", sample));
 		}
 	}
 }
