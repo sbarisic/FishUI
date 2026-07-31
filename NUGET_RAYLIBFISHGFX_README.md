@@ -11,6 +11,7 @@ Raylib graphics and input backend for [FishUI](https://www.nuget.org/packages/Fi
 - **RaylibInput** - Full keyboard, mouse, and text input handling
 - **Optimized** - Native 9-patch, circles, texture filtering, and scissor clipping
 - **Game Loop Integration** - `UseBeginDrawing` option for existing game loops
+- **Diagnostic Framebuffers** - Native pre-presentation RGBA capture with High-DPI normalization
 
 ## Installation
 
@@ -65,6 +66,7 @@ while (!Raylib.WindowShouldClose())
     fishUI.Tick(dt, (float)Raylib.GetTime());
 }
 
+fishUI.Dispose();
 Raylib.CloseWindow();
 ```
 
@@ -131,6 +133,9 @@ public class RaylibInput : IFishUIInput
 | Text | MeasureText, DrawText with color/scale |
 | Clipping | BeginScissorMode, EndScissorMode, push/pop stack |
 | Filtering | Point (pixelated) or Trilinear (smooth) |
+| Diagnostic capture | `IFishUIFramebufferProvider`, including High-DPI metadata and overlays |
+
+Framebuffer diagnostics are disabled by FishUI's privacy policy until the application explicitly permits them. See `docs/DIAGNOSTICS.md` in the repository for capture timing, rolling hotkey history, and export setup. The package version remains `1.0.11` for local development; bump it before publishing this backend change.
 
 ## Links
 

@@ -50,8 +50,8 @@ namespace FishUIDemos
 				_status.Text = "Capture queued...";
 				_ = FishUIDiagnostics.CaptureAsync(_ui, new FishUIDebugSnapshotOptions
 				{
-					IncludeScreenshot = false,
-					IncludeAnnotatedOverlay = false
+					IncludeScreenshot = true,
+					IncludeAnnotatedOverlay = true
 				});
 			};
 			_ui.AddControl(capture);
@@ -68,7 +68,9 @@ namespace FishUIDemos
 
 		private void HandleCaptureCompleted(object sender, FishUICaptureCompletedEventArgs args)
 		{
-			_status.Text = $"Session {args.UiSessionId:N}, capture {args.CaptureId}, request {args.RequestId}: {args.Snapshot.CaptureStatus}";
+			FishUIDiagnosticArtifact screenshot = args.Snapshot.Artifacts["screenshot"];
+			FishUIDiagnosticArtifact overlay = args.Snapshot.Artifacts["overlay"];
+			_status.Text = $"Capture {args.CaptureId}/{args.RequestId}: {args.Snapshot.CaptureStatus}; PNG {screenshot.Status}, overlay {overlay.Status}";
 		}
 	}
 }

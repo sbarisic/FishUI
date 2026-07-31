@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -48,8 +49,21 @@ namespace FishUI.Controls
 		}
 	}
 
-	public class DropDown : Control
+	public class DropDown : Control, IFishUIDebugSnapshotProvider
 	{
+		private const int MaximumDiagnosticSelectionIndices = 256;
+		private readonly struct DiagnosticSelection
+		{
+			internal int Count { get; }
+			internal int[] Indices { get; }
+
+			internal DiagnosticSelection(int count, int[] indices)
+			{
+				Count = count;
+				Indices = indices;
+			}
+		}
+
 		/// <summary>
 		/// Static list of currently open dropdowns for overlay rendering.
 		/// </summary>
@@ -158,16 +172,70 @@ namespace FishUI.Controls
 			Size = new Vector2(200, 19);
 		}
 
+		/// <summary>
+		/// Writes bounded structural selection and popup state. Item text and user data are intentionally
+		/// excluded; selected indices remain subject to value redaction during snapshot projection.
+		/// </summary>
+		public void WriteDebugSnapshot(FishUIDebugSnapshotWriter writer)
+		{
+			float itemHeight = GetEffectiveItemHeight();
+			int hoveredItemIndex = HoveredIndex < 0 ? -1 : FilteredIndexToItemIndex(HoveredIndex);
+			int displayedItemCount = GetDisplayedItemCount();
+			DiagnosticSelection selection = GetDiagnosticSelection();
+			writer.Write("isOpen", IsOpen);
+			writer.Write("multiSelect", MultiSelect);
+			writer.Write("searchable", Searchable);
+			writer.Write("itemCount", Items.Count);
+			writer.Write("selectedIndex", SelectedIndex);
+			writer.Write("selectedIndices", selection.Indices);
+			writer.Write("selectedCount", selection.Count);
+			writer.Write("selectedIndicesTruncated", selection.Count > selection.Indices.Length);
+			writer.Write("hoveredDisplayIndex", HoveredIndex);
+			writer.Write("hoveredItemIndex", hoveredItemIndex);
+			writer.Write("searchTextLength", SearchText.Length);
+			writer.Write("filteredItemCount", GetFilteredItemCountForDiagnostics());
+			writer.Write("displayedItemCount", displayedItemCount);
+			writer.Write("visibleItemCount", MaxVisibleItems > 0 ? Math.Min(displayedItemCount, MaxVisibleItems) : displayedItemCount);
+			writer.Write("buttonHeightPixels", ButtonHeight);
+			writer.Write("itemHeightPixels", itemHeight);
+			writer.Write("scrollOffsetPixels", new FishUIDebugPoint(ScrollOffset.X, ScrollOffset.Y));
+
+			if (!IsOpen)
+				return;
+
+			Vector2 listPosition = GetDropdownListPosition();
+			Vector2 listSize = GetDropdownListSize(itemHeight);
+			writer.Write("popupPixels", new FishUIDebugRect(
+				listPosition.X, listPosition.Y, listSize.X, listSize.Y));
+			if (Searchable)
+			{
+				writer.Write("searchBoxPixels", new FishUIDebugRect(
+					listPosition.X + 2,
+					listPosition.Y + 2,
+					listSize.X - 4,
+					SearchBoxHeight - 4));
+			}
+		}
+
 		public void AddItem(DropDownItem Itm)
 		{
+			int oldCount = Items.Count;
 			Items.Add(Itm);
+			RecordDiagnosticState("itemCount", FormatInt(oldCount), FormatInt(Items.Count));
 		}
 
 		public void ClearItems()
 		{
+			int oldCount = Items.Count;
+			int oldSelectedIndex = SelectedIndex;
+			DiagnosticSelection? oldSelectedIndices = GetSelectionForDiagnosticEvent();
 			Items.Clear();
 			SelectedIndex = -1;
 			SelectedIndices.Clear();
+			RecordDiagnosticState("itemCount", FormatInt(oldCount), FormatInt(Items.Count));
+			if (oldSelectedIndex != SelectedIndex)
+				RecordDiagnosticState("selectedIndex", FormatInt(oldSelectedIndex), FormatInt(SelectedIndex));
+			RecordSelectedIndicesChange(oldSelectedIndices);
 		}
 
 		/// <summary>
@@ -210,11 +278,13 @@ namespace FishUI.Controls
 			if (!MultiSelect || index < 0 || index >= Items.Count)
 				return;
 
+			DiagnosticSelection? oldIndices = GetSelectionForDiagnosticEvent();
 			if (SelectedIndices.Contains(index))
 				SelectedIndices.Remove(index);
 			else
 				SelectedIndices.Add(index);
 
+			RecordSelectedIndicesChange(oldIndices);
 			OnMultiSelectionChanged?.Invoke(this, GetSelectedIndices());
 		}
 
@@ -226,9 +296,11 @@ namespace FishUI.Controls
 			if (!MultiSelect)
 				return;
 
+			DiagnosticSelection? oldIndices = GetSelectionForDiagnosticEvent();
 			for (int i = 0; i < Items.Count; i++)
 				SelectedIndices.Add(i);
 
+			RecordSelectedIndicesChange(oldIndices);
 			OnMultiSelectionChanged?.Invoke(this, GetSelectedIndices());
 		}
 
@@ -237,17 +309,23 @@ namespace FishUI.Controls
 		/// </summary>
 		public void ClearSelection()
 		{
+			DiagnosticSelection? oldIndices = GetSelectionForDiagnosticEvent();
 			SelectedIndices.Clear();
+			RecordSelectedIndicesChange(oldIndices);
 			if (MultiSelect)
 				OnMultiSelectionChanged?.Invoke(this, GetSelectedIndices());
 		}
 
 		public void Open()
 		{
+			bool wasOpen = IsOpen;
+			int oldSearchLength = SearchText.Length;
+			int oldFilteredCount = FilteredIndices.Count;
 			IsOpen = true;
 			// Reset search filter when opening
 			SearchText = "";
 			UpdateFilteredItems();
+			RecordSearchChange(oldSearchLength, oldFilteredCount);
 			// Bring dropdown to front and make it always on top while open
 			// This ensures the dropdown list appears above other controls
 			AlwaysOnTop = true;
@@ -255,10 +333,14 @@ namespace FishUI.Controls
 			// Track this dropdown for overlay rendering
 			if (!OpenDropdowns.Contains(this))
 				OpenDropdowns.Add(this);
+			if (!wasOpen)
+				RecordDiagnosticState("dropdownOpen", bool.FalseString, bool.TrueString);
 		}
 
 		public void Close()
 		{
+			bool wasOpen = IsOpen;
+			int oldSearchLength = SearchText.Length;
 			IsOpen = false;
 			HoveredIndex = -1;
 			// Clear search filter when closing
@@ -268,6 +350,10 @@ namespace FishUI.Controls
 			AlwaysOnTop = false;
 			// Remove from overlay tracking
 			OpenDropdowns.Remove(this);
+			if (oldSearchLength != 0)
+				RecordDiagnosticState("searchTextLength", FormatInt(oldSearchLength), "0");
+			if (wasOpen)
+				RecordDiagnosticState("dropdownOpen", bool.TrueString, bool.FalseString);
 		}
 
 		internal bool BelongsTo(FishUI ui)
@@ -338,6 +424,7 @@ namespace FishUI.Controls
 
 			if (LastSelectedIndex != SelectedIndex)
 			{
+				RecordDiagnosticState("selectedIndex", FormatInt(LastSelectedIndex), FormatInt(SelectedIndex));
 				// Only broadcast event if control is connected to FishUI (has parent or _FishUI set)
 				if (FishUI != null)
 				{
@@ -559,8 +646,11 @@ namespace FishUI.Controls
 				// Handle backspace for search
 				if (SearchText.Length > 0)
 				{
+					int oldLength = SearchText.Length;
+					int oldFilteredCount = FilteredIndices.Count;
 					SearchText = SearchText.Substring(0, SearchText.Length - 1);
 					UpdateFilteredItems();
+					RecordSearchChange(oldLength, oldFilteredCount);
 				}
 			}
 		}
@@ -570,8 +660,11 @@ namespace FishUI.Controls
 			// Handle text input for search when dropdown is open and searchable
 			if (IsOpen && Searchable && !char.IsControl(Character))
 			{
+				int oldLength = SearchText.Length;
+				int oldFilteredCount = FilteredIndices.Count;
 				SearchText += Character;
 				UpdateFilteredItems();
+				RecordSearchChange(oldLength, oldFilteredCount);
 			}
 		}
 
@@ -752,6 +845,96 @@ namespace FishUI.Controls
 				float y = listPos.Y + 2 + yOffset;
 				UI.Graphics.DrawTextColor(UI.Settings.FontDefault, "No matching items", new Vector2(listPos.X + 4, y) + StartOffset, new FishColor(128, 128, 128, 255));
 			}
+		}
+
+		private float GetEffectiveItemHeight()
+		{
+			if (CustomItemHeight > 0)
+				return CustomItemHeight;
+			if (ListItemHeight > 0)
+				return ListItemHeight;
+			if (FishUI?.Settings?.FontDefault != null)
+				return FishUI.Settings.FontDefault.Size + 4;
+			return 18;
+		}
+
+		private int GetDisplayedItemCount()
+		{
+			return FilteredIndices.Count > 0 ? FilteredIndices.Count : Items.Count;
+		}
+
+		private int GetFilteredItemCountForDiagnostics()
+		{
+			if (!Searchable || string.IsNullOrEmpty(SearchText))
+				return Items.Count;
+			return FilteredIndices.Count;
+		}
+
+		private void RecordSelectedIndicesChange(DiagnosticSelection? oldSelection)
+		{
+			if (!MultiSelect || !oldSelection.HasValue)
+				return;
+
+			DiagnosticSelection newSelection = GetDiagnosticSelection();
+			DiagnosticSelection previous = oldSelection.Value;
+			if (previous.Count == newSelection.Count && previous.Indices.SequenceEqual(newSelection.Indices))
+				return;
+			RecordDiagnosticState("selectedIndices", FormatSelection(previous), FormatSelection(newSelection));
+		}
+
+		private DiagnosticSelection? GetSelectionForDiagnosticEvent()
+		{
+			return FishUI?.Diagnostics.IsEventRecordingEnabled == true ? GetDiagnosticSelection() : (DiagnosticSelection?)null;
+		}
+
+		private DiagnosticSelection GetDiagnosticSelection()
+		{
+			if (MultiSelect)
+			{
+				return new DiagnosticSelection(
+					SelectedIndices.Count,
+					SelectedIndices.OrderBy(index => index).Take(MaximumDiagnosticSelectionIndices).ToArray());
+			}
+			if (SelectedIndex >= 0)
+				return new DiagnosticSelection(1, new[] { SelectedIndex });
+			return new DiagnosticSelection(0, Array.Empty<int>());
+		}
+
+		private void RecordSearchChange(int oldLength, int oldFilteredCount)
+		{
+			if (oldLength != SearchText.Length)
+				RecordDiagnosticState("searchTextLength", FormatInt(oldLength), FormatInt(SearchText.Length));
+			if (Searchable && (oldLength > 0 || SearchText.Length > 0) && oldFilteredCount != FilteredIndices.Count)
+				RecordDiagnosticState("filteredItemCount", FormatInt(oldFilteredCount), FormatInt(FilteredIndices.Count));
+		}
+
+		private void RecordDiagnosticState(string name, string oldValue, string newValue)
+		{
+			if (FishUI?.Diagnostics.IsEventRecordingEnabled != true)
+				return;
+
+			FishUI.Diagnostics.Record(
+				FishUIDiagnosticEventCategory.StateChange,
+				FishUIDiagnosticEventType.StateChanged,
+				this,
+				null,
+				state: new FishUIStateEventData
+				{
+					Name = name,
+					OldValue = oldValue,
+					NewValue = newValue
+				});
+		}
+
+		private static string FormatInt(int value)
+		{
+			return value.ToString(CultureInfo.InvariantCulture);
+		}
+
+		private static string FormatSelection(DiagnosticSelection selection)
+		{
+			string result = string.Join(",", selection.Indices);
+			return selection.Count > selection.Indices.Length ? result + ",..." : result;
 		}
 	}
 }

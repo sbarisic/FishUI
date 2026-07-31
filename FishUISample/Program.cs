@@ -73,6 +73,27 @@ namespace FishUISample
 
 			return new Vector2(point.X * cos - point.Y * sin, point.X * sin + point.Y * cos);
 		}
+
+		static void ConfigureDiagnostics(FishUI.FishUI ui)
+		{
+			ui.Diagnostics.Enabled = true;
+			ui.Diagnostics.HotkeyEnabled = true;
+			ui.Diagnostics.RollingEventHistoryEnabled = true;
+			ui.Diagnostics.RollingEventHistoryDuration = TimeSpan.FromSeconds(10);
+			ui.Diagnostics.MaximumRollingHistoryEvents = 20000;
+			ui.Diagnostics.PrivacyPolicy.AllowFramebufferCapture = true;
+			ui.Diagnostics.ResetEventRecorder();
+			ui.Diagnostics.AutoExportAsync = (snapshot, cancellationToken) => Task.Run(() =>
+			{
+				cancellationToken.ThrowIfCancellationRequested();
+				string path = Path.Combine(AppContext.BaseDirectory, "diagnostics", snapshot.DefaultExportName);
+				snapshot.SaveDirectory(path, overwrite: false);
+				Console.WriteLine("Diagnostic bundle saved: " + path);
+			}, cancellationToken);
+			ui.Diagnostics.ExportFailed += (_, eventArgs) =>
+				Console.WriteLine("Diagnostic export failed: " + eventArgs.Exception?.Message);
+		}
+
 		static void Main(string[] args)
 		{
 			// Auto-discover all ISample implementations using reflection
@@ -116,6 +137,7 @@ namespace FishUISample
 				Cur.TakeScreenshot = (Title) => TakeScreenshot(Title, Gfx);
 
 				FishUI.FishUI FUI = Cur.CreateUI(UISettings, Gfx, Input, Events);
+				ConfigureDiagnostics(FUI);
 				Cur.Init();
 
 				Stopwatch SWatch = Stopwatch.StartNew();
@@ -167,6 +189,8 @@ namespace FishUISample
 					Raylib.EndDrawing();
 				}
 
+				FUI.Dispose();
+				FUI.Diagnostics.WaitForPendingExportsAsync().GetAwaiter().GetResult();
 				Raylib.CloseWindow();
 
 				Console.WriteLine();

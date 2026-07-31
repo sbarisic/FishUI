@@ -99,10 +99,22 @@ namespace FishUI
 
 	internal static class FishUIInteractionSummary
 	{
-		internal static string Create(IReadOnlyList<FishUIDiagnosticEvent> events)
+		internal static string Create(IReadOnlyList<FishUIDiagnosticEvent> events,
+			FishUIDebugCaptureReason reason, double requestedHistorySeconds,
+			double actualHistorySeconds, bool truncatedByCapacity)
 		{
-			if (events == null || events.Count == 0) return "No diagnostic interaction events were recorded.";
 			var text = new StringBuilder();
+			text.Append("Captured by ").Append(reason == FishUIDebugCaptureReason.Hotkey
+				? "Ctrl+Shift+F12" : reason.ToString()).AppendLine(".");
+			text.Append("Requested ").Append(requestedHistorySeconds.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture))
+				.Append(" seconds of pre-trigger history; included ")
+				.Append(actualHistorySeconds.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)).AppendLine(" seconds.");
+			text.Append("Recorded ").Append(events?.Count ?? 0).AppendLine(" projected diagnostic events.");
+			text.AppendLine(truncatedByCapacity
+				? "The rolling history was truncated by the event-capacity limit."
+				: "The rolling history was not truncated by capacity.");
+			if (events == null || events.Count == 0) return text.ToString();
+			text.AppendLine();
 			foreach (var record in events)
 			{
 				if (record.Category == FishUIDiagnosticEventCategory.RawInput && record.Type == FishUIDiagnosticEventType.PointerState) continue;
@@ -197,8 +209,14 @@ namespace FishUI
 			return output.ToArray();
 		}
 
-		internal static void DrawOverlay(byte[] rgba, int width, int height, IEnumerable<FishUIControlSnapshot> controls, IEnumerable<FishUIDiagnosticWarning> warnings)
+		internal static void DrawOverlay(byte[] rgba, int width, int height,
+			int coordinateWidth, int coordinateHeight,
+			IEnumerable<FishUIControlSnapshot> controls, IEnumerable<FishUIDiagnosticWarning> warnings)
 		{
+			if (coordinateWidth <= 0 || coordinateHeight <= 0)
+				throw new InvalidDataException("Overlay coordinate dimensions must be positive.");
+			float scaleX = width / (float)coordinateWidth;
+			float scaleY = height / (float)coordinateHeight;
 			var warned = new HashSet<long>(warnings.Where(w => w.ControlId.HasValue).Select(w => w.ControlId.Value));
 			foreach (var control in controls)
 			{
@@ -207,15 +225,21 @@ namespace FishUI
 				byte r = control.State.HasFocus ? (byte)0 : control.State.Hovered ? (byte)255 : (byte)0;
 				byte g = control.State.HasFocus ? (byte)120 : control.State.Hovered ? (byte)180 : (byte)220;
 				byte b = control.State.HasFocus ? (byte)255 : (byte)0;
-				DrawRect(rgba, width, height, rect, r, g, b, 255);
-				DrawText(rgba, width, height, (int)rect.X + 2, (int)rect.Y + 2, "#" + control.ControlId, r, g, b);
-				if (warned.Contains(control.ControlId)) DrawText(rgba, width, height, (int)rect.X + 2, (int)rect.Y + 10, "!", 255, 0, 0);
+				DrawRect(rgba, width, height, rect, scaleX, scaleY, r, g, b, 255);
+				int labelX = (int)MathF.Round(rect.X * scaleX) + 2;
+				int labelY = (int)MathF.Round(rect.Y * scaleY) + 2;
+				DrawText(rgba, width, height, labelX, labelY, "#" + control.ControlId, r, g, b);
+				if (warned.Contains(control.ControlId)) DrawText(rgba, width, height, labelX, labelY + 8, "!", 255, 0, 0);
 			}
 		}
 
-		private static void DrawRect(byte[] pixels, int width, int height, FishUIDebugRect rect, byte r, byte g, byte b, byte a)
+		private static void DrawRect(byte[] pixels, int width, int height, FishUIDebugRect rect,
+			float scaleX, float scaleY, byte r, byte g, byte b, byte a)
 		{
-			int x0 = (int)MathF.Round(rect.X), y0 = (int)MathF.Round(rect.Y), x1 = (int)MathF.Round(rect.X + rect.Width), y1 = (int)MathF.Round(rect.Y + rect.Height);
+			int x0 = (int)MathF.Round(rect.X * scaleX);
+			int y0 = (int)MathF.Round(rect.Y * scaleY);
+			int x1 = (int)MathF.Round((rect.X + rect.Width) * scaleX);
+			int y1 = (int)MathF.Round((rect.Y + rect.Height) * scaleY);
 			for (int x = x0; x <= x1; x++) { Set(pixels, width, height, x, y0, r, g, b, a); Set(pixels, width, height, x, y1, r, g, b, a); }
 			for (int y = y0; y <= y1; y++) { Set(pixels, width, height, x0, y, r, g, b, a); Set(pixels, width, height, x1, y, r, g, b, a); }
 		}

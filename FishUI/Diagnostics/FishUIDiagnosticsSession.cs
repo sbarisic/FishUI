@@ -10,6 +10,15 @@ using FishUI.Controls;
 
 namespace FishUI
 {
+	internal static class FishUIDiagnosticBuildDefaults
+	{
+#if DEBUG
+		internal const bool RollingEventHistoryEnabled = true;
+#else
+		internal const bool RollingEventHistoryEnabled = false;
+#endif
+	}
+
 	public static class FishUIDiagnostics
 	{
 		public static Task<FishUIDebugSnapshot> CaptureAsync(FishUI ui, FishUIDebugSnapshotOptions options = null,
@@ -55,7 +64,7 @@ namespace FishUI
 
 	public sealed class FishUIDiagnosticsSession : IDisposable
 	{
-		private sealed class CaptureRequest
+		internal sealed class CaptureRequest
 		{
 			internal long RequestId;
 			internal FishUIDebugSnapshotOptions Options;
@@ -63,6 +72,10 @@ namespace FishUI
 			internal TaskCompletionSource<FishUIDebugSnapshot> Completion;
 			internal CancellationToken Token;
 			internal CancellationTokenRegistration Registration;
+			internal double TriggerTimeSeconds;
+			internal long TriggerEventSequence;
+			internal FishUIDiagnosticEvent TriggerEvent;
+			internal bool RollingHistoryEnabled;
 			internal int CompletionState;
 			internal bool Cancelled => Volatile.Read(ref CompletionState) == 1;
 		}
@@ -84,6 +97,17 @@ namespace FishUI
 			internal bool FramebufferAttempted;
 			internal Exception DiagnosticFailure;
 			internal string DiagnosticFailureStage;
+			internal int CoordinateWidthPixels;
+			internal int CoordinateHeightPixels;
+			internal int? FramebufferWidthPixels;
+			internal int? FramebufferHeightPixels;
+			internal float? FramebufferScaleX;
+			internal float? FramebufferScaleY;
+		}
+
+		private sealed class ExportWork
+		{
+			internal TaskCompletionSource<bool> CapturePublished;
 		}
 
 		private readonly FishUI _ui;
@@ -94,7 +118,10 @@ namespace FishUI
 		private readonly List<FishUIDiagnosticPathEntry> _paths = new List<FishUIDiagnosticPathEntry>();
 		private readonly Stack<FishUIRenderOwner> _renderOwners = new Stack<FishUIRenderOwner>();
 		private readonly Dictionary<string, DateTimeOffset> _automaticWarningCaptures = new Dictionary<string, DateTimeOffset>(StringComparer.Ordinal);
+		private readonly HashSet<Task> _pendingExports = new HashSet<Task>();
+		private readonly CancellationTokenSource _lifetimeCts = new CancellationTokenSource();
 		private readonly FishUIHotkey _captureHotkey;
+		private CaptureRequest _hotkeyRequestAwaitingTrigger;
 		private CaptureBatch _active;
 		private long _nextControlId;
 		private long _nextRequestId;
@@ -106,6 +133,12 @@ namespace FishUI
 		private bool _disposed;
 		private bool _enabled;
 		private bool _automaticCapturePending;
+		private bool _rollingEventHistoryEnabled = FishUIDiagnosticBuildDefaults.RollingEventHistoryEnabled;
+		private TimeSpan _rollingEventHistoryDuration = TimeSpan.FromSeconds(10);
+		private int _maximumRollingHistoryEvents = 20000;
+		private int _maximumCaptureEvents = 20000;
+		private bool _clearTemporaryHistoryWhenIdle;
+		private bool _lifetimeCtsDisposed;
 		private FishUIPointerSnapshot _backendPointer;
 		private FishUIPointerSnapshot _effectivePointer;
 		private FishUIModifierSnapshot _modifiers;
@@ -123,7 +156,42 @@ namespace FishUI
 		public bool CaptureOnWarningEnabled { get; set; }
 		public TimeSpan CaptureOnWarningDeduplicationExpiry { get; set; } = TimeSpan.FromMinutes(5);
 		public int MaximumCaptureRenderCommands { get; set; } = 100000;
-		public int MaximumCaptureEvents { get; set; } = 10000;
+		public int MaximumCaptureEvents
+		{
+			get => _maximumCaptureEvents;
+			set => _maximumCaptureEvents = Math.Max(_maximumRollingHistoryEvents, Math.Max(1, value));
+		}
+		public bool RollingEventHistoryEnabled
+		{
+			get => _rollingEventHistoryEnabled;
+			set
+			{
+				if (_rollingEventHistoryEnabled == value) return;
+				_rollingEventHistoryEnabled = value;
+				if (!value) _clearTemporaryHistoryWhenIdle = true;
+				UpdateEventRecorderState();
+			}
+		}
+		public TimeSpan RollingEventHistoryDuration
+		{
+			get => _rollingEventHistoryDuration;
+			set
+			{
+				_rollingEventHistoryDuration = value < TimeSpan.Zero ? TimeSpan.Zero : value;
+				Events.SetRetentionDuration(_rollingEventHistoryDuration);
+			}
+		}
+		public int MaximumRollingHistoryEvents
+		{
+			get => _maximumRollingHistoryEvents;
+			set
+			{
+				_maximumRollingHistoryEvents = Math.Max(1, value);
+				if (_maximumCaptureEvents < _maximumRollingHistoryEvents)
+					_maximumCaptureEvents = _maximumRollingHistoryEvents;
+				Events.SetCapacity(_maximumRollingHistoryEvents);
+			}
+		}
 		public int MaximumFramebufferWidth { get; set; } = 16384;
 		public int MaximumFramebufferHeight { get; set; } = 16384;
 		public long MaximumFramebufferBytes { get; set; } = 256L * 1024 * 1024;
@@ -135,7 +203,7 @@ namespace FishUI
 		public bool Enabled
 		{
 			get => _enabled;
-			set { _enabled = value; Events.Options.Enabled = value; UpdateCaptureHotkeyState(); }
+			set { _enabled = value; UpdateEventRecorderState(); UpdateCaptureHotkeyState(); }
 		}
 
 		internal long Frame { get; private set; }
@@ -147,8 +215,7 @@ namespace FishUI
 		{
 			get
 			{
-				if (Enabled || _active != null) return true;
-				lock (_gate) return _pending.Count != 0;
+				return IsEventRecordingEnabled;
 			}
 		}
 		internal bool ShouldCollectTextPreview => _active != null && _active.Superset.IncludeTextPreview && !PrivacyPolicy.EffectiveRedactText;
@@ -160,16 +227,42 @@ namespace FishUI
 		{
 			_ui = ui;
 			PrivacyPolicy = new FishUIDebugPrivacyPolicy(ScrubBufferedDiagnosticData);
+			Events.SetCapacity(_maximumRollingHistoryEvents);
+			Events.SetRetentionDuration(_rollingEventHistoryDuration);
 			_captureHotkey = ui.Hotkeys.Register(FishKey.F12, FishKeyModifiers.Control | FishKeyModifiers.Shift, hotkey =>
 			{
-				_ = CaptureAsync(new FishUIDebugSnapshotOptions(), FishUIDebugCaptureReason.Hotkey, CancellationToken.None);
+				var options = new FishUIDebugSnapshotOptions
+				{
+					IncludeRecentEvents = true,
+					IncludeInteractionSummary = true,
+					RecentEventWindow = RollingEventHistoryDuration,
+					MaximumRecentEvents = MaximumRollingHistoryEvents
+				};
+				CaptureRequest request = QueueCapture(options, FishUIDebugCaptureReason.Hotkey, CancellationToken.None);
+				lock (_gate) _hotkeyRequestAwaitingTrigger = request;
 			}, "fishui.diagnostics.capture");
+			UpdateEventRecorderState();
 			UpdateCaptureHotkeyState();
 		}
 
 		private void UpdateCaptureHotkeyState()
 		{
 			if (_captureHotkey != null) _captureHotkey.Enabled = _enabled && _hotkeyEnabled && !_disposed;
+		}
+
+		private void UpdateEventRecorderState()
+		{
+			bool shouldRecord;
+			bool clear;
+			lock (_gate)
+			{
+				shouldRecord = !_disposed && (_active != null || _pending.Any(request => !request.Cancelled) ||
+					(_enabled && _rollingEventHistoryEnabled));
+				Events.Options.Enabled = shouldRecord;
+				clear = !shouldRecord && !_rollingEventHistoryEnabled && _clearTemporaryHistoryWhenIdle;
+				if (clear) _clearTemporaryHistoryWhenIdle = false;
+			}
+			if (clear) ScrubBufferedDiagnosticData();
 		}
 
 		public void ResetEventRecorder()
@@ -221,16 +314,29 @@ namespace FishUI
 		public Task<FishUIDebugSnapshot> CaptureAsync(FishUIDebugSnapshotOptions options = null,
 			FishUIDebugCaptureReason reason = FishUIDebugCaptureReason.ManualApi, CancellationToken cancellationToken = default)
 		{
-			if (_disposed) return Task.FromCanceled<FishUIDebugSnapshot>(new CancellationToken(true));
-			if (cancellationToken.IsCancellationRequested) return Task.FromCanceled<FishUIDebugSnapshot>(cancellationToken);
+			return QueueCapture(options, reason, cancellationToken).Completion.Task;
+		}
+
+		internal CaptureRequest QueueCapture(FishUIDebugSnapshotOptions options,
+			FishUIDebugCaptureReason reason, CancellationToken cancellationToken)
+		{
 			var request = new CaptureRequest
 			{
 				RequestId = Interlocked.Increment(ref _nextRequestId),
 				Options = (options ?? new FishUIDebugSnapshotOptions()).Clone(),
 				Reason = reason,
 				Token = cancellationToken,
+				TriggerTimeSeconds = TimeSeconds,
+				RollingHistoryEnabled = RollingEventHistoryEnabled,
 				Completion = new TaskCompletionSource<FishUIDebugSnapshot>(TaskCreationOptions.RunContinuationsAsynchronously)
 			};
+			if (_disposed || cancellationToken.IsCancellationRequested)
+			{
+				Interlocked.Exchange(ref request.CompletionState, 1);
+				request.Completion.TrySetCanceled(cancellationToken.IsCancellationRequested
+					? cancellationToken : new CancellationToken(true));
+				return request;
+			}
 			if (cancellationToken.CanBeCanceled)
 				request.Registration = cancellationToken.Register(() => CancelRequest(request));
 			bool queued = false;
@@ -246,9 +352,35 @@ namespace FishUI
 			if (!queued)
 				request.Registration.Dispose();
 			else
-				Record(FishUIDiagnosticEventCategory.Capture, FishUIDiagnosticEventType.CaptureRequested, null,
-					$"request={request.RequestId};reason={reason}");
-			return request.Completion.Task;
+			{
+				UpdateEventRecorderState();
+				if (request.Cancelled) return request;
+				FishUIDiagnosticEvent trigger = Record(FishUIDiagnosticEventCategory.Capture,
+					FishUIDiagnosticEventType.CaptureRequested, null,
+					$"request={request.RequestId};reason={reason}", bypassFilter: true);
+				if (trigger != null)
+				{
+					request.TriggerEventSequence = trigger.Sequence;
+					request.TriggerEvent = CloneEvent(trigger);
+				}
+			}
+			return request;
+		}
+
+		internal bool IsCaptureHotkey(FishUIHotkey hotkey) => ReferenceEquals(hotkey, _captureHotkey);
+
+		internal void CompleteHotkeyTrigger(FishUIHotkey hotkey, FishUIDiagnosticEvent hotkeyEvent)
+		{
+			if (!IsCaptureHotkey(hotkey) || hotkeyEvent == null) return;
+			CaptureRequest request;
+			lock (_gate)
+			{
+				request = _hotkeyRequestAwaitingTrigger;
+				_hotkeyRequestAwaitingTrigger = null;
+			}
+			if (request == null || request.Cancelled) return;
+			request.TriggerEventSequence = hotkeyEvent.Sequence;
+			request.TriggerEvent = CloneEvent(hotkeyEvent);
 		}
 
 		internal void BeginFrame(float dt, float time, FishUIPointerSnapshot backendPointer,
@@ -260,7 +392,7 @@ namespace FishUI
 			_backendPointer = backendPointer;
 			_effectivePointer = effectivePointer;
 			_modifiers = modifiers;
-			if (Enabled)
+			if (IsEventRecordingEnabled)
 			{
 				Record(FishUIDiagnosticEventCategory.RawInput, FishUIDiagnosticEventType.PointerState, null, null,
 					new FishUIPointerEventData { BackendPointer = backendPointer, EffectivePointer = effectivePointer });
@@ -286,6 +418,9 @@ namespace FishUI
 					return null;
 				}
 			}
+			_active.CoordinateWidthPixels = _ui.Width > 0 ? _ui.Width : original.GetWindowWidth();
+			_active.CoordinateHeightPixels = _ui.Height > 0 ? _ui.Height : original.GetWindowHeight();
+			UpdateEventRecorderState();
 			_active.RenderRecorder = new FishUIRenderRecorder(this, _active.Superset.MaximumRenderCommands);
 			_currentPaths.Clear();
 			try { _active.PreDraw = new FishUIControlSnapshotBuilder(this, _ui, _active.Warnings).Capture(); }
@@ -318,7 +453,6 @@ namespace FishUI
 		{
 			CaptureBatch batch = _active;
 			if (batch == null) return;
-			_active = null;
 			try
 			{
 				if (batch.Final == null)
@@ -341,9 +475,11 @@ namespace FishUI
 				if (failure != null)
 					Record(FishUIDiagnosticEventCategory.Capture, FishUIDiagnosticEventType.CaptureFailure, null,
 						$"capture={batch.CaptureId};stage={failureStage};{failure.GetType().Name}:{failure.Message}");
-				IReadOnlyList<FishUIDiagnosticEvent> frozenEvents = Events.GetRecentEvents(Math.Min(MaximumCaptureEvents, batch.Superset.MaximumRecentEvents));
+				IReadOnlyList<FishUIDiagnosticEvent> frozenEvents = Events.GetRecentEvents(MaximumCaptureEvents);
 				long frozenLatestSequence = Events.LatestSequence;
 				long frozenDiscardedCount = Events.DiscardedOldestCount;
+				long frozenCapacityDiscarded = Events.CapacityDiscardedTotal;
+				double frozenCapacityDiscardedThrough = Events.CapacityDiscardedThroughTimeSeconds;
 				var projected = new List<(CaptureRequest Request, FishUIDebugSnapshot Snapshot)>();
 				foreach (CaptureRequest request in batch.Requests.OrderBy(r => r.RequestId))
 				{
@@ -353,7 +489,8 @@ namespace FishUI
 						continue;
 					}
 					FishUIDebugSnapshot snapshot = Project(batch, request, frozenEvents, frozenLatestSequence,
-						frozenDiscardedCount, failure, failureStage);
+						frozenDiscardedCount, frozenCapacityDiscarded, frozenCapacityDiscardedThrough,
+						failure, failureStage);
 					projected.Add((request, snapshot));
 				}
 				foreach (var completion in projected)
@@ -365,11 +502,18 @@ namespace FishUI
 						request.Registration.Dispose();
 						continue;
 					}
-					LastCapture = snapshot;
-					request.Completion.TrySetResult(snapshot);
-					request.Registration.Dispose();
-					RaiseCaptureCompleted(snapshot);
-					DispatchAutoExport(snapshot, request.Token);
+					ExportWork export = RegisterAutoExport(snapshot);
+					try
+					{
+						LastCapture = snapshot;
+						request.Completion.TrySetResult(snapshot);
+						request.Registration.Dispose();
+						RaiseCaptureCompleted(snapshot);
+					}
+					finally
+					{
+						export?.CapturePublished.TrySetResult(true);
+					}
 				}
 			}
 			catch (Exception diagnosticsFailure)
@@ -381,7 +525,10 @@ namespace FishUI
 			}
 			finally
 			{
+				_active = null;
 				_renderOwners.Clear();
+				_clearTemporaryHistoryWhenIdle = true;
+				UpdateEventRecorderState();
 			}
 		}
 
@@ -454,7 +601,7 @@ namespace FishUI
 		internal FishUIDiagnosticEvent Record(FishUIDiagnosticEventCategory category, FishUIDiagnosticEventType type,
 			Control control, string message = null, FishUIPointerEventData pointer = null, FishUIKeyEventData key = null,
 			FishUITextEventData text = null, FishUIFocusEventData focus = null, FishUIStateEventData state = null,
-			long? interactionId = null)
+			long? interactionId = null, bool bypassFilter = false)
 		{
 			if (!Events.Options.Enabled) return null;
 			if (type == FishUIDiagnosticEventType.MouseMoved && !Events.Options.RecordMouseMovement) return null;
@@ -484,7 +631,7 @@ namespace FishUI
 				UiSessionId = UiSessionId, Frame = Frame, TimeSeconds = TimeSeconds, Category = category, Type = type,
 				ControlId = controlId, PathId = pathId, CauseSequence = _causeSequence, InteractionId = interactionId,
 				Message = message, Pointer = pointer, Key = key, Text = text, Focus = focus, State = state
-			});
+			}, bypassFilter);
 		}
 
 		internal FishUIDebugCauseScope EnterCause(long? sequence)
@@ -501,6 +648,8 @@ namespace FishUI
 			if (Interlocked.CompareExchange(ref request.CompletionState, 1, 0) != 0) return;
 			lock (_gate) _pending.Remove(request);
 			request.Completion.TrySetCanceled(request.Token);
+			_clearTemporaryHistoryWhenIdle = true;
+			UpdateEventRecorderState();
 		}
 
 		public void Dispose()
@@ -513,12 +662,16 @@ namespace FishUI
 				requests = _pending.Concat(_active?.Requests ?? Enumerable.Empty<CaptureRequest>()).Distinct().ToList();
 				_pending.Clear();
 			}
+			_lifetimeCts.Cancel();
 			UpdateCaptureHotkeyState();
 			foreach (var request in requests)
 			{
 				CancelRequest(request);
 				request.Registration.Dispose();
 			}
+			_clearTemporaryHistoryWhenIdle = true;
+			UpdateEventRecorderState();
+			lock (_gate) TryDisposeLifetimeTokenSource();
 		}
 
 		private FishUIDebugSnapshotOptions Superset(List<CaptureRequest> requests)
@@ -543,12 +696,23 @@ namespace FishUI
 
 		private FishUIDebugSnapshot Project(CaptureBatch batch, CaptureRequest request,
 			IReadOnlyList<FishUIDiagnosticEvent> frozenEvents, long frozenLatestSequence, long frozenDiscardedCount,
+			long frozenCapacityDiscarded, double frozenCapacityDiscardedThrough,
 			Exception failure, string failureStage)
 		{
 			var options = request.Options;
 			List<FishUIDiagnosticEvent> projectedEvents = options.IncludeRecentEvents || options.IncludeInteractionSummary
-				? ProjectEvents(frozenEvents, options)
+				? ProjectEvents(frozenEvents, request)
 				: new List<FishUIDiagnosticEvent>();
+			double requestedHistorySeconds = options.RecentEventWindow?.TotalSeconds ?? 0;
+			double actualHistorySeconds = 0;
+			FishUIDiagnosticEvent earliestPreTrigger = projectedEvents
+				.Where(value => value.Sequence != request.TriggerEventSequence && value.TimeSeconds <= request.TriggerTimeSeconds)
+				.OrderBy(value => value.TimeSeconds).FirstOrDefault();
+			if (earliestPreTrigger != null)
+				actualHistorySeconds = Math.Max(0, request.TriggerTimeSeconds - earliestPreTrigger.TimeSeconds);
+			double cutoff = request.TriggerTimeSeconds - requestedHistorySeconds;
+			bool truncatedByCapacity = options.RecentEventWindow.HasValue &&
+				frozenCapacityDiscardedThrough >= cutoff;
 			Exception captureFailure = failure ?? batch.DiagnosticFailure;
 			string captureFailureStage = failure != null ? failureStage : batch.DiagnosticFailureStage;
 			var snapshot = new FishUIDebugSnapshot
@@ -558,7 +722,14 @@ namespace FishUI
 				DefaultExportName = $"fishui-{UiSessionId:N}-capture-{batch.CaptureId:D8}-request-{request.RequestId:D8}",
 				CaptureStatus = captureFailure == null ? FishUIDebugCaptureStatus.Complete : FishUIDebugCaptureStatus.Partial,
 				Frame = Frame, RuntimeTimestamp = DateTimeOffset.UtcNow, TimeSeconds = TimeSeconds, DeltaTimeSeconds = DeltaTimeSeconds,
-				WindowWidthPixels = _ui.Width > 0 ? _ui.Width : _ui.Graphics.GetWindowWidth(), WindowHeightPixels = _ui.Height > 0 ? _ui.Height : _ui.Graphics.GetWindowHeight(),
+				WindowWidthPixels = batch.CoordinateWidthPixels, WindowHeightPixels = batch.CoordinateHeightPixels,
+				FramebufferWidthPixels = batch.FramebufferWidthPixels, FramebufferHeightPixels = batch.FramebufferHeightPixels,
+				FramebufferScaleX = batch.FramebufferScaleX, FramebufferScaleY = batch.FramebufferScaleY,
+				TriggerTimeSeconds = request.TriggerTimeSeconds, TriggerEventSequence = request.TriggerEventSequence,
+				RollingHistoryEnabled = request.RollingHistoryEnabled, RequestedHistorySeconds = requestedHistorySeconds,
+				ActualHistorySeconds = actualHistorySeconds, ProjectedEventCount = projectedEvents.Count,
+				RollingHistoryTruncatedByCapacity = truncatedByCapacity,
+				RollingHistoryCapacityDiscardedTotal = frozenCapacityDiscarded,
 				UiScale = _ui.Settings?.UIScale ?? 1, GraphicsBackend = _ui.Graphics?.GetType().Name, Theme = _ui.Settings?.CurrentTheme?.Name,
 				LatestEventSequence = frozenLatestSequence, EventsDiscardedOldestCount = frozenDiscardedCount,
 				FocusControlId = Id(_ui.InputActiveControl), HoveredControlId = Id(_ui.DiagnosticsHoveredControl),
@@ -584,7 +755,9 @@ namespace FishUI
 			snapshot.Artifacts["overlay"] = ArtifactForRequest(batch.OverlayArtifact, options.IncludeAnnotatedOverlay);
 			if (options.IncludeScreenshot && batch.ScreenshotArtifact?.Status == FishUIDiagnosticArtifactStatus.Available) snapshot.ScreenshotPng = (byte[])batch.Screenshot.Clone();
 			if (options.IncludeAnnotatedOverlay && batch.OverlayArtifact?.Status == FishUIDiagnosticArtifactStatus.Available) snapshot.OverlayPng = (byte[])batch.Overlay.Clone();
-			if (options.IncludeInteractionSummary) snapshot.InteractionSummary = FishUIInteractionSummary.Create(projectedEvents);
+			if (options.IncludeInteractionSummary)
+				snapshot.InteractionSummary = FishUIInteractionSummary.Create(projectedEvents, request.Reason,
+					requestedHistorySeconds, actualHistorySeconds, truncatedByCapacity);
 			return snapshot;
 		}
 
@@ -617,10 +790,31 @@ namespace FishUI
 			return result.ToDictionary(pair => pair.Key.ToString(), pair => pair.Value);
 		}
 
-		private List<FishUIDiagnosticEvent> ProjectEvents(IReadOnlyList<FishUIDiagnosticEvent> events, FishUIDebugSnapshotOptions options)
+		private List<FishUIDiagnosticEvent> ProjectEvents(IReadOnlyList<FishUIDiagnosticEvent> events, CaptureRequest request)
 		{
-			int take = Math.Min(events.Count, Math.Max(0, options.MaximumRecentEvents));
-			var result = events.Skip(events.Count - take).Select(CloneEvent).ToList();
+			FishUIDebugSnapshotOptions options = request.Options;
+			double cutoff = options.RecentEventWindow.HasValue
+				? request.TriggerTimeSeconds - options.RecentEventWindow.Value.TotalSeconds
+				: double.NegativeInfinity;
+			var bySequence = new Dictionary<long, FishUIDiagnosticEvent>();
+			foreach (FishUIDiagnosticEvent record in events)
+				if (record.TimeSeconds >= cutoff || record.Sequence == request.TriggerEventSequence)
+					bySequence[record.Sequence] = record;
+			if (request.TriggerEvent != null)
+				bySequence[request.TriggerEvent.Sequence] = request.TriggerEvent;
+			List<FishUIDiagnosticEvent> ordered = bySequence.Values.OrderBy(value => value.Sequence).ToList();
+			int limit = Math.Min(MaximumCaptureEvents, Math.Max(1, options.MaximumRecentEvents));
+			if (ordered.Count > limit)
+			{
+				FishUIDiagnosticEvent trigger = ordered.First(value => value.Sequence == request.TriggerEventSequence);
+				ordered = ordered.Where(value => value.Sequence != request.TriggerEventSequence)
+					.Skip(Math.Max(0, ordered.Count - 1 - (limit - 1))).Select(CloneEvent).ToList();
+				ordered.Add(CloneEvent(trigger));
+				ordered = ordered.OrderBy(value => value.Sequence).ToList();
+			}
+			else
+				ordered = ordered.Select(CloneEvent).ToList();
+			var result = ordered;
 			if (options.RedactText || PrivacyPolicy.EffectiveRedactText)
 				foreach (var record in result) if (record.Text != null) { record.Text.Redacted = true; record.Text.Character = null; record.Text.CodePoint = null; }
 			if (options.RedactValues || PrivacyPolicy.EffectiveRedactValues)
@@ -718,6 +912,7 @@ namespace FishUI
 		{
 			if (value is FishUIDebugPoint point) return ClonePoint(point);
 			if (value is FishUIDebugRect rectangle) return CloneRect(rectangle);
+			if (value is int[] integers) return (int[])integers.Clone();
 			return value;
 		}
 
@@ -790,37 +985,85 @@ namespace FishUI
 			FishUIFramebuffer framebuffer = null;
 			try
 			{
-				if (!provider.TryCaptureFramebuffer(out framebuffer) || framebuffer == null)
+				bool captured;
+				try
+				{
+					captured = provider.TryCaptureFramebuffer(out framebuffer);
+				}
+				catch (Exception ex)
+				{
+					batch.ScreenshotArtifact = Artifact(FishUIDiagnosticArtifactStatus.Failed, "framebufferCapture", ex.Message);
+					batch.OverlayArtifact = Artifact(FishUIDiagnosticArtifactStatus.Unavailable, "framebufferCapture", ex.Message);
+					RecordArtifactFailure(batch, "framebufferCapture", ex);
+					return;
+				}
+				if (!captured || framebuffer == null)
 				{
 					batch.ScreenshotArtifact = Artifact(FishUIDiagnosticArtifactStatus.Unavailable, "framebufferCapture");
 					batch.OverlayArtifact = Artifact(FishUIDiagnosticArtifactStatus.Unavailable, "framebufferCapture");
 					return;
 				}
-				byte[] rgba = FishUIDebugImage.Normalize(framebuffer, MaximumFramebufferWidth, MaximumFramebufferHeight, MaximumFramebufferBytes);
-				batch.Screenshot = FishUIDebugImage.EncodePng(framebuffer.Width, framebuffer.Height, rgba);
-				batch.ScreenshotArtifact = Artifact(FishUIDiagnosticArtifactStatus.Available);
+
+				byte[] rgba;
+				try
+				{
+					rgba = FishUIDebugImage.Normalize(framebuffer, MaximumFramebufferWidth, MaximumFramebufferHeight, MaximumFramebufferBytes);
+					batch.FramebufferWidthPixels = framebuffer.Width;
+					batch.FramebufferHeightPixels = framebuffer.Height;
+					if (batch.CoordinateWidthPixels > 0 && batch.CoordinateHeightPixels > 0)
+					{
+						batch.FramebufferScaleX = framebuffer.Width / (float)batch.CoordinateWidthPixels;
+						batch.FramebufferScaleY = framebuffer.Height / (float)batch.CoordinateHeightPixels;
+					}
+				}
+				catch (Exception ex)
+				{
+					batch.ScreenshotArtifact = Artifact(FishUIDiagnosticArtifactStatus.Failed, "framebufferValidation", ex.Message);
+					batch.OverlayArtifact = Artifact(FishUIDiagnosticArtifactStatus.Unavailable, "framebufferValidation", ex.Message);
+					RecordArtifactFailure(batch, "framebufferValidation", ex);
+					return;
+				}
+
+				try
+				{
+					batch.Screenshot = FishUIDebugImage.EncodePng(framebuffer.Width, framebuffer.Height, rgba);
+					batch.ScreenshotArtifact = Artifact(FishUIDiagnosticArtifactStatus.Available);
+				}
+				catch (Exception ex)
+				{
+					batch.ScreenshotArtifact = Artifact(FishUIDiagnosticArtifactStatus.Failed, "screenshotEncoding", ex.Message);
+					RecordArtifactFailure(batch, "screenshotEncoding", ex);
+				}
+
 				if (!batch.Superset.IncludeAnnotatedOverlay)
 				{
 					batch.OverlayArtifact = Artifact(FishUIDiagnosticArtifactStatus.Excluded);
 					return;
 				}
+
+				byte[] annotated;
 				try
 				{
-					byte[] annotated = (byte[])rgba.Clone();
-					FishUIDebugImage.DrawOverlay(annotated, framebuffer.Width, framebuffer.Height, batch.Final.Values, batch.Warnings);
+					annotated = (byte[])rgba.Clone();
+					FishUIDebugImage.DrawOverlay(annotated, framebuffer.Width, framebuffer.Height,
+						batch.CoordinateWidthPixels, batch.CoordinateHeightPixels, batch.Final.Values, batch.Warnings);
+				}
+				catch (Exception ex)
+				{
+					batch.OverlayArtifact = Artifact(FishUIDiagnosticArtifactStatus.Failed, "overlayDrawing", ex.Message);
+					RecordArtifactFailure(batch, "overlayDrawing", ex);
+					return;
+				}
+				try
+				{
 					batch.Overlay = FishUIDebugImage.EncodePng(framebuffer.Width, framebuffer.Height, annotated);
 					batch.OverlayArtifact = Artifact(FishUIDiagnosticArtifactStatus.Available);
 				}
 				catch (Exception ex)
 				{
 					batch.OverlayArtifact = Artifact(FishUIDiagnosticArtifactStatus.Failed, "overlayEncoding", ex.Message);
+					RecordArtifactFailure(batch, "overlayEncoding", ex);
 				}
-			}
-			catch (Exception ex)
-			{
-				batch.ScreenshotArtifact = Artifact(FishUIDiagnosticArtifactStatus.Failed, "framebufferValidation", ex.Message);
-				batch.OverlayArtifact = Artifact(FishUIDiagnosticArtifactStatus.Unavailable, "framebufferValidation", ex.Message);
-				Record(FishUIDiagnosticEventCategory.Capture, FishUIDiagnosticEventType.CaptureFailure, null, "framebuffer:" + ex.Message);
 			}
 			finally
 			{
@@ -830,6 +1073,12 @@ namespace FishUI
 					catch (Exception ex) { MarkDiagnosticFailure(batch, "framebufferDispose", ex); }
 				}
 			}
+		}
+
+		private void RecordArtifactFailure(CaptureBatch batch, string stage, Exception failure)
+		{
+			Record(FishUIDiagnosticEventCategory.Capture, FishUIDiagnosticEventType.CaptureFailure, null,
+				$"capture={batch.CaptureId};stage={stage};{failure.GetType().Name}:{failure.Message}", bypassFilter: true);
 		}
 
 		private void MarkDiagnosticFailure(CaptureBatch batch, string stage, Exception failure)
@@ -856,16 +1105,80 @@ namespace FishUI
 			batch.RenderWarningsCollected = true;
 		}
 
-		private async void DispatchAutoExport(FishUIDebugSnapshot snapshot, CancellationToken token)
+		private ExportWork RegisterAutoExport(FishUIDebugSnapshot snapshot)
 		{
 			Func<FishUIDebugSnapshot, CancellationToken, Task> exporter = AutoExportAsync;
-			if (exporter == null) return;
-			try { await exporter(snapshot, token).ConfigureAwait(false); RaiseExport(ExportCompleted, snapshot, null); }
+			if (exporter == null) return null;
+			var start = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+			var published = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+			Task task;
+			lock (_gate)
+			{
+				if (_disposed || _lifetimeCtsDisposed) return null;
+				task = RunAutoExportAsync(start.Task, published.Task, exporter, snapshot, _lifetimeCts.Token);
+				_pendingExports.Add(task);
+			}
+			_ = task.ContinueWith(completed =>
+			{
+				lock (_gate)
+				{
+					_pendingExports.Remove(completed);
+					TryDisposeLifetimeTokenSource();
+				}
+			}, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
+			start.TrySetResult(true);
+			return new ExportWork { CapturePublished = published };
+		}
+
+		private async Task RunAutoExportAsync(
+			Task start,
+			Task capturePublished,
+			Func<FishUIDebugSnapshot, CancellationToken, Task> exporter,
+			FishUIDebugSnapshot snapshot, CancellationToken token)
+		{
+			Exception failure = null;
+			try
+			{
+				await start.ConfigureAwait(false);
+				await exporter(snapshot, token).ConfigureAwait(false);
+			}
 			catch (Exception ex)
 			{
-				FishUIDebug.Log($"[Diagnostics] UI {snapshot.UiSessionId:N}, capture {snapshot.CaptureId}, request {snapshot.RequestId} export failed: {ex}");
-				RaiseExport(ExportFailed, snapshot, ex);
+				failure = ex;
 			}
+			await capturePublished.ConfigureAwait(false);
+			if (failure == null)
+			{
+				RaiseExport(ExportCompleted, snapshot, null);
+				return;
+			}
+			FishUIDebug.Log($"[Diagnostics] UI {snapshot.UiSessionId:N}, capture {snapshot.CaptureId}, request {snapshot.RequestId} export failed: {failure}");
+			RaiseExport(ExportFailed, snapshot, failure);
+		}
+
+		public async Task WaitForPendingExportsAsync()
+		{
+			while (true)
+			{
+				Task[] pending;
+				lock (_gate)
+				{
+					if (_pendingExports.Count == 0)
+					{
+						TryDisposeLifetimeTokenSource();
+						return;
+					}
+					pending = _pendingExports.ToArray();
+				}
+				await Task.WhenAll(pending).ConfigureAwait(false);
+			}
+		}
+
+		private void TryDisposeLifetimeTokenSource()
+		{
+			if (!_disposed || _pendingExports.Count != 0 || _lifetimeCtsDisposed) return;
+			_lifetimeCtsDisposed = true;
+			_lifetimeCts.Dispose();
 		}
 
 		private void RaiseCaptureCompleted(FishUIDebugSnapshot snapshot)

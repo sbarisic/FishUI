@@ -12,7 +12,7 @@ namespace RaylibFishGfx
 	/// This is a complete, production-ready Raylib backend that demonstrates how to implement
 	/// SimpleFishUIGfx with all optional overrides for maximum performance.
 	/// </remarks>
-	public class RaylibFishGfx : SimpleFishUIGfx
+	public class RaylibFishGfx : SimpleFishUIGfx, IFishUIFramebufferProvider
 	{
 		private readonly int _initialWidth;
 		private readonly int _initialHeight;
@@ -343,6 +343,77 @@ namespace RaylibFishGfx
 			{
 				Raylib.EndDrawing();
 			}
+		}
+
+		/// <summary>
+		/// Flushes Raylib's active batch and copies the current physical framebuffer without presenting it.
+		/// </summary>
+		public unsafe bool TryCaptureFramebuffer(out FishUIFramebuffer framebuffer)
+		{
+			framebuffer = null!;
+			Rlgl.DrawRenderBatchActive();
+			Image image = Raylib.LoadImageFromScreen();
+			try
+			{
+				if (image.Data == null || image.Width <= 0 || image.Height <= 0)
+					return false;
+				if (image.Format != PixelFormat.UncompressedR8G8B8A8)
+				{
+					Raylib.ImageFormat(ref image, PixelFormat.UncompressedR8G8B8A8);
+					if (image.Data == null || image.Width <= 0 || image.Height <= 0 ||
+						image.Format != PixelFormat.UncompressedR8G8B8A8)
+						return false;
+				}
+				int rowStride = checked(image.Width * 4);
+				int byteCount = checked(rowStride * image.Height);
+				byte[] pixels = new byte[byteCount];
+				new ReadOnlySpan<byte>(image.Data, byteCount).CopyTo(pixels);
+				pixels = ExpandLogicalHighDpiViewport(pixels, image.Width, image.Height);
+				framebuffer = new FishUIFramebuffer(image.Width, image.Height, rowStride,
+					FishUIPixelOrigin.TopLeft, false, pixels);
+				return true;
+			}
+			finally
+			{
+				if (image.Data != null)
+					Raylib.UnloadImage(image);
+			}
+		}
+
+		private static byte[] ExpandLogicalHighDpiViewport(byte[] pixels, int physicalWidth, int physicalHeight)
+		{
+			int logicalWidth = Raylib.GetScreenWidth();
+			int logicalHeight = Raylib.GetScreenHeight();
+			Vector2 dpiScale = Raylib.GetWindowScaleDPI();
+			if (logicalWidth <= 0 || logicalHeight <= 0 || physicalWidth < logicalWidth || physicalHeight < logicalHeight ||
+				physicalWidth == logicalWidth && physicalHeight == logicalHeight)
+				return pixels;
+			int expectedWidth = (int)MathF.Round(logicalWidth * dpiScale.X);
+			int expectedHeight = (int)MathF.Round(logicalHeight * dpiScale.Y);
+			if (expectedWidth != physicalWidth || expectedHeight != physicalHeight)
+				return pixels;
+
+			// Raylib 5.5 reads the DPI-sized buffer while the 2D viewport remains logical-sized.
+			// After rlReadScreenPixels fixes the GL origin, that viewport is bottom-aligned.
+			int sourceTop = physicalHeight - logicalHeight;
+			byte[] expanded = new byte[pixels.Length];
+			for (int y = 0; y < physicalHeight; y++)
+			{
+				int sourceY = sourceTop + Math.Min(logicalHeight - 1,
+					(int)((long)y * logicalHeight / physicalHeight));
+				for (int x = 0; x < physicalWidth; x++)
+				{
+					int sourceX = Math.Min(logicalWidth - 1,
+						(int)((long)x * logicalWidth / physicalWidth));
+					int sourceOffset = (sourceY * physicalWidth + sourceX) * 4;
+					int targetOffset = (y * physicalWidth + x) * 4;
+					expanded[targetOffset] = pixels[sourceOffset];
+					expanded[targetOffset + 1] = pixels[sourceOffset + 1];
+					expanded[targetOffset + 2] = pixels[sourceOffset + 2];
+					expanded[targetOffset + 3] = pixels[sourceOffset + 3];
+				}
+			}
+			return expanded;
 		}
 
 		#endregion

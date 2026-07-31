@@ -1,4 +1,6 @@
 using System.Numerics;
+using System.IO.Compression;
+using System.Text.Json;
 using FishUI;
 using FishUI.Controls;
 using UnitTest.Mocks;
@@ -44,6 +46,93 @@ public sealed class DiagnosticSnapshotTests
 	}
 
 	[Fact]
+	public void RollingHistoryDefaultsMatchBuildAndCapacityLimitsStaySynchronized()
+	{
+		using var fixture = new FishUITestFixture();
+#if DEBUG
+		Assert.True(fixture.UI.Diagnostics.RollingEventHistoryEnabled);
+#else
+		Assert.False(fixture.UI.Diagnostics.RollingEventHistoryEnabled);
+#endif
+		fixture.UI.Diagnostics.MaximumRollingHistoryEvents = 1;
+		fixture.UI.Diagnostics.MaximumCaptureEvents = 2;
+		fixture.UI.Diagnostics.MaximumRollingHistoryEvents = 7;
+		Assert.Equal(7, fixture.UI.Diagnostics.Events.Options.Capacity);
+		Assert.Equal(7, fixture.UI.Diagnostics.MaximumCaptureEvents);
+
+		fixture.UI.Diagnostics.MaximumCaptureEvents = 1;
+		Assert.Equal(7, fixture.UI.Diagnostics.MaximumCaptureEvents);
+		fixture.UI.Diagnostics.MaximumRollingHistoryEvents = 0;
+		fixture.UI.Diagnostics.RollingEventHistoryDuration = TimeSpan.FromSeconds(-1);
+		Assert.Equal(1, fixture.UI.Diagnostics.MaximumRollingHistoryEvents);
+		Assert.Equal(TimeSpan.Zero, fixture.UI.Diagnostics.RollingEventHistoryDuration);
+	}
+
+	[Fact]
+	public async Task TemporaryRecordingStartsAtRequestAndClearsWhenIdle()
+	{
+		using var fixture = new FishUITestFixture();
+		fixture.UI.Diagnostics.RollingEventHistoryEnabled = false;
+		fixture.UI.Diagnostics.Enabled = true;
+		Assert.False(fixture.UI.Diagnostics.Events.Options.Enabled);
+
+		Task<FishUIDebugSnapshot> task = FishUIDiagnostics.CaptureAsync(fixture.UI, StructuredOptions());
+		Assert.True(fixture.UI.Diagnostics.Events.Options.Enabled);
+		Assert.Contains(fixture.UI.DiagnosticsEvents.GetRecentEvents(), item => item.Type == FishUIDiagnosticEventType.CaptureRequested);
+
+		fixture.Update();
+		await task;
+		Assert.False(fixture.UI.Diagnostics.Events.Options.Enabled);
+		Assert.Empty(fixture.UI.DiagnosticsEvents.GetRecentEvents());
+	}
+
+	[Fact]
+	public async Task TriggerBypassesFilterSurvivesCapacityAndOwnsOneEventProjection()
+	{
+		using var fixture = new FishUITestFixture();
+		fixture.UI.Diagnostics.Enabled = true;
+		fixture.UI.Diagnostics.RollingEventHistoryEnabled = true;
+		fixture.UI.Diagnostics.MaximumRollingHistoryEvents = 1;
+		fixture.UI.Diagnostics.Events.Options.EventFilter = _ => false;
+		FishUIDebugSnapshotOptions options = StructuredOptions(1);
+		options.RecentEventWindow = TimeSpan.FromSeconds(10);
+
+		Task<FishUIDebugSnapshot> task = FishUIDiagnostics.CaptureAsync(fixture.UI, options);
+		fixture.UI.Diagnostics.Events.Options.EventFilter = null;
+		fixture.Update();
+		FishUIDebugSnapshot snapshot = await task;
+
+		FishUIDiagnosticEvent trigger = Assert.Single(snapshot.RecentEvents);
+		Assert.Equal(FishUIDiagnosticEventType.CaptureRequested, trigger.Type);
+		Assert.Equal(snapshot.TriggerEventSequence, trigger.Sequence);
+		Assert.True(snapshot.RollingHistoryCapacityDiscardedTotal > 0);
+	}
+
+	[Fact]
+	public async Task TimeWindowIncludesRecentHistoryAndExcludesOlderEvents()
+	{
+		using var fixture = new FishUITestFixture();
+		fixture.UI.Diagnostics.Enabled = true;
+		fixture.UI.Diagnostics.RollingEventHistoryEnabled = true;
+		fixture.UI.Diagnostics.RollingEventHistoryDuration = TimeSpan.FromSeconds(10);
+		fixture.Update(1);
+		fixture.UI.Diagnostics.ReportLiveWarning("OLD", "outside window");
+		fixture.Update(10.5f);
+		fixture.UI.Diagnostics.ReportLiveWarning("RECENT", "inside window");
+		FishUIDebugSnapshotOptions options = StructuredOptions(20000);
+		options.RecentEventWindow = TimeSpan.FromSeconds(10);
+
+		Task<FishUIDebugSnapshot> task = FishUIDiagnostics.CaptureAsync(fixture.UI, options);
+		fixture.Update();
+		FishUIDebugSnapshot snapshot = await task;
+
+		Assert.DoesNotContain(snapshot.RecentEvents, item => item.Message?.StartsWith("OLD:") == true);
+		Assert.Contains(snapshot.RecentEvents, item => item.Message?.StartsWith("RECENT:") == true);
+		Assert.Contains(snapshot.RecentEvents, item => item.Sequence == snapshot.TriggerEventSequence);
+		Assert.InRange(snapshot.ActualHistorySeconds, 0, 10);
+	}
+
+	[Fact]
 	public void DiagnosticHotkeyIsInactiveWhenDisabledAndCapturesFollowingDrawWhenEnabled()
 	{
 		using (var disabled = new FishUITestFixture())
@@ -71,7 +160,35 @@ public sealed class DiagnosticSnapshotTests
 			enabled.Update();
 			Assert.Equal(0, sink.KeyPressCount);
 			Assert.Equal(FishUIDebugCaptureReason.Hotkey, enabled.UI.Diagnostics.LastCapture?.CaptureReason);
+			FishUIDebugSnapshot snapshot = enabled.UI.Diagnostics.LastCapture!;
+			FishUIDiagnosticEvent trigger = Assert.Single(snapshot.RecentEvents,
+				item => item.Sequence == snapshot.TriggerEventSequence);
+			Assert.Equal(FishUIDiagnosticEventType.HotkeyHandled, trigger.Type);
+			Assert.Equal("fishui.diagnostics.capture", trigger.Key?.HotkeyId);
 		}
+	}
+
+	[Fact]
+	public void DiagnosticHotkeyIncludesRollingPreTriggerHistory()
+	{
+		using var fixture = new FishUITestFixture();
+		fixture.UI.Diagnostics.Enabled = true;
+		fixture.UI.Diagnostics.RollingEventHistoryEnabled = true;
+		fixture.UI.Diagnostics.RollingEventHistoryDuration = TimeSpan.FromSeconds(10);
+		fixture.Update(1);
+		fixture.UI.Diagnostics.ReportLiveWarning("PRE_TRIGGER", "five seconds earlier");
+		fixture.Input.SimulateKeyDown(FishKey.LeftControl);
+		fixture.Input.SimulateKeyDown(FishKey.LeftShift);
+		fixture.Input.SimulateKeyDown(FishKey.F12);
+
+		fixture.Update(5);
+		FishUIDebugSnapshot snapshot = Assert.IsType<FishUIDebugSnapshot>(fixture.UI.Diagnostics.LastCapture);
+
+		Assert.Equal(10, snapshot.RequestedHistorySeconds);
+		Assert.InRange(snapshot.ActualHistorySeconds, 4.9, 5.1);
+		Assert.Contains(snapshot.RecentEvents, item => item.Message?.StartsWith("PRE_TRIGGER:") == true);
+		Assert.Equal(FishUIDiagnosticEventType.HotkeyHandled,
+			Assert.Single(snapshot.RecentEvents, item => item.Sequence == snapshot.TriggerEventSequence).Type);
 	}
 
 	[Fact]
@@ -114,6 +231,8 @@ public sealed class DiagnosticSnapshotTests
 	public async Task RequestCreatedDuringDrawWaitsForNextDraw()
 	{
 		using var fixture = new FishUITestFixture();
+		fixture.UI.Diagnostics.Enabled = true;
+		fixture.UI.Diagnostics.RollingEventHistoryEnabled = false;
 		var control = new CaptureDuringDrawControl { Size = new Vector2(20, 20) };
 		fixture.UI.AddControl(control);
 		Task<FishUIDebugSnapshot> firstTask = FishUIDiagnostics.CaptureAsync(fixture.UI, StructuredOptions());
@@ -122,10 +241,14 @@ public sealed class DiagnosticSnapshotTests
 		FishUIDebugSnapshot first = await firstTask;
 		Assert.NotNull(control.Request);
 		Assert.False(control.Request.IsCompleted);
+		Assert.True(fixture.UI.Diagnostics.Events.Options.Enabled);
+		Assert.NotEmpty(fixture.UI.DiagnosticsEvents.GetRecentEvents());
 
 		fixture.Update();
 		FishUIDebugSnapshot second = await control.Request;
 		Assert.True(second.CaptureId > first.CaptureId);
+		Assert.False(fixture.UI.Diagnostics.Events.Options.Enabled);
+		Assert.Empty(fixture.UI.DiagnosticsEvents.GetRecentEvents());
 	}
 
 	[Fact]
@@ -209,10 +332,223 @@ public sealed class DiagnosticSnapshotTests
 	}
 
 	[Fact]
+	public async Task OpenDatePickerReportsPopupAndCalendarState()
+	{
+		using var fixture = new FishUITestFixture();
+		fixture.UI.Diagnostics.Enabled = true;
+		fixture.UI.Diagnostics.RollingEventHistoryEnabled = true;
+		var picker = new DatePicker(new DateTime(2026, 7, 31))
+		{
+			Position = new Vector2(150, 160),
+			Size = new Vector2(120, 24)
+		};
+		fixture.UI.AddControl(picker);
+		fixture.UI.TickUpdate(0.016f, 1);
+		picker.Open();
+		picker.HandleMouseMove(fixture.UI, new FishInputState(), new Vector2(271, 279));
+		Task<FishUIDebugSnapshot> task = FishUIDiagnostics.CaptureAsync(fixture.UI, StructuredOptions());
+
+		fixture.UI.TickDraw(0.016f, 1);
+		FishUIDebugSnapshot snapshot = await task;
+		picker.Close();
+		FishUIControlSnapshot state = Assert.Single(snapshot.Controls, control => control.Type == nameof(DatePicker));
+
+		Assert.NotNull(state.ControlData);
+		Assert.Equal(true, state.ControlData!["isOpen"]);
+		Assert.Equal("2026-07-31", state.ControlData["selectedDate"]);
+		Assert.Equal("2026-07", state.ControlData["displayedMonth"]);
+		Assert.Equal(10, state.ControlData["hoveredDayIndex"]);
+		Assert.Equal("2026-07-08", state.ControlData["hoveredDate"]);
+		FishUIDebugRect popup = Assert.IsType<FishUIDebugRect>(state.ControlData["calendarPopupPixels"]);
+		Assert.Equal(150, popup.X);
+		Assert.Equal(186, popup.Y);
+		Assert.Equal(220, popup.Width);
+		Assert.Equal(200, popup.Height);
+	}
+
+	[Fact]
+	public async Task DatePickerRecordsCalendarAndSelectionTransitions()
+	{
+		using var fixture = new FishUITestFixture();
+		fixture.UI.Diagnostics.Enabled = true;
+		fixture.UI.Diagnostics.RollingEventHistoryEnabled = true;
+		var picker = new DatePicker(new DateTime(2026, 7, 31))
+		{
+			Position = new Vector2(150, 160),
+			Size = new Vector2(120, 24)
+		};
+		fixture.UI.AddControl(picker);
+		fixture.UI.TickUpdate(0.016f, 1);
+
+		picker.Open();
+		var input = new FishInputState();
+		var julyEighth = new Vector2(271, 279);
+		picker.HandleMouseMove(fixture.UI, input, julyEighth);
+		picker.HandleMousePress(fixture.UI, input, FishMouseButton.Left, julyEighth);
+		Task<FishUIDebugSnapshot> task = FishUIDiagnostics.CaptureAsync(fixture.UI, StructuredOptions());
+
+		fixture.UI.TickDraw(0.016f, 1);
+		FishUIDebugSnapshot snapshot = await task;
+
+		Assert.Contains(snapshot.RecentEvents, item =>
+			item.Type == FishUIDiagnosticEventType.StateChanged &&
+			item.State?.Name == "calendarOpen" &&
+			item.State.OldValue == bool.FalseString &&
+			item.State.NewValue == bool.TrueString);
+		Assert.Contains(snapshot.RecentEvents, item =>
+			item.Type == FishUIDiagnosticEventType.StateChanged &&
+			item.State?.Name == "selectedDate" &&
+			item.State.OldValue == "2026-07-31" &&
+			item.State.NewValue == "2026-07-08");
+		Assert.Contains(snapshot.RecentEvents, item =>
+			item.Type == FishUIDiagnosticEventType.StateChanged &&
+			item.State?.Name == "calendarOpen" &&
+			item.State.OldValue == bool.TrueString &&
+			item.State.NewValue == bool.FalseString);
+	}
+
+	[Fact]
+	public async Task OpenDropDownReportsBoundedSelectionAndPopupState()
+	{
+		using var fixture = new FishUITestFixture();
+		fixture.Settings.FontDefault = new FontRef { Size = 14 };
+		fixture.UI.Diagnostics.Enabled = true;
+		fixture.UI.Diagnostics.RollingEventHistoryEnabled = true;
+		var dropDown = new DropDown
+		{
+			Position = new Vector2(20, 85),
+			Size = new Vector2(150, 30),
+			MultiSelect = true,
+			Searchable = true
+		};
+		foreach (string item in new[] { "Alpha", "Beta", "Gamma", "Delta" })
+			dropDown.AddItem(item);
+		fixture.UI.AddControl(dropDown);
+		fixture.UI.TickUpdate(0.016f, 1);
+		fixture.UI.TickDraw(0.016f, 1);
+		dropDown.ToggleItemSelection(0);
+		dropDown.ToggleItemSelection(3);
+		dropDown.Open();
+		dropDown.HandleMouseMove(fixture.UI, new FishInputState(), new Vector2(30, 155));
+		Task<FishUIDebugSnapshot> task = FishUIDiagnostics.CaptureAsync(fixture.UI, StructuredOptions());
+
+		fixture.UI.TickDraw(0.016f, 1);
+		FishUIDebugSnapshot snapshot = await task;
+		dropDown.Close();
+		FishUIControlSnapshot state = Assert.Single(snapshot.Controls, control => control.Type == nameof(DropDown));
+
+		Assert.NotNull(state.ControlData);
+		Assert.Equal(true, state.ControlData!["isOpen"]);
+		Assert.Equal(true, state.ControlData["multiSelect"]);
+		Assert.Equal(true, state.ControlData["searchable"]);
+		Assert.Equal(4, state.ControlData["itemCount"]);
+		Assert.Equal(new[] { 0, 3 }, Assert.IsType<int[]>(state.ControlData["selectedIndices"]));
+		Assert.Equal(2, state.ControlData["selectedCount"]);
+		Assert.Equal(false, state.ControlData["selectedIndicesTruncated"]);
+		Assert.Equal(1, state.ControlData["hoveredDisplayIndex"]);
+		Assert.Equal(1, state.ControlData["hoveredItemIndex"]);
+		Assert.Equal(4, state.ControlData["filteredItemCount"]);
+		Assert.Equal(4, state.ControlData["displayedItemCount"]);
+		Assert.Equal(18f, state.ControlData["itemHeightPixels"]);
+		FishUIDebugRect popup = Assert.IsType<FishUIDebugRect>(state.ControlData["popupPixels"]);
+		Assert.Equal(20, popup.X);
+		Assert.Equal(104, popup.Y);
+		Assert.Equal(150, popup.Width);
+		Assert.Equal(100, popup.Height);
+		FishUIDebugRect search = Assert.IsType<FishUIDebugRect>(state.ControlData["searchBoxPixels"]);
+		Assert.Equal(22, search.X);
+		Assert.Equal(106, search.Y);
+		Assert.Equal(146, search.Width);
+		Assert.Equal(20, search.Height);
+		Assert.Contains(snapshot.RecentEvents, item =>
+			item.Type == FishUIDiagnosticEventType.StateChanged &&
+			item.State?.Name == "selectedIndices" &&
+			item.State.OldValue == "" &&
+			item.State.NewValue == "0");
+		Assert.Contains(snapshot.RecentEvents, item =>
+			item.Type == FishUIDiagnosticEventType.StateChanged &&
+			item.State?.Name == "selectedIndices" &&
+			item.State.OldValue == "0" &&
+			item.State.NewValue == "0,3");
+	}
+
+	[Fact]
+	public async Task DropDownRecordsOpenSearchAndSelectionTransitions()
+	{
+		using var fixture = new FishUITestFixture();
+		fixture.Settings.FontDefault = new FontRef { Size = 14 };
+		fixture.UI.Diagnostics.Enabled = true;
+		fixture.UI.Diagnostics.RollingEventHistoryEnabled = true;
+		var dropDown = new DropDown { Searchable = true };
+		foreach (string item in new[] { "Alpha", "Beta", "Gamma" })
+			dropDown.AddItem(item);
+		fixture.UI.AddControl(dropDown);
+		fixture.UI.TickUpdate(0.016f, 1);
+
+		dropDown.Open();
+		dropDown.HandleTextInput(fixture.UI, new FishInputState(), 'm');
+		dropDown.SelectIndex(2);
+		Task<FishUIDebugSnapshot> task = FishUIDiagnostics.CaptureAsync(fixture.UI, StructuredOptions());
+
+		fixture.UI.TickDraw(0.016f, 1);
+		FishUIDebugSnapshot snapshot = await task;
+
+		Assert.Contains(snapshot.RecentEvents, item =>
+			item.Type == FishUIDiagnosticEventType.StateChanged &&
+			item.State?.Name == "dropdownOpen" &&
+			item.State.OldValue == bool.FalseString &&
+			item.State.NewValue == bool.TrueString);
+		Assert.Contains(snapshot.RecentEvents, item =>
+			item.Type == FishUIDiagnosticEventType.StateChanged &&
+			item.State?.Name == "searchTextLength" &&
+			item.State.OldValue == "0" &&
+			item.State.NewValue == "1");
+		Assert.Contains(snapshot.RecentEvents, item =>
+			item.Type == FishUIDiagnosticEventType.StateChanged &&
+			item.State?.Name == "filteredItemCount" &&
+			item.State.OldValue == "3" &&
+			item.State.NewValue == "1");
+		Assert.Contains(snapshot.RecentEvents, item =>
+			item.Type == FishUIDiagnosticEventType.StateChanged &&
+			item.State?.Name == "selectedIndex" &&
+			item.State.OldValue == "-1" &&
+			item.State.NewValue == "2");
+		Assert.Contains(snapshot.RecentEvents, item =>
+			item.Type == FishUIDiagnosticEventType.StateChanged &&
+			item.State?.Name == "dropdownOpen" &&
+			item.State.OldValue == bool.TrueString &&
+			item.State.NewValue == bool.FalseString);
+	}
+
+	[Fact]
+	public async Task DropDownSnapshotBoundsLargeMultiSelection()
+	{
+		using var fixture = new FishUITestFixture();
+		fixture.Settings.FontDefault = new FontRef { Size = 14 };
+		var dropDown = new DropDown { MultiSelect = true };
+		for (int i = 0; i < 300; i++)
+			dropDown.AddItem("Item " + i);
+		dropDown.SelectAll();
+		fixture.UI.AddControl(dropDown);
+		fixture.UI.TickUpdate(0.016f, 1);
+		Task<FishUIDebugSnapshot> task = FishUIDiagnostics.CaptureAsync(fixture.UI, StructuredOptions());
+
+		fixture.UI.TickDraw(0.016f, 1);
+		FishUIDebugSnapshot snapshot = await task;
+		FishUIControlSnapshot state = Assert.Single(snapshot.Controls, control => control.Type == nameof(DropDown));
+
+		Assert.NotNull(state.ControlData);
+		Assert.Equal(300, state.ControlData!["selectedCount"]);
+		Assert.Equal(256, Assert.IsType<int[]>(state.ControlData["selectedIndices"]).Length);
+		Assert.Equal(true, state.ControlData["selectedIndicesTruncated"]);
+	}
+
+	[Fact]
 	public async Task EventTimePathsDisambiguateDuplicateSiblingNames()
 	{
 		using var fixture = new FishUITestFixture();
 		fixture.UI.Diagnostics.Enabled = true;
+		fixture.UI.Diagnostics.RollingEventHistoryEnabled = true;
 		var first = new Panel { ID = "duplicate", Size = new Vector2(10, 10) };
 		var second = new Panel { ID = "duplicate", Size = new Vector2(10, 10) };
 		fixture.UI.AddControl(first);
@@ -308,6 +644,91 @@ public sealed class DiagnosticSnapshotTests
 	}
 
 	[Fact]
+	public async Task FramebufferMetadataUsesFrozenCoordinatesAndOverlayScalesEdges()
+	{
+		var graphics = new FramebufferGraphics
+		{
+			Width = 8,
+			Height = 12,
+			Stride = 32,
+			Pixels = Enumerable.Repeat((byte)255, 8 * 12 * 4).ToArray()
+		};
+		using FishUI.FishUI ui = CreateUi(graphics);
+		ui.AddControl(new ResizeUiDuringDrawControl
+		{
+			Position = new Vector2(1, 1),
+			Size = new Vector2(1, 1)
+		});
+		EnableFramebuffer(ui);
+		Task<FishUIDebugSnapshot> task = FishUIDiagnostics.CaptureAsync(ui, new FishUIDebugSnapshotOptions());
+
+		ui.Tick(0.016f, 1);
+		FishUIDebugSnapshot snapshot = await task;
+
+		Assert.Equal(4, snapshot.WindowWidthPixels);
+		Assert.Equal(4, snapshot.WindowHeightPixels);
+		Assert.Equal(8, snapshot.FramebufferWidthPixels);
+		Assert.Equal(12, snapshot.FramebufferHeightPixels);
+		Assert.Equal(2f, snapshot.FramebufferScaleX);
+		Assert.Equal(3f, snapshot.FramebufferScaleY);
+		byte[] overlay = DecodeRgbaPng(snapshot.OverlayPng!);
+		Assert.Equal(new byte[] { 0, 220, 0, 255 }, Pixel(overlay, 8, 2, 4));
+		Assert.Equal(new byte[] { 255, 255, 255, 255 }, Pixel(overlay, 8, 1, 4));
+	}
+
+	[Fact]
+	public async Task FramebufferProviderFailureUsesCaptureStage()
+	{
+		var graphics = new FramebufferGraphics { ThrowOnCapture = true };
+		using FishUI.FishUI ui = CreateUi(graphics);
+		EnableFramebuffer(ui);
+		Task<FishUIDebugSnapshot> task = FishUIDiagnostics.CaptureAsync(ui, new FishUIDebugSnapshotOptions());
+
+		ui.Tick(0.016f, 1);
+		FishUIDebugSnapshot snapshot = await task;
+
+		Assert.Equal(FishUIDiagnosticArtifactStatus.Failed, snapshot.Artifacts["screenshot"].Status);
+		Assert.Equal("framebufferCapture", snapshot.Artifacts["screenshot"].FailureStage);
+		Assert.Equal(FishUIDiagnosticArtifactStatus.Unavailable, snapshot.Artifacts["overlay"].Status);
+	}
+
+	[Fact]
+	public async Task InvalidProviderResultIsUnavailableAtCaptureStage()
+	{
+		var graphics = new FramebufferGraphics { ReturnFalse = true };
+		using FishUI.FishUI ui = CreateUi(graphics);
+		EnableFramebuffer(ui);
+		Task<FishUIDebugSnapshot> task = FishUIDiagnostics.CaptureAsync(ui, new FishUIDebugSnapshotOptions());
+
+		ui.Tick(0.016f, 1);
+		FishUIDebugSnapshot snapshot = await task;
+
+		Assert.Equal(FishUIDiagnosticArtifactStatus.Unavailable, snapshot.Artifacts["screenshot"].Status);
+		Assert.Equal("framebufferCapture", snapshot.Artifacts["screenshot"].FailureStage);
+	}
+
+	[Fact]
+	public async Task OverlayDrawingFailureRetainsValidScreenshot()
+	{
+		var graphics = new FramebufferGraphics { WindowWidth = 0, WindowHeight = 0 };
+		using FishUI.FishUI ui = CreateUi(graphics);
+		ui.Width = 0;
+		ui.Height = 0;
+		EnableFramebuffer(ui);
+		Task<FishUIDebugSnapshot> task = FishUIDiagnostics.CaptureAsync(ui, new FishUIDebugSnapshotOptions());
+
+		ui.Tick(0.016f, 1);
+		FishUIDebugSnapshot snapshot = await task;
+
+		Assert.Equal(FishUIDiagnosticArtifactStatus.Available, snapshot.Artifacts["screenshot"].Status);
+		Assert.NotNull(snapshot.ScreenshotPng);
+		Assert.Equal(FishUIDiagnosticArtifactStatus.Failed, snapshot.Artifacts["overlay"].Status);
+		Assert.Equal("overlayDrawing", snapshot.Artifacts["overlay"].FailureStage);
+		Assert.Equal(4, snapshot.FramebufferWidthPixels);
+		Assert.Null(snapshot.FramebufferScaleX);
+	}
+
+	[Fact]
 	public async Task ExportProducesFiveFileBundleAndFailureDoesNotChangeSnapshot()
 	{
 		var graphics = new FramebufferGraphics();
@@ -322,6 +743,11 @@ public sealed class DiagnosticSnapshotTests
 			snapshot.SaveDirectory(root);
 			Assert.Equal(new[] { "interaction-summary.txt", "overlay.png", "recent-events.json", "screenshot.png", "snapshot.json" },
 				Directory.GetFiles(root).Select(Path.GetFileName).OrderBy(name => name).ToArray());
+			using JsonDocument document = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "snapshot.json")));
+			JsonElement metadata = document.RootElement;
+			Assert.Equal(4, metadata.GetProperty("windowWidthPixels").GetInt32());
+			Assert.Equal(4, metadata.GetProperty("framebufferWidthPixels").GetInt32());
+			Assert.Equal(1f, metadata.GetProperty("framebufferScaleX").GetSingle());
 			Assert.Throws<IOException>(() => snapshot.SaveDirectory(root));
 			Assert.Equal(FishUIDebugCaptureStatus.Complete, snapshot.CaptureStatus);
 			Assert.Equal(FishUIDiagnosticArtifactStatus.Available, snapshot.Artifacts["screenshot"].Status);
@@ -337,6 +763,7 @@ public sealed class DiagnosticSnapshotTests
 	{
 		using var fixture = new FishUITestFixture();
 		fixture.UI.Diagnostics.Enabled = true;
+		fixture.UI.Diagnostics.RollingEventHistoryEnabled = true;
 		fixture.UI.Diagnostics.CaptureCompleted += (_, _) =>
 			fixture.UI.Diagnostics.ReportLiveWarning("COMPLETION_HANDLER", "after capture");
 		Task<FishUIDebugSnapshot> task = FishUIDiagnostics.CaptureAsync(fixture.UI, StructuredOptions());
@@ -353,6 +780,7 @@ public sealed class DiagnosticSnapshotTests
 	{
 		using var fixture = new FishUITestFixture();
 		fixture.UI.Diagnostics.Enabled = true;
+		fixture.UI.Diagnostics.RollingEventHistoryEnabled = true;
 		fixture.UI.Diagnostics.ReportLiveWarning("SUMMARY_EVENT", "included in summary");
 		FishUIDebugSnapshotOptions options = StructuredOptions();
 		options.IncludeRecentEvents = false;
@@ -387,6 +815,7 @@ public sealed class DiagnosticSnapshotTests
 	{
 		using var fixture = new FishUITestFixture();
 		fixture.UI.Diagnostics.Enabled = true;
+		fixture.UI.Diagnostics.RollingEventHistoryEnabled = true;
 		fixture.UI.Diagnostics.Events.Options.RecordTextCharacters = true;
 		fixture.UI.Diagnostics.PrivacyPolicy.RedactText = false;
 		fixture.UI.Diagnostics.ResetEventRecorder();
@@ -464,6 +893,59 @@ public sealed class DiagnosticSnapshotTests
 		Assert.Equal(FishUIDebugCaptureStatus.Complete, snapshot.CaptureStatus);
 	}
 
+	[Fact]
+	public async Task DisposalDrainWaitsForRegisteredRunningExport()
+	{
+		using var fixture = new FishUITestFixture();
+		var entered = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+		var release = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+		fixture.UI.Diagnostics.AutoExportAsync = async (_, _) =>
+		{
+			entered.TrySetResult(true);
+			await release.Task;
+		};
+		Task<FishUIDebugSnapshot> capture = FishUIDiagnostics.CaptureAsync(fixture.UI, StructuredOptions());
+
+		fixture.Update();
+		await capture;
+		await entered.Task.WaitAsync(TimeSpan.FromSeconds(5));
+		fixture.UI.Dispose();
+		Task drain = fixture.UI.Diagnostics.WaitForPendingExportsAsync();
+		Assert.False(drain.IsCompleted);
+		release.TrySetResult(true);
+		await drain.WaitAsync(TimeSpan.FromSeconds(5));
+		await fixture.UI.Diagnostics.WaitForPendingExportsAsync();
+	}
+
+	[Fact]
+	public async Task ExportIsTrackedBeforeCaptureCompletionAndPublishesAfterIt()
+	{
+		using var fixture = new FishUITestFixture();
+		var completed = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+		var order = new List<string>();
+		bool trackedDuringCaptureCompletion = false;
+		fixture.UI.Diagnostics.AutoExportAsync = (_, _) => Task.CompletedTask;
+		fixture.UI.Diagnostics.CaptureCompleted += (_, _) =>
+		{
+			lock (order) order.Add("capture");
+			trackedDuringCaptureCompletion = !fixture.UI.Diagnostics.WaitForPendingExportsAsync().IsCompleted;
+		};
+		fixture.UI.Diagnostics.ExportCompleted += (_, _) =>
+		{
+			lock (order) order.Add("export");
+			completed.TrySetResult(true);
+		};
+
+		Task<FishUIDebugSnapshot> capture = FishUIDiagnostics.CaptureAsync(fixture.UI, StructuredOptions());
+		fixture.Update();
+		await capture;
+		await completed.Task.WaitAsync(TimeSpan.FromSeconds(5));
+		await fixture.UI.Diagnostics.WaitForPendingExportsAsync();
+
+		Assert.True(trackedDuringCaptureCompletion);
+		lock (order) Assert.Equal(new[] { "capture", "export" }, order);
+	}
+
 	private static FishUI.FishUI CreateUi(IFishUIGfx graphics)
 	{
 		return new FishUI.FishUI(new FishUISettings(), graphics, new MockFishUIInput(), new MockFishUIEvents(), new MockFishUIFileSystem())
@@ -477,6 +959,49 @@ public sealed class DiagnosticSnapshotTests
 	{
 		ui.Diagnostics.PrivacyPolicy.AllowFramebufferCapture = true;
 		ui.Diagnostics.ResetEventRecorder();
+	}
+
+	private static byte[] DecodeRgbaPng(byte[] png)
+	{
+		using var compressed = new MemoryStream();
+		int offset = 8;
+		int width = 0;
+		int height = 0;
+		while (offset < png.Length)
+		{
+			int length = ReadBigEndianInt(png, offset);
+			string type = System.Text.Encoding.ASCII.GetString(png, offset + 4, 4);
+			if (type == "IHDR")
+			{
+				width = ReadBigEndianInt(png, offset + 8);
+				height = ReadBigEndianInt(png, offset + 12);
+			}
+			else if (type == "IDAT")
+				compressed.Write(png, offset + 8, length);
+			offset += 12 + length;
+		}
+		compressed.Position = 0;
+		using var zlib = new ZLibStream(compressed, CompressionMode.Decompress);
+		using var raw = new MemoryStream();
+		zlib.CopyTo(raw);
+		byte[] scanlines = raw.ToArray();
+		int rowBytes = width * 4;
+		byte[] rgba = new byte[rowBytes * height];
+		for (int y = 0; y < height; y++)
+		{
+			Assert.Equal(0, scanlines[y * (rowBytes + 1)]);
+			Array.Copy(scanlines, y * (rowBytes + 1) + 1, rgba, y * rowBytes, rowBytes);
+		}
+		return rgba;
+	}
+
+	private static int ReadBigEndianInt(byte[] data, int offset) =>
+		(data[offset] << 24) | (data[offset + 1] << 16) | (data[offset + 2] << 8) | data[offset + 3];
+
+	private static byte[] Pixel(byte[] rgba, int width, int x, int y)
+	{
+		int offset = (y * width + x) * 4;
+		return rgba.Skip(offset).Take(4).ToArray();
 	}
 
 	private sealed class TextDrawingControl : Control
@@ -527,6 +1052,15 @@ public sealed class DiagnosticSnapshotTests
 		}
 	}
 
+	private sealed class ResizeUiDuringDrawControl : Control
+	{
+		public override void DrawControl(FishUI.FishUI ui, float dt, float time)
+		{
+			ui.Width = 99;
+			ui.Height = 77;
+		}
+	}
+
 	private sealed class MixedScissorControl : Control
 	{
 		public override void DrawControl(FishUI.FishUI ui, float dt, float time)
@@ -546,10 +1080,22 @@ public sealed class DiagnosticSnapshotTests
 		public int Stride { get; set; } = 16;
 		public byte[] Pixels { get; set; } = Enumerable.Repeat((byte)255, 64).ToArray();
 		public bool ThrowOnEndDrawing { get; set; }
+		public bool ThrowOnCapture { get; set; }
+		public bool ReturnFalse { get; set; }
 		public int ReleaseCount { get; private set; }
 
 		public bool TryCaptureFramebuffer(out FishUIFramebuffer framebuffer)
 		{
+			if (ThrowOnCapture)
+			{
+				framebuffer = null!;
+				throw new InvalidOperationException("capture failed");
+			}
+			if (ReturnFalse)
+			{
+				framebuffer = null!;
+				return false;
+			}
 			framebuffer = new FishUIFramebuffer(Width, Height, Stride, FishUIPixelOrigin.TopLeft, false,
 				Pixels, () => ReleaseCount++);
 			return true;

@@ -281,6 +281,7 @@ namespace FishUI
 
 	public sealed class FishUIDebugSnapshotOptions
 	{
+		private TimeSpan? _recentEventWindow;
 		public bool IncludeControlTree { get; set; } = true;
 		public bool IncludeRenderCommands { get; set; } = true;
 		public bool IncludeScreenshot { get; set; } = true;
@@ -294,14 +295,19 @@ namespace FishUI
 		public int MaximumTextPreviewLength { get; set; } = 128;
 		public int MaximumRenderCommands { get; set; } = 10000;
 		public int MaximumRecentEvents { get; set; } = 500;
+		public TimeSpan? RecentEventWindow
+		{
+			get => _recentEventWindow;
+			set => _recentEventWindow = value.HasValue && value.Value < TimeSpan.Zero ? TimeSpan.Zero : value;
+		}
 		public bool IncludeExceptionStackTrace { get; set; }
 		internal FishUIDebugSnapshotOptions Clone() => (FishUIDebugSnapshotOptions)MemberwiseClone();
 	}
 
 	public sealed class FishUIEventRecorderOptions
 	{
-		public bool Enabled { get; set; }
-		public int Capacity { get; set; } = 500;
+		public bool Enabled { get; internal set; }
+		public int Capacity { get; internal set; } = 20000;
 		public bool RecordMouseMovement { get; set; } = true;
 		public bool RecordDragUpdates { get; set; } = true;
 		public bool RecordHitTestTraces { get; set; } = true;
@@ -339,6 +345,18 @@ namespace FishUI
 		public double DeltaTimeSeconds { get; set; }
 		public int WindowWidthPixels { get; set; }
 		public int WindowHeightPixels { get; set; }
+		public int? FramebufferWidthPixels { get; set; }
+		public int? FramebufferHeightPixels { get; set; }
+		public float? FramebufferScaleX { get; set; }
+		public float? FramebufferScaleY { get; set; }
+		public double TriggerTimeSeconds { get; set; }
+		public long TriggerEventSequence { get; set; }
+		public bool RollingHistoryEnabled { get; set; }
+		public double RequestedHistorySeconds { get; set; }
+		public double ActualHistorySeconds { get; set; }
+		public int ProjectedEventCount { get; set; }
+		public bool RollingHistoryTruncatedByCapacity { get; set; }
+		public long RollingHistoryCapacityDiscardedTotal { get; set; }
 		public float UiScale { get; set; }
 		public string GraphicsBackend { get; set; }
 		public string Theme { get; set; }
@@ -406,6 +424,7 @@ namespace FishUI
 		public void Write(string name, float value) => _values[name] = value;
 		public void Write(string name, double value) => _values[name] = value;
 		public void Write(string name, string value) => _values[name] = value;
+		public void Write(string name, int[] value) => _values[name] = value == null ? null : (int[])value.Clone();
 		public void Write(string name, FishUIDebugPoint value) => _values[name] = value;
 		public void Write(string name, FishUIDebugRect value) => _values[name] = value;
 	}

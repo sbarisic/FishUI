@@ -14,7 +14,7 @@ namespace FishUI.Controls
 	/// <summary>
 	/// A date picker control with calendar popup for date selection.
 	/// </summary>
-	public class DatePicker : Control
+	public class DatePicker : Control, IFishUIDebugSnapshotProvider
 	{
 		/// <summary>
 		/// Static list of currently open date pickers for overlay rendering.
@@ -42,8 +42,12 @@ namespace FishUI.Controls
 			{
 				if (_value != value)
 				{
+					DateTime oldValue = _value;
+					DateTime oldDisplayMonth = _displayMonth;
 					_value = value;
 					_displayMonth = new DateTime(value.Year, value.Month, 1);
+					RecordDiagnosticState("selectedDate", FormatDate(oldValue), FormatDate(_value));
+					RecordDisplayedMonthChange(oldDisplayMonth);
 					OnValueChanged?.Invoke(this, _value);
 				}
 			}
@@ -145,12 +149,46 @@ namespace FishUI.Controls
 		}
 
 		/// <summary>
+		/// Writes bounded calendar state for diagnostic snapshots. Per-request and session value redaction
+		/// is applied by the diagnostics projection layer.
+		/// </summary>
+		public void WriteDebugSnapshot(FishUIDebugSnapshotWriter writer)
+		{
+			writer.Write("isOpen", _isOpen);
+			writer.Write("selectedDate", _value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+			writer.Write("displayedMonth", _displayMonth.ToString("yyyy-MM", CultureInfo.InvariantCulture));
+			writer.Write("hoveredDayIndex", _hoveredDay);
+			if (!_isOpen)
+				return;
+
+			Vector2 controlPos = GetAbsolutePosition();
+			Vector2 controlSize = ScaledSize;
+			Vector2 calendarSize = Scale(CalendarSize);
+			writer.Write("calendarPopupPixels", new FishUIDebugRect(
+				controlPos.X,
+				controlPos.Y + controlSize.Y + 2,
+				calendarSize.X,
+				calendarSize.Y));
+			if (_hoveredDay >= 0)
+			{
+				DateTime? hoveredDate = GetDateFromDayIndex(_hoveredDay);
+				if (hoveredDate.HasValue)
+					writer.Write("hoveredDate", hoveredDate.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+			}
+		}
+
+		/// <summary>
 		/// Opens the calendar popup.
 		/// </summary>
 		public void Open()
 		{
+			bool wasOpen = _isOpen;
+			DateTime oldDisplayMonth = _displayMonth;
 			_isOpen = true;
 			_displayMonth = new DateTime(_value.Year, _value.Month, 1);
+			if (!wasOpen)
+				RecordDiagnosticState("calendarOpen", bool.FalseString, bool.TrueString);
+			RecordDisplayedMonthChange(oldDisplayMonth);
 			AlwaysOnTop = true;
 			BringToFront();
 			if (!OpenPickers.Contains(this))
@@ -162,10 +200,13 @@ namespace FishUI.Controls
 		/// </summary>
 		public void Close()
 		{
+			bool wasOpen = _isOpen;
 			_isOpen = false;
 			_hoveredDay = -1;
 			AlwaysOnTop = false;
 			OpenPickers.Remove(this);
+			if (wasOpen)
+				RecordDiagnosticState("calendarOpen", bool.TrueString, bool.FalseString);
 		}
 
 		/// <summary>
@@ -576,28 +617,28 @@ namespace FishUI.Controls
 			Vector2 prevYearPos = new Vector2(calPos.X + padding, calPos.Y + padding);
 			if (IsPointInRect(mousePos, prevYearPos, btnSize))
 			{
-				_displayMonth = _displayMonth.AddYears(-1);
+				SetDisplayedMonth(_displayMonth.AddYears(-1));
 				return;
 			}
 
 			Vector2 prevMonthPos = new Vector2(prevYearPos.X + btnWidth + 2, prevYearPos.Y);
 			if (IsPointInRect(mousePos, prevMonthPos, btnSize))
 			{
-				_displayMonth = _displayMonth.AddMonths(-1);
+				SetDisplayedMonth(_displayMonth.AddMonths(-1));
 				return;
 			}
 
 			Vector2 nextYearPos = new Vector2(calPos.X + calSize.X - padding - btnWidth, calPos.Y + padding);
 			if (IsPointInRect(mousePos, nextYearPos, btnSize))
 			{
-				_displayMonth = _displayMonth.AddYears(1);
+				SetDisplayedMonth(_displayMonth.AddYears(1));
 				return;
 			}
 
 			Vector2 nextMonthPos = new Vector2(nextYearPos.X - btnWidth - 2, nextYearPos.Y);
 			if (IsPointInRect(mousePos, nextMonthPos, btnSize))
 			{
-				_displayMonth = _displayMonth.AddMonths(1);
+				SetDisplayedMonth(_displayMonth.AddMonths(1));
 				return;
 			}
 
@@ -641,6 +682,49 @@ namespace FishUI.Controls
 					return null;
 				return new DateTime(nextMonth.Year, nextMonth.Month, day);
 			}
+		}
+
+		private void SetDisplayedMonth(DateTime value)
+		{
+			DateTime oldValue = _displayMonth;
+			_displayMonth = new DateTime(value.Year, value.Month, 1);
+			RecordDisplayedMonthChange(oldValue);
+		}
+
+		private void RecordDisplayedMonthChange(DateTime oldValue)
+		{
+			if (oldValue == _displayMonth)
+				return;
+
+			RecordDiagnosticState("displayedMonth", FormatMonth(oldValue), FormatMonth(_displayMonth));
+		}
+
+		private void RecordDiagnosticState(string name, string oldValue, string newValue)
+		{
+			if (FishUI?.Diagnostics.Events.Options.Enabled != true)
+				return;
+
+			FishUI.Diagnostics.Record(
+				FishUIDiagnosticEventCategory.StateChange,
+				FishUIDiagnosticEventType.StateChanged,
+				this,
+				null,
+				state: new FishUIStateEventData
+				{
+					Name = name,
+					OldValue = oldValue,
+					NewValue = newValue
+				});
+		}
+
+		private static string FormatDate(DateTime value)
+		{
+			return value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+		}
+
+		private static string FormatMonth(DateTime value)
+		{
+			return value.ToString("yyyy-MM", CultureInfo.InvariantCulture);
 		}
 
 		private bool IsPointInRect(Vector2 point, Vector2 rectPos, Vector2 rectSize)

@@ -927,9 +927,12 @@ namespace FishUI
 			if (hotkeyHandled)
 			{
 				_keyboardInputConsumedThisFrame = true;
-				if (recordDiagnostics)
-					Diagnostics.Record(FishUIDiagnosticEventCategory.Keyboard, FishUIDiagnosticEventType.HotkeyHandled, InputActiveControl,
-						matchedHotkey?.ID, key: new FishUIKeyEventData { Key = Key.ToString(), HotkeyId = matchedHotkey?.ID, Consumed = true });
+				FishUIDiagnosticEvent hotkeyEvent = null;
+				if (recordDiagnostics || Diagnostics.IsEventRecordingEnabled)
+					hotkeyEvent = Diagnostics.Record(FishUIDiagnosticEventCategory.Keyboard, FishUIDiagnosticEventType.HotkeyHandled, InputActiveControl,
+						matchedHotkey?.ID, key: new FishUIKeyEventData { Key = Key.ToString(), HotkeyId = matchedHotkey?.ID, Consumed = true },
+						bypassFilter: Diagnostics.IsCaptureHotkey(matchedHotkey));
+				Diagnostics.CompleteHotkeyTrigger(matchedHotkey, hotkeyEvent);
 			}
 
 			if (!hotkeyHandled)
