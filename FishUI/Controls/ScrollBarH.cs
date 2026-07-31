@@ -39,13 +39,14 @@ namespace FishUI.Controls
 		public ScrollBarH()
 		{
 			Size = new Vector2(200, 15);
+			Focusable = false;
 		}
 
 		bool IsInsideThumb(FishUI UI, Vector2 Pos)
 		{
-			CalculateThumb(out Vector2 ThumbSize, out Vector2 ThumbPos);
+			CalculateThumb(out Vector2 thumbSize, out Vector2 thumbPos);
 
-			if (Utils.IsInside(ThumbPos, ThumbSize, Pos))
+			if (Utils.IsInside(GetAbsolutePosition() + Scale(thumbPos), Scale(thumbSize), Pos))
 				return true;
 
 			return false;
@@ -55,7 +56,7 @@ namespace FishUI.Controls
 		{
 			Vector2 BtnPos = GetAbsolutePosition();
 
-			if (Utils.IsInside(BtnPos, ButtonSize, Pos))
+			if (Utils.IsInside(BtnPos, Scale(ButtonSize), Pos))
 				return true;
 
 			return false;
@@ -63,9 +64,9 @@ namespace FishUI.Controls
 
 		bool IsInsideBtnRight(FishUI UI, Vector2 Pos)
 		{
-			Vector2 BtnPos = GetAbsolutePosition() + new Vector2(GetAbsoluteSize().X - ButtonSize.X, 0);
+			Vector2 BtnPos = GetAbsolutePosition() + Scale(new Vector2(Size.X - ButtonSize.X, 0));
 
-			if (Utils.IsInside(BtnPos, ButtonSize, Pos))
+			if (Utils.IsInside(BtnPos, Scale(ButtonSize), Pos))
 				return true;
 
 			return false;
@@ -74,8 +75,8 @@ namespace FishUI.Controls
 		void CalculateThumb(out Vector2 ThumbSize, out Vector2 ThumbPos)
 		{
 			Vector2 BtnSize = ButtonSize;
-			Vector2 thumbScrollSize = GetAbsoluteSize() - new Vector2(BtnSize.X + BtnSize.X, 0);
-			Vector2 thumbScrollPos = GetAbsolutePosition() + new Vector2(BtnSize.X, 0);
+			Vector2 thumbScrollSize = Size - new Vector2(BtnSize.X + BtnSize.X, 0);
+			Vector2 thumbScrollPos = new Vector2(BtnSize.X, 0);
 
 			float thumbW = thumbScrollSize.X * ThumbWidth;
 			float thumbX = (thumbScrollSize.X - thumbW) * ThumbPosition;
@@ -94,6 +95,7 @@ namespace FishUI.Controls
 			RemoveAllChildren();
 
 			BtnLeft = new Button(UI.Settings.ImgSBHBtnLeftNormal, UI.Settings.ImgSBHBtnLeftDisabled, UI.Settings.ImgSBHBtnLeftPressed, UI.Settings.ImgSBHBtnLeftHover);
+			BtnLeft.Focusable = false;
 			BtnLeft.Position = new Vector2(0, 0);
 			BtnLeft.Size = ButtonSize;
 			BtnLeft.OnButtonPressed += (sender, btn, pos) =>
@@ -103,8 +105,9 @@ namespace FishUI.Controls
 			AddChild(BtnLeft);
 
 			BtnRight = new Button(UI.Settings.ImgSBHBtnRightNormal, UI.Settings.ImgSBHBtnRightDisabled, UI.Settings.ImgSBHBtnRightPressed, UI.Settings.ImgSBHBtnRightHover);
+			BtnRight.Focusable = false;
 			BtnRight.Size = ButtonSize;
-			BtnRight.Position = new Vector2(GetAbsoluteSize().X - ButtonSize.X, 0);
+			BtnRight.Position = new Vector2(Size.X - ButtonSize.X, 0);
 			BtnRight.OnButtonPressed += (sender, btn, pos) =>
 			{
 				ScrollRight();
@@ -112,26 +115,34 @@ namespace FishUI.Controls
 			AddChild(BtnRight);
 
 			BtnThumb = new Button(UI.Settings.ImgSBHBarNormal, UI.Settings.ImgSBHBarDisabled, UI.Settings.ImgSBHBarPressed, UI.Settings.ImgSBHBarHover);
+			BtnThumb.Focusable = false;
 			BtnThumb.Draggable = true;
 			BtnThumb.OnDragged += (_, Delta) =>
 			{
 				Vector2 BtnSize = ButtonSize;
-				Vector2 thumbScrollSize = GetAbsoluteSize() - new Vector2(BtnSize.X + BtnSize.X, 0);
+				Vector2 thumbScrollSize = Size - new Vector2(BtnSize.X + BtnSize.X, 0);
+				float thumbW = thumbScrollSize.X * ThumbWidth;
+				float availableRange = thumbScrollSize.X - thumbW;
 
-				float newThumbX = ThumbPosition * (thumbScrollSize.X - (thumbScrollSize.X * ThumbWidth)) + Delta.X;
+				if (availableRange <= 0)
+					return;
+
+				float logicalDeltaX = Delta.X / Math.Max(UIScale, float.Epsilon);
+				float newThumbX = ThumbPosition * availableRange + logicalDeltaX;
 
 				float OldThumbPosition = ThumbPosition;
-				ThumbPosition = newThumbX / (thumbScrollSize.X - (thumbScrollSize.X * ThumbWidth));
-
-				float Dt = ThumbPosition - OldThumbPosition;
-				int Dir = Dt > 0 ? 1 : -1;
+				ThumbPosition = newThumbX / availableRange;
 
 				if (ThumbPosition < 0)
 					ThumbPosition = 0;
 				if (ThumbPosition > 1)
 					ThumbPosition = 1;
 
-				OnScrollChanged?.Invoke(this, ThumbPosition, Dir);
+				float Dt = ThumbPosition - OldThumbPosition;
+				int Dir = Dt > 0 ? 1 : (Dt < 0 ? -1 : 0);
+
+				if (Dir != 0)
+					OnScrollChanged?.Invoke(this, ThumbPosition, Dir);
 			};
 			AddChild(BtnThumb);
 
@@ -181,7 +192,7 @@ namespace FishUI.Controls
 
 			if (BtnRight != null)
 			{
-				BtnRight.Position = new Vector2(size.X - ButtonSize.X, 0);
+				BtnRight.Position = new Vector2(Size.X - ButtonSize.X, 0);
 				BtnRight.Size = ButtonSize;
 			}
 
@@ -191,7 +202,7 @@ namespace FishUI.Controls
 			CalculateThumb(out Vector2 thumbSize, out Vector2 thumbPos);
 			if (BtnThumb != null)
 			{
-				BtnThumb.Position = GetLocalRelative(thumbPos);
+				BtnThumb.Position = thumbPos;
 				BtnThumb.Size = thumbSize;
 			}
 		}

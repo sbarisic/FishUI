@@ -16,6 +16,21 @@ namespace FishUI.Controls
 	/// </summary>
 	public class MultiLineEditbox : Control
 	{
+		private const float LayoutEpsilon = 0.01f;
+		private const float CaretRevealMargin = 2f;
+
+		private readonly struct ViewportRect
+		{
+			public Vector2 Position { get; }
+			public Vector2 Size { get; }
+
+			public ViewportRect(Vector2 position, Vector2 size)
+			{
+				Position = position;
+				Size = new Vector2(Math.Max(0, size.X), Math.Max(0, size.Y));
+			}
+		}
+
 		private readonly struct VisualLine
 		{
 			public int LogicalRow { get; }
@@ -31,9 +46,46 @@ namespace FishUI.Controls
 			}
 		}
 
+		private sealed class TextViewportLayout
+		{
+			public ViewportRect TextRect { get; set; }
+			public ViewportRect GutterRect { get; set; }
+			public ViewportRect HorizontalScrollBarRect { get; set; }
+			public ViewportRect VerticalScrollBarRect { get; set; }
+			public ViewportRect CornerRect { get; set; }
+			public bool HorizontalVisible { get; set; }
+			public bool VerticalVisible { get; set; }
+			public bool TextOverflowsHorizontally { get; set; }
+			public float ContentWidth { get; set; }
+			public float ContentHeight { get; set; }
+			public float ScrollableContentWidth { get; set; }
+			public float MaxHorizontalOffset { get; set; }
+			public float MaxVerticalOffset { get; set; }
+			public float LineHeight { get; set; }
+			public FontRef Font { get; set; }
+			public List<VisualLine> VisualLines { get; set; }
+		}
+
 		private List<string> _lines = new List<string> { "" };
 		private List<VisualLine> _visualLines = new List<VisualLine> { new VisualLine(0, 0, 0) };
 		private float _scrollOffsetPixels = 0f;
+		private float _horizontalScrollOffsetPixels = 0f;
+		private int _cursorRow;
+		private int _cursorColumn;
+		private bool _wordWrap;
+		private float _textPadding = 4f;
+		private float _scrollBarWidth = 16f;
+		private bool _showLineNumbers;
+		private float _lineNumberWidth = 40f;
+		private bool _showScrollBar = true;
+		private bool _showHorizontalScrollBar = true;
+		private float _horizontalScrollBarHeight = 16f;
+		private bool _layoutDirty = true;
+		private bool _caretVisibilityPending = true;
+		private TextViewportLayout _viewportLayout;
+		private Vector2 _cachedLayoutSize;
+		private FontRef _cachedLayoutFont;
+		private float _cachedLayoutScale = -1f;
 
 		/// <summary>
 		/// Gets or sets the full text content with line breaks.
@@ -50,10 +102,9 @@ namespace FishUI.Controls
 					_lines.Add("");
 
 				// Clamp cursor to valid range
-				CursorRow = Math.Clamp(CursorRow, 0, _lines.Count - 1);
-				CursorColumn = Math.Clamp(CursorColumn, 0, _lines[CursorRow].Length);
+				NormalizeCaret();
 
-				OnTextChanged?.Invoke(this, Text);
+				NotifyTextChanged();
 			}
 		}
 
@@ -67,13 +118,37 @@ namespace FishUI.Controls
 		/// Current cursor row (0-based line index).
 		/// </summary>
 		[YamlIgnore]
-		public int CursorRow { get; set; } = 0;
+		public int CursorRow
+		{
+			get => _cursorRow;
+			set
+			{
+				int newValue = Math.Max(0, value);
+				if (_cursorRow == newValue)
+					return;
+
+				_cursorRow = newValue;
+				_caretVisibilityPending = true;
+			}
+		}
 
 		/// <summary>
 		/// Current cursor column (0-based character index within the line).
 		/// </summary>
 		[YamlIgnore]
-		public int CursorColumn { get; set; } = 0;
+		public int CursorColumn
+		{
+			get => _cursorColumn;
+			set
+			{
+				int newValue = Math.Max(0, value);
+				if (_cursorColumn == newValue)
+					return;
+
+				_cursorColumn = newValue;
+				_caretVisibilityPending = true;
+			}
+		}
 
 		/// <summary>
 		/// Vertical scroll offset in pixels.
@@ -86,10 +161,33 @@ namespace FishUI.Controls
 		}
 
 		/// <summary>
+		/// Horizontal scroll offset in scaled pixels.
+		/// </summary>
+		[YamlIgnore]
+		public float HorizontalScrollOffsetPixels
+		{
+			get => _horizontalScrollOffsetPixels;
+			set => _horizontalScrollOffsetPixels = Math.Max(0, value);
+		}
+
+		/// <summary>
 		/// If true, the text wraps to the next line when it reaches the edge.
 		/// </summary>
 		[YamlMember]
-		public bool WordWrap { get; set; } = false;
+		public bool WordWrap
+		{
+			get => _wordWrap;
+			set
+			{
+				if (_wordWrap == value)
+					return;
+
+				_wordWrap = value;
+				if (_wordWrap)
+					_horizontalScrollOffsetPixels = 0;
+				MarkLayoutDirty();
+			}
+		}
 
 		/// <summary>
 		/// If true, the control cannot be edited.
@@ -131,25 +229,68 @@ namespace FishUI.Controls
 		/// Padding inside the text area.
 		/// </summary>
 		[YamlMember]
-		public float TextPadding { get; set; } = 4f;
+		public float TextPadding
+		{
+			get => _textPadding;
+			set
+			{
+				float newValue = Math.Max(0, value);
+				if (Math.Abs(_textPadding - newValue) <= LayoutEpsilon)
+					return;
+				_textPadding = newValue;
+				MarkLayoutDirty();
+			}
+		}
 
 		/// <summary>
 		/// Width of the scrollbar.
 		/// </summary>
 		[YamlMember]
-		public float ScrollBarWidth { get; set; } = 16f;
+		public float ScrollBarWidth
+		{
+			get => _scrollBarWidth;
+			set
+			{
+				float newValue = Math.Max(0, value);
+				if (Math.Abs(_scrollBarWidth - newValue) <= LayoutEpsilon)
+					return;
+				_scrollBarWidth = newValue;
+				MarkLayoutDirty();
+			}
+		}
 
 		/// <summary>
 		/// Whether to show line numbers.
 		/// </summary>
 		[YamlMember]
-		public bool ShowLineNumbers { get; set; } = false;
+		public bool ShowLineNumbers
+		{
+			get => _showLineNumbers;
+			set
+			{
+				if (_showLineNumbers == value)
+					return;
+				_showLineNumbers = value;
+				MarkLayoutDirty();
+			}
+		}
 
 		/// <summary>
 		/// Width of the line number gutter.
 		/// </summary>
 		[YamlMember]
-		public float LineNumberWidth { get; set; } = 40f;
+		public float LineNumberWidth
+		{
+			get => _lineNumberWidth;
+			set
+			{
+				float newValue = Math.Max(0, value);
+				if (Math.Abs(_lineNumberWidth - newValue) <= LayoutEpsilon)
+					return;
+				_lineNumberWidth = newValue;
+				MarkLayoutDirty();
+			}
+		}
 
 		/// <summary>
 		/// Color of line numbers.
@@ -161,7 +302,50 @@ namespace FishUI.Controls
 		/// Whether to show the vertical scrollbar when content exceeds visible area.
 		/// </summary>
 		[YamlMember]
-		public bool ShowScrollBar { get; set; } = true;
+		public bool ShowScrollBar
+		{
+			get => _showScrollBar;
+			set
+			{
+				if (_showScrollBar == value)
+					return;
+				_showScrollBar = value;
+				MarkLayoutDirty();
+			}
+		}
+
+		/// <summary>
+		/// Whether to show the horizontal scrollbar for overflowing unwrapped text.
+		/// </summary>
+		[YamlMember]
+		public bool ShowHorizontalScrollBar
+		{
+			get => _showHorizontalScrollBar;
+			set
+			{
+				if (_showHorizontalScrollBar == value)
+					return;
+				_showHorizontalScrollBar = value;
+				MarkLayoutDirty();
+			}
+		}
+
+		/// <summary>
+		/// Height of the horizontal scrollbar in logical pixels.
+		/// </summary>
+		[YamlMember]
+		public float HorizontalScrollBarHeight
+		{
+			get => _horizontalScrollBarHeight;
+			set
+			{
+				float newValue = Math.Max(0, value);
+				if (Math.Abs(_horizontalScrollBarHeight - newValue) <= LayoutEpsilon)
+					return;
+				_horizontalScrollBarHeight = newValue;
+				MarkLayoutDirty();
+			}
+		}
 
 		/// <summary>
 		/// Color of the selection highlight.
@@ -223,46 +407,155 @@ namespace FishUI.Controls
 		// Scrollbar
 		[YamlIgnore]
 		private ScrollBarV _scrollBar;
+		[YamlIgnore]
+		private ScrollBarH _horizontalScrollBar;
 
 		// Track when scrollbar is driving the scroll (to avoid feedback loop)
 		[YamlIgnore]
 		private bool _scrollBarDriving = false;
+		[YamlIgnore]
+		private bool _horizontalScrollBarDriving;
+
+		/// <summary>
+		/// Runtime scrollbar children are implementation details and are never serialized.
+		/// </summary>
+		[YamlIgnore]
+		public new List<Control> Children
+		{
+			get => base.Children;
+			set { }
+		}
+
+		private void MarkLayoutDirty()
+		{
+			_layoutDirty = true;
+		}
+
+		private void NotifyTextChanged()
+		{
+			MarkLayoutDirty();
+			_caretVisibilityPending = true;
+			OnTextChanged?.Invoke(this, Text);
+		}
+
+		private void NormalizeCaret()
+		{
+			if (_lines.Count == 0)
+				_lines.Add("");
+
+			_cursorRow = Math.Clamp(_cursorRow, 0, _lines.Count - 1);
+			_cursorColumn = Math.Clamp(_cursorColumn, 0, _lines[_cursorRow].Length);
+		}
 
 		private void EnsureVisualLayout()
 		{
-			FishUI ui = FishUI;
-			if (ui?.Settings?.FontDefault == null)
-			{
-				_visualLines = BuildVisualLines(null, float.MaxValue);
-				return;
-			}
-
-			_cachedFont = ui.Settings.FontDefault;
-			_lineHeight = ui.Graphics.MeasureText(_cachedFont, "Mg").Y;
-			if (_lineHeight <= 0)
-				_lineHeight = 16f;
-
-			Vector2 size = ScaledSize;
-			float leftOffset = ShowLineNumbers ? Scale(LineNumberWidth) : 0;
-			float availableWidth = Math.Max(1f, size.X - leftOffset - Scale(TextPadding) * 2);
-			_visualLines = BuildVisualLines(ui, availableWidth);
-
-			float viewHeight = GetTextAreaHeight();
-			if (WordWrap && ShowScrollBar && _visualLines.Count * _lineHeight > viewHeight)
-			{
-				availableWidth = Math.Max(1f, availableWidth - Scale(ScrollBarWidth));
-				_visualLines = BuildVisualLines(ui, availableWidth);
-			}
+			EnsureViewportLayout(FishUI);
 		}
 
-		private List<VisualLine> BuildVisualLines(FishUI ui, float availableWidth)
+		private TextViewportLayout EnsureViewportLayout(FishUI ui)
+		{
+			Vector2 scaledSize = GetAbsoluteSize();
+			FontRef font = ui?.Settings?.FontDefault;
+			float scale = ui?.Settings?.UIScale ?? 1f;
+			bool geometryChanged = _viewportLayout != null &&
+				(_cachedLayoutSize != scaledSize || !ReferenceEquals(_cachedLayoutFont, font) ||
+				 Math.Abs(_cachedLayoutScale - scale) > LayoutEpsilon);
+			bool revealAfterRebuild = geometryChanged && IsCaretVisible(_viewportLayout);
+
+			if (!_layoutDirty && !geometryChanged && _viewportLayout != null)
+				return _viewportLayout;
+
+			NormalizeCaret();
+			float lineHeight = font != null && ui != null ? ui.Graphics.MeasureText(font, "Mg").Y : Scale(16f);
+			if (lineHeight <= 0)
+				lineHeight = Scale(16f);
+
+			float contentWidth = 0;
+			if (font != null && ui != null)
+			{
+				foreach (string line in _lines)
+					contentWidth = Math.Max(contentWidth, ui.Graphics.MeasureText(font, line ?? "").X);
+			}
+
+			float padding = Scale(TextPadding);
+			float gutterWidth = ShowLineNumbers ? Scale(LineNumberWidth) : 0;
+			float verticalWidth = Scale(ScrollBarWidth);
+			float horizontalHeight = Scale(HorizontalScrollBarHeight);
+			bool verticalVisible = false;
+			bool horizontalVisible = false;
+			List<VisualLine> visualLines = null;
+			float contentHeight = 0;
+
+			for (int iteration = 0; iteration < 4; iteration++)
+			{
+				float viewportWidth = Math.Max(1f, scaledSize.X - gutterWidth - padding * 2 - (verticalVisible ? verticalWidth : 0));
+				float viewportHeight = Math.Max(1f, scaledSize.Y - padding * 2 - (horizontalVisible ? horizontalHeight : 0));
+				visualLines = BuildVisualLines(ui, viewportWidth, font);
+				contentHeight = visualLines.Count * lineHeight;
+				bool nextVertical = ShowScrollBar && contentHeight > viewportHeight + LayoutEpsilon;
+				bool nextHorizontal = !WordWrap && ShowHorizontalScrollBar &&
+					contentWidth > viewportWidth + LayoutEpsilon;
+
+				if (nextVertical == verticalVisible && nextHorizontal == horizontalVisible)
+					break;
+
+				verticalVisible = nextVertical;
+				horizontalVisible = nextHorizontal;
+			}
+
+			float textWidth = Math.Max(1f, scaledSize.X - gutterWidth - padding * 2 - (verticalVisible ? verticalWidth : 0));
+			float textHeight = Math.Max(1f, scaledSize.Y - padding * 2 - (horizontalVisible ? horizontalHeight : 0));
+			visualLines = BuildVisualLines(ui, textWidth, font);
+			contentHeight = visualLines.Count * lineHeight;
+			bool textOverflows = !WordWrap && contentWidth > textWidth + LayoutEpsilon;
+			float scrollableContentWidth = contentWidth + (textOverflows ? Scale(CaretRevealMargin) : 0);
+			float visibleControlHeight = scaledSize.Y - (horizontalVisible ? horizontalHeight : 0);
+			float visibleControlWidth = scaledSize.X - (verticalVisible ? verticalWidth : 0);
+
+			_viewportLayout = new TextViewportLayout
+			{
+				TextRect = new ViewportRect(new Vector2(gutterWidth + padding, padding), new Vector2(textWidth, textHeight)),
+				GutterRect = new ViewportRect(Vector2.Zero, new Vector2(gutterWidth, visibleControlHeight)),
+				HorizontalScrollBarRect = new ViewportRect(new Vector2(0, scaledSize.Y - horizontalHeight), new Vector2(visibleControlWidth, horizontalHeight)),
+				VerticalScrollBarRect = new ViewportRect(new Vector2(scaledSize.X - verticalWidth, 0), new Vector2(verticalWidth, visibleControlHeight)),
+				CornerRect = new ViewportRect(new Vector2(visibleControlWidth, visibleControlHeight), new Vector2(verticalWidth, horizontalHeight)),
+				HorizontalVisible = horizontalVisible,
+				VerticalVisible = verticalVisible,
+				TextOverflowsHorizontally = textOverflows,
+				ContentWidth = contentWidth,
+				ContentHeight = contentHeight,
+				ScrollableContentWidth = scrollableContentWidth,
+				MaxHorizontalOffset = WordWrap ? 0 : Math.Max(0, scrollableContentWidth - textWidth),
+				MaxVerticalOffset = Math.Max(0, contentHeight - textHeight),
+				LineHeight = lineHeight,
+				Font = font,
+				VisualLines = visualLines
+			};
+
+			_visualLines = visualLines;
+			_cachedFont = font;
+			_lineHeight = lineHeight;
+			_cachedLayoutSize = scaledSize;
+			_cachedLayoutFont = font;
+			_cachedLayoutScale = scale;
+			_layoutDirty = false;
+			_scrollOffsetPixels = Math.Clamp(_scrollOffsetPixels, 0, _viewportLayout.MaxVerticalOffset);
+			_horizontalScrollOffsetPixels = Math.Clamp(_horizontalScrollOffsetPixels, 0, _viewportLayout.MaxHorizontalOffset);
+
+			if (revealAfterRebuild)
+				_caretVisibilityPending = true;
+
+			return _viewportLayout;
+		}
+
+		private List<VisualLine> BuildVisualLines(FishUI ui, float availableWidth, FontRef font)
 		{
 			List<VisualLine> result = new List<VisualLine>();
 
 			for (int row = 0; row < _lines.Count; row++)
 			{
 				string line = _lines[row] ?? "";
-				if (!WordWrap || ui == null || line.Length == 0)
+				if (!WordWrap || ui == null || font == null || line.Length == 0)
 				{
 					result.Add(new VisualLine(row, 0, line.Length));
 					continue;
@@ -275,7 +568,7 @@ namespace FishUI.Controls
 					int fit = 0;
 					for (int length = 1; length <= remaining; length++)
 					{
-						float width = ui.Graphics.MeasureText(_cachedFont, line.Substring(start, length)).X;
+						float width = ui.Graphics.MeasureText(font, line.Substring(start, length)).X;
 						if (width > availableWidth)
 							break;
 						fit = length;
@@ -353,6 +646,17 @@ namespace FishUI.Controls
 		public MultiLineEditbox(string text) : this()
 		{
 			Text = text;
+		}
+
+		public override void OnDeserialized(FishUI UI)
+		{
+			foreach (Control child in base.Children.ToArray())
+				RemoveChild(child);
+
+			_scrollBar = null;
+			_horizontalScrollBar = null;
+			MarkLayoutDirty();
+			base.OnDeserialized(UI);
 		}
 
 		#region Selection Methods
@@ -513,7 +817,7 @@ namespace FishUI.Controls
 			}
 
 			ClearSelection();
-			OnTextChanged?.Invoke(this, Text);
+			NotifyTextChanged();
 		}
 
 		/// <summary>
@@ -552,7 +856,7 @@ namespace FishUI.Controls
 			CursorRow = start.Row;
 			CursorColumn = start.Col;
 			ClearSelection();
-			OnTextChanged?.Invoke(this, Text);
+			NotifyTextChanged();
 		}
 
 		/// <summary>
@@ -580,75 +884,87 @@ namespace FishUI.Controls
 
 		#endregion
 
-		private void CreateScrollBar()
+		private void CreateVerticalScrollBar()
 		{
 			if (_scrollBar != null)
 				return;
 
-			_scrollBar = new ScrollBarV();
-			_scrollBar.Size = new Vector2(Scale(ScrollBarWidth), ScaledSize.Y);
-			_scrollBar.Position = new Vector2(Size.X - ScrollBarWidth, 0);
+			_scrollBar = new ScrollBarV { Focusable = false };
 			_scrollBar.OnScrollChanged += (_, scroll, delta) =>
 			{
 				_scrollBarDriving = true;
-				float maxScrollPixels = GetMaxScrollPixels();
-				_scrollOffsetPixels = scroll * maxScrollPixels;
+				TextViewportLayout layout = EnsureViewportLayout(FishUI);
+				_scrollOffsetPixels = scroll * layout.MaxVerticalOffset;
 			};
-
 			AddChild(_scrollBar);
 		}
 
-		/// <summary>
-		/// Gets the maximum scroll offset in pixels.
-		/// </summary>
-		private float GetMaxScrollPixels()
+		private void CreateHorizontalScrollBar()
 		{
-			EnsureVisualLayout();
-			float contentHeight = _visualLines.Count * _lineHeight;
-			float viewHeight = GetTextAreaHeight();
-			return Math.Max(0, contentHeight - viewHeight);
-		}
-
-		/// <summary>
-		/// Gets the text area height (excluding padding).
-		/// </summary>
-		private float GetTextAreaHeight()
-		{
-			return ScaledSize.Y - Scale(TextPadding) * 2;
-		}
-
-		private void UpdateScrollBar()
-		{
-			if (_scrollBar == null)
+			if (_horizontalScrollBar != null)
 				return;
 
-			float contentHeight = _visualLines.Count * _lineHeight;
-			float viewHeight = GetTextAreaHeight();
-
-			// Update scrollbar position and size
-			_scrollBar.Position = new Vector2(Size.X - ScrollBarWidth, 0);
-			_scrollBar.Size = new Vector2(ScrollBarWidth, Size.Y);
-
-			if (contentHeight <= viewHeight)
+			_horizontalScrollBar = new ScrollBarH { Focusable = false };
+			_horizontalScrollBar.OnScrollChanged += (_, scroll, delta) =>
 			{
-				_scrollBar.ThumbHeight = 1f;
-				_scrollBar.ThumbPosition = 0f;
-			}
-			else
-			{
-				_scrollBar.ThumbHeight = Math.Clamp(viewHeight / contentHeight, 0.1f, 1f);
+				_horizontalScrollBarDriving = true;
+				TextViewportLayout layout = EnsureViewportLayout(FishUI);
+				_horizontalScrollOffsetPixels = scroll * layout.MaxHorizontalOffset;
+			};
+			AddChild(_horizontalScrollBar);
+		}
 
-				// Only update thumb position if scrollbar is NOT driving the scroll
-				// This prevents fighting with the user's drag input
+		private static Vector2 ToLogical(Vector2 scaledPixels, float scale)
+		{
+			return scaledPixels / Math.Max(scale, float.Epsilon);
+		}
+
+		private void UpdateScrollBars(TextViewportLayout layout)
+		{
+			float scale = Math.Max(UIScale, float.Epsilon);
+
+			if (layout.VerticalVisible)
+			{
+				CreateVerticalScrollBar();
+				_scrollBar.Position = ToLogical(layout.VerticalScrollBarRect.Position, scale);
+				_scrollBar.Size = ToLogical(layout.VerticalScrollBarRect.Size, scale);
+				_scrollBar.ThumbHeight = Math.Clamp(layout.TextRect.Size.Y / Math.Max(layout.ContentHeight, 1f), 0.1f, 1f);
 				if (!_scrollBarDriving)
-				{
-					float maxScroll = contentHeight - viewHeight;
-					_scrollBar.ThumbPosition = Math.Clamp(_scrollOffsetPixels / maxScroll, 0f, 1f);
-				}
+					_scrollBar.ThumbPosition = layout.MaxVerticalOffset <= LayoutEpsilon ? 0 :
+						Math.Clamp(_scrollOffsetPixels / layout.MaxVerticalOffset, 0f, 1f);
+				_scrollBar.Visible = true;
+			}
+			else if (_scrollBar != null)
+			{
+				_scrollBar.Visible = false;
+				_scrollBar.ThumbPosition = 0;
 			}
 
-			// Reset the flag after processing
+			if (layout.HorizontalVisible)
+			{
+				CreateHorizontalScrollBar();
+				_horizontalScrollBar.Position = ToLogical(layout.HorizontalScrollBarRect.Position, scale);
+				_horizontalScrollBar.Size = ToLogical(layout.HorizontalScrollBarRect.Size, scale);
+				_horizontalScrollBar.ThumbWidth = Math.Clamp(
+					layout.TextRect.Size.X / Math.Max(layout.ScrollableContentWidth, 1f), 0.1f, 1f);
+				if (!_horizontalScrollBarDriving)
+					_horizontalScrollBar.ThumbPosition = layout.MaxHorizontalOffset <= LayoutEpsilon ? 0 :
+						Math.Clamp(_horizontalScrollOffsetPixels / layout.MaxHorizontalOffset, 0f, 1f);
+				_horizontalScrollBar.Visible = true;
+			}
+			else if (_horizontalScrollBar != null)
+			{
+				_horizontalScrollBar.Visible = false;
+				_horizontalScrollBar.ThumbPosition = 0;
+			}
+
 			_scrollBarDriving = false;
+			_horizontalScrollBarDriving = false;
+		}
+
+		private float GetMaxScrollPixels()
+		{
+			return EnsureViewportLayout(FishUI).MaxVerticalOffset;
 		}
 
 		/// <summary>
@@ -656,10 +972,10 @@ namespace FishUI.Controls
 		/// </summary>
 		public int GetVisibleLineCount()
 		{
-			if (_lineHeight <= 0)
+			TextViewportLayout layout = EnsureViewportLayout(FishUI);
+			if (layout.LineHeight <= 0)
 				return 1;
-			float textAreaHeight = ScaledSize.Y - Scale(TextPadding) * 2;
-			return Math.Max(1, (int)(textAreaHeight / _lineHeight));
+			return Math.Max(1, (int)(layout.TextRect.Size.Y / layout.LineHeight));
 		}
 
 		/// <summary>
@@ -667,18 +983,8 @@ namespace FishUI.Controls
 		/// </summary>
 		private (Vector2 pos, Vector2 size) GetTextAreaBounds()
 		{
-			Vector2 pos = GetAbsolutePosition();
-			Vector2 size = ScaledSize;
-
-			float leftOffset = ShowLineNumbers ? Scale(LineNumberWidth) : 0;
-			float contentHeight = _visualLines.Count * _lineHeight;
-			float viewHeight = GetTextAreaHeight();
-			float rightOffset = (ShowScrollBar && contentHeight > viewHeight) ? Scale(ScrollBarWidth) : 0;
-
-			return (
-				new Vector2(pos.X + leftOffset + Scale(TextPadding), pos.Y + Scale(TextPadding)),
-				new Vector2(size.X - leftOffset - rightOffset - Scale(TextPadding) * 2, size.Y - Scale(TextPadding) * 2)
-			);
+			TextViewportLayout layout = EnsureViewportLayout(FishUI);
+			return (GetAbsolutePosition() + layout.TextRect.Position, layout.TextRect.Size);
 		}
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
@@ -686,7 +992,7 @@ namespace FishUI.Controls
 			base.DrawControl(UI, Dt, Time);
 
 			Vector2 pos = GetAbsolutePosition();
-			Vector2 size = ScaledSize;
+			Vector2 size = GetAbsoluteSize();
 
 			// Update cursor blink
 			if (HasFocus)
@@ -703,9 +1009,9 @@ namespace FishUI.Controls
 				_cursorVisible = false;
 			}
 
-			// Get font metrics and build visual rows for the current width.
-			var font = UI.Settings.FontDefault;
-			EnsureVisualLayout();
+			TextViewportLayout layout = EnsureViewportLayout(UI);
+			ProcessPendingCaretVisibility(UI);
+			var font = layout.Font;
 
 			// Draw background using textbox NPatch
 			NPatch bg = HasFocus ? UI.Settings.ImgTextboxActive : UI.Settings.ImgTextboxNormal;
@@ -720,42 +1026,36 @@ namespace FishUI.Controls
 			}
 
 			// Draw line numbers gutter background
-			if (ShowLineNumbers)
+			if (ShowLineNumbers && layout.GutterRect.Size.X > 0)
 			{
-				float gutterWidth = Scale(LineNumberWidth);
-				UI.Graphics.DrawRectangle(pos, new Vector2(gutterWidth, size.Y), new FishColor(240, 240, 240, 255));
+				Vector2 gutterPos = pos + layout.GutterRect.Position;
+				UI.Graphics.DrawRectangle(gutterPos, layout.GutterRect.Size, new FishColor(240, 240, 240, 255));
 				UI.Graphics.DrawLine(
-					new Vector2(pos.X + gutterWidth, pos.Y),
-					new Vector2(pos.X + gutterWidth, pos.Y + size.Y),
+					new Vector2(gutterPos.X + layout.GutterRect.Size.X, gutterPos.Y),
+					new Vector2(gutterPos.X + layout.GutterRect.Size.X, gutterPos.Y + layout.GutterRect.Size.Y),
 					1f, new FishColor(200, 200, 200, 255));
 			}
 
-			// Calculate text area
-			var (textAreaPos, textAreaSize) = GetTextAreaBounds();
-			float contentHeight = _visualLines.Count * _lineHeight;
-			float viewHeight = GetTextAreaHeight();
+			Vector2 textAreaPos = pos + layout.TextRect.Position;
+			Vector2 textAreaSize = layout.TextRect.Size;
 
-			// Clamp scroll offset
-			float maxScroll = GetMaxScrollPixels();
-			_scrollOffsetPixels = Math.Clamp(_scrollOffsetPixels, 0, maxScroll);
-
-			// Begin scissor for text area clipping
-			UI.Graphics.BeginScissor(new Vector2(textAreaPos.X, pos.Y), new Vector2(textAreaSize.X, size.Y));
+			UI.Graphics.BeginScissor(textAreaPos, textAreaSize);
 
 			// Get selection range for highlighting
 			var (selStart, selEnd) = GetSelectionRange();
 			bool hasSelection = HasSelection && HasFocus;
 
 			// Draw all visual rows with pixel offset. Logical text remains unchanged.
-			for (int visualIndex = 0; visualIndex < _visualLines.Count; visualIndex++)
+			for (int visualIndex = 0; visualIndex < layout.VisualLines.Count; visualIndex++)
 			{
-				VisualLine visual = _visualLines[visualIndex];
+				VisualLine visual = layout.VisualLines[visualIndex];
 				string logicalLine = _lines[visual.LogicalRow];
 				string line = logicalLine.Substring(visual.StartColumn, visual.Length);
-				float lineY = textAreaPos.Y + visualIndex * _lineHeight - _scrollOffsetPixels;
+				float lineX = textAreaPos.X - _horizontalScrollOffsetPixels;
+				float lineY = textAreaPos.Y + visualIndex * layout.LineHeight - _scrollOffsetPixels;
 
 				// Skip lines completely outside visible area
-				if (lineY + _lineHeight < textAreaPos.Y || lineY > textAreaPos.Y + viewHeight)
+				if (lineY + layout.LineHeight < textAreaPos.Y || lineY > textAreaPos.Y + textAreaSize.Y)
 					continue;
 
 				// Draw selection highlight for this line
@@ -768,8 +1068,8 @@ namespace FishUI.Controls
 
 					if (startCol < endCol)
 					{
-						float selStartX = textAreaPos.X;
-						float selEndX = textAreaPos.X;
+						float selStartX = lineX;
+						float selEndX = lineX;
 
 						if (startCol > visual.StartColumn)
 							selStartX += UI.Graphics.MeasureText(font, logicalLine.Substring(visual.StartColumn, startCol - visual.StartColumn)).X;
@@ -781,7 +1081,7 @@ namespace FishUI.Controls
 						{
 							UI.Graphics.DrawRectangle(
 								new Vector2(selStartX, lineY),
-								new Vector2(selWidth, _lineHeight),
+								new Vector2(selWidth, layout.LineHeight),
 								SelectionColor);
 						}
 					}
@@ -790,7 +1090,7 @@ namespace FishUI.Controls
 				// Draw text
 				if (font != null && !string.IsNullOrEmpty(line))
 				{
-					UI.Graphics.DrawTextColor(font, line, new Vector2(textAreaPos.X, lineY), TextColor);
+					UI.Graphics.DrawTextColor(font, line, new Vector2(lineX, lineY), TextColor);
 				}
 
 				// Draw cursor on this line
@@ -799,7 +1099,7 @@ namespace FishUI.Controls
 				{
 					int cursorInVisual = Math.Clamp(CursorColumn - visual.StartColumn, 0, visual.Length);
 					string textBeforeCursor = line.Substring(0, cursorInVisual);
-					float cursorX = textAreaPos.X;
+					float cursorX = lineX;
 					if (font != null && textBeforeCursor.Length > 0)
 					{
 						cursorX += UI.Graphics.MeasureText(font, textBeforeCursor).X;
@@ -807,7 +1107,7 @@ namespace FishUI.Controls
 
 					UI.Graphics.DrawLine(
 						new Vector2(cursorX, lineY),
-						new Vector2(cursorX, lineY + _lineHeight),
+						new Vector2(cursorX, lineY + layout.LineHeight),
 						Scale(1f), CursorColor);
 				}
 			}
@@ -816,69 +1116,99 @@ namespace FishUI.Controls
 			UI.Graphics.EndScissor();
 
 			// Draw line numbers (in gutter area with scissoring)
-			if (ShowLineNumbers && font != null)
+			if (ShowLineNumbers && font != null && layout.GutterRect.Size.X > 0)
 			{
-				float gutterX = pos.X;
-				float gutterW = Scale(LineNumberWidth);
-				UI.Graphics.BeginScissor(new Vector2(gutterX, pos.Y), new Vector2(gutterW, size.Y));
+				Vector2 gutterPos = pos + layout.GutterRect.Position;
+				float gutterW = layout.GutterRect.Size.X;
+				UI.Graphics.BeginScissor(gutterPos, layout.GutterRect.Size);
 
-				for (int visualIndex = 0; visualIndex < _visualLines.Count; visualIndex++)
+				for (int visualIndex = 0; visualIndex < layout.VisualLines.Count; visualIndex++)
 				{
-					VisualLine visual = _visualLines[visualIndex];
+					VisualLine visual = layout.VisualLines[visualIndex];
 					if (visual.StartColumn != 0)
 						continue;
 
-					float lineY = textAreaPos.Y + visualIndex * _lineHeight - _scrollOffsetPixels;
-					if (lineY + _lineHeight < pos.Y || lineY > pos.Y + size.Y)
+					float lineY = textAreaPos.Y + visualIndex * layout.LineHeight - _scrollOffsetPixels;
+					if (lineY + layout.LineHeight < gutterPos.Y || lineY > gutterPos.Y + layout.GutterRect.Size.Y)
 						continue;
 
 					string lineNum = (visual.LogicalRow + 1).ToString();
 					var numSize = UI.Graphics.MeasureText(font, lineNum);
-					float numX = gutterX + gutterW - numSize.X - Scale(8);
+					float numX = gutterPos.X + gutterW - numSize.X - Scale(8);
 					UI.Graphics.DrawTextColor(font, lineNum, new Vector2(numX, lineY), LineNumberColor);
 				}
 
 				UI.Graphics.EndScissor();
 			}
 
-			// Draw placeholder if empty
+			// Draw placeholder inside the same text viewport.
 			if (_lines.Count == 1 && string.IsNullOrEmpty(_lines[0]) && !string.IsNullOrEmpty(Placeholder) && font != null)
 			{
+				UI.Graphics.BeginScissor(textAreaPos, textAreaSize);
 				UI.Graphics.DrawTextColor(font, Placeholder, textAreaPos, PlaceholderColor);
+				UI.Graphics.EndScissor();
 			}
 
-			// Handle scrollbar
-			if (ShowScrollBar && contentHeight > viewHeight)
-			{
-				CreateScrollBar();
-				UpdateScrollBar();
-				_scrollBar.Visible = true;
-			}
-			else if (_scrollBar != null)
-			{
-				_scrollBar.Visible = false;
-			}
+			UpdateScrollBars(layout);
 		}
 
 		private void EnsureCursorVisible()
 		{
-			EnsureVisualLayout();
-			if (_lineHeight <= 0)
+			_caretVisibilityPending = true;
+			ProcessPendingCaretVisibility(FishUI);
+		}
+
+		private Vector2 GetCaretContentPosition(TextViewportLayout layout)
+		{
+			NormalizeCaret();
+			int visualIndex = GetVisualLineIndex(CursorRow, CursorColumn);
+			VisualLine visual = layout.VisualLines[Math.Clamp(visualIndex, 0, layout.VisualLines.Count - 1)];
+			int length = Math.Clamp(CursorColumn - visual.StartColumn, 0, visual.Length);
+			float cursorX = 0;
+			if (layout.Font != null && length > 0 && FishUI != null)
+				cursorX = FishUI.Graphics.MeasureText(layout.Font, _lines[CursorRow].Substring(visual.StartColumn, length)).X;
+			float cursorY = visualIndex * layout.LineHeight;
+			return new Vector2(cursorX, cursorY);
+		}
+
+		private bool IsCaretVisible(TextViewportLayout layout)
+		{
+			if (layout == null || layout.VisualLines == null || layout.VisualLines.Count == 0)
+				return false;
+
+			Vector2 caret = GetCaretContentPosition(layout);
+			float margin = layout.TextOverflowsHorizontally ? Scale(CaretRevealMargin) : 0;
+			return caret.X >= _horizontalScrollOffsetPixels - LayoutEpsilon &&
+				caret.X + margin <= _horizontalScrollOffsetPixels + layout.TextRect.Size.X + LayoutEpsilon &&
+				caret.Y >= _scrollOffsetPixels - LayoutEpsilon &&
+				caret.Y + layout.LineHeight <= _scrollOffsetPixels + layout.TextRect.Size.Y + LayoutEpsilon;
+		}
+
+		private void ProcessPendingCaretVisibility(FishUI ui)
+		{
+			if (!_caretVisibilityPending || ui == null)
 				return;
 
-			float cursorY = GetVisualLineIndex(CursorRow, CursorColumn) * _lineHeight;
-			float viewHeight = GetTextAreaHeight();
+			TextViewportLayout layout = EnsureViewportLayout(ui);
+			NormalizeCaret();
+			Vector2 caret = GetCaretContentPosition(layout);
+			float margin = layout.TextOverflowsHorizontally ? Scale(CaretRevealMargin) : 0;
 
-			// Scroll up if cursor is above visible area
-			if (cursorY < _scrollOffsetPixels)
-			{
-				_scrollOffsetPixels = cursorY;
-			}
-			// Scroll down if cursor is below visible area
-			else if (cursorY + _lineHeight > _scrollOffsetPixels + viewHeight)
-			{
-				_scrollOffsetPixels = cursorY + _lineHeight - viewHeight;
-			}
+			if (caret.Y < _scrollOffsetPixels)
+				_scrollOffsetPixels = caret.Y;
+			else if (caret.Y + layout.LineHeight > _scrollOffsetPixels + layout.TextRect.Size.Y)
+				_scrollOffsetPixels = caret.Y + layout.LineHeight - layout.TextRect.Size.Y;
+
+			if (WordWrap)
+				_horizontalScrollOffsetPixels = 0;
+			else if (caret.X < _horizontalScrollOffsetPixels)
+				_horizontalScrollOffsetPixels = caret.X;
+			else if (caret.X + margin > _horizontalScrollOffsetPixels + layout.TextRect.Size.X)
+				_horizontalScrollOffsetPixels = caret.X + margin - layout.TextRect.Size.X;
+
+			_scrollOffsetPixels = Math.Clamp(_scrollOffsetPixels, 0, layout.MaxVerticalOffset);
+			_horizontalScrollOffsetPixels = Math.Clamp(_horizontalScrollOffsetPixels, 0, layout.MaxHorizontalOffset);
+			_caretVisibilityPending = false;
 		}
 
 		public override void HandleKeyPress(FishUI UI, FishInputState InState, FishKey Key)
@@ -1219,6 +1549,7 @@ namespace FishUI.Controls
 				SelectionStartColumn = _selectionAnchorColumn;
 				SelectionEndRow = CursorRow;
 				SelectionEndColumn = CursorColumn;
+				EnsureCursorVisible();
 			}
 		}
 
@@ -1249,33 +1580,33 @@ namespace FishUI.Controls
 		{
 			base.HandleMouseWheel(UI, InState, Delta);
 
-			// Scroll by 3 lines worth of pixels
-			float scrollAmount = _lineHeight * 3f * (Delta > 0 ? -1 : 1);
-			_scrollOffsetPixels = Math.Clamp(_scrollOffsetPixels + scrollAmount, 0, GetMaxScrollPixels());
+			TextViewportLayout layout = EnsureViewportLayout(UI);
+			float scrollAmount = layout.LineHeight * 3f * (Delta > 0 ? -1 : 1);
+			_scrollOffsetPixels = Math.Clamp(_scrollOffsetPixels + scrollAmount, 0, layout.MaxVerticalOffset);
 		}
 
 		private void PositionCursorFromMouse(FishUI UI, Vector2 mousePos)
 		{
-			EnsureVisualLayout();
-			var (textAreaPos, textAreaSize) = GetTextAreaBounds();
+			TextViewportLayout layout = EnsureViewportLayout(UI);
+			Vector2 localMouse = mousePos - GetAbsolutePosition();
 
 			// Calculate clicked visual row based on pixel position.
-			int visualIndex = (int)((mousePos.Y - textAreaPos.Y + _scrollOffsetPixels) / _lineHeight);
-			visualIndex = Math.Clamp(visualIndex, 0, _visualLines.Count - 1);
-			VisualLine visual = _visualLines[visualIndex];
+			int visualIndex = (int)((localMouse.Y - layout.TextRect.Position.Y + _scrollOffsetPixels) / layout.LineHeight);
+			visualIndex = Math.Clamp(visualIndex, 0, layout.VisualLines.Count - 1);
+			VisualLine visual = layout.VisualLines[visualIndex];
 			CursorRow = visual.LogicalRow;
 
 			// Calculate clicked column
 			string line = _lines[CursorRow];
-			if (_cachedFont != null && visual.Length > 0)
+			if (layout.Font != null && visual.Length > 0)
 			{
-				float relativeX = mousePos.X - textAreaPos.X;
+				float relativeX = localMouse.X - layout.TextRect.Position.X + _horizontalScrollOffsetPixels;
 				int col = visual.StartColumn;
 				float accumulatedWidth = 0f;
 
 				for (int i = visual.StartColumn; i < visual.EndColumn; i++)
 				{
-					float charWidth = UI.Graphics.MeasureText(_cachedFont, line[i].ToString()).X;
+					float charWidth = UI.Graphics.MeasureText(layout.Font, line[i].ToString()).X;
 					if (accumulatedWidth + charWidth / 2 >= relativeX)
 						break;
 					accumulatedWidth += charWidth;
@@ -1338,7 +1669,7 @@ namespace FishUI.Controls
 			string currentLine = _lines[CursorRow];
 			_lines[CursorRow] = currentLine.Insert(CursorColumn, text);
 			CursorColumn += text.Length;
-			OnTextChanged?.Invoke(this, Text);
+			NotifyTextChanged();
 		}
 
 		/// <summary>
@@ -1371,7 +1702,7 @@ namespace FishUI.Controls
 
 			CursorRow++;
 			CursorColumn = 0;
-			OnTextChanged?.Invoke(this, Text);
+			NotifyTextChanged();
 		}
 
 		private void HandleBackspace()
@@ -1398,7 +1729,7 @@ namespace FishUI.Controls
 				CursorColumn = _lines[CursorRow].Length;
 				_lines[CursorRow] += currentLine;
 			}
-			OnTextChanged?.Invoke(this, Text);
+			NotifyTextChanged();
 		}
 
 		private void HandleDelete()
@@ -1421,7 +1752,7 @@ namespace FishUI.Controls
 				_lines[CursorRow] += _lines[CursorRow + 1];
 				_lines.RemoveAt(CursorRow + 1);
 			}
-			OnTextChanged?.Invoke(this, Text);
+			NotifyTextChanged();
 		}
 
 		private void ResetCursorBlink()
@@ -1449,7 +1780,7 @@ namespace FishUI.Controls
 				_lines.Add(newLines[i]);
 			}
 
-			OnTextChanged?.Invoke(this, Text);
+			NotifyTextChanged();
 		}
 
 		/// <summary>
@@ -1462,7 +1793,8 @@ namespace FishUI.Controls
 			CursorRow = 0;
 			CursorColumn = 0;
 			_scrollOffsetPixels = 0;
-			OnTextChanged?.Invoke(this, Text);
+			_horizontalScrollOffsetPixels = 0;
+			NotifyTextChanged();
 		}
 
 		/// <summary>
@@ -1470,9 +1802,9 @@ namespace FishUI.Controls
 		/// </summary>
 		public void ScrollToEnd()
 		{
-			_scrollOffsetPixels = GetMaxScrollPixels();
 			CursorRow = _lines.Count - 1;
 			CursorColumn = _lines[CursorRow].Length;
+			EnsureCursorVisible();
 		}
 
 		/// <summary>
@@ -1481,6 +1813,7 @@ namespace FishUI.Controls
 		public void ScrollToStart()
 		{
 			_scrollOffsetPixels = 0;
+			_horizontalScrollOffsetPixels = 0;
 			CursorRow = 0;
 			CursorColumn = 0;
 		}

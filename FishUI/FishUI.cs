@@ -449,9 +449,22 @@ namespace FishUI
 
 					ControlUnderMouse.HandleMousePress(this, InState, MBtn, InState.MousePos);
 					ClickedControl = ControlUnderMouse;
-					FocusControl(ControlUnderMouse);
+					FocusControl(FindMouseFocusTarget(ControlUnderMouse));
 				}
 			}
+		}
+
+		private static Control FindMouseFocusTarget(Control control)
+		{
+			while (control != null)
+			{
+				if (control.Focusable)
+					return control;
+
+				control = control.GetParent();
+			}
+
+			return null;
 		}
 
 		// Check for mouse release and clicks

@@ -112,7 +112,12 @@ namespace UnitTest.Mocks
 
 		// IFishUIInput implementation
 		public FishKey GetKeyPressed() => _keyPressed;
-		public int GetCharPressed() => _charPressed;
+		public int GetCharPressed()
+		{
+			int character = _charPressed;
+			_charPressed = 0;
+			return character;
+		}
 		public bool IsKeyDown(FishKey Key) => _keysDown.Contains(Key);
 		public bool IsKeyUp(FishKey Key) => !_keysDown.Contains(Key);
 		public bool IsKeyPressed(FishKey Key) => _keysPressed.Contains(Key);

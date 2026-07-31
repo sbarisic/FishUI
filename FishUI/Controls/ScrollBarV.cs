@@ -39,13 +39,14 @@ namespace FishUI.Controls
 		public ScrollBarV()
 		{
 			Size = new Vector2(15, 200);
+			Focusable = false;
 		}
 
 		bool IsInsideThumb(FishUI UI, Vector2 Pos)
 		{
-			CalculateThumb(out Vector2 ThumbSize, out Vector2 ThumbPos);
+			CalculateThumb(out Vector2 thumbSize, out Vector2 thumbPos);
 
-			if (Utils.IsInside(ThumbPos, ThumbSize, Pos))
+			if (Utils.IsInside(GetAbsolutePosition() + Scale(thumbPos), Scale(thumbSize), Pos))
 				return true;
 
 			return false;
@@ -55,7 +56,7 @@ namespace FishUI.Controls
 		{
 			Vector2 BtnPos = GetAbsolutePosition();
 
-			if (Utils.IsInside(BtnPos, ButtonSize, Pos))
+			if (Utils.IsInside(BtnPos, Scale(ButtonSize), Pos))
 				return true;
 
 			return false;
@@ -63,9 +64,9 @@ namespace FishUI.Controls
 
 		bool IsInsideBtnDown(FishUI UI, Vector2 Pos)
 		{
-			Vector2 BtnPos = GetAbsolutePosition() + new Vector2(0, GetAbsoluteSize().Y - ButtonSize.Y);
+			Vector2 BtnPos = GetAbsolutePosition() + Scale(new Vector2(0, Size.Y - ButtonSize.Y));
 
-			if (Utils.IsInside(BtnPos, ButtonSize, Pos))
+			if (Utils.IsInside(BtnPos, Scale(ButtonSize), Pos))
 				return true;
 
 			return false;
@@ -74,8 +75,8 @@ namespace FishUI.Controls
 		void CalculateThumb(out Vector2 ThumbSize, out Vector2 ThumbPos)
 		{
 			Vector2 BtnSize = ButtonSize;
-			Vector2 thumbScrollSize = GetAbsoluteSize() - new Vector2(0, BtnSize.Y + BtnSize.Y);
-			Vector2 thumbScrollPos = GetAbsolutePosition() + new Vector2(0, BtnSize.Y);
+			Vector2 thumbScrollSize = Size - new Vector2(0, BtnSize.Y + BtnSize.Y);
+			Vector2 thumbScrollPos = new Vector2(0, BtnSize.Y);
 
 			float thumbH = thumbScrollSize.Y * ThumbHeight;
 			float thumbY = (thumbScrollSize.Y - thumbH) * ThumbPosition;
@@ -94,6 +95,7 @@ namespace FishUI.Controls
 			RemoveAllChildren();
 
 			BtnDown = new Button(UI.Settings.ImgSBVBtnUpNormal, UI.Settings.ImgSBVBtnUpDisabled, UI.Settings.ImgSBVBtnUpPressed, UI.Settings.ImgSBVBtnUpHover);
+			BtnDown.Focusable = false;
 			BtnDown.Position = new Vector2(0, 0);
 			BtnDown.Size = ButtonSize;
 			BtnDown.OnButtonPressed += (sender, btn, pos) =>
@@ -103,8 +105,9 @@ namespace FishUI.Controls
 			AddChild(BtnDown);
 
 			BtnUp = new Button(UI.Settings.ImgSBVBtnDownNormal, UI.Settings.ImgSBVBtnDownDisabled, UI.Settings.ImgSBVBtnDownPressed, UI.Settings.ImgSBVBtnDownHover);
+			BtnUp.Focusable = false;
 			BtnUp.Size = ButtonSize;
-			BtnUp.Position = new Vector2(0, GetAbsoluteSize().Y - ButtonSize.Y);
+			BtnUp.Position = new Vector2(0, Size.Y - ButtonSize.Y);
 			BtnUp.OnButtonPressed += (sender, btn, pos) =>
 			{
 				ScrollDown();
@@ -112,11 +115,12 @@ namespace FishUI.Controls
 			AddChild(BtnUp);
 
 			BtnThumb = new Button(UI.Settings.ImgSBVBarNormal, UI.Settings.ImgSBVBarDisabled, UI.Settings.ImgSBVBarPressed, UI.Settings.ImgSBVBarHover);
+			BtnThumb.Focusable = false;
 			BtnThumb.Draggable = true;
 			BtnThumb.OnDragged += (_, Delta) =>
 			{
 				Vector2 BtnSize = ButtonSize;
-				Vector2 thumbScrollSize = GetAbsoluteSize() - new Vector2(0, BtnSize.Y + BtnSize.Y);
+				Vector2 thumbScrollSize = Size - new Vector2(0, BtnSize.Y + BtnSize.Y);
 
 				float thumbH = thumbScrollSize.Y * ThumbHeight;
 				float availableRange = thumbScrollSize.Y - thumbH;
@@ -125,8 +129,9 @@ namespace FishUI.Controls
 				if (availableRange <= 0)
 					return;
 
+				float logicalDeltaY = Delta.Y / Math.Max(UIScale, float.Epsilon);
 				float currentThumbY = ThumbPosition * availableRange;
-				float newThumbY = currentThumbY + Delta.Y;
+				float newThumbY = currentThumbY + logicalDeltaY;
 
 				float OldThumbPosition = ThumbPosition;
 				ThumbPosition = newThumbY / availableRange;
@@ -191,7 +196,7 @@ namespace FishUI.Controls
 
 			if (BtnUp != null)
 			{
-				BtnUp.Position = new Vector2(0, size.Y - ButtonSize.Y);
+				BtnUp.Position = new Vector2(0, Size.Y - ButtonSize.Y);
 				BtnUp.Size = ButtonSize;
 			}
 
@@ -201,7 +206,7 @@ namespace FishUI.Controls
 			CalculateThumb(out Vector2 thumbSize, out Vector2 thumbPos);
 			if (BtnThumb != null)
 			{
-				BtnThumb.Position = GetLocalRelative(thumbPos);
+				BtnThumb.Position = thumbPos;
 				BtnThumb.Size = thumbSize;
 			}
 		}

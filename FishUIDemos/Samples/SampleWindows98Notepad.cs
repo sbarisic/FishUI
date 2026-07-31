@@ -85,6 +85,7 @@ namespace FishUIDemos
 				TextPadding = 3,
 				ShowLineNumbers = false,
 				ShowScrollBar = true,
+				ShowHorizontalScrollBar = true,
 				WordWrap = false,
 				BackgroundColor = FishColor.White,
 				TextColor = FishColor.Black
@@ -164,6 +165,7 @@ namespace FishUIDemos
 			{
 				_editor.WordWrap = item.IsChecked;
 				_editor.ScrollOffsetPixels = 0;
+				_editor.HorizontalScrollOffsetPixels = 0;
 				_fui.FocusControl(_editor);
 			};
 
