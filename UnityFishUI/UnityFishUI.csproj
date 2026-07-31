@@ -16,6 +16,8 @@
     <Compile Include="..\FishUI\Controls\Base\Control.cs" Link="Controls\Base\Control.cs" />
     <Compile Include="..\FishUI\Controls\Base\Control.Drawing.cs" Link="Controls\Base\Control.Drawing.cs" />
     <Compile Include="..\FishUI\Controls\Base\Control.Input.cs" Link="Controls\Base\Control.Input.cs" />
+	<Compile Include="..\FishUI\Controls\Base\Control.Lifecycle.cs" Link="Controls\Base\Control.Lifecycle.cs" />
+	<Compile Include="..\FishUI\Controls\GameConsole.cs" Link="Controls\GameConsole.cs" />
     <Compile Include="..\FishUI\Controls\Base\Control.Position.cs" Link="Controls\Base\Control.Position.cs" />
     <Compile Include="..\FishUI\Controls\BigDigitDisplay.cs" Link="Controls\BigDigitDisplay.cs" />
     <Compile Include="..\FishUI\Controls\Button.cs" Link="Controls\Button.cs" />
@@ -66,6 +68,12 @@
     <Compile Include="..\FishUI\Controls\VUMeter.cs" Link="Controls\VUMeter.cs" />
     <Compile Include="..\FishUI\Controls\Window.cs" Link="Controls\Window.cs" />
     <Compile Include="..\FishUI\DesignerCodeGenerator.cs" Link="DesignerCodeGenerator.cs" />
+	<Compile Include="..\FishUI\Diagnostics\FishUIControlSnapshotBuilder.cs" Link="Diagnostics\FishUIControlSnapshotBuilder.cs" />
+	<Compile Include="..\FishUI\Diagnostics\FishUIDebugExport.cs" Link="Diagnostics\FishUIDebugExport.cs" />
+	<Compile Include="..\FishUI\Diagnostics\FishUIDiagnosticModels.cs" Link="Diagnostics\FishUIDiagnosticModels.cs" />
+	<Compile Include="..\FishUI\Diagnostics\FishUIDiagnosticsSession.cs" Link="Diagnostics\FishUIDiagnosticsSession.cs" />
+	<Compile Include="..\FishUI\Diagnostics\FishUIEventRecorder.cs" Link="Diagnostics\FishUIEventRecorder.cs" />
+	<Compile Include="..\FishUI\Diagnostics\FishUIRenderRecording.cs" Link="Diagnostics\FishUIRenderRecording.cs" />
     <Compile Include="..\FishUI\EventHandlerRegistry.cs" Link="EventHandlerRegistry.cs" />
     <Compile Include="..\FishUI\FishColor.cs" Link="FishColor.cs" />
     <Compile Include="..\FishUI\FishCSharpWriter.cs" Link="FishCSharpWriter.cs" />
@@ -107,6 +115,7 @@
   </ItemGroup>
 
   <ItemGroup>
+	<PackageReference Include="System.Text.Json" Version="9.0.5" />
     <PackageReference Include="YamlDotNet" Version="16.3.0" />
   </ItemGroup>
 

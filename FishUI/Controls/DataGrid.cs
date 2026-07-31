@@ -328,7 +328,7 @@ namespace FishUI.Controls
 				_scrollOffset = new Vector2(0, -scroll * contentHeight);
 			};
 
-			AddChild(_scrollBar);
+			AddRuntimeChild(_scrollBar);
 		}
 
 		#endregion

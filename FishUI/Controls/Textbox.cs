@@ -8,7 +8,7 @@ namespace FishUI.Controls
 {
 	public delegate void TextboxTextChangedFunc(Textbox Sender, string Text);
 
-	public class Textbox : Control
+	public class Textbox : Control, IFishUIDebugSnapshotProvider, IFishUIDebugPrivacyProvider
 	{
 		private const float LayoutEpsilon = 0.01f;
 		private const float CaretRevealMargin = 2f;
@@ -61,6 +61,10 @@ namespace FishUI.Controls
 				{
 					string oldValue = _text;
 					_text = newValue;
+					if (FishUI?.Diagnostics.Events.Options.Enabled == true)
+						FishUI.Diagnostics.Record(FishUIDiagnosticEventCategory.StateChange,
+							FishUIDiagnosticEventType.StateChanged, this, null,
+							state: new FishUIStateEventData { Name = "textLength", OldValue = oldValue?.Length.ToString(), NewValue = _text.Length.ToString() });
 					// Clamp cursor position to valid range
 					CursorPosition = Math.Clamp(CursorPosition, 0, _text.Length);
 					_caretVisibilityPending = true;
@@ -86,8 +90,13 @@ namespace FishUI.Controls
 				if (_cursorPosition == newValue)
 					return;
 
+				int oldValue = _cursorPosition;
 				_cursorPosition = newValue;
 				_caretVisibilityPending = true;
+				if (FishUI?.Diagnostics.Events.Options.Enabled == true)
+					FishUI.Diagnostics.Record(FishUIDiagnosticEventCategory.StateChange,
+						FishUIDiagnosticEventType.StateChanged, this, null,
+						state: new FishUIStateEventData { Name = "cursorPosition", OldValue = oldValue.ToString(), NewValue = newValue.ToString() });
 			}
 		}
 
@@ -144,6 +153,12 @@ namespace FishUI.Controls
 		/// </summary>
 		[YamlMember]
 		public FishColor SelectionColor { get; set; } = new FishColor(51, 153, 255, 128);
+
+		[YamlMember]
+		public FishColor? TextColorOverride { get; set; }
+
+		[YamlMember]
+		public FishColor? CursorColorOverride { get; set; }
 
 		/// <summary>
 		/// Event fired when the text changes.
@@ -386,10 +401,30 @@ namespace FishUI.Controls
 				viewportPosition, viewportSize, textPosition, textSize);
 		}
 
+		public FishUIDebugPrivacyMode GetDebugPrivacyMode() => PasswordMode ? FishUIDebugPrivacyMode.RedactText : FishUIDebugPrivacyMode.Default;
+
+		public void WriteDebugSnapshot(FishUIDebugSnapshotWriter writer)
+		{
+			TextboxViewport viewport = CalculateViewport(FishUI, false);
+			float maximumOffset = Math.Max(0, viewport.TextSize.X + Scale(CaretRevealMargin) - viewport.Size.X);
+			writer.Write("textLength", Text.Length);
+			writer.Write("displayTextLength", viewport.DisplayText.Length);
+			writer.Write("displayTextWidthPixels", viewport.TextSize.X);
+			writer.Write("passwordMode", PasswordMode);
+			writer.Write("viewportPixels", new FishUIDebugRect(viewport.Position.X, viewport.Position.Y, viewport.Size.X, viewport.Size.Y));
+			writer.Write("horizontalOffsetPixels", _horizontalScrollOffsetPixels);
+			writer.Write("maximumHorizontalOffsetPixels", maximumOffset);
+			writer.Write("cursorPosition", CursorPosition);
+			writer.Write("selectionStart", SelectionStart);
+			writer.Write("selectionLength", SelectionLength);
+			writer.Write("font", viewport.Font?.Path);
+		}
+
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
 			TextboxViewport viewport = CalculateViewport(UI, true);
-			UI.Graphics.DrawNPatch(viewport.Patch, GetAbsolutePosition(), GetAbsoluteSize(), Color);
+			using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.ControlBounds))
+				UI.Graphics.DrawNPatch(viewport.Patch, GetAbsolutePosition(), GetAbsoluteSize(), Color);
 			UI.Graphics.PushScissor(viewport.Position, viewport.Size);
 
 			// Draw selection highlight
@@ -402,18 +437,24 @@ namespace FishUI.Controls
 				float selStartX = viewport.TextPosition.X + UI.Graphics.MeasureText(viewport.Font, beforeSel).X;
 				float selWidth = UI.Graphics.MeasureText(viewport.Font, selText).X;
 
-				UI.Graphics.DrawRectangle(
-					new Vector2(selStartX, viewport.TextPosition.Y),
-					new Vector2(selWidth, viewport.TextSize.Y),
-					SelectionColor
-				);
+				using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Selection))
+					UI.Graphics.DrawRectangle(
+						new Vector2(selStartX, viewport.TextPosition.Y),
+						new Vector2(selWidth, viewport.TextSize.Y),
+						SelectionColor
+					);
 			}
 
 			// Draw text
-			if (viewport.ShowPlaceholder)
-				UI.Graphics.DrawTextColor(viewport.Font, viewport.TextToDraw, viewport.TextPosition, PlaceholderColor);
-			else
-				UI.Graphics.DrawText(viewport.Font, viewport.TextToDraw, viewport.TextPosition);
+			using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Text))
+			{
+				if (viewport.ShowPlaceholder)
+					UI.Graphics.DrawTextColor(viewport.Font, viewport.TextToDraw, viewport.TextPosition, PlaceholderColor);
+				else if (TextColorOverride.HasValue)
+					UI.Graphics.DrawTextColor(viewport.Font, viewport.TextToDraw, viewport.TextPosition, TextColorOverride.Value);
+				else
+					UI.Graphics.DrawText(viewport.Font, viewport.TextToDraw, viewport.TextPosition);
+			}
 
 			// Draw cursor
 			bool drawCursor = false;
@@ -430,7 +471,8 @@ namespace FishUI.Controls
 				Vector2 cursorEnd = new Vector2(cursorX, viewport.TextPosition.Y + cursorHeight);
 
 				if (drawCursor || viewport.ShowPlaceholder)
-					UI.Graphics.DrawLine(cursorStart, cursorEnd, 1, FishColor.Black);
+					using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Caret))
+						UI.Graphics.DrawLine(cursorStart, cursorEnd, 1, CursorColorOverride ?? FishColor.Black);
 			}
 
 			UI.Graphics.PopScissor();

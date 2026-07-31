@@ -223,7 +223,7 @@ namespace FishUI.Controls
 					float contentHeight = _rowCount * cellH;
 					_scrollOffset.Y = -scroll * contentHeight;
 				};
-				AddChild(_scrollBarV);
+				AddRuntimeChild(_scrollBarV);
 			}
 
 			if (_scrollBarH == null)
@@ -235,7 +235,7 @@ namespace FishUI.Controls
 					float contentWidth = _columnCount * cellW;
 					_scrollOffset.X = -scroll * contentWidth;
 				};
-				AddChild(_scrollBarH);
+				AddRuntimeChild(_scrollBarH);
 			}
 		}
 

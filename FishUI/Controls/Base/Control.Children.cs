@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -22,20 +23,103 @@ namespace FishUI.Controls
 		/// <param name="Child">The control to add as a child.</param>
 		public void AddChild(Control Child)
 		{
-			Child.Parent = this;
-
-			// Calculate anchor offsets based on current parent size
-			UpdateChildAnchorOffsets(Child);
-
-			// If Children contains Child, skip. It means this function was used to re-parent an existing child on deserialization
-			if (Children.Contains(Child))
+			if (Child == null) throw new ArgumentNullException(nameof(Child));
+			if (ReferenceEquals(Child, this) || IsDescendantOf(Child))
+				throw new InvalidOperationException("A control cannot be parented to itself or one of its descendants.");
+			if (Child.RequiresRootAttachment)
+				throw new InvalidOperationException($"{Child.GetType().Name} must be added through FishUI.AddControl.");
+			if (Children.Contains(Child) && Child.Parent == null && Child.AttachedFishUI == null)
+			{
+				Child.Parent = this;
+				UpdateChildAnchorOffsets(Child);
 				return;
+			}
+			if (ReferenceEquals(Child.Parent, this) && Children.Contains(Child))
+			{
+				UpdateChildAnchorOffsets(Child);
+				return;
+			}
 
-			// Assign ZDepth based on insertion order (higher = added later = on top)
-			// Use the count of existing children as the ZDepth for proper ordering
-			Child.ZDepth = Children.Count;
+			FishUI oldUi = Child.AttachedFishUI;
+			FishUI newUi = AttachedFishUI;
+			Control oldParent = Child.Parent;
+			int oldIndex = oldParent != null ? oldParent.Children.IndexOf(Child) : oldUi?.IndexOfRoot(Child) ?? -1;
+			int oldZDepth = Child.ZDepth;
 
-			Children.Add(Child);
+			if (ReferenceEquals(oldUi, newUi))
+			{
+				RemoveFromOldOwner(Child, oldParent, oldUi);
+				AttachChildReference(Child);
+				newUi?.Diagnostics.AttachControl(Child);
+				newUi?.Diagnostics.NotifyHierarchyChanged();
+				return;
+			}
+
+			if (oldUi != null) Child.DetachSubtree(oldUi);
+			RemoveFromOldOwner(Child, oldParent, oldUi);
+			AttachChildReference(Child);
+			try
+			{
+				if (newUi != null)
+				{
+					newUi.Diagnostics.AttachControl(Child);
+					Child.AttachSubtree(newUi);
+					Child.ResizeSubtree(newUi, newUi.Width, newUi.Height);
+				}
+			}
+			catch (Exception attachFailure)
+			{
+				Children.Remove(Child);
+				Child.Parent = null;
+				try
+				{
+					RestoreOldOwner(Child, oldParent, oldUi, oldIndex, oldZDepth);
+					if (oldUi != null) Child.AttachSubtree(oldUi);
+				}
+				catch (Exception rollbackFailure) { throw new AggregateException(attachFailure, rollbackFailure); }
+				throw;
+			}
+			newUi?.Diagnostics.NotifyHierarchyChanged();
+		}
+
+		private void AttachChildReference(Control child)
+		{
+			child.Parent = this;
+			child._FishUI = null;
+			UpdateChildAnchorOffsets(child);
+			child.ZDepth = Children.Count;
+			Children.Add(child);
+		}
+
+		private static void RemoveFromOldOwner(Control child, Control oldParent, FishUI oldUi)
+		{
+			if (oldParent != null) oldParent.Children.Remove(child); else oldUi?.RemoveRootReference(child);
+			child.Parent = null;
+			child._FishUI = null;
+		}
+
+		private static void RestoreOldOwner(Control child, Control oldParent, FishUI oldUi, int oldIndex, int oldZDepth)
+		{
+			child.ZDepth = oldZDepth;
+			if (oldParent != null)
+			{
+				child.Parent = oldParent;
+				oldParent.Children.Insert(Math.Max(0, Math.Min(oldIndex, oldParent.Children.Count)), child);
+			}
+			else if (oldUi != null)
+			{
+				child._FishUI = oldUi;
+				oldUi.InsertRootReference(child, oldIndex);
+			}
+		}
+
+		/// <summary>
+		/// Adds an implementation-created child while retaining the control's existing serialization behavior.
+		/// </summary>
+		protected void AddRuntimeChild(Control child)
+		{
+			child.IsRuntimeChild = true;
+			AddChild(child);
 		}
 
 		/// <summary>
@@ -43,7 +127,7 @@ namespace FishUI.Controls
 		/// </summary>
 		public void ClearParent()
 		{
-			Parent = null;
+			Unparent();
 		}
 
 		/// <summary>
@@ -53,6 +137,7 @@ namespace FishUI.Controls
 		internal void SetParentInternal(Control parent)
 		{
 			Parent = parent;
+			FishUI?.Diagnostics.NotifyHierarchyChanged();
 		}
 
 		/// <summary>
@@ -108,8 +193,13 @@ namespace FishUI.Controls
 		/// <param name="Child">The child control to remove.</param>
 		public void RemoveChild(Control Child)
 		{
-			Child.Parent = null;
+			if (Child == null || !Children.Contains(Child)) return;
+			FishUI ui = Child.AttachedFishUI;
+			if (ui != null) Child.DetachSubtree(ui);
 			Children.Remove(Child);
+			Child.Parent = null;
+			Child._FishUI = null;
+			ui?.Diagnostics.NotifyHierarchyChanged();
 		}
 
 		/// <summary>

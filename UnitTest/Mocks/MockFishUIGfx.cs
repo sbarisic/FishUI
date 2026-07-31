@@ -18,8 +18,8 @@ namespace UnitTest.Mocks
 		public int EndDrawingCount { get; private set; }
 
 		public void Init() => WasInitialized = true;
-		public void BeginDrawing(float Dt) => BeginDrawingCount++;
-		public void EndDrawing() => EndDrawingCount++;
+		public virtual void BeginDrawing(float Dt) => BeginDrawingCount++;
+		public virtual void EndDrawing() => EndDrawingCount++;
 
 		public int GetWindowWidth() => WindowWidth;
 		public int GetWindowHeight() => WindowHeight;

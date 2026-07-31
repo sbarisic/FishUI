@@ -9,7 +9,7 @@ namespace FishUI.Controls
 	/// A container control with automatic scrollbars for content that exceeds the visible area.
 	/// Supports both vertical and horizontal scrolling.
 	/// </summary>
-	public class ScrollablePane : Control
+	public class ScrollablePane : Control, IFishUIDebugSnapshotProvider
 	{
 		/// <summary>
 		/// The virtual content size. If larger than the control size, scrollbars appear.
@@ -80,6 +80,15 @@ namespace FishUI.Controls
 
 		[YamlIgnore]
 		private Vector2 _calculatedContentSize = Vector2.Zero;
+
+		public void WriteDebugSnapshot(FishUIDebugSnapshotWriter writer)
+		{
+			Vector2 content = GetEffectiveContentSize(); Vector2 viewport = GetAbsoluteSize();
+			writer.Write("viewportSizePixels", FishUIDebugPoint.From(viewport));
+			writer.Write("contentSizePixels", FishUIDebugPoint.From(content));
+			writer.Write("scrollOffsetPixels", FishUIDebugPoint.From(ScrollOffset));
+			writer.Write("maximumOffsetPixels", new FishUIDebugPoint(Math.Max(0, content.X - viewport.X), Math.Max(0, content.Y - viewport.Y)));
+		}
 
 		public ScrollablePane()
 		{
@@ -158,7 +167,7 @@ namespace FishUI.Controls
 					{
 						UpdateScrollOffset();
 					};
-					AddChild(_scrollBarV);
+					AddRuntimeChild(_scrollBarV);
 				}
 
 				_scrollBarV.Position = new Vector2(availableWidth, 0);
@@ -185,7 +194,7 @@ namespace FishUI.Controls
 					{
 						UpdateScrollOffset();
 					};
-					AddChild(_scrollBarH);
+					AddRuntimeChild(_scrollBarH);
 				}
 
 				_scrollBarH.Position = new Vector2(0, availableHeight);

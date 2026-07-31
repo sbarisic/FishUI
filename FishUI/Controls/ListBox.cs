@@ -392,7 +392,7 @@ namespace FishUI.Controls
 				ScrollOffset = new Vector2(0, -Scroll * ContentHeight);
 			};
 
-			AddChild(ScrollBar);
+			AddRuntimeChild(ScrollBar);
 		}
 
 		public void AutoResizeHeight()

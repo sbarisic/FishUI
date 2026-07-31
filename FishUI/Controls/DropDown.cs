@@ -275,7 +275,7 @@ namespace FishUI.Controls
 			return FishUI == ui;
 		}
 
-		internal bool IsHierarchyVisible()
+		internal new bool IsHierarchyVisible()
 		{
 			Control control = this;
 			while (control != null)
@@ -587,7 +587,7 @@ namespace FishUI.Controls
 			{
 				Toggle();
 			};
-			AddChild(DDButton);
+			AddRuntimeChild(DDButton);
 		}
 
 		public override bool IsPointInside(Vector2 GlobalPt)

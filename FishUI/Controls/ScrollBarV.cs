@@ -10,7 +10,7 @@ namespace FishUI.Controls
 {
 	public delegate void OnScrollChangedFunc(ScrollBarV Sender, float Scroll, int Direction);
 
-	public class ScrollBarV : Control
+	public class ScrollBarV : Control, IFishUIDebugSnapshotProvider
 	{
 		[YamlMember]
 		public float ThumbHeight = 0.5f; // 0..1
@@ -29,6 +29,16 @@ namespace FishUI.Controls
 
 		[YamlIgnore]
 		Button BtnThumb = null;
+
+		public void WriteDebugSnapshot(FishUIDebugSnapshotWriter writer)
+		{
+			CalculateThumb(out Vector2 thumbSize, out Vector2 thumbPosition);
+			writer.Write("thumbSizePixels", FishUIDebugPoint.From(thumbSize));
+			writer.Write("thumbPositionPixels", FishUIDebugPoint.From(thumbPosition));
+			writer.Write("thumbFraction", ThumbHeight);
+			writer.Write("position", ThumbPosition);
+			writer.Write("scrollStep", ScrollStep);
+		}
 
 		[YamlIgnore]
 		Button BtnUp = null;
@@ -102,7 +112,7 @@ namespace FishUI.Controls
 			{
 				ScrollUp();
 			};
-			AddChild(BtnDown);
+			AddRuntimeChild(BtnDown);
 
 			BtnUp = new Button(UI.Settings.ImgSBVBtnDownNormal, UI.Settings.ImgSBVBtnDownDisabled, UI.Settings.ImgSBVBtnDownPressed, UI.Settings.ImgSBVBtnDownHover);
 			BtnUp.Focusable = false;
@@ -112,7 +122,7 @@ namespace FishUI.Controls
 			{
 				ScrollDown();
 			};
-			AddChild(BtnUp);
+			AddRuntimeChild(BtnUp);
 
 			BtnThumb = new Button(UI.Settings.ImgSBVBarNormal, UI.Settings.ImgSBVBarDisabled, UI.Settings.ImgSBVBarPressed, UI.Settings.ImgSBVBarHover);
 			BtnThumb.Focusable = false;
@@ -148,7 +158,7 @@ namespace FishUI.Controls
 				if (Dir != 0)
 					OnScrollChanged?.Invoke(this, ThumbPosition, Dir);
 			};
-			AddChild(BtnThumb);
+			AddRuntimeChild(BtnThumb);
 
 		}
 

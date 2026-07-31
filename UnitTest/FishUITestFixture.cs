@@ -61,7 +61,7 @@ namespace UnitTest
 
 		public void Dispose()
 		{
-			// Cleanup if needed
+			UI.Dispose();
 		}
 	}
 }

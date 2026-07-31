@@ -90,6 +90,7 @@ namespace FishUI
 			{ "!LineChart", typeof(LineChart) },
 			{ "!Timeline", typeof(Timeline) },
 			{ "!MultiLineEditbox", typeof(MultiLineEditbox) },
+			{ "!GameConsole", typeof(GameConsole) },
 			{ "!DatePicker", typeof(DatePicker) },
 			{ "!TimePicker", typeof(TimePicker) },
 			{ "!DataGrid", typeof(DataGrid) },
@@ -121,6 +122,11 @@ namespace FishUI
 			sbuild = sbuild.WithNamingConvention(PascalCaseNamingConvention.Instance);
 			sbuild = sbuild.IncludeNonPublicProperties();
 			sbuild = sbuild.WithAttributeOverride(typeof(MultiLineEditbox), "Children", new YamlIgnoreAttribute());
+			sbuild = sbuild.WithAttributeOverride(typeof(GameConsole), "Children", new YamlIgnoreAttribute());
+			sbuild = sbuild.WithAttributeOverride(typeof(GameConsole), "Position", new YamlIgnoreAttribute());
+			sbuild = sbuild.WithAttributeOverride(typeof(GameConsole), "Size", new YamlIgnoreAttribute());
+			sbuild = sbuild.WithAttributeOverride(typeof(GameConsole), "Visible", new YamlIgnoreAttribute());
+			sbuild = sbuild.WithAttributeOverride(typeof(GameConsole), "ZDepth", new YamlIgnoreAttribute());
 			sbuild = sbuild.ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults | DefaultValuesHandling.OmitNull | DefaultValuesHandling.OmitEmptyCollections);
 
 			foreach (var KV in TypeMapping)

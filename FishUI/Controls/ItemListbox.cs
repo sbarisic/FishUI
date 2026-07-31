@@ -354,7 +354,7 @@ namespace FishUI.Controls
 				ScrollOffset = new Vector2(0, -scroll * contentHeight);
 			};
 
-			AddChild(ScrollBar);
+			AddRuntimeChild(ScrollBar);
 		}
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)

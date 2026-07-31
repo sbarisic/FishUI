@@ -23,6 +23,8 @@ namespace UnitTest.Mocks
 		private FishKey _keyPressed = FishKey.None;
 		private int _charPressed = 0;
 		private FishTouchPoint[] _touchPoints = Array.Empty<FishTouchPoint>();
+		public int GetKeyPressedCallCount { get; private set; }
+		public int GetCharPressedCallCount { get; private set; }
 
 		// Input simulation methods
 		public void SimulateKeyDown(FishKey key)
@@ -108,12 +110,15 @@ namespace UnitTest.Mocks
 			MouseWheel = 0f;
 			ClipboardContent = "";
 			_touchPoints = Array.Empty<FishTouchPoint>();
+			GetKeyPressedCallCount = 0;
+			GetCharPressedCallCount = 0;
 		}
 
 		// IFishUIInput implementation
-		public FishKey GetKeyPressed() => _keyPressed;
+		public FishKey GetKeyPressed() { GetKeyPressedCallCount++; return _keyPressed; }
 		public int GetCharPressed()
 		{
+			GetCharPressedCallCount++;
 			int character = _charPressed;
 			_charPressed = 0;
 			return character;

@@ -2,6 +2,11 @@ using System.Numerics;
 
 namespace FishUI.Controls
 {
+	internal interface IFishUITextInputFilter
+	{
+		bool ShouldAcceptTextInput(FishUI ui, FishInputState input, char character);
+	}
+
 	public abstract partial class Control
 	{
 		/// <summary>

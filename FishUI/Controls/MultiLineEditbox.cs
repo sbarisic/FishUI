@@ -6,6 +6,22 @@ using YamlDotNet.Serialization;
 
 namespace FishUI.Controls
 {
+	internal readonly struct MultiLineScrollAnchor
+	{
+		public int LogicalRow { get; }
+		public int StartColumn { get; }
+		public float PixelDisplacement { get; }
+		public bool WasAtEnd { get; }
+
+		public MultiLineScrollAnchor(int logicalRow, int startColumn, float pixelDisplacement, bool wasAtEnd)
+		{
+			LogicalRow = logicalRow;
+			StartColumn = startColumn;
+			PixelDisplacement = pixelDisplacement;
+			WasAtEnd = wasAtEnd;
+		}
+	}
+
 	/// <summary>
 	/// Delegate for MultiLineEditbox text changed events.
 	/// </summary>
@@ -14,7 +30,7 @@ namespace FishUI.Controls
 	/// <summary>
 	/// A multi-line text editor control with smooth scrolling support.
 	/// </summary>
-	public class MultiLineEditbox : Control
+	public class MultiLineEditbox : Control, IFishUIDebugSnapshotProvider
 	{
 		private const float LayoutEpsilon = 0.01f;
 		private const float CaretRevealMargin = 2f;
@@ -157,7 +173,16 @@ namespace FishUI.Controls
 		public float ScrollOffsetPixels
 		{
 			get => _scrollOffsetPixels;
-			set => _scrollOffsetPixels = Math.Max(0, value);
+			set
+			{
+				float newValue = Math.Max(0, value);
+				if (_scrollOffsetPixels == newValue) return;
+				float oldValue = _scrollOffsetPixels;
+				_scrollOffsetPixels = newValue;
+				if (FishUI?.Diagnostics.Events.Options.Enabled == true)
+					FishUI.Diagnostics.Record(FishUIDiagnosticEventCategory.StateChange, FishUIDiagnosticEventType.StateChanged,
+						this, null, state: new FishUIStateEventData { Name = "verticalScrollOffsetPixels", OldValue = oldValue.ToString(), NewValue = newValue.ToString() });
+			}
 		}
 
 		/// <summary>
@@ -167,7 +192,16 @@ namespace FishUI.Controls
 		public float HorizontalScrollOffsetPixels
 		{
 			get => _horizontalScrollOffsetPixels;
-			set => _horizontalScrollOffsetPixels = Math.Max(0, value);
+			set
+			{
+				float newValue = Math.Max(0, value);
+				if (_horizontalScrollOffsetPixels == newValue) return;
+				float oldValue = _horizontalScrollOffsetPixels;
+				_horizontalScrollOffsetPixels = newValue;
+				if (FishUI?.Diagnostics.Events.Options.Enabled == true)
+					FishUI.Diagnostics.Record(FishUIDiagnosticEventCategory.StateChange, FishUIDiagnosticEventType.StateChanged,
+						this, null, state: new FishUIStateEventData { Name = "horizontalScrollOffsetPixels", OldValue = oldValue.ToString(), NewValue = newValue.ToString() });
+			}
 		}
 
 		/// <summary>
@@ -548,6 +582,32 @@ namespace FishUI.Controls
 			return _viewportLayout;
 		}
 
+		public void WriteDebugSnapshot(FishUIDebugSnapshotWriter writer)
+		{
+			TextViewportLayout layout = EnsureViewportLayout(FishUI);
+			writer.Write("textLength", Text.Length);
+			writer.Write("logicalLineCount", _lines.Count);
+			writer.Write("visualLineCount", layout.VisualLines.Count);
+			writer.Write("wordWrap", WordWrap);
+			writer.Write("cursorRow", CursorRow);
+			writer.Write("cursorColumn", CursorColumn);
+			writer.Write("selectionStartRow", SelectionStartRow);
+			writer.Write("selectionStartColumn", SelectionStartColumn);
+			writer.Write("selectionEndRow", SelectionEndRow);
+			writer.Write("selectionEndColumn", SelectionEndColumn);
+			writer.Write("textViewportPixels", new FishUIDebugRect(layout.TextRect.Position.X, layout.TextRect.Position.Y, layout.TextRect.Size.X, layout.TextRect.Size.Y));
+			writer.Write("contentWidthPixels", layout.ContentWidth);
+			writer.Write("contentHeightPixels", layout.ContentHeight);
+			writer.Write("horizontalOffsetPixels", _horizontalScrollOffsetPixels);
+			writer.Write("verticalOffsetPixels", _scrollOffsetPixels);
+			writer.Write("maximumHorizontalOffsetPixels", layout.MaxHorizontalOffset);
+			writer.Write("maximumVerticalOffsetPixels", layout.MaxVerticalOffset);
+			writer.Write("horizontalScrollbarVisible", layout.HorizontalVisible);
+			writer.Write("verticalScrollbarVisible", layout.VerticalVisible);
+			writer.Write("layoutDirty", _layoutDirty);
+			writer.Write("caretRevealPending", _caretVisibilityPending);
+		}
+
 		private List<VisualLine> BuildVisualLines(FishUI ui, float availableWidth, FontRef font)
 		{
 			List<VisualLine> result = new List<VisualLine>();
@@ -896,7 +956,7 @@ namespace FishUI.Controls
 				TextViewportLayout layout = EnsureViewportLayout(FishUI);
 				_scrollOffsetPixels = scroll * layout.MaxVerticalOffset;
 			};
-			AddChild(_scrollBar);
+			AddRuntimeChild(_scrollBar);
 		}
 
 		private void CreateHorizontalScrollBar()
@@ -911,7 +971,7 @@ namespace FishUI.Controls
 				TextViewportLayout layout = EnsureViewportLayout(FishUI);
 				_horizontalScrollOffsetPixels = scroll * layout.MaxHorizontalOffset;
 			};
-			AddChild(_horizontalScrollBar);
+			AddRuntimeChild(_horizontalScrollBar);
 		}
 
 		private static Vector2 ToLogical(Vector2 scaledPixels, float scale)
@@ -967,6 +1027,68 @@ namespace FishUI.Controls
 			return EnsureViewportLayout(FishUI).MaxVerticalOffset;
 		}
 
+		[YamlIgnore]
+		public float MaximumVerticalScrollOffsetPixels => EnsureViewportLayout(FishUI).MaxVerticalOffset;
+
+		[YamlIgnore]
+		public bool IsAtVerticalScrollEnd =>
+			MaximumVerticalScrollOffsetPixels - _scrollOffsetPixels <= LayoutEpsilon;
+
+		public void ScrollVerticalByPixels(float pixels)
+		{
+			TextViewportLayout layout = EnsureViewportLayout(FishUI);
+			_scrollOffsetPixels = Math.Clamp(_scrollOffsetPixels + pixels, 0, layout.MaxVerticalOffset);
+		}
+
+		public void ScrollVerticalByPages(float pages)
+		{
+			TextViewportLayout layout = EnsureViewportLayout(FishUI);
+			ScrollVerticalByPixels(layout.TextRect.Size.Y * pages);
+		}
+
+		internal MultiLineScrollAnchor CaptureVerticalScrollAnchor()
+		{
+			TextViewportLayout layout = EnsureViewportLayout(FishUI);
+			if (layout.VisualLines.Count == 0 || layout.LineHeight <= 0)
+				return new MultiLineScrollAnchor(0, 0, 0, IsAtVerticalScrollEnd);
+
+			int index = Math.Clamp((int)Math.Floor(_scrollOffsetPixels / layout.LineHeight), 0, layout.VisualLines.Count - 1);
+			VisualLine visual = layout.VisualLines[index];
+			return new MultiLineScrollAnchor(visual.LogicalRow, visual.StartColumn,
+				_scrollOffsetPixels - index * layout.LineHeight, IsAtVerticalScrollEnd);
+		}
+
+		internal void RestoreVerticalScrollAnchor(MultiLineScrollAnchor anchor, int removedLogicalLines)
+		{
+			TextViewportLayout layout = EnsureViewportLayout(FishUI);
+			if (anchor.WasAtEnd)
+			{
+				_scrollOffsetPixels = layout.MaxVerticalOffset;
+				return;
+			}
+
+			int targetRow = Math.Max(0, anchor.LogicalRow - Math.Max(0, removedLogicalLines));
+			int targetIndex = 0;
+			for (int i = 0; i < layout.VisualLines.Count; i++)
+			{
+				VisualLine visual = layout.VisualLines[i];
+				if (visual.LogicalRow > targetRow)
+					break;
+				targetIndex = i;
+				if (visual.LogicalRow == targetRow && visual.StartColumn >= anchor.StartColumn)
+					break;
+			}
+
+			_scrollOffsetPixels = Math.Clamp(targetIndex * layout.LineHeight + anchor.PixelDisplacement,
+				0, layout.MaxVerticalOffset);
+		}
+
+		internal void SetTextWithoutCaretReveal(string text)
+		{
+			Text = text;
+			_caretVisibilityPending = false;
+		}
+
 		/// <summary>
 		/// Gets the number of visible lines that fit in the control.
 		/// </summary>
@@ -1015,14 +1137,17 @@ namespace FishUI.Controls
 
 			// Draw background using textbox NPatch
 			NPatch bg = HasFocus ? UI.Settings.ImgTextboxActive : UI.Settings.ImgTextboxNormal;
-			if (bg != null)
+			using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.ControlBounds))
 			{
-				UI.Graphics.DrawNPatch(bg, pos, size, Color);
-			}
-			else
-			{
-				UI.Graphics.DrawRectangle(pos, size, BackgroundColor);
-				UI.Graphics.DrawRectangleOutline(pos, size, new FishColor(128, 128, 128, 255));
+				if (bg != null)
+				{
+					UI.Graphics.DrawNPatch(bg, pos, size, Color);
+				}
+				else
+				{
+					UI.Graphics.DrawRectangle(pos, size, BackgroundColor);
+					UI.Graphics.DrawRectangleOutline(pos, size, new FishColor(128, 128, 128, 255));
+				}
 			}
 
 			// Draw line numbers gutter background
@@ -1079,10 +1204,11 @@ namespace FishUI.Controls
 						float selWidth = selEndX - selStartX;
 						if (selWidth > 0)
 						{
-							UI.Graphics.DrawRectangle(
-								new Vector2(selStartX, lineY),
-								new Vector2(selWidth, layout.LineHeight),
-								SelectionColor);
+							using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Selection))
+								UI.Graphics.DrawRectangle(
+									new Vector2(selStartX, lineY),
+									new Vector2(selWidth, layout.LineHeight),
+									SelectionColor);
 						}
 					}
 				}
@@ -1090,7 +1216,8 @@ namespace FishUI.Controls
 				// Draw text
 				if (font != null && !string.IsNullOrEmpty(line))
 				{
-					UI.Graphics.DrawTextColor(font, line, new Vector2(lineX, lineY), TextColor);
+					using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Text))
+						UI.Graphics.DrawTextColor(font, line, new Vector2(lineX, lineY), TextColor);
 				}
 
 				// Draw cursor on this line
@@ -1105,10 +1232,11 @@ namespace FishUI.Controls
 						cursorX += UI.Graphics.MeasureText(font, textBeforeCursor).X;
 					}
 
-					UI.Graphics.DrawLine(
-						new Vector2(cursorX, lineY),
-						new Vector2(cursorX, lineY + layout.LineHeight),
-						Scale(1f), CursorColor);
+					using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Caret))
+						UI.Graphics.DrawLine(
+							new Vector2(cursorX, lineY),
+							new Vector2(cursorX, lineY + layout.LineHeight),
+							Scale(1f), CursorColor);
 				}
 			}
 

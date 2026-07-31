@@ -1170,7 +1170,7 @@ namespace FishUI.Controls
 					_scrollBar.Position = new Vector2(absSize.X - 16, 0);
 					_scrollBar.Size = new Vector2(16, absSize.Y);
 					_scrollBar.OnScrollChanged += (sender, scroll, dir) => _scrollOffset = scroll * (contentHeight - visibleHeight);
-					AddChild(_scrollBar);
+					AddRuntimeChild(_scrollBar);
 				}
 
 				_scrollBar.Visible = true;

@@ -428,7 +428,7 @@ namespace FishUI.Controls
 			{
 				_scrollOffset = position * Math.Max(0, _totalContentHeight - Size.Y);
 			};
-			AddChild(_scrollBar);
+			AddRuntimeChild(_scrollBar);
 		}
 
 		private void UpdateVisibleNodes()

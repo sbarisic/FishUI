@@ -1,15 +1,18 @@
 using FishUI.Controls;
+using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ExceptionServices;
+using System.Globalization;
 
 namespace FishUI
 {
 	/// <summary>
 	/// Main FishUI class that manages the UI system, controls, input handling, and rendering.
 	/// </summary>
-	public class FishUI
+	public class FishUI : IDisposable
 	{
 		/// <summary>
 		/// UI settings including theme, fonts, and control appearance.
@@ -59,6 +62,8 @@ namespace FishUI
 		Control HoveredControl;
 		Control LeftClickedControl;
 		Control RightClickedControl;
+		long? ActiveDragInteractionId;
+		Vector2 ActiveDragStart;
 
 		// Double-click detection
 		float LastLeftClickTime = -1f;
@@ -117,7 +122,21 @@ namespace FishUI
 		/// </summary>
 		public FishUIAnimationManager Animations { get; } = new FishUIAnimationManager();
 
+		/// <summary>Diagnostic recording and snapshot capture for this UI instance.</summary>
+		public FishUIDiagnosticsSession Diagnostics { get; }
+
+		/// <summary>Convenience access to this UI instance's diagnostic event recorder.</summary>
+		public FishUIEventRecorder DiagnosticsEvents => Diagnostics.Events;
+
+		internal Control DiagnosticsHoveredControl => HoveredControl;
+		internal Control DiagnosticsPressedControl => LeftClickedControl ?? RightClickedControl;
+
 		Control[] OrderedControls;
+		private readonly HashSet<KeyboardCaptureLease> _keyboardCaptureLeases = new HashSet<KeyboardCaptureLease>();
+		private bool _keyboardInputConsumedThisFrame;
+		private bool _disposed;
+
+		public bool WantsKeyboardCapture => _keyboardCaptureLeases.Count != 0 || _keyboardInputConsumedThisFrame;
 
 		/// <summary>
 		/// Creates a new FishUI instance.
@@ -139,10 +158,12 @@ namespace FishUI
 			this.Input = Input;
 			this.Events = Events;
 			this.FileSystem = FS;
+			Diagnostics = new FishUIDiagnosticsSession(this);
 
 			// Create the global tooltip
 			_activeTooltip = new Controls.Tooltip();
 			_activeTooltip._FishUI = this;
+			Diagnostics.AttachControl(_activeTooltip);
 		}
 
 		/// <summary>
@@ -196,12 +217,16 @@ namespace FishUI
 		/// </summary>
 		public void SetModalControl(Control control)
 		{
+			Control previous = ModalControl;
 			ModalControl = control;
 			if (control != null)
 			{
 				// Bring modal control to front
 				control.BringToFront();
 			}
+			if (Diagnostics.IsEventRecordingEnabled)
+				Diagnostics.Record(FishUIDiagnosticEventCategory.Modal, FishUIDiagnosticEventType.ModalChanged, control,
+					$"from={previous?.DiagnosticRuntimeId.ToString() ?? "null"};to={control?.DiagnosticRuntimeId.ToString() ?? "null"}");
 		}
 
 		/// <summary>
@@ -210,9 +235,63 @@ namespace FishUI
 		/// <param name="C">The control to add.</param>
 		public void AddControl(Control C)
 		{
+			if (C == null) throw new ArgumentNullException(nameof(C));
+			if (_disposed) throw new ObjectDisposedException(nameof(FishUI));
+			if (C.AttachedFishUI == this && C.GetParent() == null && Controls.Contains(C)) return;
+
+			FishUI oldUi = C.AttachedFishUI;
+			Control oldParent = C.GetParent();
+			int oldIndex = oldParent != null ? oldParent.Children.IndexOf(C) : oldUi?.IndexOfRoot(C) ?? -1;
+			int oldZDepth = C.ZDepth;
+			int previousNextZDepth = _nextZDepth;
+
+			if (ReferenceEquals(oldUi, this))
+			{
+				if (oldParent != null) oldParent.Children.Remove(C); else Controls.Remove(C);
+				C.SetParentInternal(null);
+				C._FishUI = this;
+				C.ZDepth = GetNextZDepth();
+				Controls.Add(C);
+				Diagnostics.NotifyHierarchyChanged();
+				return;
+			}
+
+			if (oldUi != null) C.DetachSubtree(oldUi);
+			if (oldParent != null) oldParent.Children.Remove(C); else oldUi?.RemoveRootReference(C);
+			C.SetParentInternal(null);
 			C._FishUI = this;
 			C.ZDepth = GetNextZDepth();
 			Controls.Add(C);
+			try
+			{
+				Diagnostics.AttachControl(C);
+				C.AttachSubtree(this);
+				C.ResizeSubtree(this, Width, Height);
+			}
+			catch (Exception attachFailure)
+			{
+				Controls.Remove(C);
+				C._FishUI = null;
+				_nextZDepth = previousNextZDepth;
+				try
+				{
+					C.ZDepth = oldZDepth;
+					if (oldParent != null)
+					{
+						C.SetParentInternal(oldParent);
+						oldParent.Children.Insert(Math.Max(0, Math.Min(oldIndex, oldParent.Children.Count)), C);
+					}
+					else if (oldUi != null)
+					{
+						C._FishUI = oldUi;
+						oldUi.InsertRootReference(C, oldIndex);
+					}
+					if (oldUi != null) C.AttachSubtree(oldUi);
+				}
+				catch (Exception rollbackFailure) { throw new AggregateException(attachFailure, rollbackFailure); }
+				throw;
+			}
+			Diagnostics.NotifyHierarchyChanged();
 		}
 
 		/// <summary>
@@ -224,9 +303,13 @@ namespace FishUI
 		{
 			if (Controls.Remove(C))
 			{
+				if (C.AttachedFishUI == this) C.DetachSubtree(this);
 				C._FishUI = null;
-				if (ModalControl == C)
+				Diagnostics.NotifyHierarchyChanged();
+				if (ModalControl == C || ModalControl?.IsDescendantOf(C) == true)
 					ModalControl = null;
+				if (InputActiveControl == C || InputActiveControl?.IsDescendantOf(C) == true)
+					ClearFocus();
 				return true;
 			}
 			return false;
@@ -237,9 +320,41 @@ namespace FishUI
 		/// </summary>
 		public void RemoveAllControls()
 		{
-			//Control[] Ctrls = GetOrderedControls();
-			Controls.Clear();
+			Control[] controls = Controls.ToArray();
+			for (int i = controls.Length - 1; i >= 0; i--) RemoveControl(controls[i]);
 			ModalControl = null;
+			Diagnostics.NotifyHierarchyChanged();
+		}
+
+		internal int IndexOfRoot(Control control) => Controls.IndexOf(control);
+		internal void RemoveRootReference(Control control) => Controls.Remove(control);
+		internal void InsertRootReference(Control control, int index) =>
+			Controls.Insert(Math.Max(0, Math.Min(index, Controls.Count)), control);
+
+		public IDisposable AcquireKeyboardCapture(object owner)
+		{
+			if (owner == null) throw new ArgumentNullException(nameof(owner));
+			if (_disposed) throw new ObjectDisposedException(nameof(FishUI));
+			KeyboardCaptureLease lease = new KeyboardCaptureLease(this, owner);
+			_keyboardCaptureLeases.Add(lease);
+			return lease;
+		}
+
+		private void ReleaseKeyboardCapture(KeyboardCaptureLease lease) => _keyboardCaptureLeases.Remove(lease);
+
+		private sealed class KeyboardCaptureLease : IDisposable
+		{
+			private FishUI _ui;
+			internal readonly object Owner;
+			internal KeyboardCaptureLease(FishUI ui, object owner) { _ui = ui; Owner = owner; }
+			public void Dispose()
+			{
+				FishUI ui = _ui;
+				if (ui == null) return;
+				_ui = null;
+				ui.ReleaseKeyboardCapture(this);
+			}
+			internal void Invalidate() => _ui = null;
 		}
 
 		/// <summary>
@@ -314,27 +429,39 @@ namespace FishUI
 		}
 
 		// Top-down control picking, for mouse events etc
-		Control PickControl(Control[] Controls, Vector2 GlobalPos, Control Parent = null)
+		Control PickControl(Control[] Controls, Vector2 GlobalPos, Control Parent = null, FishUIHitTestTraceBuilder trace = null)
 		{
 			foreach (Control C in Controls)
 			{
+				FishUIHitTestCandidate candidate = trace == null ? null : CreateHitTestCandidate(C, GlobalPos);
+				if (candidate != null) trace.Trace.Candidates.Add(candidate);
 				if (!C.Visible)
+				{
+					if (candidate != null) candidate.RejectionReason = FishUIHitTestRejectionReason.Invisible;
 					continue;
+				}
 
 				// Check if parent allows this child to receive input at this position
 				if (Parent != null && !Parent.ShouldChildReceiveInput(C, GlobalPos))
+				{
+					if (candidate != null) candidate.RejectionReason = FishUIHitTestRejectionReason.RejectedByParent;
 					continue;
+				}
 
 				// First, check children even if parent's IsPointInside is false
 				// This handles cases where children extend beyond parent bounds (e.g., DropDown list)
 				Control[] children = C.GetAllChildren().Reverse().ToArray();
-				Control CPicked = PickControl(children, GlobalPos, C);
+				Control CPicked = PickControl(children, GlobalPos, C, trace);
 
 				if (CPicked != null)
 				{
 					// Check modal blocking
 					if (!IsControlInputAllowed(CPicked))
+					{
+						if (candidate != null) candidate.RejectionReason = FishUIHitTestRejectionReason.BlockedByModal;
 						return null;
+					}
+					if (candidate != null) candidate.RejectionReason = FishUIHitTestRejectionReason.DescendantSelected;
 					return CPicked;
 				}
 
@@ -343,9 +470,14 @@ namespace FishUI
 				{
 					// Check modal blocking
 					if (!IsControlInputAllowed(C))
+					{
+						if (candidate != null) candidate.RejectionReason = FishUIHitTestRejectionReason.BlockedByModal;
 						return null;
+					}
+					if (candidate != null) { candidate.Accepted = true; candidate.RejectionReason = FishUIHitTestRejectionReason.None; }
 					return C;
 				}
+				if (candidate != null) candidate.RejectionReason = FishUIHitTestRejectionReason.OutsideBounds;
 			}
 
 			return null;
@@ -358,12 +490,64 @@ namespace FishUI
 		/// <returns>The topmost control at the position, or null if none.</returns>
 		public Control PickControl(Vector2 GlobalPos)
 		{
+			return PickControlCore(GlobalPos, null);
+		}
+
+		private Control PickControlCore(Vector2 GlobalPos, FishUIHitTestTraceBuilder trace)
+		{
 			Control openDropDown = PickOpenDropDown(GlobalPos);
 			if (openDropDown != null)
+			{
+				if (trace != null)
+				{
+					var candidate = CreateHitTestCandidate(openDropDown, GlobalPos); candidate.Accepted = true;
+					trace.Trace.Candidates.Add(candidate);
+				}
 				return openDropDown;
+			}
 
 			// Reverse the order so we check front controls (higher Z-depth) first
-			return PickControl(GetOrderedControls().Reverse().ToArray(), GlobalPos);
+			return PickControl(GetOrderedControls().Reverse().ToArray(), GlobalPos, null, trace);
+		}
+
+		internal FishUIHitTestTrace ExplainHitTestInternal(Vector2 point)
+		{
+			var result = new FishUIHitTestTrace { TraceId = Diagnostics.NextTraceId(), UiSessionId = Diagnostics.UiSessionId, PointPixels = FishUIDebugPoint.From(point) };
+			Control control = PickControlCore(point, new FishUIHitTestTraceBuilder(result));
+			if (control != null)
+			{
+				Diagnostics.EnsureIdentity(control); result.ResultControlId = control.DiagnosticRuntimeId;
+				result.ResultPath = result.Candidates.LastOrDefault(c => c.ControlId == control.DiagnosticRuntimeId)?.ControlPath;
+			}
+			return result;
+		}
+
+		private FishUIHitTestCandidate CreateHitTestCandidate(Control control, Vector2 point)
+		{
+			Diagnostics.EnsureIdentity(control);
+			Vector2 pos = control.GetAbsolutePosition(); Vector2 size = control.GetAbsoluteSize();
+			var bounds = new FishUIDebugRect(pos.X, pos.Y, size.X, size.Y);
+			FishUIDebugRect clip = GetExpectedClip(control);
+			return new FishUIHitTestCandidate
+			{
+				ControlId = control.DiagnosticRuntimeId, ControlPath = Diagnostics.PathFor(control),
+				BoundsPixels = bounds, ExpectedClipPixels = clip, InsideBounds = control.IsPointInside(point),
+				InsideExpectedClip = clip == null || clip.Contains(point)
+			};
+		}
+
+		private FishUIDebugRect GetExpectedClip(Control control)
+		{
+			var chain = new Stack<Control>(); Control current = control.GetParent();
+			while (current != null) { chain.Push(current); current = current.GetParent(); }
+			FishUIDebugRect clip = new FishUIDebugRect(0, 0, Width > 0 ? Width : Graphics.GetWindowWidth(), Height > 0 ? Height : Graphics.GetWindowHeight());
+			while (chain.Count > 0)
+			{
+				Control ancestor = chain.Pop(); if (ancestor.DisableChildScissor) continue;
+				Vector2 pos = ancestor.GetAbsolutePosition(); Vector2 size = ancestor.GetAbsoluteSize();
+				clip = FishUIDebugRect.Intersect(clip, new FishUIDebugRect(pos.X, pos.Y, size.X, size.Y));
+			}
+			return clip;
 		}
 
 		private Control PickOpenDropDown(Vector2 globalPosition)
@@ -422,6 +606,21 @@ namespace FishUI
 			return FindControlByIDEx(Controls.ToArray(), ID) as T;
 		}
 
+		private Control FindControlByDiagnosticId(long id)
+		{
+			var stack = new Stack<Control>(Controls);
+			var visited = new HashSet<Control>();
+			while (stack.Count > 0)
+			{
+				Control control = stack.Pop();
+				if (control == null || !visited.Add(control)) continue;
+				Diagnostics.EnsureIdentity(control);
+				if (control.DiagnosticRuntimeId == id) return control;
+				if (control.Children != null) foreach (Control child in control.Children) stack.Push(child);
+			}
+			return null;
+		}
+
 		void UpdateSingleControl(Control Ctl, FishInputState InState, FishInputState InLast)
 		{
 			if (!Ctl.Visible)
@@ -442,22 +641,54 @@ namespace FishUI
 		{
 			if (BtnPressed)
 			{
+				bool recordDiagnostics = Diagnostics.IsEventRecordingEnabled;
+				FishUIDiagnosticEvent diagnosticEvent = null;
+				if (recordDiagnostics)
+					diagnosticEvent = Diagnostics.Record(FishUIDiagnosticEventCategory.Pointer,
+						FishUIDiagnosticEventType.MouseButtonPressed, ControlUnderMouse, MBtn.ToString(),
+						new FishUIPointerEventData { Button = MBtn.ToString(), PositionPixels = FishUIDebugPoint.From(InState.MousePos) });
 				if (ControlUnderMouse != null)
 				{
 					// Bring the root control to front (for windows, panels, etc.)
 					BringControlToFrontOnClick(ControlUnderMouse);
 
-					ControlUnderMouse.HandleMousePress(this, InState, MBtn, InState.MousePos);
-					ClickedControl = ControlUnderMouse;
-					FocusControl(FindMouseFocusTarget(ControlUnderMouse));
+					using (Diagnostics.EnterCause(diagnosticEvent?.Sequence))
+					{
+						ControlUnderMouse.HandleMousePress(this, InState, MBtn, InState.MousePos);
+						ClickedControl = ControlUnderMouse;
+						Control focusTarget = FindMouseFocusTarget(ControlUnderMouse);
+						if (recordDiagnostics)
+							Diagnostics.Record(FishUIDiagnosticEventCategory.Focus, FishUIDiagnosticEventType.FocusResolution,
+								focusTarget, "MouseFocusTargetOrFocusableAncestor", focus: new FishUIFocusEventData
+								{ PickedControlId = ControlUnderMouse.DiagnosticRuntimeId, ToControlId = focusTarget?.DiagnosticRuntimeId, Reason = "MouseFocusTargetOrFocusableAncestor" });
+						FocusControl(focusTarget);
+					}
+					if (MBtn == FishMouseButton.Left)
+					{
+						if (recordDiagnostics)
+						{
+							ActiveDragInteractionId = Diagnostics.NextInteractionId(); ActiveDragStart = InState.MousePos;
+							Diagnostics.Record(FishUIDiagnosticEventCategory.Drag, FishUIDiagnosticEventType.DragStarted,
+								ControlUnderMouse, MBtn.ToString(), new FishUIPointerEventData
+								{
+									StartPositionPixels = FishUIDebugPoint.From(InState.MousePos),
+									PositionPixels = FishUIDebugPoint.From(InState.MousePos)
+								}, interactionId: ActiveDragInteractionId);
+						}
+					}
 				}
 			}
 		}
 
-		private static Control FindMouseFocusTarget(Control control)
+		private Control FindMouseFocusTarget(Control control)
 		{
 			while (control != null)
 			{
+				Control proxy = control.MouseFocusTarget;
+				if (proxy != null && proxy.AttachedFishUI == this && proxy.Focusable &&
+					!proxy.Disabled && proxy.IsHierarchyVisible())
+					return proxy;
+
 				if (control.Focusable)
 					return control;
 
@@ -474,6 +705,16 @@ namespace FishUI
 		{
 			if (BtnReleased)
 			{
+				bool recordDiagnostics = Diagnostics.IsEventRecordingEnabled;
+				Control pressOwner = ClickedControl;
+				FishUIDiagnosticEvent diagnosticEvent = null;
+				if (recordDiagnostics)
+					diagnosticEvent = Diagnostics.Record(FishUIDiagnosticEventCategory.Pointer,
+						FishUIDiagnosticEventType.MouseButtonReleased, ControlUnderMouse, MBtn.ToString(),
+						new FishUIPointerEventData { Button = MBtn.ToString(), PositionPixels = FishUIDebugPoint.From(InState.MousePos) },
+						interactionId: MBtn == FishMouseButton.Left ? ActiveDragInteractionId : null);
+				using (Diagnostics.EnterCause(diagnosticEvent?.Sequence))
+				{
 				if (ControlUnderMouse != null)
 					ControlUnderMouse.HandleMouseRelease(this, InState, MBtn, InState.MousePos);
 
@@ -518,17 +759,47 @@ namespace FishUI
 					}
 
 					if (isDoubleClick)
+					{
 						ClickedControl.HandleMouseDoubleClick(this, InState, MBtn, InState.MousePos);
+						if (recordDiagnostics)
+							Diagnostics.Record(FishUIDiagnosticEventCategory.Pointer, FishUIDiagnosticEventType.MouseDoubleClicked, ClickedControl, MBtn.ToString());
+					}
 					else
+					{
 						ClickedControl.HandleMouseClick(this, InState, MBtn, InState.MousePos);
+						if (recordDiagnostics)
+							Diagnostics.Record(FishUIDiagnosticEventCategory.Pointer, FishUIDiagnosticEventType.MouseClicked, ClickedControl, MBtn.ToString());
+					}
 				}
+				}
+				if (recordDiagnostics && MBtn == FishMouseButton.Left && ActiveDragInteractionId.HasValue)
+					Diagnostics.Record(FishUIDiagnosticEventCategory.Drag, FishUIDiagnosticEventType.DragEnded, pressOwner,
+						"released", new FishUIPointerEventData { StartPositionPixels = FishUIDebugPoint.From(ActiveDragStart), PositionPixels = FishUIDebugPoint.From(InState.MousePos), TotalDeltaPixels = FishUIDebugPoint.From(InState.MousePos - ActiveDragStart) }, interactionId: ActiveDragInteractionId);
 
 				ClickedControl = null;
+				if (MBtn == FishMouseButton.Left) ActiveDragInteractionId = null;
 			}
 		}
 
-		void CheckTextInput(FishInputState InState)
+		void CheckTextInput(FishInputState InState, bool suppressTextInput)
 		{
+			if (suppressTextInput)
+			{
+				int rejectedCharacter;
+				while ((rejectedCharacter = Input.GetCharPressed()) != 0)
+				{
+					if (Diagnostics.IsEventRecordingEnabled)
+						Diagnostics.Record(FishUIDiagnosticEventCategory.TextInput, FishUIDiagnosticEventType.CharacterRejected,
+							InputActiveControl, "consumedByKeyOrHotkey", text: new FishUITextEventData
+							{
+								CharacterCount = 1, LineCount = rejectedCharacter == '\n' ? 1 : 0,
+								Character = ((char)rejectedCharacter).ToString(), CodePoint = rejectedCharacter,
+								UnicodeCategory = char.GetUnicodeCategory((char)rejectedCharacter).ToString()
+							});
+				}
+				return;
+			}
+
 			if (InputActiveControl != null)
 			{
 				if (Input.IsKeyPressed(FishKey.Backspace))
@@ -541,31 +812,81 @@ namespace FishUI
 
 				while ((InChr = Input.GetCharPressed()) != 0)
 				{
-					InputActiveControl.HandleTextInput(this, InState, (char)InChr);
+					Control textTarget = InputActiveControl;
+					bool accepted = !(textTarget is IFishUITextInputFilter filter) ||
+						filter.ShouldAcceptTextInput(this, InState, (char)InChr);
+					if (!accepted)
+					{
+						if (Diagnostics.IsEventRecordingEnabled)
+							Diagnostics.Record(FishUIDiagnosticEventCategory.TextInput, FishUIDiagnosticEventType.CharacterRejected,
+								textTarget, "rejectedByControl", text: new FishUITextEventData
+								{
+									CharacterCount = 1, LineCount = InChr == '\n' ? 1 : 0,
+									Character = ((char)InChr).ToString(), CodePoint = InChr,
+									UnicodeCategory = char.GetUnicodeCategory((char)InChr).ToString()
+								});
+						continue;
+					}
+
+					FishUIDiagnosticEvent textEvent = null;
+					if (Diagnostics.IsEventRecordingEnabled)
+						textEvent = Diagnostics.Record(FishUIDiagnosticEventCategory.TextInput, FishUIDiagnosticEventType.CharacterAccepted,
+							textTarget, null, text: new FishUITextEventData
+							{
+								CharacterCount = 1, LineCount = InChr == '\n' ? 1 : 0, Character = ((char)InChr).ToString(),
+								CodePoint = InChr, UnicodeCategory = char.GetUnicodeCategory((char)InChr).ToString()
+							});
+					using (Diagnostics.EnterCause(textEvent?.Sequence))
+						textTarget.HandleTextInput(this, InState, (char)InChr);
 				}
 			}
 		}
 
-		void Update(Control[] Controls, FishInputState InState, FishInputState InLast, float Time)
+		void Update(Control[] Controls, FishInputState InState, FishInputState InLast, float DeltaTime, float Time)
 		{
-			Control ControlUnderMouse = PickControl(InState.MousePos);
+			bool recordDiagnostics = Diagnostics.IsEventRecordingEnabled;
+			bool significantHitTest = recordDiagnostics && Diagnostics.Events.Options.RecordHitTestTraces &&
+				(InState.MouseLeftPressed || InState.MouseLeftReleased || InState.MouseRightPressed || InState.MouseRightReleased || InState.MouseWheelDelta != 0);
+			FishUIHitTestTrace hitTrace = significantHitTest ? ExplainHitTestInternal(InState.MousePos) : null;
+			if (hitTrace != null)
+				RecordHitTestObservations(hitTrace);
+			Control ControlUnderMouse = significantHitTest && hitTrace.ResultControlId.HasValue
+				? FindControlByDiagnosticId(hitTrace.ResultControlId.Value) : PickControl(InState.MousePos);
 
 			// Mouse drag
 			if (LeftClickedControl != null && InState.MouseLeft && InState.MouseDelta != Vector2.Zero)
+			{
+				if (recordDiagnostics)
+					Diagnostics.Record(FishUIDiagnosticEventCategory.Drag, FishUIDiagnosticEventType.DragUpdated, LeftClickedControl,
+						"drag", new FishUIPointerEventData { StartPositionPixels = FishUIDebugPoint.From(ActiveDragStart), PreviousPositionPixels = FishUIDebugPoint.From(InLast.MousePos), PositionPixels = FishUIDebugPoint.From(InState.MousePos), DeltaPixels = FishUIDebugPoint.From(InState.MouseDelta), TotalDeltaPixels = FishUIDebugPoint.From(InState.MousePos - ActiveDragStart) }, interactionId: ActiveDragInteractionId);
 				LeftClickedControl.HandleDrag(this, InLast.MousePos, InState.MousePos, InState);
+			}
 
 			// Mouse move
 			if (HoveredControl == ControlUnderMouse && ControlUnderMouse != null && InState.MouseDelta != Vector2.Zero)
+			{
+				if (recordDiagnostics)
+					Diagnostics.Record(FishUIDiagnosticEventCategory.Pointer, FishUIDiagnosticEventType.MouseMoved, ControlUnderMouse,
+						null, new FishUIPointerEventData { PositionPixels = FishUIDebugPoint.From(InState.MousePos), DeltaPixels = FishUIDebugPoint.From(InState.MouseDelta) });
 				ControlUnderMouse.HandleMouseMove(this, InState, InState.MousePos);
+			}
 
 			// Mouse enter/leave handling
 			if (HoveredControl != ControlUnderMouse)
 			{
 				if (HoveredControl != null)
+				{
+					if (recordDiagnostics)
+						Diagnostics.Record(FishUIDiagnosticEventCategory.Pointer, FishUIDiagnosticEventType.MouseLeft, HoveredControl);
 					HoveredControl.HandleMouseLeave(this, InState);
+				}
 
 				if (ControlUnderMouse != null)
+				{
+					if (recordDiagnostics)
+						Diagnostics.Record(FishUIDiagnosticEventCategory.Pointer, FishUIDiagnosticEventType.MouseEntered, ControlUnderMouse);
 					ControlUnderMouse.HandleMouseEnter(this, InState);
+				}
 				HoveredControl = ControlUnderMouse;
 			}
 
@@ -581,85 +902,152 @@ namespace FishUI
 			// Mouse wheel handling
 			if (InState.MouseWheelDelta != 0 && ControlUnderMouse != null)
 			{
+				if (recordDiagnostics)
+					Diagnostics.Record(FishUIDiagnosticEventCategory.Pointer, FishUIDiagnosticEventType.MouseWheel, ControlUnderMouse,
+						InState.MouseWheelDelta.ToString(CultureInfo.InvariantCulture), new FishUIPointerEventData { PositionPixels = FishUIDebugPoint.From(InState.MousePos), HitTestTraceId = hitTrace?.TraceId });
 				ControlUnderMouse.HandleMouseWheel(this, InState, InState.MouseWheelDelta);
 			}
 
 			// Key press handling
 			FishKey Key = Input.GetKeyPressed();
+			FishUIDiagnosticEvent keyEvent = null;
+			if (recordDiagnostics && Key != FishKey.None)
+			{
+				FishUIRawKeyMetadata metadata = null;
+				if (Input is IFishUIRawInputMetadataProvider metadataProvider) metadataProvider.TryGetKeyMetadata(Key, out metadata);
+				keyEvent = Diagnostics.Record(FishUIDiagnosticEventCategory.Keyboard, FishUIDiagnosticEventType.KeyPressed, InputActiveControl,
+					Key.ToString(), key: new FishUIKeyEventData { Key = Key.ToString(), BackendKeyCode = metadata?.BackendKeyCode,
+						Repeat = metadata?.Repeat ?? false, Released = metadata?.Released ?? false,
+						Modifiers = new FishUIModifierSnapshot { Control = InState.CtrlDown, Shift = InState.ShiftDown, Alt = InState.AltDown } });
+			}
 
 			// Process global hotkeys first
-			bool hotkeyHandled = Hotkeys.ProcessKeyPress(Key, Input);
+			bool hotkeyHandled = Hotkeys.ProcessKeyPress(Key, Input, out FishUIHotkey matchedHotkey);
+			bool suppressTextInput = hotkeyHandled && matchedHotkey.ConsumesTextInput;
+			if (hotkeyHandled)
+			{
+				_keyboardInputConsumedThisFrame = true;
+				if (recordDiagnostics)
+					Diagnostics.Record(FishUIDiagnosticEventCategory.Keyboard, FishUIDiagnosticEventType.HotkeyHandled, InputActiveControl,
+						matchedHotkey?.ID, key: new FishUIKeyEventData { Key = Key.ToString(), HotkeyId = matchedHotkey?.ID, Consumed = true });
+			}
 
 			if (!hotkeyHandled)
 			{
+				bool previewHandled = Key != FishKey.None && InputActiveControl != null &&
+					InputActiveControl.PreviewKeyPress(this, InState, Key);
+				if (previewHandled)
+				{
+					_keyboardInputConsumedThisFrame = true;
+					suppressTextInput = true;
+				}
+
 				// Tab key navigation
-				if (Key == FishKey.Tab)
+				if (!previewHandled && Key == FishKey.Tab)
 				{
 					bool shiftHeld = Input.IsKeyDown(FishKey.LeftShift) || Input.IsKeyDown(FishKey.RightShift);
 					FocusNextControl(shiftHeld);
+					if (recordDiagnostics)
+						Diagnostics.Record(FishUIDiagnosticEventCategory.Keyboard, FishUIDiagnosticEventType.TabNavigation, InputActiveControl, shiftHeld ? "previous" : "next");
 				}
-				else if (Key != FishKey.None && InputActiveControl != null)
+				else if (!previewHandled && Key != FishKey.None && InputActiveControl != null)
 				{
-					InputActiveControl.HandleKeyPress(this, InState, Key);
-					InputActiveControl.HandleKeyDown(this, InState, (int)Key);
+					using (Diagnostics.EnterCause(keyEvent?.Sequence))
+					{
+						InputActiveControl.HandleKeyPress(this, InState, Key);
+						InputActiveControl.HandleKeyDown(this, InState, (int)Key);
+					}
 				}
 			}
 
 			foreach (Control Ctl in Controls)
 				UpdateSingleControl(Ctl, InState, InLast);
 
-			CheckTextInput(InState);
+			CheckTextInput(InState, suppressTextInput);
+			for (int i = 0; i < Controls.Length; i++)
+				Controls[i].UpdateSubtree(this, DeltaTime, Time);
 			InLast = InState;
+		}
+
+		private void RecordHitTestObservations(FishUIHitTestTrace trace)
+		{
+			FishUIHitTestCandidate accepted = trace.Candidates.FirstOrDefault(candidate => candidate.Accepted);
+			if (accepted != null && !accepted.InsideExpectedClip)
+			{
+				Diagnostics.ReportLiveWarning("HIT_TARGET_OUTSIDE_EXPECTED_CLIP",
+					"The selected control is outside its expected drawing clip.", FindControlByDiagnosticId(accepted.ControlId),
+					accepted.ControlId.ToString(CultureInfo.InvariantCulture));
+				return;
+			}
+			if (trace.ResultControlId.HasValue) return;
+			FishUIHitTestCandidate visuallyInside = trace.Candidates.FirstOrDefault(candidate =>
+				candidate.InsideBounds && candidate.InsideExpectedClip && !candidate.Accepted);
+			if (visuallyInside != null)
+				Diagnostics.ReportLiveWarning("CLICK_VISUALLY_INSIDE_BUT_HIT_TEST_REJECTED",
+					"The point is visually inside a control that hit testing rejected.", FindControlByDiagnosticId(visuallyInside.ControlId),
+					visuallyInside.ControlId.ToString(CultureInfo.InvariantCulture) + ":" + visuallyInside.RejectionReason);
 		}
 
 		void Draw(Control[] Controls, float Dt, float Time)
 		{
 			// Update animations
 			Animations.Update(Dt);
-
-			Graphics.BeginDrawing(Dt);
-			foreach (Control Ctl in Controls)
+			IFishUIGfx originalGraphics = Graphics;
+			Exception failure = null;
+			string failureStage = "captureSetup";
+			try
 			{
-				if (Ctl.Visible)
+				RecordingFishUIGfx recordingGraphics = Diagnostics.BeginDraw(originalGraphics);
+				if (recordingGraphics != null) Graphics = recordingGraphics;
+				failureStage = "beginDrawing";
+				Graphics.BeginDrawing(Dt);
+				failureStage = "draw";
+				foreach (Control Ctl in Controls)
 				{
-					Ctl.DrawControlAndChildren(this, Dt, Time);
-				}
-			}
-
-			// Draw open dropdown lists on top of all controls
-			foreach (DropDown dropdown in DropDown.OpenDropdowns.ToArray())
-			{
-				if (!dropdown.BelongsTo(this))
-					continue;
-
-				if (!dropdown.IsHierarchyVisible())
-				{
-					dropdown.Close();
-					continue;
+					if (Ctl.Visible) Ctl.DrawControlAndChildren(this, Dt, Time);
 				}
 
-				dropdown.DrawDropdownListOverlay(this);
-			}
-
-			// Draw tooltip on top of all controls
-			if (_activeTooltip != null && _activeTooltip.IsShowing)
-			{
-				if (Settings.DebugLogTooltips)
+				foreach (DropDown dropdown in DropDown.OpenDropdowns.ToArray())
 				{
-					FishUIDebug.Log($"[Tooltip] Drawing tooltip in main Draw: '{_activeTooltip.Text}' IsShowing={_activeTooltip.IsShowing}");
+					if (!dropdown.BelongsTo(this)) continue;
+					if (!dropdown.IsHierarchyVisible()) { dropdown.Close(); continue; }
+					using (Diagnostics.EnterRenderOwner("@overlay/dropdown/", dropdown.DiagnosticRuntimeId, dropdown))
+						dropdown.DrawDropdownListOverlay(this);
 				}
-				_activeTooltip.DrawControl(this, Dt, Time);
+
+				if (_activeTooltip != null && _activeTooltip.IsShowing)
+				{
+					if (Settings.DebugLogTooltips)
+						FishUIDebug.Log($"[Tooltip] Drawing tooltip in main Draw: '{_activeTooltip.Text}' IsShowing={_activeTooltip.IsShowing}");
+					using (Diagnostics.EnterRenderOwner("@overlay/tooltip", _activeTooltip))
+						_activeTooltip.DrawControl(this, Dt, Time);
+				}
+
+				using (Diagnostics.EnterRenderOwner("@overlay/virtualMouse"))
+					VirtualMouse.Draw(Graphics);
+
+				failureStage = "framebufferCapture";
+				Diagnostics.BeforeEndDrawing(Graphics);
+				failureStage = "endDrawing";
+				Graphics.EndDrawing();
 			}
-
-			// Draw virtual mouse cursor last (on top of everything, before EndDrawing)
-			VirtualMouse.Draw(Graphics);
-
-			Graphics.EndDrawing();
+			catch (Exception ex)
+			{
+				failure = ex;
+			}
+			finally
+			{
+				Graphics = originalGraphics;
+				Diagnostics.EndDraw(failure, failureStage);
+			}
+			if (failure != null) ExceptionDispatchInfo.Capture(failure).Throw();
 		}
 
 		public void FocusControl(Control Ctrl)
 		{
 			Control previousFocus = InputActiveControl;
+			if (previousFocus != null) Diagnostics.EnsureIdentity(previousFocus);
+			if (Ctrl != null) Diagnostics.EnsureIdentity(Ctrl);
 
 			if (previousFocus != null && previousFocus != Ctrl)
 				previousFocus.HandleBlur();
@@ -668,6 +1056,14 @@ namespace FishUI
 
 			if (Ctrl != null)
 				Ctrl.HandleFocus();
+
+			if (Diagnostics.IsEventRecordingEnabled)
+				Diagnostics.Record(FishUIDiagnosticEventCategory.Focus, FishUIDiagnosticEventType.FocusChanged, Ctrl,
+					null, focus: new FishUIFocusEventData
+					{
+						FromControlId = previousFocus?.DiagnosticRuntimeId, ToControlId = Ctrl?.DiagnosticRuntimeId,
+						Changed = !ReferenceEquals(previousFocus, Ctrl)
+					});
 		}
 
 		/// <summary>
@@ -675,11 +1071,16 @@ namespace FishUI
 		/// </summary>
 		public void ClearFocus()
 		{
+			Control previous = InputActiveControl;
+			if (previous != null) Diagnostics.EnsureIdentity(previous);
 			if (InputActiveControl != null)
 			{
 				InputActiveControl.HandleBlur();
 				InputActiveControl = null;
 			}
+			if (Diagnostics.IsEventRecordingEnabled)
+				Diagnostics.Record(FishUIDiagnosticEventCategory.Focus, FishUIDiagnosticEventType.FocusChanged, previous,
+					"cleared", focus: new FishUIFocusEventData { FromControlId = previous?.DiagnosticRuntimeId, ToControlId = null, Changed = previous != null });
 		}
 
 		/// <summary>
@@ -758,10 +1159,20 @@ namespace FishUI
 		/// <param name="Time">The current time, in seconds, used for time-dependent calculations and animations.</param>
 		public void TickUpdate(float Dt, float Time)
 		{
+			if (_disposed)
+				throw new ObjectDisposedException(nameof(FishUI));
+
+			_keyboardInputConsumedThisFrame = false;
 			Vector2 MousePos = Input.GetMousePosition();
 			bool MouseLeft = Input.IsMouseDown(FishMouseButton.Left);
 			bool MouseRight = Input.IsMouseDown(FishMouseButton.Right);
 			float MouseWheel = Input.GetMouseWheelMove();
+			bool collectFrameState = Diagnostics.NeedsFrameState;
+			FishUIPointerSnapshot backendPointer = collectFrameState ? new FishUIPointerSnapshot
+			{
+				Source = FishUIPointerSource.PhysicalMouse, PositionPixels = FishUIDebugPoint.From(MousePos),
+				LeftDown = MouseLeft, RightDown = MouseRight, WheelDelta = MouseWheel
+			} : null;
 
 			// Update virtual mouse if enabled
 			if (VirtualMouse.Enabled)
@@ -804,9 +1215,20 @@ namespace FishUI
 			InState.CtrlDown = Input.IsKeyDown(FishKey.LeftControl) || Input.IsKeyDown(FishKey.RightControl);
 			InState.AltDown = Input.IsKeyDown(FishKey.LeftAlt) || Input.IsKeyDown(FishKey.RightAlt);
 
+			FishUIPointerSnapshot effectivePointer = collectFrameState ? new FishUIPointerSnapshot
+			{
+				Source = VirtualMouse.Enabled ? FishUIPointerSource.VirtualMouse : FishUIPointerSource.PhysicalMouse,
+				PositionPixels = FishUIDebugPoint.From(MousePos), LeftDown = MouseLeft, RightDown = MouseRight,
+				WheelDelta = MouseWheel
+			} : null;
+			Diagnostics.BeginFrame(Dt, Time, backendPointer, effectivePointer, collectFrameState ? new FishUIModifierSnapshot
+			{
+				Control = InState.CtrlDown, Shift = InState.ShiftDown, Alt = InState.AltDown
+			} : null);
+
 			OrderedControls = GetOrderedControls();
 
-			Update(OrderedControls, InState, InLast, Time);
+			Update(OrderedControls, InState, InLast, Dt, Time);
 
 			// Update tooltip
 			UpdateTooltip(Dt, InState.MousePos);
@@ -934,6 +1356,30 @@ namespace FishUI
 		{
 			Width = newWidth;
 			Height = newHeight;
+			Control[] controls = Controls.ToArray();
+			for (int i = 0; i < controls.Length; i++) controls[i].ResizeSubtree(this, newWidth, newHeight);
+		}
+
+		/// <summary>
+		/// Cancels pending diagnostic requests. Injected backend services remain owned by the caller.
+		/// </summary>
+		public void Dispose()
+		{
+			if (_disposed)
+				return;
+			_disposed = true;
+			RemoveAllControls();
+			KeyboardCaptureLease[] leases = _keyboardCaptureLeases.ToArray();
+			_keyboardCaptureLeases.Clear();
+			for (int i = 0; i < leases.Length; i++) leases[i].Invalidate();
+			_keyboardInputConsumedThisFrame = false;
+			Hotkeys.Clear();
+			InputActiveControl = null;
+			HoveredControl = null;
+			LeftClickedControl = null;
+			RightClickedControl = null;
+			ModalControl = null;
+			Diagnostics.Dispose();
 		}
 	}
 }

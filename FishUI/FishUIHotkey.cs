@@ -45,6 +45,9 @@ namespace FishUI
 		/// </summary>
 		public bool Enabled { get; set; } = true;
 
+		/// <summary>When true, generated text for the matching update frame is discarded.</summary>
+		public bool ConsumesTextInput { get; set; } = true;
+
 		public FishUIHotkey()
 		{
 		}
@@ -156,6 +159,12 @@ namespace FishUI
 		/// </summary>
 		internal bool ProcessKeyPress(FishKey keyPressed, IFishUIInput input)
 		{
+			return ProcessKeyPress(keyPressed, input, out _);
+		}
+
+		internal bool ProcessKeyPress(FishKey keyPressed, IFishUIInput input, out FishUIHotkey matchedHotkey)
+		{
+			matchedHotkey = null;
 			if (keyPressed == FishKey.None)
 				return false;
 
@@ -163,6 +172,7 @@ namespace FishUI
 			{
 				if (CheckHotkey(hotkey, keyPressed, input))
 				{
+					matchedHotkey = hotkey;
 					hotkey.Action?.Invoke(hotkey);
 					return true;
 				}

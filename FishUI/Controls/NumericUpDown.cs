@@ -104,7 +104,7 @@ namespace FishUI.Controls
 			};
 
 			_textbox.OnTextChanged += OnTextboxTextChanged;
-			base.AddChild(_textbox);
+			AddRuntimeChild(_textbox);
 		}
 
 		private void OnTextboxTextChanged(Textbox sender, string text)

@@ -61,6 +61,18 @@ namespace FishUI.Controls
 		internal FishUI _FishUI;
 
 		[YamlIgnore]
+		internal Guid DiagnosticOwnerSessionId;
+
+		[YamlIgnore]
+		internal long DiagnosticRuntimeId;
+
+		/// <summary>
+		/// Identifies an implementation-created child for diagnostics only. This value does not control serialization.
+		/// </summary>
+		[YamlIgnore]
+		public bool IsRuntimeChild { get; internal set; }
+
+		[YamlIgnore]
 		protected FishUI FishUI
 		{
 			get
@@ -75,7 +87,8 @@ namespace FishUI.Controls
 		protected Control Parent;
 
 		/// <summary>
-		/// Child controls contained within this control.
+		/// Child controls contained within this control. Direct collection mutation is unsupported;
+		/// use AddChild and RemoveChild so ownership and lifecycle hooks remain consistent.
 		/// </summary>
 		[YamlMember]
 		public List<Control> Children = new List<Control>();
@@ -394,6 +407,7 @@ namespace FishUI.Controls
 		/// </summary>
 		public virtual void BringToFront()
 		{
+			FishUI ui = FishUI;
 			if (FishUI != null)
 			{
 				ZDepth = FishUI.GetHighestZDepth() + 1;
@@ -409,6 +423,7 @@ namespace FishUI.Controls
 				}
 				ZDepth = maxDepth + 1;
 			}
+			ui?.Diagnostics.NotifyHierarchyChanged();
 		}
 
 		/// <summary>
@@ -416,6 +431,7 @@ namespace FishUI.Controls
 		/// </summary>
 		public virtual void SendToBack()
 		{
+			FishUI ui = FishUI;
 			if (FishUI != null)
 			{
 				ZDepth = FishUI.GetLowestZDepth() - 1;
@@ -431,6 +447,7 @@ namespace FishUI.Controls
 				}
 				ZDepth = minDepth == int.MaxValue ? 0 : minDepth - 1;
 			}
+			ui?.Diagnostics.NotifyHierarchyChanged();
 		}
 
 		#endregion

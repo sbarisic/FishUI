@@ -20,7 +20,7 @@ namespace FishUI.Controls
 	/// A window/dialog control with a titlebar, body, and optional close button.
 	/// Supports dragging, modal mode, and resizing.
 	/// </summary>
-	public class Window : Control
+	public class Window : Control, IFishUIDebugSnapshotProvider
 	{
 		/// <summary>
 		/// The title displayed in the window titlebar.
@@ -172,6 +172,20 @@ namespace FishUI.Controls
 		private ResizeDirection _resizeDirection = ResizeDirection.None;
 		private bool _isResizing = false;
 
+		public void WriteDebugSnapshot(FishUIDebugSnapshotWriter writer)
+		{
+			Vector2 position = GetAbsolutePosition(); Vector2 size = GetAbsoluteSize();
+			Vector2 contentPosition = GetContentPosition(); Vector2 contentSize = GetContentSize();
+			writer.Write("windowBoundsPixels", new FishUIDebugRect(position.X, position.Y, size.X, size.Y));
+			writer.Write("contentBoundsPixels", new FishUIDebugRect(contentPosition.X, contentPosition.Y, contentSize.X, contentSize.Y));
+			writer.Write("minimumSize", FishUIDebugPoint.From(MinSize));
+			writer.Write("maximumSize", FishUIDebugPoint.From(MaxSize));
+			writer.Write("resizing", _isResizing);
+			writer.Write("resizeEdge", _resizeDirection.ToString());
+			writer.Write("modal", IsModal);
+			writer.Write("active", IsActive);
+		}
+
 		[Flags]
 		private enum ResizeDirection
 		{
@@ -222,7 +236,7 @@ namespace FishUI.Controls
 				Position += delta;
 			};
 
-			base.AddChild(_titlebar);
+			AddRuntimeChild(_titlebar);
 
 			// Create content panel for child controls
 			// Use ResizeHandleSize for margins so resize handles are outside client area
@@ -235,7 +249,7 @@ namespace FishUI.Controls
 				IsTransparent = true
 			};
 
-			base.AddChild(_contentPanel);
+			AddRuntimeChild(_contentPanel);
 		}
 
 

@@ -137,6 +137,7 @@ namespace FishUI.Controls
 		/// <param name="Time">Total elapsed time.</param>
 		public void DrawControlAndChildren(FishUI UI, float Dt, float Time)
 		{
+			using FishUIDebugRenderScope diagnosticScope = UI.Diagnostics.EnterRenderControl(this);
 			if (!DrawHasInit)
 			{
 				DrawHasInit = true;
