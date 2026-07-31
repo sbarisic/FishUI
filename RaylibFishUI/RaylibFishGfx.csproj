@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <!-- NuGet Package Metadata -->
+    <PackageId>RaylibFishGfx</PackageId>
+    <Version>1.0.11</Version>
+    <Authors>sbarisic</Authors>
+    <Company>sbarisic</Company>
+    <Product>RaylibFishGfx</Product>
+    <Description>Raylib graphics and input backend for FishUI. Provides a complete, production-ready implementation of IFishUIGfx and IFishUIInput using Raylib-cs.</Description>
+    <PackageTags>gui;ui;raylib;fishui;graphics;backend;gamedev</PackageTags>
+    <PackageProjectUrl>https://github.com/sbarisic/FishUI</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/sbarisic/FishUI</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>NUGET_RAYLIBFISHGFX_README.md</PackageReadmeFile>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\NUGET_RAYLIBFISHGFX_README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Raylib-cs" Version="7.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FishUI\FishUI.csproj" />
+  </ItemGroup>
+
+</Project>

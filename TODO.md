@@ -21,19 +21,7 @@ A list of planned features, improvements, and new controls for FishUI.
 
 ## New Controls
 
-### High Priority
-
-*All high priority controls have been implemented*
-
-### Medium Priority
-
-*All medium priority controls have been implemented*
-
-### Lower Priority
-
-- [ ] **Particle System** (CPX 4) - Animated particle effects for UI controls
-  - Support blending modes and rectangular image particles
-  - Integration with tween/animation system for control particle emission
+*All controls completed - see DONE.md*
 
 ---
 
@@ -85,20 +73,19 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 
 ## Documentation **LOW PRIORITY**
 
-- [ ] Backend implementation guide (beyond Raylib)
-- [ ] IFishUIForm interface documentation - Document/finalize base interface for .Designer.cs files
+*All documentation completed - see DONE.md*
 
 > **Note:** Getting started tutorial is covered in README.md Quick Start section
 > **Note:** Custom control creation guide is in docs/CUSTOM_CONTROLS.md
 > **Note:** Theme creation guide is in docs/THEMING.md
+> **Note:** Backend implementation guide is in docs/BACKEND_GUIDE.md
+> **Note:** Designer forms guide is in docs/FORMS_GUIDE.md
 
 ---
 
 ## Code Cleanup & Technical Debt
 
-### High Priority (CPX 1-2)
-
-- [ ] **FishUITween API refactor** (CPX 2) - Consider moving fluent API extension methods from static FishUITween class to base Control class
+*All cleanup items completed - see DONE.md*
 
 ---
 

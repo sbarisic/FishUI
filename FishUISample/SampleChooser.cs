@@ -5,6 +5,8 @@ using System;
 using System.Diagnostics;
 using System.Numerics;
 using FishUIDemos;
+using RaylibGfx = RaylibFishGfx.RaylibFishGfx;
+using RaylibInput = RaylibFishGfx.RaylibInput;
 
 namespace FishUISample.Samples
 {

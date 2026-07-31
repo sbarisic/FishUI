@@ -56,6 +56,13 @@ namespace FishUI
 		/// </summary>
 		public int GetWindowHeight();
 
+		/// <summary>
+		/// Sets the input focus to the current window, bringing it to the foreground if it is not already active.
+		/// </summary>
+		/// <remarks>Use this method to ensure that the window is ready to receive user input. If the window is
+		/// already focused, calling this method has no effect.</remarks>
+		public void FocusWindow();
+
 		// Loading
 
 		/// <summary>

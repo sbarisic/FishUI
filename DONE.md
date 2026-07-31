@@ -54,6 +54,7 @@ Consolidated list of completed features, improvements, and controls.
 | BigDigitDisplay | N/A | ? |
 | ToastNotification | ? Atlas | ? |
 | FilePickerDialog | ? Atlas | ? |
+| ParticleEmitter | N/A | ? |
 
 ---
 
@@ -68,6 +69,7 @@ Consolidated list of completed features, improvements, and controls.
 - BigDigitDisplay - Large text display for digital speedometer/RPM readouts
 - ToastNotification - Auto-dismissing notifications with stacking, types, and titles
 - FilePickerDialog - File browser dialog for Open/Save operations
+- ParticleEmitter - Animated particle effects with configurable emission shapes, physics, color interpolation, and preset configurations (Fire, Smoke, Sparkle, Explosion)
 
 ## Control Improvements
 - Button: Icon, Toggle, Repeat, ImageButton modes; IconPath serialization
@@ -93,10 +95,12 @@ Consolidated list of completed features, improvements, and controls.
 - RaylibGfx: UseBeginDrawing option for integration with existing game loops
 - FishCSharpWriter utility class for C# code generation
 - DesignerCodeGenerator for exporting layouts as .Designer.cs files implementing IFishUIForm
+- SimpleFishUIGfx: Simplified base class for graphics backends with default implementations (reduces required overrides from 25+ to ~10)
+- RaylibGfx2: Minimal Raylib backend example using SimpleFishUIGfx
 
 ## Samples
 - Sample infrastructure: Runner loop, GUI chooser, theme switcher, auto-discovery
-- Control demos: BasicControls, ImageBox, Gauges, DropDown, ListBox, LineChart, BigDigitDisplay, ToastNotification
+- Control demos: BasicControls, ImageBox, Gauges, DropDown, ListBox, LineChart, BigDigitDisplay, ToastNotification, Particles
 - Feature demos: LayoutSystem, UIScaling, Animations, Serialization, EventSerialization
 - Data controls: DatePicker, TimePicker, DataGrid, SpreadsheetGrid, MultiLineEditbox
 - EditorLayout sample for testing FishUIEditor output
@@ -127,10 +131,16 @@ Consolidated list of completed features, improvements, and controls.
 - ScreenCapture: GetDesktopWindow made private for consistency
 - Naming conventions, XML docs, warning fixes (CS0108, CS0219, CS0414)
 - Generic FindControlByID<T>() method
+- FishUITween API refactor: Animation methods moved to Control base class. Old extension methods marked obsolete.
+- Control.cs refactored into partial classes: Control.Animation.cs, Control.Anchoring.cs, Control.AutoSize.cs, Control.Children.cs, Control.Drawing.cs, Control.Input.cs, Control.Position.cs
+- SimpleFishUIGfx enhanced with default implementations: DrawRectangleOutline (4 lines), DrawCircle/DrawCircleOutline (polygon), DrawNPatch (9-slice from DrawImageRegion), PushScissor/PopScissor (stack-based), DrawText chain, LoadImage sub-regions, GetFontMetrics estimate
+- NuGet package configuration for FishUI and RaylibFishGfx with full metadata
 
 ## Documentation
 - README.md rewrite with examples, table of contents, updated control list
 - docs/CUSTOM_CONTROLS.md and docs/THEMING.md guides
+- docs/BACKEND_GUIDE.md - Custom graphics backend implementation guide with SimpleFishUIGfx examples
+- docs/FORMS_GUIDE.md - IFishUIForm and designer-generated forms guide
 - XML doc comments on core classes
 
 ## Fixed Bugs

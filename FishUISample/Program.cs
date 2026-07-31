@@ -5,6 +5,8 @@ using FishUISample.Samples;
 using Raylib_cs;
 using System.Diagnostics;
 using System.Numerics;
+using RaylibGfx = RaylibFishGfx.RaylibFishGfx;
+using RaylibInput = RaylibFishGfx.RaylibInput;
 
 namespace FishUISample
 {
@@ -105,7 +107,7 @@ namespace FishUISample
 				FishUISettings UISettings = new FishUISettings();
 				UISettings.UIScale = 1.0f;
 
-				RaylibGfx Gfx = new RaylibGfx(1920, 1080, "FishUI - " + Cur.Name);
+				RaylibGfx Gfx = new RaylibGfx(1280, 720, "FishUI - " + Cur.Name);
 				Gfx.UseBeginDrawing = false;
 				IFishUIInput Input = new RaylibInput();
 				IFishUIEvents Events = new EvtHandler();
