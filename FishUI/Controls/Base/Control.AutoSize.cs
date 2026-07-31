@@ -57,10 +57,14 @@ namespace FishUI.Controls
 			Vector2 preferred = GetPreferredSize(UI) + AutoSizePadding;
 
 			// Apply min/max constraints
-			if (MinSize.X > 0) preferred.X = Math.Max(preferred.X, MinSize.X);
-			if (MinSize.Y > 0) preferred.Y = Math.Max(preferred.Y, MinSize.Y);
-			if (MaxSize.X > 0) preferred.X = Math.Min(preferred.X, MaxSize.X);
-			if (MaxSize.Y > 0) preferred.Y = Math.Min(preferred.Y, MaxSize.Y);
+			if (MinSize.X > 0)
+				preferred.X = Math.Max(preferred.X, MinSize.X);
+			if (MinSize.Y > 0)
+				preferred.Y = Math.Max(preferred.Y, MinSize.Y);
+			if (MaxSize.X > 0)
+				preferred.X = Math.Min(preferred.X, MaxSize.X);
+			if (MaxSize.Y > 0)
+				preferred.Y = Math.Min(preferred.Y, MaxSize.Y);
 
 			// Apply based on mode
 			switch (AutoSize)

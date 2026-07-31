@@ -201,8 +201,8 @@ namespace FishUI.Controls
 	/// </summary>
 	public class ParticleEmitter : Control
 	{
-		private readonly List<Particle> _particles = new();
-		private readonly Random _random = new();
+		private readonly List<Particle> _particles = new List<Particle>();
+		private readonly Random _random = new Random();
 		private float _emitAccumulator;
 
 		/// <summary>
@@ -393,7 +393,8 @@ namespace FishUI.Controls
 				p.Position += p.Velocity * Dt;
 				p.Rotation += p.RotationSpeed * Dt;
 				p.Scale += p.ScaleSpeed * Dt;
-				if (p.Scale < 0) p.Scale = 0;
+				if (p.Scale < 0)
+					p.Scale = 0;
 
 				// Update lifetime
 				p.Lifetime -= Dt;

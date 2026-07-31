@@ -302,7 +302,7 @@ namespace FishUI.Controls
 		/// <summary>
 		/// Selects a node.
 		/// </summary>
-	public void SelectNode(TreeNode node)
+		public void SelectNode(TreeNode node)
 		{
 			if (SelectedNode != null)
 				SelectedNode.IsSelected = false;
@@ -418,17 +418,17 @@ namespace FishUI.Controls
 
 		public override void Init(FishUI UI)
 		{
-		base.Init(UI);
+			base.Init(UI);
 
-		// Create scrollbar with relative positioning on the right side
-		_scrollBar = new ScrollBarV();
-		_scrollBar.Size = new Vector2(16, Size.Y);
-		_scrollBar.Position = new Vector2(Size.X - 16, 0);
-		_scrollBar.OnScrollChanged += (sender, position, direction) =>
-		{
-		_scrollOffset = position * Math.Max(0, _totalContentHeight - Size.Y);
-		};
-		AddChild(_scrollBar);
+			// Create scrollbar with relative positioning on the right side
+			_scrollBar = new ScrollBarV();
+			_scrollBar.Size = new Vector2(16, Size.Y);
+			_scrollBar.Position = new Vector2(Size.X - 16, 0);
+			_scrollBar.OnScrollChanged += (sender, position, direction) =>
+			{
+				_scrollOffset = position * Math.Max(0, _totalContentHeight - Size.Y);
+			};
+			AddChild(_scrollBar);
 		}
 
 		private void UpdateVisibleNodes()
@@ -447,7 +447,8 @@ namespace FishUI.Controls
 		private void CollectVisibleNodes(TreeNode node, ref float y, int baseDepth)
 		{
 			int effectiveDepth = node.Depth - (ShowRootNodes ? 0 : 1);
-			if (effectiveDepth < 0) effectiveDepth = 0;
+			if (effectiveDepth < 0)
+				effectiveDepth = 0;
 
 			_visibleNodes.Add((node, y));
 			y += NodeHeight;
@@ -479,7 +480,8 @@ namespace FishUI.Controls
 				return false;
 
 			int effectiveDepth = node.Depth - (ShowRootNodes ? 0 : 1);
-			if (effectiveDepth < 0) effectiveDepth = 0;
+			if (effectiveDepth < 0)
+				effectiveDepth = 0;
 
 			float iconX = effectiveDepth * IndentWidth;
 			float iconEndX = iconX + IconSize;
@@ -530,11 +532,13 @@ namespace FishUI.Controls
 
 			if (_scrollBar != null)
 			{
-			float step = (NodeHeight * 3) / Math.Max(1, _totalContentHeight - Size.Y);
-			_scrollBar.ThumbPosition -= WheelDelta * step;
-			if (_scrollBar.ThumbPosition < 0) _scrollBar.ThumbPosition = 0;
-			if (_scrollBar.ThumbPosition > 1) _scrollBar.ThumbPosition = 1;
-			_scrollOffset = _scrollBar.ThumbPosition * Math.Max(0, _totalContentHeight - Size.Y);
+				float step = (NodeHeight * 3) / Math.Max(1, _totalContentHeight - Size.Y);
+				_scrollBar.ThumbPosition -= WheelDelta * step;
+				if (_scrollBar.ThumbPosition < 0)
+					_scrollBar.ThumbPosition = 0;
+				if (_scrollBar.ThumbPosition > 1)
+					_scrollBar.ThumbPosition = 1;
+				_scrollOffset = _scrollBar.ThumbPosition * Math.Max(0, _totalContentHeight - Size.Y);
 			}
 		}
 
@@ -615,31 +619,31 @@ namespace FishUI.Controls
 			_totalContentHeight = totalHeight;
 			float contentWidth = size.X - (_scrollBar?.Size.X ?? 0) - 4;
 
-		if (_scrollBar != null)
+			if (_scrollBar != null)
 			{
-			// Update scrollbar position and size to match TreeView
-			_scrollBar.Position = new Vector2(size.X - 16, 0);
-			_scrollBar.Size = new Vector2(16, size.Y);
+				// Update scrollbar position and size to match TreeView
+				_scrollBar.Position = new Vector2(size.X - 16, 0);
+				_scrollBar.Size = new Vector2(16, size.Y);
 
-			float viewRatio = size.Y / Math.Max(1, totalHeight);
-			_scrollBar.ThumbHeight = Math.Clamp(viewRatio, 0.1f, 1f);
-			_scrollBar.Visible = totalHeight > size.Y;
+				float viewRatio = size.Y / Math.Max(1, totalHeight);
+				_scrollBar.ThumbHeight = Math.Clamp(viewRatio, 0.1f, 1f);
+				_scrollBar.Visible = totalHeight > size.Y;
 
-			// Recalculate scroll position when content height changes
-			float maxScroll = Math.Max(0, totalHeight - size.Y);
-			if (maxScroll > 0)
-			{
-				// Clamp scroll offset to valid range
-				_scrollOffset = Math.Clamp(_scrollOffset, 0, maxScroll);
-				// Update thumb position to match current scroll offset
-				_scrollBar.ThumbPosition = _scrollOffset / maxScroll;
-			}
-			else
-			{
-				// Content fits in view, reset scroll
-				_scrollOffset = 0;
-				_scrollBar.ThumbPosition = 0;
-			}
+				// Recalculate scroll position when content height changes
+				float maxScroll = Math.Max(0, totalHeight - size.Y);
+				if (maxScroll > 0)
+				{
+					// Clamp scroll offset to valid range
+					_scrollOffset = Math.Clamp(_scrollOffset, 0, maxScroll);
+					// Update thumb position to match current scroll offset
+					_scrollBar.ThumbPosition = _scrollOffset / maxScroll;
+				}
+				else
+				{
+					// Content fits in view, reset scroll
+					_scrollOffset = 0;
+					_scrollBar.ThumbPosition = 0;
+				}
 			}
 
 			// Apply scissor for content area
@@ -665,7 +669,8 @@ namespace FishUI.Controls
 		private void DrawNode(FishUI UI, TreeNode node, float x, float y, float width)
 		{
 			int effectiveDepth = node.Depth - (ShowRootNodes ? 0 : 1);
-			if (effectiveDepth < 0) effectiveDepth = 0;
+			if (effectiveDepth < 0)
+				effectiveDepth = 0;
 
 			float indentX = x + effectiveDepth * IndentWidth;
 			float textX = indentX + IconSize + 4;

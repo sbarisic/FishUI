@@ -60,16 +60,16 @@ namespace FishUI
 		public override string ToString()
 		{
 			string result = "";
-			
+
 			if (Modifiers.HasFlag(FishKeyModifiers.Control))
 				result += "Ctrl+";
 			if (Modifiers.HasFlag(FishKeyModifiers.Shift))
 				result += "Shift+";
 			if (Modifiers.HasFlag(FishKeyModifiers.Alt))
 				result += "Alt+";
-			
+
 			result += Key.ToString();
-			
+
 			return result;
 		}
 	}

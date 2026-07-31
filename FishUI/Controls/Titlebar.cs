@@ -74,8 +74,8 @@ namespace FishUI.Controls
 
 		public override void HandleMouseMove(FishUI UI, FishInputState InState, Vector2 Pos)
 		{
-		base.HandleMouseMove(UI, InState, Pos);
-		_closeButtonHovered = CloseButtonEnabled && IsPointInCloseButton(Pos);
+			base.HandleMouseMove(UI, InState, Pos);
+			_closeButtonHovered = CloseButtonEnabled && IsPointInCloseButton(Pos);
 		}
 
 		public override void HandleMouseLeave(FishUI UI, FishInputState InState)
@@ -87,11 +87,11 @@ namespace FishUI.Controls
 
 		public override void HandleMousePress(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
 		{
-		base.HandleMousePress(UI, InState, Btn, Pos);
-		if (Btn == FishMouseButton.Left && CloseButtonEnabled && IsPointInCloseButton(Pos))
-		{
-		_closeButtonPressed = true;
-		}
+			base.HandleMousePress(UI, InState, Btn, Pos);
+			if (Btn == FishMouseButton.Left && CloseButtonEnabled && IsPointInCloseButton(Pos))
+			{
+				_closeButtonPressed = true;
+			}
 		}
 
 		public override void HandleMouseRelease(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
@@ -102,12 +102,12 @@ namespace FishUI.Controls
 
 		public override void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
 		{
-		base.HandleMouseClick(UI, InState, Btn, Pos);
+			base.HandleMouseClick(UI, InState, Btn, Pos);
 
-		if (Btn == FishMouseButton.Left && CloseButtonEnabled && IsPointInCloseButton(Pos))
-		{
-		OnCloseClicked?.Invoke(this);
-		}
+			if (Btn == FishMouseButton.Left && CloseButtonEnabled && IsPointInCloseButton(Pos))
+			{
+				OnCloseClicked?.Invoke(this);
+			}
 		}
 
 		public override void HandleDrag(FishUI UI, Vector2 StartPos, Vector2 EndPos, FishInputState InState)
@@ -132,8 +132,8 @@ namespace FishUI.Controls
 			Vector2 absSize = GetAbsoluteSize();
 
 			// Draw titlebar background
-			NPatch titlebarImg = IsActive 
-				? UI.Settings.ImgWindowHeadNormal 
+			NPatch titlebarImg = IsActive
+				? UI.Settings.ImgWindowHeadNormal
 				: UI.Settings.ImgWindowHeadInactive;
 
 			if (titlebarImg != null)
@@ -158,28 +158,28 @@ namespace FishUI.Controls
 			// Draw close button
 			if (ShowCloseButton)
 			{
-			Vector2 closePos = GetCloseButtonPosition();
-			NPatch closeImg;
+				Vector2 closePos = GetCloseButtonPosition();
+				NPatch closeImg;
 
-			if (!CloseButtonEnabled)
-			closeImg = UI.Settings.ImgWindowCloseDisabled;
-			else if (_closeButtonPressed)
-			closeImg = UI.Settings.ImgWindowClosePressed;
-			else if (_closeButtonHovered)
-			closeImg = UI.Settings.ImgWindowCloseHover;
-			else
-			closeImg = UI.Settings.ImgWindowCloseNormal;
+				if (!CloseButtonEnabled)
+					closeImg = UI.Settings.ImgWindowCloseDisabled;
+				else if (_closeButtonPressed)
+					closeImg = UI.Settings.ImgWindowClosePressed;
+				else if (_closeButtonHovered)
+					closeImg = UI.Settings.ImgWindowCloseHover;
+				else
+					closeImg = UI.Settings.ImgWindowCloseNormal;
 
-			if (closeImg != null)
-			{
-			UI.Graphics.DrawNPatch(closeImg, closePos, new Vector2(CloseButtonSize, CloseButtonSize), Color);
-			}
-			else
-			{
-			// Fallback: draw a simple X
-			FishColor xColor = !CloseButtonEnabled ? new FishColor(100, 100, 100) : (_closeButtonHovered ? new FishColor(255, 100, 100) : new FishColor(200, 200, 200));
-			UI.Graphics.DrawRectangle(closePos, new Vector2(CloseButtonSize, CloseButtonSize), xColor);
-			}
+				if (closeImg != null)
+				{
+					UI.Graphics.DrawNPatch(closeImg, closePos, new Vector2(CloseButtonSize, CloseButtonSize), Color);
+				}
+				else
+				{
+					// Fallback: draw a simple X
+					FishColor xColor = !CloseButtonEnabled ? new FishColor(100, 100, 100) : (_closeButtonHovered ? new FishColor(255, 100, 100) : new FishColor(200, 200, 200));
+					UI.Graphics.DrawRectangle(closePos, new Vector2(CloseButtonSize, CloseButtonSize), xColor);
+				}
 			}
 		}
 	}

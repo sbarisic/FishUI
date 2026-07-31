@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
@@ -87,7 +87,7 @@ namespace FishUI.Controls
 			if (Disabled)
 				Cur = UI.Settings.ImgPanelDisabled;
 
-		UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), EffectiveColor);
+			UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), EffectiveColor);
 
 			DrawBorder(UI);
 

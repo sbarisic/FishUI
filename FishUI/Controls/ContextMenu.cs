@@ -473,7 +473,8 @@ namespace FishUI.Controls
 		private void NavigateUp()
 		{
 			int count = ItemCount;
-			if (count == 0) return;
+			if (count == 0)
+				return;
 
 			int startIndex = HoveredIndex;
 			int newIndex = startIndex <= 0 ? count - 1 : startIndex - 1;
@@ -497,7 +498,8 @@ namespace FishUI.Controls
 		private void NavigateDown()
 		{
 			int count = ItemCount;
-			if (count == 0) return;
+			if (count == 0)
+				return;
 
 			int startIndex = HoveredIndex;
 			int newIndex = startIndex < 0 || startIndex >= count - 1 ? 0 : startIndex + 1;

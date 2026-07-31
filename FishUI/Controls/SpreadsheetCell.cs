@@ -93,7 +93,8 @@ namespace FishUI.Controls
 		/// </summary>
 		public void BeginEdit()
 		{
-			if (_isEditing) return;
+			if (_isEditing)
+				return;
 			_isEditing = true;
 			_editValue = _value;
 			_cursorPos = _editValue.Length;
@@ -104,7 +105,8 @@ namespace FishUI.Controls
 		/// </summary>
 		public void CommitEdit()
 		{
-			if (!_isEditing) return;
+			if (!_isEditing)
+				return;
 			_isEditing = false;
 			Value = _editValue;
 			OnEditComplete?.Invoke(this, true);
@@ -115,7 +117,8 @@ namespace FishUI.Controls
 		/// </summary>
 		public void CancelEdit()
 		{
-			if (!_isEditing) return;
+			if (!_isEditing)
+				return;
 			_isEditing = false;
 			_editValue = _value;
 			OnEditComplete?.Invoke(this, false);
@@ -187,7 +190,8 @@ namespace FishUI.Controls
 
 		public override void HandleTextInput(FishUI UI, FishInputState InState, char Character)
 		{
-			if (!_isEditing) return;
+			if (!_isEditing)
+				return;
 
 			if (!char.IsControl(Character))
 			{
@@ -198,7 +202,8 @@ namespace FishUI.Controls
 
 		public override void HandleKeyPress(FishUI UI, FishInputState InState, FishKey Key)
 		{
-			if (!_isEditing) return;
+			if (!_isEditing)
+				return;
 
 			switch (Key)
 			{
@@ -222,10 +227,12 @@ namespace FishUI.Controls
 					}
 					break;
 				case FishKey.Left:
-					if (_cursorPos > 0) _cursorPos--;
+					if (_cursorPos > 0)
+						_cursorPos--;
 					break;
 				case FishKey.Right:
-					if (_cursorPos < _editValue.Length) _cursorPos++;
+					if (_cursorPos < _editValue.Length)
+						_cursorPos++;
 					break;
 				case FishKey.Home:
 					_cursorPos = 0;

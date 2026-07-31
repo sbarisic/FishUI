@@ -129,9 +129,9 @@ namespace FishUI.Controls
 
 		private FishColor GetLabelColor(FishUI UI)
 		{
-		if (UseThemeColors && UI.Settings.CurrentTheme != null)
-		return UI.Settings.GetColorPalette().Foreground;
-		return LabelColor;
+			if (UseThemeColors && UI.Settings.CurrentTheme != null)
+				return UI.Settings.GetColorPalette().Foreground;
+			return LabelColor;
 		}
 
 		public override void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)

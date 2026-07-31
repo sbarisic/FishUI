@@ -73,7 +73,7 @@ namespace FishUI.Controls
 		public void UpdateTooltip(FishUI UI, float dt, Vector2 mousePos, Control hoveredControl)
 		{
 			// Check if we're hovering over the target control
-			bool isHoveringTarget = TargetControl != null && 
+			bool isHoveringTarget = TargetControl != null &&
 				(hoveredControl == TargetControl || IsDescendantOf(hoveredControl, TargetControl));
 
 			if (isHoveringTarget)
@@ -127,7 +127,7 @@ namespace FishUI.Controls
 		/// <summary>
 		/// Show the tooltip at the specified position.
 		/// </summary>
-	public void Show(Vector2 mousePos)
+		public void Show(Vector2 mousePos)
 		{
 			if (FishUI != null && FishUI.Settings.DebugLogTooltips)
 			{
@@ -143,7 +143,7 @@ namespace FishUI.Controls
 		/// <summary>
 		/// Hide the tooltip.
 		/// </summary>
-	public void Hide()
+		public void Hide()
 		{
 			if (FishUI != null && FishUI.Settings.DebugLogTooltips)
 			{
@@ -159,7 +159,7 @@ namespace FishUI.Controls
 		/// </summary>
 		public void UpdatePosition(FishUI UI, Vector2 mousePos)
 		{
-		Vector2 targetPos = mousePos + CursorOffset;
+			Vector2 targetPos = mousePos + CursorOffset;
 
 			// Clamp to screen bounds
 			Vector2 size = GetAbsoluteSize();
@@ -178,13 +178,13 @@ namespace FishUI.Controls
 			Position = targetPos;
 		}
 
-	public override void DrawControl(FishUI UI, float Dt, float Time)
+		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
 			if (UI.Settings.DebugLogTooltips)
 			{
 				FishUIDebug.Log($"[Tooltip.DrawControl] IsShowing={IsShowing}, Text='{Text}'");
 			}
-			
+
 			if (!IsShowing || string.IsNullOrEmpty(Text))
 			{
 				if (UI.Settings.DebugLogTooltips)
@@ -209,8 +209,8 @@ namespace FishUI.Controls
 			}
 			else
 			{
-			// Fallback: draw a simple rectangle
-			UI.Graphics.DrawRectangle(absPos, absSize, new FishColor(40, 40, 40, 230));
+				// Fallback: draw a simple rectangle
+				UI.Graphics.DrawRectangle(absPos, absSize, new FishColor(40, 40, 40, 230));
 			}
 
 			// Draw text

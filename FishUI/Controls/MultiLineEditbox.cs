@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
@@ -619,7 +619,8 @@ namespace FishUI.Controls
 
 		private void UpdateScrollBar()
 		{
-			if (_scrollBar == null) return;
+			if (_scrollBar == null)
+				return;
 
 			float contentHeight = _visualLines.Count * _lineHeight;
 			float viewHeight = GetTextAreaHeight();
@@ -655,7 +656,8 @@ namespace FishUI.Controls
 		/// </summary>
 		public int GetVisibleLineCount()
 		{
-			if (_lineHeight <= 0) return 1;
+			if (_lineHeight <= 0)
+				return 1;
 			float textAreaHeight = ScaledSize.Y - Scale(TextPadding) * 2;
 			return Math.Max(1, (int)(textAreaHeight / _lineHeight));
 		}
@@ -861,7 +863,8 @@ namespace FishUI.Controls
 		private void EnsureCursorVisible()
 		{
 			EnsureVisualLayout();
-			if (_lineHeight <= 0) return;
+			if (_lineHeight <= 0)
+				return;
 
 			float cursorY = GetVisualLineIndex(CursorRow, CursorColumn) * _lineHeight;
 			float viewHeight = GetTextAreaHeight();

@@ -289,7 +289,8 @@ namespace FishUI.Controls
 					{
 						bool lit = Value >= segmentEnd;
 						FishColor color = GetColorAtPosition(segmentPos);
-						if (!lit) color = new FishColor((byte)(color.R / 3), (byte)(color.G / 3), (byte)(color.B / 3), color.A);
+						if (!lit)
+							color = new FishColor((byte)(color.R / 3), (byte)(color.G / 3), (byte)(color.B / 3), color.A);
 
 						float x = pos.X + i * (segmentWidth + SegmentGap);
 						UI.Graphics.DrawRectangle(

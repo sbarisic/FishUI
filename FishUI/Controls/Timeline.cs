@@ -264,10 +264,12 @@ namespace FishUI.Controls
 
 		private void DrawTicks(FishUI UI)
 		{
-			if (MajorTickCount <= 0) return;
+			if (MajorTickCount <= 0)
+				return;
 
 			float timeRange = MaxTime - MinTime;
-			if (timeRange <= 0) return;
+			if (timeRange <= 0)
+				return;
 
 			for (int i = 0; i <= MajorTickCount; i++)
 			{
@@ -284,7 +286,8 @@ namespace FishUI.Controls
 		private void DrawViewWindow(FishUI UI)
 		{
 			float timeRange = MaxTime - MinTime;
-			if (timeRange <= 0) return;
+			if (timeRange <= 0)
+				return;
 
 			// Calculate window position in pixels
 			float startNorm = (_viewStart - MinTime) / timeRange;
@@ -314,7 +317,8 @@ namespace FishUI.Controls
 		private void DrawLabels(FishUI UI, Vector2 pos, Vector2 size, float labelHeight)
 		{
 			var font = UI.Settings.FontDefault;
-			if (font == null) return;
+			if (font == null)
+				return;
 
 			float labelY = pos.Y + size.Y - labelHeight + Scale(2);
 
@@ -329,8 +333,10 @@ namespace FishUI.Controls
 
 				// Center label, but clamp to edges
 				float labelX = x - textSize.X / 2;
-				if (i == 0) labelX = Math.Max(pos.X, labelX);
-				if (i == MajorTickCount) labelX = Math.Min(pos.X + size.X - textSize.X, labelX);
+				if (i == 0)
+					labelX = Math.Max(pos.X, labelX);
+				if (i == MajorTickCount)
+					labelX = Math.Min(pos.X + size.X - textSize.X, labelX);
 
 				UI.Graphics.DrawTextColor(font, label, new Vector2(labelX, labelY), LabelColor);
 			}
@@ -340,10 +346,12 @@ namespace FishUI.Controls
 		{
 			base.HandleMousePress(UI, InState, Btn, Pos);
 
-			if (Btn != FishMouseButton.Left) return;
+			if (Btn != FishMouseButton.Left)
+				return;
 
 			float timeRange = MaxTime - MinTime;
-			if (timeRange <= 0) return;
+			if (timeRange <= 0)
+				return;
 
 			// Calculate window position in pixels
 			float startNorm = (_viewStart - MinTime) / timeRange;
@@ -396,7 +404,8 @@ namespace FishUI.Controls
 		{
 			base.HandleMouseMove(UI, InState, Pos);
 
-			if (_dragMode == DragMode.None) return;
+			if (_dragMode == DragMode.None)
+				return;
 
 			float deltaX = Pos.X - _dragStartMouseX;
 			float timeRange = MaxTime - MinTime;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -156,7 +156,7 @@ namespace FishUI.Controls
 		public DropDown()
 		{
 			Size = new Vector2(200, 19);
-	}
+		}
 
 		public void AddItem(DropDownItem Itm)
 		{
@@ -268,6 +268,24 @@ namespace FishUI.Controls
 			AlwaysOnTop = false;
 			// Remove from overlay tracking
 			OpenDropdowns.Remove(this);
+		}
+
+		internal bool BelongsTo(FishUI ui)
+		{
+			return FishUI == ui;
+		}
+
+		internal bool IsHierarchyVisible()
+		{
+			Control control = this;
+			while (control != null)
+			{
+				if (!control.Visible)
+					return false;
+				control = control.GetParent();
+			}
+
+			return true;
 		}
 
 		/// <summary>
@@ -453,7 +471,7 @@ namespace FishUI.Controls
 				return;
 			}
 
-		// Check if clicking on the dropdown list
+			// Check if clicking on the dropdown list
 			if (IsOpen && IsPointInsideDropdownList(Pos, itemHeight))
 			{
 				// Check if clicking in search box area - don't close/select
@@ -578,7 +596,7 @@ namespace FishUI.Controls
 			if (base.IsPointInside(GlobalPt))
 				return true;
 
-		// Also check if point is inside the open dropdown list
+			// Also check if point is inside the open dropdown list
 			if (IsOpen)
 			{
 				float itemHeight = CustomItemHeight > 0 ? CustomItemHeight : (ListItemHeight > 0 ? ListItemHeight : 18);
@@ -602,7 +620,7 @@ namespace FishUI.Controls
 			{
 				DDButton.Size = new Vector2(Size.X, ButtonHeight);
 
-			// Draw selected item text on the button
+				// Draw selected item text on the button
 				string selectedText = "";
 				if (MultiSelect)
 				{
@@ -671,7 +689,7 @@ namespace FishUI.Controls
 			// Draw items
 			UI.Graphics.PushScissor(listPos + new Vector2(2, 2 + yOffset), listSize - new Vector2(4, 4 + yOffset));
 
-		for (int i = 0; i < visibleCount; i++)
+			for (int i = 0; i < visibleCount; i++)
 			{
 				int actualIndex = displayIndices[i];
 				bool isSelected = MultiSelect ? SelectedIndices.Contains(actualIndex) : (actualIndex == SelectedIndex);
@@ -701,7 +719,7 @@ namespace FishUI.Controls
 					float checkY = itemPos.Y + (itemHeight - checkSize) / 2;
 					Vector2 checkPos = new Vector2(itemPos.X + 2, checkY);
 
-				// Draw checkbox background
+					// Draw checkbox background
 					NPatch checkBg = isSelected ? UI.Settings.ImgCheckboxChecked : UI.Settings.ImgCheckboxUnchecked;
 					if (checkBg != null)
 						UI.Graphics.DrawNPatch(checkBg, checkPos, new Vector2(checkSize, checkSize), Color);

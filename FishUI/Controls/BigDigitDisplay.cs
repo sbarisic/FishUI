@@ -165,7 +165,8 @@ namespace FishUI.Controls
 
 			// Calculate font size based on control height
 			float fontSize = innerHeight * FontScale;
-			if (fontSize < 8) fontSize = 8;
+			if (fontSize < 8)
+				fontSize = 8;
 
 			// Get text to display
 			string displayText = Text ?? "";

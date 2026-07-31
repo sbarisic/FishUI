@@ -176,7 +176,8 @@ namespace FishUI.Controls
 				// Convert to 12-hour format
 				_isPM = totalHours >= 12;
 				_hour = totalHours % 12;
-				if (_hour == 0) _hour = 12;
+				if (_hour == 0)
+					_hour = 12;
 			}
 		}
 
@@ -191,7 +192,8 @@ namespace FishUI.Controls
 			{
 				// Convert from 12-hour format
 				totalHours = _hour % 12;
-				if (_isPM) totalHours += 12;
+				if (_isPM)
+					totalHours += 12;
 			}
 
 			TimeSpan newValue = new TimeSpan(totalHours, _minute, _second);
@@ -490,8 +492,10 @@ namespace FishUI.Controls
 					else
 					{
 						_hour = _hour + delta;
-						if (_hour > 12) _hour = 1;
-						if (_hour < 1) _hour = 12;
+						if (_hour > 12)
+							_hour = 1;
+						if (_hour < 1)
+							_hour = 12;
 					}
 					break;
 				case 1: // Minute

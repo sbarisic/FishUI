@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -486,253 +486,357 @@ namespace FishUI
 		{
 			// Button
 			var np = themeLoader.CreateNPatch(theme, "Button", "Normal");
-			if (np != null) ImgButtonNormal = np;
+			if (np != null)
+				ImgButtonNormal = np;
 			np = themeLoader.CreateNPatch(theme, "Button", "Hover");
-			if (np != null) ImgButtonHover = np;
+			if (np != null)
+				ImgButtonHover = np;
 			np = themeLoader.CreateNPatch(theme, "Button", "Pressed");
-			if (np != null) ImgButtonPressed = np;
+			if (np != null)
+				ImgButtonPressed = np;
 			np = themeLoader.CreateNPatch(theme, "Button", "Disabled");
-			if (np != null) ImgButtonDisabled = np;
+			if (np != null)
+				ImgButtonDisabled = np;
 
 			// Panel
 			np = themeLoader.CreateNPatch(theme, "Panel", "Normal");
-			if (np != null) ImgPanel = np;
+			if (np != null)
+				ImgPanel = np;
 			np = themeLoader.CreateNPatch(theme, "Panel", "Disabled");
-			if (np != null) ImgPanelDisabled = np;
+			if (np != null)
+				ImgPanelDisabled = np;
 			np = themeLoader.CreateNPatch(theme, "Panel", "Bright");
-			if (np != null) ImgPanelBright = np;
+			if (np != null)
+				ImgPanelBright = np;
 			np = themeLoader.CreateNPatch(theme, "Panel", "Dark");
-			if (np != null) ImgPanelDark = np;
+			if (np != null)
+				ImgPanelDark = np;
 			np = themeLoader.CreateNPatch(theme, "Panel", "Highlight");
-			if (np != null) ImgPanelHighlight = np;
+			if (np != null)
+				ImgPanelHighlight = np;
 
 			// Checkbox
 			np = themeLoader.CreateNPatch(theme, "Checkbox", "Checked");
-			if (np != null) ImgCheckboxChecked = np;
+			if (np != null)
+				ImgCheckboxChecked = np;
 			np = themeLoader.CreateNPatch(theme, "Checkbox", "Unchecked");
-			if (np != null) ImgCheckboxUnchecked = np;
+			if (np != null)
+				ImgCheckboxUnchecked = np;
 			np = themeLoader.CreateNPatch(theme, "Checkbox", "CheckedHover");
-			if (np != null) ImgCheckboxCheckedHover = np;
+			if (np != null)
+				ImgCheckboxCheckedHover = np;
 			np = themeLoader.CreateNPatch(theme, "Checkbox", "UncheckedHover");
-			if (np != null) ImgCheckboxUncheckedHover = np;
+			if (np != null)
+				ImgCheckboxUncheckedHover = np;
 			np = themeLoader.CreateNPatch(theme, "Checkbox", "DisabledChecked");
-			if (np != null) ImgCheckboxDisabledChecked = np;
+			if (np != null)
+				ImgCheckboxDisabledChecked = np;
 			np = themeLoader.CreateNPatch(theme, "Checkbox", "DisabledUnchecked");
-			if (np != null) ImgCheckboxDisabledUnchecked = np;
+			if (np != null)
+				ImgCheckboxDisabledUnchecked = np;
 
 			// RadioButton
 			np = themeLoader.CreateNPatch(theme, "RadioButton", "Checked");
-			if (np != null) ImgRadioButtonChecked = np;
+			if (np != null)
+				ImgRadioButtonChecked = np;
 			np = themeLoader.CreateNPatch(theme, "RadioButton", "Unchecked");
-			if (np != null) ImgRadioButtonUnchecked = np;
+			if (np != null)
+				ImgRadioButtonUnchecked = np;
 			np = themeLoader.CreateNPatch(theme, "RadioButton", "CheckedHover");
-			if (np != null) ImgRadioButtonCheckedHover = np;
+			if (np != null)
+				ImgRadioButtonCheckedHover = np;
 			np = themeLoader.CreateNPatch(theme, "RadioButton", "UncheckedHover");
-			if (np != null) ImgRadioButtonUncheckedHover = np;
+			if (np != null)
+				ImgRadioButtonUncheckedHover = np;
 			np = themeLoader.CreateNPatch(theme, "RadioButton", "DisabledChecked");
-			if (np != null) ImgRadioButtonDisabledChecked = np;
+			if (np != null)
+				ImgRadioButtonDisabledChecked = np;
 			np = themeLoader.CreateNPatch(theme, "RadioButton", "DisabledUnchecked");
-			if (np != null) ImgRadioButtonDisabledUnchecked = np;
+			if (np != null)
+				ImgRadioButtonDisabledUnchecked = np;
 
 			// Textbox
 			np = themeLoader.CreateNPatch(theme, "Textbox", "Normal");
-			if (np != null) ImgTextboxNormal = np;
+			if (np != null)
+				ImgTextboxNormal = np;
 			np = themeLoader.CreateNPatch(theme, "Textbox", "Active");
-			if (np != null) ImgTextboxActive = np;
+			if (np != null)
+				ImgTextboxActive = np;
 			np = themeLoader.CreateNPatch(theme, "Textbox", "Disabled");
-			if (np != null) ImgTextboxDisabled = np;
+			if (np != null)
+				ImgTextboxDisabled = np;
 
 			// ListBox
 			np = themeLoader.CreateNPatch(theme, "ListBox", "Normal");
-			if (np != null) ImgListBoxNormal = np;
+			if (np != null)
+				ImgListBoxNormal = np;
 			np = themeLoader.CreateNPatch(theme, "ListBox", "ItemSelected");
-			if (np != null) ImgListBoxItmSelected = np;
+			if (np != null)
+				ImgListBoxItmSelected = np;
 			np = themeLoader.CreateNPatch(theme, "ListBox", "ItemSelectedHovered");
-			if (np != null) ImgListBoxItmSelectedHovered = np;
+			if (np != null)
+				ImgListBoxItmSelectedHovered = np;
 			np = themeLoader.CreateNPatch(theme, "ListBox", "ItemHovered");
-			if (np != null) ImgListBoxItmHovered = np;
+			if (np != null)
+				ImgListBoxItmHovered = np;
 
 			// SelectionBox
 			np = themeLoader.CreateNPatch(theme, "SelectionBox", "Normal");
-			if (np != null) ImgSelectionBoxNormal = np;
+			if (np != null)
+				ImgSelectionBoxNormal = np;
 
 			// ScrollBar Vertical
 			np = themeLoader.CreateNPatch(theme, "ScrollBarV", "BarNormal");
-			if (np != null) ImgSBVBarNormal = np;
+			if (np != null)
+				ImgSBVBarNormal = np;
 			np = themeLoader.CreateNPatch(theme, "ScrollBarV", "BarHover");
-			if (np != null) ImgSBVBarHover = np;
+			if (np != null)
+				ImgSBVBarHover = np;
 			np = themeLoader.CreateNPatch(theme, "ScrollBarV", "BarPressed");
-			if (np != null) ImgSBVBarPressed = np;
+			if (np != null)
+				ImgSBVBarPressed = np;
 			np = themeLoader.CreateNPatch(theme, "ScrollBarV", "BarDisabled");
-			if (np != null) ImgSBVBarDisabled = np;
+			if (np != null)
+				ImgSBVBarDisabled = np;
 			np = themeLoader.CreateNPatch(theme, "ScrollBarV", "Background");
-			if (np != null) ImgSBVBarBackground = np;
+			if (np != null)
+				ImgSBVBarBackground = np;
 			np = themeLoader.CreateNPatch(theme, "ScrollBarV", "UpNormal");
-			if (np != null) ImgSBVBtnUpNormal = np;
+			if (np != null)
+				ImgSBVBtnUpNormal = np;
 			np = themeLoader.CreateNPatch(theme, "ScrollBarV", "UpHover");
-			if (np != null) ImgSBVBtnUpHover = np;
+			if (np != null)
+				ImgSBVBtnUpHover = np;
 			np = themeLoader.CreateNPatch(theme, "ScrollBarV", "UpPressed");
-			if (np != null) ImgSBVBtnUpPressed = np;
+			if (np != null)
+				ImgSBVBtnUpPressed = np;
 			np = themeLoader.CreateNPatch(theme, "ScrollBarV", "UpDisabled");
-			if (np != null) ImgSBVBtnUpDisabled = np;
+			if (np != null)
+				ImgSBVBtnUpDisabled = np;
 			np = themeLoader.CreateNPatch(theme, "ScrollBarV", "DownNormal");
-			if (np != null) ImgSBVBtnDownNormal = np;
+			if (np != null)
+				ImgSBVBtnDownNormal = np;
 			np = themeLoader.CreateNPatch(theme, "ScrollBarV", "DownHover");
-			if (np != null) ImgSBVBtnDownHover = np;
+			if (np != null)
+				ImgSBVBtnDownHover = np;
 			np = themeLoader.CreateNPatch(theme, "ScrollBarV", "DownPressed");
-			if (np != null) ImgSBVBtnDownPressed = np;
+			if (np != null)
+				ImgSBVBtnDownPressed = np;
 			np = themeLoader.CreateNPatch(theme, "ScrollBarV", "DownDisabled");
-			if (np != null) ImgSBVBtnDownDisabled = np;
+			if (np != null)
+				ImgSBVBtnDownDisabled = np;
 
 			// ScrollBar Horizontal
 			np = themeLoader.CreateNPatch(theme, "ScrollBarH", "BarNormal");
-			if (np != null) ImgSBHBarNormal = np;
+			if (np != null)
+				ImgSBHBarNormal = np;
 			np = themeLoader.CreateNPatch(theme, "ScrollBarH", "BarHover");
-			if (np != null) ImgSBHBarHover = np;
+			if (np != null)
+				ImgSBHBarHover = np;
 			np = themeLoader.CreateNPatch(theme, "ScrollBarH", "BarPressed");
-			if (np != null) ImgSBHBarPressed = np;
+			if (np != null)
+				ImgSBHBarPressed = np;
 			np = themeLoader.CreateNPatch(theme, "ScrollBarH", "BarDisabled");
-			if (np != null) ImgSBHBarDisabled = np;
+			if (np != null)
+				ImgSBHBarDisabled = np;
 			np = themeLoader.CreateNPatch(theme, "ScrollBarH", "Background");
-			if (np != null) ImgSBHBarBackground = np;
+			if (np != null)
+				ImgSBHBarBackground = np;
 			np = themeLoader.CreateNPatch(theme, "ScrollBarH", "LeftNormal");
-			if (np != null) ImgSBHBtnLeftNormal = np;
+			if (np != null)
+				ImgSBHBtnLeftNormal = np;
 			np = themeLoader.CreateNPatch(theme, "ScrollBarH", "LeftHover");
-			if (np != null) ImgSBHBtnLeftHover = np;
+			if (np != null)
+				ImgSBHBtnLeftHover = np;
 			np = themeLoader.CreateNPatch(theme, "ScrollBarH", "LeftPressed");
-			if (np != null) ImgSBHBtnLeftPressed = np;
+			if (np != null)
+				ImgSBHBtnLeftPressed = np;
 			np = themeLoader.CreateNPatch(theme, "ScrollBarH", "LeftDisabled");
-			if (np != null) ImgSBHBtnLeftDisabled = np;
+			if (np != null)
+				ImgSBHBtnLeftDisabled = np;
 			np = themeLoader.CreateNPatch(theme, "ScrollBarH", "RightNormal");
-			if (np != null) ImgSBHBtnRightNormal = np;
+			if (np != null)
+				ImgSBHBtnRightNormal = np;
 			np = themeLoader.CreateNPatch(theme, "ScrollBarH", "RightHover");
-			if (np != null) ImgSBHBtnRightHover = np;
+			if (np != null)
+				ImgSBHBtnRightHover = np;
 			np = themeLoader.CreateNPatch(theme, "ScrollBarH", "RightPressed");
-			if (np != null) ImgSBHBtnRightPressed = np;
+			if (np != null)
+				ImgSBHBtnRightPressed = np;
 			np = themeLoader.CreateNPatch(theme, "ScrollBarH", "RightDisabled");
-			if (np != null) ImgSBHBtnRightDisabled = np;
+			if (np != null)
+				ImgSBHBtnRightDisabled = np;
 
 			// Dropdown
 			np = themeLoader.CreateNPatch(theme, "Dropdown", "Normal");
-			if (np != null) ImgDropdownNormal = np;
+			if (np != null)
+				ImgDropdownNormal = np;
 			np = themeLoader.CreateNPatch(theme, "Dropdown", "Hover");
-			if (np != null) ImgDropdownHover = np;
+			if (np != null)
+				ImgDropdownHover = np;
 			np = themeLoader.CreateNPatch(theme, "Dropdown", "Pressed");
-			if (np != null) ImgDropdownPressed = np;
+			if (np != null)
+				ImgDropdownPressed = np;
 			np = themeLoader.CreateNPatch(theme, "Dropdown", "Disabled");
-			if (np != null) ImgDropdownDisabled = np;
+			if (np != null)
+				ImgDropdownDisabled = np;
 			np = themeLoader.CreateNPatch(theme, "Dropdown", "ArrowBlack");
-			if (np != null) ImgDropdownArrowBlack = np;
+			if (np != null)
+				ImgDropdownArrowBlack = np;
 			np = themeLoader.CreateNPatch(theme, "Dropdown", "ArrowWhite");
-			if (np != null) ImgDropdownArrowWhite = np;
+			if (np != null)
+				ImgDropdownArrowWhite = np;
 
 			// ProgressBar
 			np = themeLoader.CreateNPatch(theme, "ProgressBar", "Track");
-			if (np != null) ImgProgressBarTrack = np;
+			if (np != null)
+				ImgProgressBarTrack = np;
 			np = themeLoader.CreateNPatch(theme, "ProgressBar", "Fill");
-			if (np != null) ImgProgressBarFill = np;
+			if (np != null)
+				ImgProgressBarFill = np;
 
 			// Slider
 			np = themeLoader.CreateNPatch(theme, "Slider", "Track");
-			if (np != null) ImgSliderTrack = np;
+			if (np != null)
+				ImgSliderTrack = np;
 			np = themeLoader.CreateNPatch(theme, "Slider", "Fill");
-			if (np != null) ImgSliderFill = np;
+			if (np != null)
+				ImgSliderFill = np;
 			np = themeLoader.CreateNPatch(theme, "Slider", "Thumb");
-			if (np != null) ImgSliderThumb = np;
+			if (np != null)
+				ImgSliderThumb = np;
 			np = themeLoader.CreateNPatch(theme, "Slider", "ThumbHover");
-			if (np != null) ImgSliderThumbHover = np;
+			if (np != null)
+				ImgSliderThumbHover = np;
 			np = themeLoader.CreateNPatch(theme, "Slider", "ThumbPressed");
-			if (np != null) ImgSliderThumbPressed = np;
+			if (np != null)
+				ImgSliderThumbPressed = np;
 
 			// ToggleSwitch
 			np = themeLoader.CreateNPatch(theme, "ToggleSwitch", "TrackOn");
-			if (np != null) ImgToggleSwitchTrackOn = np;
+			if (np != null)
+				ImgToggleSwitchTrackOn = np;
 			np = themeLoader.CreateNPatch(theme, "ToggleSwitch", "TrackOff");
-			if (np != null) ImgToggleSwitchTrackOff = np;
+			if (np != null)
+				ImgToggleSwitchTrackOff = np;
 			np = themeLoader.CreateNPatch(theme, "ToggleSwitch", "Thumb");
-			if (np != null) ImgToggleSwitchThumb = np;
+			if (np != null)
+				ImgToggleSwitchThumb = np;
 
 			// Window / Dialog
 			np = themeLoader.CreateNPatch(theme, "Window", "HeadNormal");
-			if (np != null) ImgWindowHeadNormal = np;
+			if (np != null)
+				ImgWindowHeadNormal = np;
 			np = themeLoader.CreateNPatch(theme, "Window", "HeadInactive");
-			if (np != null) ImgWindowHeadInactive = np;
+			if (np != null)
+				ImgWindowHeadInactive = np;
 			np = themeLoader.CreateNPatch(theme, "Window", "MiddleNormal");
-			if (np != null) ImgWindowMiddleNormal = np;
+			if (np != null)
+				ImgWindowMiddleNormal = np;
 			np = themeLoader.CreateNPatch(theme, "Window", "MiddleInactive");
-			if (np != null) ImgWindowMiddleInactive = np;
+			if (np != null)
+				ImgWindowMiddleInactive = np;
 			np = themeLoader.CreateNPatch(theme, "Window", "BottomNormal");
-			if (np != null) ImgWindowBottomNormal = np;
+			if (np != null)
+				ImgWindowBottomNormal = np;
 			np = themeLoader.CreateNPatch(theme, "Window", "BottomInactive");
-			if (np != null) ImgWindowBottomInactive = np;
+			if (np != null)
+				ImgWindowBottomInactive = np;
 			np = themeLoader.CreateNPatch(theme, "Window", "CloseNormal");
-			if (np != null) ImgWindowCloseNormal = np;
+			if (np != null)
+				ImgWindowCloseNormal = np;
 			np = themeLoader.CreateNPatch(theme, "Window", "CloseHover");
-			if (np != null) ImgWindowCloseHover = np;
+			if (np != null)
+				ImgWindowCloseHover = np;
 			np = themeLoader.CreateNPatch(theme, "Window", "ClosePressed");
-			if (np != null) ImgWindowClosePressed = np;
+			if (np != null)
+				ImgWindowClosePressed = np;
 			np = themeLoader.CreateNPatch(theme, "Window", "CloseDisabled");
-			if (np != null) ImgWindowCloseDisabled = np;
+			if (np != null)
+				ImgWindowCloseDisabled = np;
 
 			// Tab Control
 			np = themeLoader.CreateNPatch(theme, "Tab", "HeaderBar");
-			if (np != null) ImgTabHeaderBar = np;
+			if (np != null)
+				ImgTabHeaderBar = np;
 			np = themeLoader.CreateNPatch(theme, "Tab", "ControlBackground");
-			if (np != null) ImgTabControlBackground = np;
+			if (np != null)
+				ImgTabControlBackground = np;
 			np = themeLoader.CreateNPatch(theme, "Tab", "TopActive");
-			if (np != null) ImgTabTopActive = np;
+			if (np != null)
+				ImgTabTopActive = np;
 			np = themeLoader.CreateNPatch(theme, "Tab", "TopInactive");
-			if (np != null) ImgTabTopInactive = np;
+			if (np != null)
+				ImgTabTopInactive = np;
 
 			// GroupBox
 			np = themeLoader.CreateNPatch(theme, "GroupBox", "Normal");
-			if (np != null) ImgGroupBoxNormal = np;
+			if (np != null)
+				ImgGroupBoxNormal = np;
 
 			// Tooltip
 			np = themeLoader.CreateNPatch(theme, "Tooltip", "Normal");
-			if (np != null) ImgTooltipNormal = np;
+			if (np != null)
+				ImgTooltipNormal = np;
 
 			// Shadow
 			np = themeLoader.CreateNPatch(theme, "Shadow", "Normal");
-			if (np != null) ImgShadow = np;
+			if (np != null)
+				ImgShadow = np;
 
 			// Menu
 			np = themeLoader.CreateNPatch(theme, "Menu", "Strip");
-			if (np != null) ImgMenuStrip = np;
+			if (np != null)
+				ImgMenuStrip = np;
 			np = themeLoader.CreateNPatch(theme, "Menu", "Background");
-			if (np != null) ImgMenuBackground = np;
+			if (np != null)
+				ImgMenuBackground = np;
 			np = themeLoader.CreateNPatch(theme, "Menu", "Hover");
-			if (np != null) ImgMenuHover = np;
+			if (np != null)
+				ImgMenuHover = np;
 			np = themeLoader.CreateNPatch(theme, "Menu", "RightArrow");
-			if (np != null) ImgMenuRightArrow = np;
+			if (np != null)
+				ImgMenuRightArrow = np;
 			np = themeLoader.CreateNPatch(theme, "Menu", "LeftArrow");
-			if (np != null) ImgMenuLeftArrow = np;
+			if (np != null)
+				ImgMenuLeftArrow = np;
 
 			// Tree
 			np = themeLoader.CreateNPatch(theme, "Tree", "Background");
-			if (np != null) ImgTreeBackground = np;
+			if (np != null)
+				ImgTreeBackground = np;
 			np = themeLoader.CreateNPatch(theme, "Tree", "Plus");
-			if (np != null) ImgTreePlus = np;
+			if (np != null)
+				ImgTreePlus = np;
 			np = themeLoader.CreateNPatch(theme, "Tree", "Minus");
-			if (np != null) ImgTreeMinus = np;
+			if (np != null)
+				ImgTreeMinus = np;
 
 			// NumericUpDown
 			np = themeLoader.CreateNPatch(theme, "NumericUpDown", "UpNormal");
-			if (np != null) ImgNumericUpDownUpNormal = np;
+			if (np != null)
+				ImgNumericUpDownUpNormal = np;
 			np = themeLoader.CreateNPatch(theme, "NumericUpDown", "UpHover");
-			if (np != null) ImgNumericUpDownUpHover = np;
+			if (np != null)
+				ImgNumericUpDownUpHover = np;
 			np = themeLoader.CreateNPatch(theme, "NumericUpDown", "UpPressed");
-			if (np != null) ImgNumericUpDownUpPressed = np;
+			if (np != null)
+				ImgNumericUpDownUpPressed = np;
 			np = themeLoader.CreateNPatch(theme, "NumericUpDown", "UpDisabled");
-			if (np != null) ImgNumericUpDownUpDisabled = np;
+			if (np != null)
+				ImgNumericUpDownUpDisabled = np;
 			np = themeLoader.CreateNPatch(theme, "NumericUpDown", "DownNormal");
-			if (np != null) ImgNumericUpDownDownNormal = np;
+			if (np != null)
+				ImgNumericUpDownDownNormal = np;
 			np = themeLoader.CreateNPatch(theme, "NumericUpDown", "DownHover");
-			if (np != null) ImgNumericUpDownDownHover = np;
+			if (np != null)
+				ImgNumericUpDownDownHover = np;
 			np = themeLoader.CreateNPatch(theme, "NumericUpDown", "DownPressed");
-			if (np != null) ImgNumericUpDownDownPressed = np;
+			if (np != null)
+				ImgNumericUpDownDownPressed = np;
 			np = themeLoader.CreateNPatch(theme, "NumericUpDown", "DownDisabled");
-			if (np != null) ImgNumericUpDownDownDisabled = np;
+			if (np != null)
+				ImgNumericUpDownDownDisabled = np;
 		}
 
 		/// <summary>

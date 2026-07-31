@@ -137,13 +137,17 @@ namespace FishUI
 				Vector2 moveDirection = Vector2.Zero;
 
 				foreach (var key in MoveUpKeys)
-					if (input.IsKeyDown(key)) { moveDirection.Y -= 1; break; }
+					if (input.IsKeyDown(key))
+					{ moveDirection.Y -= 1; break; }
 				foreach (var key in MoveDownKeys)
-					if (input.IsKeyDown(key)) { moveDirection.Y += 1; break; }
+					if (input.IsKeyDown(key))
+					{ moveDirection.Y += 1; break; }
 				foreach (var key in MoveLeftKeys)
-					if (input.IsKeyDown(key)) { moveDirection.X -= 1; break; }
+					if (input.IsKeyDown(key))
+					{ moveDirection.X -= 1; break; }
 				foreach (var key in MoveRightKeys)
-					if (input.IsKeyDown(key)) { moveDirection.X += 1; break; }
+					if (input.IsKeyDown(key))
+					{ moveDirection.X += 1; break; }
 
 				Move(moveDirection, deltaTime);
 

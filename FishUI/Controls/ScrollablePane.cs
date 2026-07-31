@@ -116,8 +116,10 @@ namespace FishUI.Controls
 				float childRight = child.Position.X + child.Size.X;
 				float childBottom = child.Position.Y + child.Size.Y;
 
-				if (childRight > maxX) maxX = childRight;
-				if (childBottom > maxY) maxY = childBottom;
+				if (childRight > maxX)
+					maxX = childRight;
+				if (childBottom > maxY)
+					maxY = childBottom;
 			}
 
 			_calculatedContentSize = new Vector2(maxX, maxY);
@@ -391,10 +393,14 @@ namespace FishUI.Controls
 			Vector2 visibleArea = GetVisibleArea();
 
 			// Check if child overlaps with visible area
-			if (childPos.X + childSize.X < 0) return false;
-			if (childPos.Y + childSize.Y < 0) return false;
-			if (childPos.X > visibleArea.X) return false;
-			if (childPos.Y > visibleArea.Y) return false;
+			if (childPos.X + childSize.X < 0)
+				return false;
+			if (childPos.Y + childSize.Y < 0)
+				return false;
+			if (childPos.X > visibleArea.X)
+				return false;
+			if (childPos.Y > visibleArea.Y)
+				return false;
 
 			return true;
 		}

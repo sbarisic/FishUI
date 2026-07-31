@@ -4,6 +4,8 @@ A dependency-free, immediate-mode-inspired GUI library for .NET applications wit
 
 [![.NET 9.0](https://img.shields.io/badge/.NET-9.0-purple.svg)](https://dotnet.microsoft.com/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![NuGet FishUI](https://img.shields.io/nuget/v/FishUI.svg?label=FishUI)](https://www.nuget.org/packages/FishUI)
+[![NuGet RaylibFishGfx](https://img.shields.io/nuget/v/RaylibFishGfx.svg?label=RaylibFishGfx)](https://www.nuget.org/packages/RaylibFishGfx)
 [![DeepWiki](https://img.shields.io/badge/DeepWiki-sbarisic%2FFishUI-blue.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAAyCAYAAAAnWDnqAAAAAXNSR0IArs4c6QAAA05JREFUaEPtmUtyEzEQhtWTQyQLHNak2AB7ZnyXZMEjXMGeK/AIi+QuHrMnbChYY7MIh8g01fJoopFb0uhhEqqcbWTp06/uv1saEDv4O3n3dV60RfP947Mm9/SQc0ICFQgzfc4CYZoTPAswgSJCCUJUnAAoRHOAUOcATwbmVLWdGoH//PB8mnKqScAhsD0kYP3j/Yt5LPQe2KvcXmGvRHcDnpxfL2zOYJ1mFwrryWTz0advv1Ut4CJgf5uhDuDj5eUcAUoahrdY/56ebRWeraTjMt/00Sh3UDtjgHtQNHwcRGOC98BJEAEymycmYcWwOprTgcB6VZ5JK5TAJ+fXGLBm3FDAmn6oPPjR4rKCAoJCal2eAiQp2x0vxTPB3ALO2CRkwmDy5WohzBDwSEFKRwPbknEggCPB/imwrycgxX2NzoMCHhPkDwqYMr9tRcP5qNrMZHkVnOjRMWwLCcr8ohBVb1OMjxLwGCvjTikrsBOiA6fNyCrm8V1rP93iVPpwaE+gO0SsWmPiXB+jikdf6SizrT5qKasx5j8ABbHpFTx+vFXp9EnYQmLx02h1QTTrl6eDqxLnGjporxl3NL3agEvXdT0WmEost648sQOYAeJS9Q7bfUVoMGnjo4AZdUMQku50McDcMWcBPvr0SzbTAFDfvJqwLzgxwATnCgnp4wDl6Aa+Ax283gghmj+vj7feE2KBBRMW3FzOpLOADl0Isb5587h/U4gGvkt5v60Z1VLG8BhYjbzRwyQZemwAd6cCR5/XFWLYZRIMpX39AR0tjaGGiGzLVyhse5C9RKC6ai42ppWPKiBagOvaYk8lO7DajerabOZP46Lby5wKjw1HCRx7p9sVMOWGzb/vA1hwiWc6jm3MvQDTogQkiqIhJV0nBQBTU+3okKCFDy9WwferkHjtxib7t3xIUQtHxnIwtx4mpg26/HfwVNVDb4oI9RHmx5WGelRVlrtiw43zboCLaxv46AZeB3IlTkwouebTr1y2NjSpHz68WNFjHvupy3q8TFn3Hos2IAk4Ju5dCo8B3wP7VPr/FGaKiG+T+v+TQqIrOqMTL1VdWV1DdmcbO8KXBz6esmYWYKPwDL5b5FA1a0hwapHiom0r/cKaoqr+27/XcrS5UwSMbQAAAABJRU5ErkJggg==)](https://deepwiki.com/sbarisic/FishUI)
 
 Uses the [GWEN Skin](https://github.com/benelot/CEGUI-GWEN-Skin) atlas for theming.
@@ -13,6 +15,7 @@ Uses the [GWEN Skin](https://github.com/benelot/CEGUI-GWEN-Skin) atlas for themi
 - [Overview](#overview)
 - [Screenshots](#screenshots)
 - [Features](#features)
+- [Installation](#installation)
 - [Projects](#projects)
 - [Quick Start](#quick-start)
 - [Control Examples](#control-examples)
@@ -83,7 +86,7 @@ FishUI is a flexible GUI framework that separates UI logic from rendering, allow
 
 ## Features
 
-### Controls (47+ Built-in)
+### Controls (50+ Built-in)
 
 | Category | Controls |
 |----------|----------|
@@ -107,11 +110,45 @@ FishUI is a flexible GUI framework that separates UI logic from rendering, allow
 - **Events**: Control events, serializable event handlers, event broadcasting
 - **UI Scaling**: Resolution-independent UI with configurable scale factor
 
+## Installation
+
+### NuGet Packages
+
+FishUI is available on NuGet. Choose the package that fits your needs:
+
+#### Option 1: Raylib Backend (Recommended for Quick Start)
+
+If you're using Raylib for graphics/input, install the all-in-one package:
+
+```bash
+dotnet add package RaylibFishGfx
+```
+
+This includes:
+- **FishUI** - Core library with all controls
+- **Raylib-cs** - Raylib bindings
+- Pre-built `IFishUIGfx` and `IFishUIInput` implementations
+
+#### Option 2: Core Library Only
+
+If you're implementing your own graphics backend:
+
+```bash
+dotnet add package FishUI
+```
+
+Then implement `IFishUIGfx` and `IFishUIInput` interfaces for your graphics library.
+
+### Data Files
+
+The NuGet packages automatically include theme files, fonts, and icons. These are copied to your output directory on build under the `data/` folder.
+
 ## Projects
 
 | Project | Description |
 |---------|-------------|
 | **FishUI** | Core library - all controls and interfaces |
+| **RaylibFishGfx** | Raylib graphics/input backend (NuGet package) |
 | **FishUIEditor** | Visual layout editor for designing FishUI interfaces |
 | **FishUIDemos** | Sample implementations using ISample interface |
 | **FishUISample** | Raylib-based sample runner with GUI chooser |
@@ -120,26 +157,29 @@ FishUI is a flexible GUI framework that separates UI logic from rendering, allow
 
 ### 1. Implement Required Interfaces
 
-FishUI requires three interfaces for your graphics backend:
+FishUI requires two interfaces for your graphics backend (or use the pre-built Raylib backend):
 
 ```csharp
 // Graphics rendering
 public class MyGfx : IFishUIGfx
 {
-    public int ScreenWidth { get; set; }
-    public int ScreenHeight { get; set; }
-    
     public void Init() { }
     public void BeginDrawing(float dt) { }
     public void EndDrawing() { }
-    
+
+    public int GetWindowWidth() { /* ... */ }
+    public int GetWindowHeight() { /* ... */ }
+
     public ImageRef LoadImage(string path) { /* ... */ }
     public FontRef LoadFont(string path, int size) { /* ... */ }
-    
+
     public void DrawRectangle(Vector2 pos, Vector2 size, FishColor color) { /* ... */ }
     public void DrawImage(ImageRef img, Vector2 pos, float rot, float scale, FishColor color) { /* ... */ }
     public void DrawNPatch(NPatch patch, Vector2 pos, Vector2 size, FishColor color) { /* ... */ }
-    public void DrawText(FontRef font, string text, Vector2 pos) { /* ... */ }
+    public void DrawText(FontRef font, string text, Vector2 pos, float size, float spacing, FishColor color) { /* ... */ }
+
+    public void BeginScissor(Vector2 pos, Vector2 size) { /* ... */ }
+    public void EndScissor() { /* ... */ }
     // ... see IFishUIGfx for full interface
 }
 
@@ -151,29 +191,36 @@ public class MyInput : IFishUIInput
     public bool IsMousePressed(FishMouseButton button) { /* ... */ }
     public bool IsKeyDown(FishKey key) { /* ... */ }
     public bool IsKeyPressed(FishKey key) { /* ... */ }
-    public string GetTextInput() { /* ... */ }
+    public FishKey GetKeyPressed() { /* ... */ }
+    public int GetCharPressed() { /* ... */ }
+    public float GetMouseWheelMove() { /* ... */ }
     // ... see IFishUIInput for full interface
 }
 
-// Event broadcasting (optional)
+// Event handling (optional - can use empty implementation)
 public class MyEvents : IFishUIEvents
 {
-    public void Broadcast(FishUI ui, Control sender, string eventName, object[] data) { /* ... */ }
+    public void Broadcast(FishUI.FishUI ui, Control sender, string eventName, object[] args) { }
 }
 ```
 
 ### 2. Initialize FishUI
 
 ```csharp
+// Using the Raylib backend (recommended)
+using RaylibGfx = RaylibFishGfx.RaylibFishGfx;
+using RaylibInput = RaylibFishGfx.RaylibInput;
+
 FishUISettings settings = new FishUISettings();
-IFishUIGfx gfx = new MyGfx(800, 600);
-IFishUIInput input = new MyInput();
-IFishUIEvents events = new MyEvents();
+RaylibGfx gfx = new RaylibGfx(800, 600, "My App");
+gfx.UseBeginDrawing = false;  // Set to false if managing draw calls yourself
+IFishUIInput input = new RaylibInput();
+IFishUIEvents events = new MyEvents();  // Or use a simple empty implementation
 
 FishUI.FishUI ui = new FishUI.FishUI(settings, gfx, input, events);
 ui.Init();
 
-// Load a theme
+// Load a theme (required for proper rendering)
 settings.LoadTheme("data/themes/gwen.yaml", applyImmediately: true);
 ```
 
@@ -196,6 +243,7 @@ ui.AddControl(panel);
 
 CheckBox check = new CheckBox("Enable Feature");
 check.Position = new Vector2(10, 10);
+check.Size = new Vector2(20, 20);  // Size for the checkbox icon
 panel.AddChild(check);
 
 // ListBox with items
@@ -212,16 +260,73 @@ panel.AddChild(list);
 ### 4. Run the Update Loop
 
 ```csharp
-Stopwatch timer = Stopwatch.StartNew();
-float lastTime = 0;
-
-while (running)
+// Main game loop
+while (!Raylib.WindowShouldClose())
 {
-    float currentTime = (float)timer.Elapsed.TotalSeconds;
-    float deltaTime = currentTime - lastTime;
-    lastTime = currentTime;
-    
-    ui.Tick(deltaTime, currentTime);
+    float dt = Raylib.GetFrameTime();
+
+    // Handle window resize
+    if (Raylib.IsWindowResized())
+        ui.Resized(Raylib.GetScreenWidth(), Raylib.GetScreenHeight());
+
+    Raylib.BeginDrawing();
+    Raylib.ClearBackground(Color.DarkGray);
+
+    // Update and render UI
+    ui.Tick(dt, (float)Raylib.GetTime());
+
+    Raylib.EndDrawing();
+}
+
+Raylib.CloseWindow();
+```
+
+### Complete Minimal Example
+
+Here's a complete working example using the Raylib backend:
+
+```csharp
+using FishUI;
+using FishUI.Controls;
+using Raylib_cs;
+using System.Numerics;
+using RaylibGfx = RaylibFishGfx.RaylibFishGfx;
+using RaylibInput = RaylibFishGfx.RaylibInput;
+
+// Simple event handler
+class SimpleEvents : IFishUIEvents
+{
+    public void Broadcast(FishUI.FishUI ui, Control ctrl, string name, object[] args) { }
+}
+
+class Program
+{
+    static void Main()
+    {
+        // Setup
+        var settings = new FishUISettings();
+        var gfx = new RaylibGfx(800, 600, "FishUI Demo");
+        gfx.UseBeginDrawing = false;
+
+        var ui = new FishUI.FishUI(settings, gfx, new RaylibInput(), new SimpleEvents());
+        ui.Init();
+        settings.LoadTheme("data/themes/gwen.yaml", applyImmediately: true);
+
+        // Create a button
+        var button = new Button { Text = "Click Me!", Position = new Vector2(100, 100), Size = new Vector2(120, 40) };
+        button.OnButtonPressed += (btn, mouse, pos) => Console.WriteLine("Clicked!");
+        ui.AddControl(button);
+
+        // Main loop
+        while (!Raylib.WindowShouldClose())
+        {
+            Raylib.BeginDrawing();
+            Raylib.ClearBackground(Color.DarkGray);
+            ui.Tick(Raylib.GetFrameTime(), (float)Raylib.GetTime());
+            Raylib.EndDrawing();
+        }
+        Raylib.CloseWindow();
+    }
 }
 ```
 
@@ -547,29 +652,33 @@ For the sample application:
 
 ```
 FishUI/
-├── FishUI/                 # Core library
-│   ├── Controls/           # All UI controls
+├── FishUI/                 # Core library (NuGet: FishUI)
+│   ├── Controls/           # All UI controls (50+)
 │   ├── FishUI.cs           # Main UI manager
 │   ├── FishUISettings.cs   # Settings and theme loading
 │   ├── IFishUIGfx.cs       # Graphics interface
 │   ├── IFishUIInput.cs     # Input interface
-│   └── LayoutFormat.cs     # YAML serialization
+│   ├── IFishUIEvents.cs    # Event handling interface
+│   ├── LayoutFormat.cs     # YAML serialization
+│   ├── build/              # NuGet build props/targets
+│   └── data/               # Themes, fonts, icons
+├── RaylibFishUI/           # Raylib backend (NuGet: RaylibFishGfx)
+│   ├── RaylibFishGfx.cs    # IFishUIGfx implementation
+│   └── RaylibInput.cs      # IFishUIInput implementation
 ├── FishUIEditor/           # Visual layout editor
 │   ├── Controls/           # Editor-specific controls
 │   └── FishUIEditor.cs     # Editor application
 ├── FishUIDemos/            # Sample implementations
-│   └── Samples/            # ISample implementations
-├── FishUISample/           # Raylib-based runner
-│   ├── RaylibGfx.cs        # IFishUIGfx implementation
-│   ├── RaylibInput.cs      # IFishUIInput implementation
+│   ├── Samples/            # ISample implementations
+│   └── Forms/              # Designer form examples
+├── FishUISample/           # Raylib-based sample runner
+│   ├── Program.cs          # Sample chooser entry point
 │   └── SampleChooser.cs    # GUI sample selector
+├── NugetTest/              # NuGet package testing project
 ├── docs/                   # Documentation
 │   ├── CUSTOM_CONTROLS.md  # Custom control creation guide
 │   └── THEMING.md          # Theme creation guide
-└── data/                   # Assets
-    ├── themes/             # YAML theme files
-    ├── layouts/            # Layout files (editor output)
-    └── images/             # Sample images
+└── screenshots/            # Screenshot gallery
 ```
 
 ## License

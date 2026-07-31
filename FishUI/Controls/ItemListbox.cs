@@ -435,7 +435,7 @@ namespace FishUI.Controls
 						Color);
 				}
 
-			// Draw item content
+				// Draw item content
 				if (item.Widget != null)
 				{
 					// Position and show the widget

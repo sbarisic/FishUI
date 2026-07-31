@@ -89,6 +89,14 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 
 ---
 
+## Unit Testing **MEDIUM PRIORITY**
+
+*All unit tests completed - 78 tests covering core functionality*
+
+> Note: Tests located in UnitTest project with mock implementations for all core interfaces
+
+---
+
 ## Known Issues / Bugs
 
 ### Active Bugs
@@ -98,6 +106,8 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 
 *No uncategorized items*
+
+> Note: Input control testing with simulated mouse clicks is already covered in EventSystemTests (Button_OnButtonPressed_EventFires, CheckBox_OnCheckedChanged_EventFires, etc.)
 
 ---
 
