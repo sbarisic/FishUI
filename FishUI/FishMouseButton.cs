@@ -4,14 +4,14 @@ using System.Text;
 
 namespace FishUI
 {
-	public enum FishMouseButton
-	{
-		Left,
-		Right,
-		Middle,
-		Side,
-		Extra,
-		Forward,
-		Back
-	}
+    public enum FishMouseButton
+    {
+        Left,
+        Right,
+        Middle,
+        Side,
+        Extra,
+        Forward,
+        Back
+    }
 }
