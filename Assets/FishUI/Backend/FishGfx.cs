@@ -313,13 +313,13 @@ public class FishGfx : IFishUIGfx
 		if (texture == null)
 		{
 			Debug.LogWarning($"[FishGfx] Failed to load image: {FileName}");
-			return new ImageRef { Userdata = 0, Width = 0, Height = 0 };
+			return new ImageRef(FileName, 0, 0, 0);
 		}
 
 		int id = nextImageId++;
 		loadedTextures[id] = texture;
 
-		return new ImageRef { Userdata = id, Width = texture.width, Height = texture.height };
+		return new ImageRef(FileName, texture.width, texture.height, id);
 	}
 
 	public ImageRef LoadImage(string FileName, int X, int Y, int W, int H)
@@ -649,14 +649,7 @@ public class FishGfx : IFishUIGfx
 			CachedStyle = null  // Will be created on first use in OnGUI
 		};
 
-		return new FontRef
-		{
-			Path = FileName,
-			Userdata = id,
-			Size = Size,
-			Spacing = Spacing,
-			Color = Color
-		};
+		return new FontRef(FileName, id, Size, Spacing, Color, Style);
 	}
 
 	public void DrawText(FontRef Fn, string Text, Vector2 Pos)

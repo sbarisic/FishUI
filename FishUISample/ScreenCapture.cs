@@ -1,95 +1,36 @@
-﻿using System;
-using System.Drawing;
-using System.Runtime.InteropServices;
-using System.Runtime.Versioning;
+using Raylib_cs;
 
 namespace FishUISample
 {
-    /// <summary>
-    /// Provides screen capture functionality. Windows-only implementation.
-    /// </summary>
-    static class ScreenCapture
+    /// <summary>Queues screenshots for capture while the Raylib frame is still open.</summary>
+    internal static class ScreenCapture
     {
-        /// <summary>
-        /// Returns true if screen capture is supported on the current platform.
-        /// </summary>
-        public static bool IsSupported => OperatingSystem.IsWindows();
+        private static string _pendingPath;
 
-        [DllImport("user32")]
-        private static extern IntPtr GetForegroundWindow();
+        public static bool IsSupported => true;
 
-        [DllImport("user32", CharSet = CharSet.Auto, ExactSpelling = true)]
-        private static extern IntPtr GetDesktopWindow();
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct Rect
+        public static bool Queue(string filePath)
         {
-            public int Left;
-            public int Top;
-            public int Right;
-            public int Bottom;
+            if (string.IsNullOrWhiteSpace(filePath)) return false;
+            _pendingPath = Path.GetFullPath(filePath);
+            return true;
         }
 
-        [DllImport("user32")]
-        private static extern IntPtr GetWindowRect(IntPtr hWnd, ref Rect rect);
-
-        [SupportedOSPlatform("windows")]
-        public static Image CaptureDesktop()
+        public static void FlushPending()
         {
-            return CaptureWindow(GetDesktopWindow());
-        }
-
-        [SupportedOSPlatform("windows")]
-        public static Bitmap CaptureActiveWindow()
-        {
-            return CaptureWindow(GetForegroundWindow());
-        }
-
-        [SupportedOSPlatform("windows")]
-        public static Bitmap CaptureWindow(IntPtr handle)
-        {
-            Rect rect = new Rect();
-            GetWindowRect(handle, ref rect);
-            Rectangle bounds = new Rectangle(rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top);
-
-            var result = new Bitmap(bounds.Width, bounds.Height);
-            using (var graphics = Graphics.FromImage(result))
-            {
-                graphics.CopyFromScreen(new Point(bounds.Left, bounds.Top), Point.Empty, bounds.Size);
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Captures the active window and saves it to a file. Safe to call on any platform.
-        /// </summary>
-        /// <param name="filePath">The file path to save the screenshot to.</param>
-        /// <returns>True if the screenshot was saved successfully, false if not supported.</returns>
-        public static bool TryCaptureActiveWindow(string filePath)
-        {
-            if (!IsSupported)
-            {
-                Console.WriteLine("Screenshot not supported on this platform.");
-                return false;
-            }
-
-            return TryCaptureActiveWindowInternal(filePath);
-        }
-
-        [SupportedOSPlatform("windows")]
-        private static bool TryCaptureActiveWindowInternal(string filePath)
-        {
+            string path = _pendingPath;
+            if (path == null) return;
+            _pendingPath = null;
             try
             {
-                using var bitmap = CaptureActiveWindow();
-                bitmap.Save(filePath);
-                return true;
+                string directory = Path.GetDirectoryName(path);
+                if (!string.IsNullOrEmpty(directory)) Directory.CreateDirectory(directory);
+                Raylib.TakeScreenshot(path);
+                Console.WriteLine("Screenshot saved: " + path);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                Console.WriteLine($"Screenshot failed: {ex.Message}");
-                return false;
+                Console.WriteLine("Screenshot failed: " + exception.Message);
             }
         }
     }

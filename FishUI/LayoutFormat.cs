@@ -1,233 +1,169 @@
 using FishUI.Controls;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
 namespace FishUI
 {
-	/// <summary>
-	/// Provides serialization and deserialization of FishUI layouts to/from YAML format.
-	/// Supports all built-in control types and preserves parent-child hierarchies.
-	/// </summary>
-	public class LayoutFormat
-	{
-		/// <summary>
-		/// Creates a new LayoutFormat instance.
-		/// </summary>
-		public LayoutFormat()
-		{
+    /// <summary>Serializes validated FishUI control graphs to and from YAML.</summary>
+    public class LayoutFormat
+    {
+        public static void SerializeToFile(FishUI ui, string filePath, FishUILayoutSerializationOptions options = null)
+        {
+            if (ui == null) throw new ArgumentNullException(nameof(ui));
+            ui.FileSystem.WriteAllText(filePath, Serialize(ui, options));
+        }
 
-		}
+        public static void DeserializeFromFile(FishUI ui, string filePath, FishUILayoutSerializationOptions options = null)
+        {
+            if (ui == null) throw new ArgumentNullException(nameof(ui));
+            Deserialize(ui, ui.FileSystem.ReadAllText(filePath), options);
+            ui.Events?.OnLayoutLoaded(new FishUILayoutLoadedEventArgs(ui, filePath));
+        }
 
-		/// <summary>
-		/// Serializes all controls from a FishUI instance to a YAML file.
-		/// </summary>
-		/// <param name="UI">The FishUI instance containing controls to serialize.</param>
-		/// <param name="FilePath">The file path to write the YAML output to.</param>
-		public static void SerializeToFile(FishUI UI, string FilePath)
-		{
-			string Data = Serialize(UI);
-			UI.FileSystem.WriteAllText(FilePath, Data);
-		}
+        public static string Serialize(FishUI ui, FishUILayoutSerializationOptions options = null)
+        {
+            if (ui == null) throw new ArgumentNullException(nameof(ui));
+            return SerializeControls(ui.GetAllControls(), options);
+        }
 
-		/// <summary>
-		/// Deserializes controls from a YAML file and adds them to a FishUI instance.
-		/// Existing controls are removed before loading.
-		/// </summary>
-		/// <param name="UI">The FishUI instance to add deserialized controls to.</param>
-		/// <param name="FilePath">The file path to read the YAML from.</param>
-		public static void DeserializeFromFile(FishUI UI, string FilePath)
-		{
-			string Data = UI.FileSystem.ReadAllText(FilePath);
-			Deserialize(UI, Data);
+        public static string SerializeControls(IEnumerable<Control> controls, FishUILayoutSerializationOptions options = null)
+        {
+            FishUILayoutSerializationOptions effective = Normalize(options);
+            SerializerBuilder builder = ConfigureSerializer(new SerializerBuilder(), effective);
+            return builder.Build().Serialize(controls);
+        }
 
-			// Fire layout loaded event
-			UI.Events?.OnLayoutLoaded(new FishUILayoutLoadedEventArgs(UI, FilePath));
-		}
+        public static List<Control> DeserializeControls(string data, FishUILayoutSerializationOptions options = null)
+        {
+            if (data == null) throw new ArgumentNullException(nameof(data));
+            FishUILayoutSerializationOptions effective = Normalize(options);
+            DeserializerBuilder builder = new DeserializerBuilder()
+                .WithNamingConvention(PascalCaseNamingConvention.Instance)
+                .IncludeNonPublicProperties();
+            foreach (KeyValuePair<string, Type> mapping in effective.TypeRegistry.Mappings)
+                builder = builder.WithTagMapping(mapping.Key, mapping.Value);
 
-		static Dictionary<string, Type> TypeMapping = new Dictionary<string, Type>() {
-			{ "!Button", typeof(Button) },
-			{ "!CheckBox", typeof(CheckBox) },
-			{ "!RadioButton", typeof(RadioButton) },
-			{ "!Panel", typeof(Panel) },
-			{ "!Textbox", typeof(Textbox) },
-			{ "!Label", typeof(Label) },
-			{ "!ListBox", typeof(ListBox) },
-			{ "!ScrollBarV", typeof(ScrollBarV) },
-			{ "!ScrollBarH", typeof(ScrollBarH) },
-			{ "!DropDown", typeof(DropDown) },
-			{ "!ProgressBar", typeof(ProgressBar) },
-			{ "!Slider", typeof(Slider) },
-			{ "!ToggleSwitch", typeof(ToggleSwitch) },
-			{ "!SelectionBox", typeof(SelectionBox) },
-			{ "!Window", typeof(Window) },
-			{ "!Titlebar", typeof(Titlebar) },
-			{ "!TabControl", typeof(TabControl) },
-			{ "!GroupBox", typeof(GroupBox) },
-			{ "!TreeView", typeof(TreeView) },
-			{ "!NumericUpDown", typeof(NumericUpDown) },
-			{ "!Tooltip", typeof(Tooltip) },
-			{ "!ContextMenu", typeof(ContextMenu) },
-			{ "!MenuItem", typeof(MenuItem) },
-			{ "!MenuBar", typeof(MenuBar) },
-			{ "!MenuBarItem", typeof(MenuBarItem) },
-			{ "!StackLayout", typeof(StackLayout) },
-			{ "!ImageBox", typeof(ImageBox) },
-			{ "!StaticText", typeof(StaticText) },
-			{ "!BarGauge", typeof(BarGauge) },
-			{ "!VUMeter", typeof(VUMeter) },
-			{ "!AnimatedImageBox", typeof(AnimatedImageBox) },
-			{ "!RadialGauge", typeof(RadialGauge) },
-			{ "!PropertyGrid", typeof(PropertyGrid) },
-			{ "!ScrollablePane", typeof(ScrollablePane) },
-			{ "!ItemListbox", typeof(ItemListbox) },
-			{ "!FlowLayout", typeof(FlowLayout) },
-			{ "!GridLayout", typeof(GridLayout) },
-			{ "!LineChart", typeof(LineChart) },
-			{ "!Timeline", typeof(Timeline) },
-			{ "!MultiLineEditbox", typeof(MultiLineEditbox) },
-			{ "!GameConsole", typeof(GameConsole) },
-			{ "!DatePicker", typeof(DatePicker) },
-			{ "!TimePicker", typeof(TimePicker) },
-			{ "!DataGrid", typeof(DataGrid) },
-			{ "!SpreadsheetGrid", typeof(SpreadsheetGrid) },
-			{ "!SpreadsheetCell", typeof(SpreadsheetCell) },
-			{ "!ListBoxItem", typeof(ListBoxItem) },
-			{ "!BigDigitDisplay", typeof(BigDigitDisplay) },
-			{ "!ToastNotification", typeof(ToastNotification) }
-		};
+            List<object> values = builder.Build().Deserialize<List<object>>(data) ?? new List<object>();
+            List<Control> controls = new List<Control>(values.Count);
+            for (int i = 0; i < values.Count; i++)
+            {
+                if (values[i] is not Control control)
+                    throw new InvalidOperationException("A layout root must be a registered FishUI control.");
+                controls.Add(control);
+            }
+            ValidateGraph(controls, effective);
+            for (int i = 0; i < controls.Count; i++) LinkParents(controls[i]);
+            return controls;
+        }
 
-		/// <summary>
-		/// Serializes all controls from a FishUI instance to a YAML string.
-		/// </summary>
-		/// <param name="UI">The FishUI instance containing controls to serialize.</param>
-		/// <returns>A YAML string representing all controls in the UI.</returns>
-		public static string Serialize(FishUI UI)
-		{
-			return SerializeControls(UI.GetAllControls());
-		}
+        public static void Deserialize(FishUI ui, string data, FishUILayoutSerializationOptions options = null)
+        {
+            if (ui == null) throw new ArgumentNullException(nameof(ui));
+            List<Control> incoming = DeserializeControls(data, options);
+            Control[] original = ui.GetAllControls();
+            List<Control> attached = new List<Control>(incoming.Count);
+            try
+            {
+                for (int i = 0; i < incoming.Count; i++)
+                {
+                    Control control = incoming[i];
+                    control.OnDeserialized(ui);
+                    ui.AddControl(control);
+                    attached.Add(control);
+                }
+            }
+            catch
+            {
+                for (int i = attached.Count - 1; i >= 0; i--) ui.RemoveControl(attached[i]);
+                throw;
+            }
 
-		/// <summary>
-		/// Serializes a list of controls to YAML.
-		/// </summary>
-		/// <param name="controls">The controls to serialize.</param>
-		/// <returns>A YAML string representing the controls.</returns>
-		public static string SerializeControls(IEnumerable<Control> controls)
-		{
-			SerializerBuilder sbuild = new SerializerBuilder();
-			sbuild = sbuild.WithNamingConvention(PascalCaseNamingConvention.Instance);
-			sbuild = sbuild.IncludeNonPublicProperties();
-			sbuild = sbuild.WithAttributeOverride(typeof(MultiLineEditbox), "Children", new YamlIgnoreAttribute());
-			sbuild = sbuild.WithAttributeOverride(typeof(GameConsole), "Children", new YamlIgnoreAttribute());
-			sbuild = sbuild.WithAttributeOverride(typeof(GameConsole), "Position", new YamlIgnoreAttribute());
-			sbuild = sbuild.WithAttributeOverride(typeof(GameConsole), "Size", new YamlIgnoreAttribute());
-			sbuild = sbuild.WithAttributeOverride(typeof(GameConsole), "Visible", new YamlIgnoreAttribute());
-			sbuild = sbuild.WithAttributeOverride(typeof(GameConsole), "ZDepth", new YamlIgnoreAttribute());
-			sbuild = sbuild.ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults | DefaultValuesHandling.OmitNull | DefaultValuesHandling.OmitEmptyCollections);
+            for (int i = original.Length - 1; i >= 0; i--) ui.RemoveControl(original[i]);
+        }
 
-			foreach (var KV in TypeMapping)
-			{
-				sbuild.WithTagMapping(KV.Key, KV.Value);
-			}
+        private static SerializerBuilder ConfigureSerializer(SerializerBuilder builder, FishUILayoutSerializationOptions options)
+        {
+            builder = builder.WithNamingConvention(PascalCaseNamingConvention.Instance)
+                .IncludeNonPublicProperties()
+                .WithAttributeOverride(typeof(MultiLineEditbox), "Children", new YamlIgnoreAttribute())
+                .WithAttributeOverride(typeof(GameConsole), "Children", new YamlIgnoreAttribute())
+                .WithAttributeOverride(typeof(GameConsole), "Position", new YamlIgnoreAttribute())
+                .WithAttributeOverride(typeof(GameConsole), "Size", new YamlIgnoreAttribute())
+                .WithAttributeOverride(typeof(GameConsole), "Visible", new YamlIgnoreAttribute())
+                .WithAttributeOverride(typeof(GameConsole), "ZDepth", new YamlIgnoreAttribute())
+                .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults | DefaultValuesHandling.OmitNull | DefaultValuesHandling.OmitEmptyCollections);
+            foreach (KeyValuePair<string, Type> mapping in options.TypeRegistry.Mappings)
+                builder = builder.WithTagMapping(mapping.Key, mapping.Value);
+            return builder;
+        }
 
-			ISerializer ser = sbuild.Build();
-			string yamlDoc = ser.Serialize(controls);
+        private static FishUILayoutSerializationOptions Normalize(FishUILayoutSerializationOptions options)
+        {
+            FishUILayoutSerializationOptions value = options ?? new FishUILayoutSerializationOptions();
+            if (value.TypeRegistry == null) throw new ArgumentException("A layout type registry is required.", nameof(options));
+            if (value.MaximumControls < 1 || value.MaximumDepth < 1)
+                throw new ArgumentOutOfRangeException(nameof(options), "Layout graph limits must be positive.");
+            return value;
+        }
 
-			return yamlDoc;
-		}
+        private static void ValidateGraph(IReadOnlyList<Control> roots, FishUILayoutSerializationOptions options)
+        {
+            HashSet<Control> visited = new HashSet<Control>(ReferenceControlComparer.Instance);
+            HashSet<Control> visiting = new HashSet<Control>(ReferenceControlComparer.Instance);
+            int count = 0;
+            for (int i = 0; i < roots.Count; i++)
+            {
+                Control root = roots[i] ?? throw new InvalidOperationException("A layout cannot contain a null root.");
+                if (root.GetParent() != null || root.IsRuntimeChild)
+                    throw new InvalidOperationException("A layout root cannot have a parent or be marked as a runtime child.");
+                ValidateControl(root, 1, options, visited, visiting, ref count);
+            }
+        }
 
-		/// <summary>
-		/// Deserializes YAML into a list of controls.
-		/// This does not attach them to a FishUI instance; the caller is responsible for adding controls to a UI.
-		/// </summary>
-		/// <param name="data">The YAML string to deserialize.</param>
-		/// <returns>A list of deserialized controls with parent-child relationships linked.</returns>
-		public static List<Control> DeserializeControls(string data)
-		{
-			DeserializerBuilder dbuild = new DeserializerBuilder();
-			dbuild = dbuild.WithNamingConvention(PascalCaseNamingConvention.Instance);
-			dbuild = dbuild.IncludeNonPublicProperties();
+        private static void ValidateControl(Control control, int depth, FishUILayoutSerializationOptions options,
+            HashSet<Control> visited, HashSet<Control> visiting, ref int count)
+        {
+            if (depth > options.MaximumDepth) throw new InvalidOperationException("The layout exceeds its maximum depth.");
+            if (!options.TypeRegistry.Contains(control.GetType())) throw new InvalidOperationException("The layout contains an unregistered control type.");
+            if (!visiting.Add(control)) throw new InvalidOperationException("The layout contains a control cycle.");
+            if (!visited.Add(control)) throw new InvalidOperationException("The layout contains a shared control reference.");
+            if (++count > options.MaximumControls) throw new InvalidOperationException("The layout exceeds its maximum control count.");
 
-			foreach (var KV in TypeMapping)
-			{
-				dbuild.WithTagMapping(KV.Key, KV.Value);
-			}
+            Control[] children = control.GetAllChildren(false);
+            for (int i = 0; i < children.Length; i++)
+            {
+                Control child = children[i] ?? throw new InvalidOperationException("The layout contains a null child.");
+                if (child.IsRuntimeChild) continue;
+                ValidateControl(child, depth + 1, options, visited, visiting, ref count);
+            }
+            visiting.Remove(control);
+        }
 
-			IDeserializer dser = dbuild.Build();
+        private static void LinkParents(Control control)
+        {
+            if (control is Window window)
+            {
+                IReadOnlyList<Control> contentChildren = window.ContentChildren;
+                for (int i = 0; i < contentChildren.Count; i++) LinkParents(contentChildren[i]);
+                return;
+            }
 
-			var objs = dser.Deserialize<List<object>>(data);
-			var controls = new List<Control>();
-			foreach (object obj in objs)
-			{
-				if (obj is Control c)
-				{
-					LinkParents(c);
-					controls.Add(c);
-				}
-			}
+            Control[] children = control.GetAllChildren(false);
+            for (int i = 0; i < children.Length; i++)
+            {
+                control.AddChild(children[i]);
+                LinkParents(children[i]);
+            }
+        }
 
-			return controls;
-		}
-
-		static void LinkParents(Control ControlWithChildren)
-		{
-			// For Window, children are handled by the ContentChildren property setter during deserialization
-			// Skip Window's internal controls (Titlebar, content Panel) - they're created by constructor
-			if (ControlWithChildren is Window window)
-			{
-				// Just recurse into content panel children (user children)
-				foreach (Control Child in window.ContentChildren)
-				{
-					LinkParents(Child);
-				}
-				return;
-			}
-
-			foreach (Control Child in ControlWithChildren.GetAllChildren(false))
-			{
-				ControlWithChildren.AddChild(Child);
-				LinkParents(Child);
-			}
-		}
-
-		/// <summary>
-		/// Deserializes controls from a YAML string and adds them to a FishUI instance.
-		/// Existing controls are removed before loading.
-		/// </summary>
-		/// <param name="UI">The FishUI instance to add deserialized controls to.</param>
-		/// <param name="Data">The YAML string to deserialize.</param>
-		public static void Deserialize(FishUI UI, string Data)
-		{
-			DeserializerBuilder dbuild = new DeserializerBuilder();
-			dbuild = dbuild.WithNamingConvention(PascalCaseNamingConvention.Instance);
-			dbuild = dbuild.IncludeNonPublicProperties();
-
-			foreach (var KV in TypeMapping)
-			{
-				dbuild.WithTagMapping(KV.Key, KV.Value);
-			}
-
-			IDeserializer dser = dbuild.Build();
-
-			// Use List<object> to avoid abstract Control instantiation issue
-			// YamlDotNet will use the tag mappings to create concrete types
-			var Ctrls = dser.Deserialize<List<object>>(Data);
-
-			UI.RemoveAllControls();
-			foreach (object Obj in Ctrls)
-			{
-				if (Obj is Control C)
-				{
-					LinkParents(C);
-					C.OnDeserialized(UI);
-					UI.AddControl(C);
-				}
-			}
-		}
-
-	}
+        private sealed class ReferenceControlComparer : IEqualityComparer<Control>
+        {
+            internal static readonly ReferenceControlComparer Instance = new ReferenceControlComparer();
+            public bool Equals(Control x, Control y) => ReferenceEquals(x, y);
+            public int GetHashCode(Control obj) => RuntimeHelpers.GetHashCode(obj);
+        }
+    }
 }
