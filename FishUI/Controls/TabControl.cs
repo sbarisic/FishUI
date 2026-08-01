@@ -155,6 +155,23 @@ namespace FishUI.Controls
         public float TabHeaderHeight { get; set; } = 24;
 
         /// <summary>
+        /// Distance that the selected tab extends into the content panel. This lets the selected tab cover the
+        /// panel's top border and appear connected to its content.
+        /// </summary>
+        public float SelectedTabOverlap { get; set; } = 8;
+
+        /// <summary>
+        /// Distance that adjacent tab borders overlap. A small overlap prevents doubled seams between tabs.
+        /// </summary>
+        public float TabButtonOverlap { get; set; } = 1;
+
+        /// <summary>
+        /// Inset between the control's left edge and the first tab. This keeps an active tab's extended edge
+        /// distinct from the content panel's outer border.
+        /// </summary>
+        public float TabHeaderInset { get; set; } = 5;
+
+        /// <summary>
         /// Minimum width of each tab.
         /// </summary>
         public float MinTabWidth { get; set; } = 60;
@@ -199,9 +216,7 @@ namespace FishUI.Controls
             int previousCount = TabPages.Count;
             TabPages.Add(page);
 
-            // Setup content panel positioning
-            page.Content.Position = new Vector2(ContentPadding, TabHeaderHeight + ContentPadding);
-            page.Content.Size = GetContentSize() - new Vector2(ContentPadding * 2, ContentPadding * 2);
+            UpdateContentLayout(page);
 
             AddChild(page.Content);
 
@@ -267,18 +282,32 @@ namespace FishUI.Controls
             }
         }
 
+        private void UpdateContentLayout(TabPage page)
+        {
+            page.Content.Position = new Vector2(ContentPadding, TabHeaderHeight + ContentPadding);
+            page.Content.Size = GetContentSize() - new Vector2(ContentPadding * 2, ContentPadding * 2);
+        }
+
+        protected override void PrepareLayout(FishUI UI)
+        {
+            for (int i = 0; i < TabPages.Count; i++)
+                UpdateContentLayout(TabPages[i]);
+        }
+
         private float GetTabWidth(FishUI UI, TabPage page)
         {
             if (UI?.Settings?.FontDefault == null)
                 return MinTabWidth;
 
             Vector2 textSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, page.Text ?? "");
-            float width = textSize.X + 20; // padding
+            float width = textSize.X + Scale(20); // padding
 
-            if (width < MinTabWidth)
-                width = MinTabWidth;
-            if (MaxTabWidth > 0 && width > MaxTabWidth)
-                width = MaxTabWidth;
+            float minimumWidth = Scale(MinTabWidth);
+            float maximumWidth = Scale(MaxTabWidth);
+            if (width < minimumWidth)
+                width = minimumWidth;
+            if (MaxTabWidth > 0 && width > maximumWidth)
+                width = maximumWidth;
 
             return width;
         }
@@ -288,21 +317,47 @@ namespace FishUI.Controls
             Vector2 absPos = GetAbsolutePosition();
 
             // Check if in header area
-            if (pos.Y < absPos.Y || pos.Y > absPos.Y + TabHeaderHeight)
+            if (pos.Y < absPos.Y || pos.Y > absPos.Y + Scale(TabHeaderHeight))
                 return -1;
 
-            float x = absPos.X;
+            float overlap = Scale(Math.Max(0, TabButtonOverlap));
+            float startX = absPos.X + Scale(Math.Max(0, TabHeaderInset));
+            float right = startX;
             for (int i = 0; i < TabPages.Count; i++)
             {
+                right += GetTabWidth(UI, TabPages[i]);
+                if (i > 0)
+                    right -= overlap;
+            }
+
+            // The selected tab is painted last, so it owns any overlapped edge that it covers.
+            if (_selectedIndex >= 0 && _selectedIndex < TabPages.Count)
+            {
+                float selectedX = GetTabX(UI, _selectedIndex, startX, overlap);
+                float selectedWidth = GetTabWidth(UI, TabPages[_selectedIndex]);
+                if (pos.X >= selectedX && pos.X < selectedX + selectedWidth)
+                    return _selectedIndex;
+            }
+
+            // Inactive tabs are painted from left to right, so inspect them in reverse paint order.
+            for (int i = TabPages.Count - 1; i >= 0; i--)
+            {
                 float tabWidth = GetTabWidth(UI, TabPages[i]);
-                if (pos.X >= x && pos.X < x + tabWidth)
-                {
+                float x = right - tabWidth;
+                if (i != _selectedIndex && pos.X >= x && pos.X < right)
                     return i;
-                }
-                x += tabWidth;
+                right = x + overlap;
             }
 
             return -1;
+        }
+
+        private float GetTabX(FishUI UI, int tabIndex, float startX, float overlap)
+        {
+            float x = startX;
+            for (int i = 0; i < tabIndex; i++)
+                x += GetTabWidth(UI, TabPages[i]) - overlap;
+            return x;
         }
 
         public override void HandleMouseMove(FishUI UI, FishInputState InState, Vector2 Pos)
@@ -336,19 +391,14 @@ namespace FishUI.Controls
             using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.ControlBounds);
             Vector2 absPos = GetAbsolutePosition();
             Vector2 absSize = GetAbsoluteSize();
-
-            // Update content panel sizes
-            Vector2 contentSize = GetContentSize() - new Vector2(ContentPadding * 2, ContentPadding * 2);
-            foreach (var page in TabPages)
-            {
-                page.Content.Position = new Vector2(ContentPadding, TabHeaderHeight + ContentPadding);
-                page.Content.Size = contentSize;
-            }
+            float headerHeight = Scale(TabHeaderHeight);
+            float selectedOverlap = Scale(Math.Max(0, SelectedTabOverlap));
+            float tabOverlap = Scale(Math.Max(0, TabButtonOverlap));
 
             // Draw tab control background (content area)
             NPatch bgImg = UI.Settings.ImgTabControlBackground;
-            Vector2 contentPos = new Vector2(absPos.X, absPos.Y + TabHeaderHeight);
-            Vector2 bgSize = new Vector2(absSize.X, absSize.Y - TabHeaderHeight);
+            Vector2 contentPos = new Vector2(absPos.X, absPos.Y + headerHeight);
+            Vector2 bgSize = new Vector2(absSize.X, absSize.Y - headerHeight);
 
             if (bgImg != null)
             {
@@ -361,34 +411,23 @@ namespace FishUI.Controls
                 UI.Graphics.DrawRectangleOutline(contentPos, bgSize, new FishColor(180, 180, 180));
             }
 
-            // Calculate total tab width first
-            float totalTabWidth = 0;
-            foreach (var page in TabPages)
+            // Draw the complete tab strip first. Tabs are inset from the left edge and paint over this strip.
+            Vector2 headerPos = absPos;
+            Vector2 headerSize = new Vector2(absSize.X, headerHeight);
+            // The GWEN HeaderBar region is blue and is intended for a tab title bar. A top tab strip uses the
+            // inactive top-tab texture as its neutral background.
+            NPatch headerImg = UI.Settings.ImgTabTopInactive ?? UI.Settings.ImgTabHeaderBar;
+            if (headerImg != null)
             {
-                totalTabWidth += GetTabWidth(UI, page);
+                UI.Graphics.DrawNPatch(headerImg, headerPos, headerSize, Color);
             }
-
-            // Draw a neutral background for the empty header area (after the tabs)
-            // Use the inactive tab background or a simple gray fill
-            if (totalTabWidth < absSize.X)
+            else
             {
-                Vector2 headerPos = new Vector2(absPos.X + totalTabWidth, absPos.Y);
-                Vector2 headerSize = new Vector2(absSize.X - totalTabWidth, TabHeaderHeight);
-
-                NPatch inactiveTabImg = UI.Settings.ImgTabTopInactive;
-                if (inactiveTabImg != null)
-                {
-                    UI.Graphics.DrawNPatch(inactiveTabImg, headerPos, headerSize, Color);
-                }
-                else
-                {
-                    // Fallback: draw a neutral gray
-                    UI.Graphics.DrawRectangle(headerPos, headerSize, new FishColor(200, 200, 200));
-                }
+                UI.Graphics.DrawRectangle(headerPos, headerSize, new FishColor(200, 200, 200));
             }
 
             // Draw tabs
-            float x = absPos.X;
+            float x = absPos.X + Scale(Math.Max(0, TabHeaderInset));
             for (int i = 0; i < TabPages.Count; i++)
             {
                 var page = TabPages[i];
@@ -396,40 +435,77 @@ namespace FishUI.Controls
                 bool isSelected = (i == _selectedIndex);
                 bool isHovered = (i == _hoveredTabIndex);
 
-                Vector2 tabPos = new Vector2(x, absPos.Y);
-                Vector2 tabSize = new Vector2(tabWidth, TabHeaderHeight);
+                // The selected tab is drawn after the selected page. Otherwise an opaque page that starts at
+                // the content boundary repaints the overlap and makes the tab appear detached from the panel.
+                if (!isSelected)
+                    DrawTab(UI, page, x, tabWidth, false, isHovered, headerHeight, selectedOverlap);
 
-                // Draw tab background
-                NPatch tabImg = isSelected
-                    ? UI.Settings.ImgTabTopActive
-                    : UI.Settings.ImgTabTopInactive;
-
-                if (tabImg != null)
-                {
-                    FishColor tabColor = page.Enabled ? Color : new FishColor(180, 180, 180);
-                    UI.Graphics.DrawNPatch(tabImg, tabPos, tabSize, tabColor);
-                }
-                else
-                {
-                    // Fallback
-                    FishColor bgColor = isSelected
-                        ? new FishColor(240, 240, 240)
-                        : (isHovered ? new FishColor(220, 220, 220) : new FishColor(200, 200, 200));
-                    UI.Graphics.DrawRectangle(tabPos, tabSize, bgColor);
-                    UI.Graphics.DrawRectangleOutline(tabPos, tabSize, new FishColor(150, 150, 150));
-                }
-
-                // Draw tab text
-                if (!string.IsNullOrEmpty(page.Text))
-                {
-                    Vector2 textSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, page.Text);
-                    float textX = x + (tabWidth - textSize.X) / 2;
-                    float textY = absPos.Y + (TabHeaderHeight - textSize.Y) / 2;
-                    UI.Graphics.DrawText(UI.Settings.FontDefault, page.Text, new Vector2(textX, textY));
-                }
-
-                x += tabWidth;
+                x += tabWidth - tabOverlap;
             }
+        }
+
+        public override void DrawChildren(FishUI UI, float Dt, float Time, bool UseScissors = true)
+        {
+            base.DrawChildren(UI, Dt, Time, UseScissors);
+
+            if (_selectedIndex < 0 || _selectedIndex >= TabPages.Count)
+                return;
+
+            float tabOverlap = Scale(Math.Max(0, TabButtonOverlap));
+            float startX = GetAbsolutePosition().X + Scale(Math.Max(0, TabHeaderInset));
+            float x = GetTabX(UI, _selectedIndex, startX, tabOverlap);
+
+            TabPage page = TabPages[_selectedIndex];
+            float tabWidth = GetTabWidth(UI, page);
+            using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.ControlBounds);
+            DrawTab(
+                UI,
+                page,
+                x,
+                tabWidth,
+                true,
+                _hoveredTabIndex == _selectedIndex,
+                Scale(TabHeaderHeight),
+                Scale(Math.Max(0, SelectedTabOverlap)));
+        }
+
+        private void DrawTab(
+            FishUI UI,
+            TabPage page,
+            float x,
+            float tabWidth,
+            bool isSelected,
+            bool isHovered,
+            float headerHeight,
+            float selectedOverlap)
+        {
+            Vector2 tabPos = new Vector2(x, GetAbsolutePosition().Y);
+            Vector2 tabSize = new Vector2(tabWidth, headerHeight + (isSelected ? selectedOverlap : 0));
+            NPatch tabImg = isSelected
+                ? UI.Settings.ImgTabTopActive
+                : UI.Settings.ImgTabTopInactive;
+
+            if (tabImg != null)
+            {
+                FishColor tabColor = page.Enabled ? Color : new FishColor(180, 180, 180);
+                UI.Graphics.DrawNPatch(tabImg, tabPos, tabSize, tabColor);
+            }
+            else
+            {
+                FishColor bgColor = isSelected
+                    ? new FishColor(240, 240, 240)
+                    : (isHovered ? new FishColor(220, 220, 220) : new FishColor(200, 200, 200));
+                UI.Graphics.DrawRectangle(tabPos, tabSize, bgColor);
+                UI.Graphics.DrawRectangleOutline(tabPos, tabSize, new FishColor(150, 150, 150));
+            }
+
+            if (string.IsNullOrEmpty(page.Text))
+                return;
+
+            Vector2 textSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, page.Text);
+            float textX = x + (tabWidth - textSize.X) / 2;
+            float textY = tabPos.Y + (headerHeight - textSize.Y) / 2;
+            UI.Graphics.DrawText(UI.Settings.FontDefault, page.Text, new Vector2(textX, textY));
         }
 
         /// <summary>
@@ -480,11 +556,14 @@ namespace FishUI.Controls
         {
             Vector2 absPos = GetAbsolutePosition();
             Vector2 absSize = GetAbsoluteSize();
+            float headerHeight = Scale(TabHeaderHeight);
+            float selectedOverlap = Scale(Math.Max(0, SelectedTabOverlap));
+            float tabOverlap = Scale(Math.Max(0, TabButtonOverlap));
 
             // Draw the control background (simplified - just the frame)
             NPatch bgImg = UI.Settings.ImgTabControlBackground;
-            Vector2 contentPos = new Vector2(absPos.X, absPos.Y + TabHeaderHeight);
-            Vector2 bgSize = new Vector2(absSize.X, absSize.Y - TabHeaderHeight);
+            Vector2 contentPos = new Vector2(absPos.X, absPos.Y + headerHeight);
+            Vector2 bgSize = new Vector2(absSize.X, absSize.Y - headerHeight);
 
             if (bgImg != null)
             {
@@ -499,7 +578,7 @@ namespace FishUI.Controls
             // Draw tab header background
             NPatch headerImg = UI.Settings.ImgTabTopInactive;
             Vector2 headerPos = absPos;
-            Vector2 headerSize = new Vector2(absSize.X, TabHeaderHeight);
+            Vector2 headerSize = new Vector2(absSize.X, headerHeight);
 
             if (headerImg != null)
             {
@@ -511,7 +590,7 @@ namespace FishUI.Controls
             }
 
             // Draw tab labels in header
-            float x = absPos.X;
+            float x = absPos.X + Scale(Math.Max(0, TabHeaderInset));
             FishColor[] tabColors = new FishColor[]
             {
                 new FishColor(100, 150, 255, 180), // Blue
@@ -528,7 +607,7 @@ namespace FishUI.Controls
                 bool isSelected = (i == _selectedIndex);
 
                 Vector2 tabPos = new Vector2(x, absPos.Y);
-                Vector2 tabSize = new Vector2(tabWidth, TabHeaderHeight);
+                Vector2 tabSize = new Vector2(tabWidth, headerHeight + (isSelected ? selectedOverlap : 0));
 
                 // Draw tab background with color coding
                 FishColor tabColor = tabColors[i % tabColors.Length];
@@ -545,7 +624,7 @@ namespace FishUI.Controls
                 {
                     Vector2 textSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, page.Text);
                     float textX = x + (tabWidth - textSize.X) / 2;
-                    float textY = absPos.Y + (TabHeaderHeight - textSize.Y) / 2;
+                    float textY = absPos.Y + (headerHeight - textSize.Y) / 2;
                     UI.Graphics.DrawText(UI.Settings.FontDefault, page.Text, new Vector2(textX, textY));
                 }
 
@@ -565,7 +644,7 @@ namespace FishUI.Controls
                     }
                 }
 
-                x += tabWidth;
+                x += tabWidth - tabOverlap;
             }
 
             // Draw container outline for the whole control

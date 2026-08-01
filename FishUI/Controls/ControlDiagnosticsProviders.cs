@@ -247,6 +247,9 @@ namespace FishUI.Controls
             writer.Write("tabScanCount", scanned);
             writer.Write("tabScanTruncated", scanned < TabPages.Count);
             writer.Write("headerHeightPixels", Scale(TabHeaderHeight));
+            writer.Write("selectedTabOverlapPixels", Scale(Math.Max(0, SelectedTabOverlap)));
+            writer.Write("tabButtonOverlapPixels", Scale(Math.Max(0, TabButtonOverlap)));
+            writer.Write("tabHeaderInsetPixels", Scale(Math.Max(0, TabHeaderInset)));
             Vector2 position = GetAbsolutePosition();
             Vector2 size = GetAbsoluteSize();
             writer.Write("headerPixels", new FishUIDebugRect(position.X, position.Y, size.X, Scale(TabHeaderHeight)));
