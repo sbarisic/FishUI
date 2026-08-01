@@ -5,322 +5,318 @@ using YamlDotNet.Serialization;
 
 namespace FishUI.Controls
 {
-	/// <summary>
-	/// Type of toast notification, affecting its appearance.
-	/// </summary>
-	public enum ToastType
-	{
-		Info,
-		Success,
-		Warning,
-		Error
-	}
+    /// <summary>
+    /// Type of toast notification, affecting its appearance.
+    /// </summary>
+    public enum ToastType
+    {
+        Info,
+        Success,
+        Warning,
+        Error
+    }
 
-	/// <summary>
-	/// Represents a single toast notification message.
-	/// </summary>
-	public class ToastMessage
-	{
-		public string Title { get; set; }
-		public string Message { get; set; }
-		public ToastType Type { get; set; }
-		public float Duration { get; set; }
-		public float ElapsedTime { get; set; }
-		public float Alpha { get; set; } = 1f;
-		public bool IsExpired => ElapsedTime >= Duration;
+    /// <summary>
+    /// Represents a single toast notification message.
+    /// </summary>
+    public class ToastMessage
+    {
+        public string Title { get; set; }
+        public string Message { get; set; }
+        public ToastType Type { get; set; }
+        public float Duration { get; set; }
+        public float ElapsedTime { get; set; }
+        public float Alpha { get; set; } = 1f;
+        public bool IsExpired => ElapsedTime >= Duration;
 
-		public ToastMessage(string message, ToastType type = ToastType.Info, float duration = 3f)
-		{
-			Title = "";
-			Message = message;
-			Type = type;
-			Duration = duration;
-			ElapsedTime = 0f;
-		}
+        public ToastMessage(string message, ToastType type = ToastType.Info, float duration = 3f)
+        {
+            Title = "";
+            Message = message;
+            Type = type;
+            Duration = duration;
+            ElapsedTime = 0f;
+        }
 
-		public ToastMessage(string title, string message, ToastType type = ToastType.Info, float duration = 3f)
-		{
-			Title = title;
-			Message = message;
-			Type = type;
-			Duration = duration;
-			ElapsedTime = 0f;
-		}
-	}
+        public ToastMessage(string title, string message, ToastType type = ToastType.Info, float duration = 3f)
+        {
+            Title = title;
+            Message = message;
+            Type = type;
+            Duration = duration;
+            ElapsedTime = 0f;
+        }
+    }
 
-	/// <summary>
-	/// A toast notification system that displays temporary messages.
-	/// Toasts stack in the top-right corner and auto-dismiss after a timeout.
-	/// Add this control once to your UI to enable toast notifications.
-	/// </summary>
-	public partial class ToastNotification : Control
-	{
-		/// <summary>
-		/// List of active toast messages.
-		/// </summary>
-		[YamlIgnore]
-		private List<ToastMessage> _toasts = new List<ToastMessage>();
+    /// <summary>
+    /// A toast notification system that displays temporary messages.
+    /// Toasts stack in the top-right corner and auto-dismiss after a timeout.
+    /// Add this control once to your UI to enable toast notifications.
+    /// </summary>
+    public partial class ToastNotification : Control
+    {
+        /// <summary>
+        /// List of active toast messages.
+        /// </summary>
+        [YamlIgnore]
+        private List<ToastMessage> _toasts = new List<ToastMessage>();
 
-		/// <summary>
-		/// Maximum number of toasts to display at once.
-		/// </summary>
-		[YamlMember]
-		public int MaxToasts { get; set; } = 5;
+        /// <summary>
+        /// Maximum number of toasts to display at once.
+        /// </summary>
+        [YamlMember]
+        public int MaxToasts { get; set; } = 5;
 
-		/// <summary>
-		/// Width of each toast notification.
-		/// </summary>
-		[YamlMember]
-		public float ToastWidth { get; set; } = 300f;
+        /// <summary>
+        /// Width of each toast notification.
+        /// </summary>
+        [YamlMember]
+        public float ToastWidth { get; set; } = 300f;
 
-		/// <summary>
-		/// Height of each toast notification.
-		/// </summary>
-		[YamlMember]
-		public float ToastHeight { get; set; } = 60f;
+        /// <summary>
+        /// Height of each toast notification.
+        /// </summary>
+        [YamlMember]
+        public float ToastHeight { get; set; } = 60f;
 
-		/// <summary>
-		/// Spacing between toasts.
-		/// </summary>
-		[YamlMember]
-		public float ToastSpacing { get; set; } = 8f;
+        /// <summary>
+        /// Spacing between toasts.
+        /// </summary>
+        [YamlMember]
+        public float ToastSpacing { get; set; } = 8f;
 
-		/// <summary>
-		/// Margin from the screen edge.
-		/// </summary>
-		[YamlMember]
-		public float ScreenMargin { get; set; } = 20f;
+        /// <summary>
+        /// Margin from the screen edge.
+        /// </summary>
+        [YamlMember]
+        public float ScreenMargin { get; set; } = 20f;
 
-		/// <summary>
-		/// Duration of fade-out animation in seconds.
-		/// </summary>
-		[YamlMember]
-		public float FadeOutDuration { get; set; } = 0.5f;
+        /// <summary>
+        /// Duration of fade-out animation in seconds.
+        /// </summary>
+        [YamlMember]
+        public float FadeOutDuration { get; set; } = 0.5f;
 
-		/// <summary>
-		/// Default duration for toasts in seconds.
-		/// </summary>
-		[YamlMember]
-		public float DefaultDuration { get; set; } = 3f;
+        /// <summary>
+        /// Default duration for toasts in seconds.
+        /// </summary>
+        [YamlMember]
+        public float DefaultDuration { get; set; } = 3f;
 
-		/// <summary>
-		/// Content padding inside toast.
-		/// </summary>
-		[YamlMember]
-		public float ContentPadding { get; set; } = 10f;
+        /// <summary>
+        /// Content padding inside toast.
+        /// </summary>
+        [YamlMember]
+        public float ContentPadding { get; set; } = 10f;
 
-		/// <summary>
-		/// Color for Info type toasts.
-		/// </summary>
-		[YamlMember]
-		public FishColor InfoColor { get; set; } = new FishColor(60, 120, 200, 255);
+        /// <summary>
+        /// Color for Info type toasts.
+        /// </summary>
+        [YamlMember]
+        public FishColor InfoColor { get; set; } = new FishColor(60, 120, 200, 255);
 
-		/// <summary>
-		/// Color for Success type toasts.
-		/// </summary>
-		[YamlMember]
-		public FishColor SuccessColor { get; set; } = new FishColor(60, 180, 80, 255);
+        /// <summary>
+        /// Color for Success type toasts.
+        /// </summary>
+        [YamlMember]
+        public FishColor SuccessColor { get; set; } = new FishColor(60, 180, 80, 255);
 
-		/// <summary>
-		/// Color for Warning type toasts.
-		/// </summary>
-		[YamlMember]
-		public FishColor WarningColor { get; set; } = new FishColor(220, 160, 40, 255);
+        /// <summary>
+        /// Color for Warning type toasts.
+        /// </summary>
+        [YamlMember]
+        public FishColor WarningColor { get; set; } = new FishColor(220, 160, 40, 255);
 
-		/// <summary>
-		/// Color for Error type toasts.
-		/// </summary>
-		[YamlMember]
-		public FishColor ErrorColor { get; set; } = new FishColor(200, 60, 60, 255);
+        /// <summary>
+        /// Color for Error type toasts.
+        /// </summary>
+        [YamlMember]
+        public FishColor ErrorColor { get; set; } = new FishColor(200, 60, 60, 255);
 
-		/// <summary>
-		/// Background color of the toast.
-		/// </summary>
-		[YamlMember]
-		public FishColor BackgroundColor { get; set; } = new FishColor(40, 40, 40, 240);
+        /// <summary>
+        /// Background color of the toast.
+        /// </summary>
+        [YamlMember]
+        public FishColor BackgroundColor { get; set; } = new FishColor(40, 40, 40, 240);
 
-		/// <summary>
-		/// Text color for toast messages.
-		/// </summary>
-		[YamlMember]
-		public FishColor TextColor { get; set; } = new FishColor(255, 255, 255, 255);
+        /// <summary>
+        /// Text color for toast messages.
+        /// </summary>
+        [YamlMember]
+        public FishColor TextColor { get; set; } = new FishColor(255, 255, 255, 255);
 
-		public ToastNotification()
-		{
-			// This control doesn't have a fixed position/size - it renders in the corner
-			AlwaysOnTop = true;
-			Visible = true;
-		}
+        public ToastNotification()
+        {
+            // This control doesn't have a fixed position/size - it renders in the corner
+            AlwaysOnTop = true;
+            Visible = true;
+        }
 
-		/// <summary>
-		/// Shows a toast notification with a message.
-		/// </summary>
-		public void Show(string message, ToastType type = ToastType.Info)
-		{
-			Show(message, type, DefaultDuration);
-		}
+        /// <summary>
+        /// Shows a toast notification with a message.
+        /// </summary>
+        public void Show(string message, ToastType type = ToastType.Info)
+        {
+            Show(message, type, DefaultDuration);
+        }
 
-		/// <summary>
-		/// Shows a toast notification with a message and custom duration.
-		/// </summary>
-		public void Show(string message, ToastType type, float duration)
-		{
-			var toast = new ToastMessage(message, type, duration);
-			AddToast(toast);
-		}
+        /// <summary>
+        /// Shows a toast notification with a message and custom duration.
+        /// </summary>
+        public void Show(string message, ToastType type, float duration)
+        {
+            var toast = new ToastMessage(message, type, duration);
+            AddToast(toast);
+        }
 
-		/// <summary>
-		/// Shows a toast notification with a title and message.
-		/// </summary>
-		public void Show(string title, string message, ToastType type = ToastType.Info)
-		{
-			Show(title, message, type, DefaultDuration);
-		}
+        /// <summary>
+        /// Shows a toast notification with a title and message.
+        /// </summary>
+        public void Show(string title, string message, ToastType type = ToastType.Info)
+        {
+            Show(title, message, type, DefaultDuration);
+        }
 
-		/// <summary>
-		/// Shows a toast notification with a title, message, and custom duration.
-		/// </summary>
-		public void Show(string title, string message, ToastType type, float duration)
-		{
-			var toast = new ToastMessage(title, message, type, duration);
-			AddToast(toast);
-		}
+        /// <summary>
+        /// Shows a toast notification with a title, message, and custom duration.
+        /// </summary>
+        public void Show(string title, string message, ToastType type, float duration)
+        {
+            var toast = new ToastMessage(title, message, type, duration);
+            AddToast(toast);
+        }
 
-		/// <summary>
-		/// Convenience method to show an info toast.
-		/// </summary>
-		public void ShowInfo(string message) => Show(message, ToastType.Info);
+        /// <summary>
+        /// Convenience method to show an info toast.
+        /// </summary>
+        public void ShowInfo(string message) => Show(message, ToastType.Info);
 
-		/// <summary>
-		/// Convenience method to show a success toast.
-		/// </summary>
-		public void ShowSuccess(string message) => Show(message, ToastType.Success);
+        /// <summary>
+        /// Convenience method to show a success toast.
+        /// </summary>
+        public void ShowSuccess(string message) => Show(message, ToastType.Success);
 
-		/// <summary>
-		/// Convenience method to show a warning toast.
-		/// </summary>
-		public void ShowWarning(string message) => Show(message, ToastType.Warning);
+        /// <summary>
+        /// Convenience method to show a warning toast.
+        /// </summary>
+        public void ShowWarning(string message) => Show(message, ToastType.Warning);
 
-		/// <summary>
-		/// Convenience method to show an error toast.
-		/// </summary>
-		public void ShowError(string message) => Show(message, ToastType.Error);
+        /// <summary>
+        /// Convenience method to show an error toast.
+        /// </summary>
+        public void ShowError(string message) => Show(message, ToastType.Error);
 
-		/// <summary>
-		/// Clears all active toasts.
-		/// </summary>
-		public void ClearAll()
-		{
-			int previous = _toasts.Count;
-			_toasts.Clear();
-			RecordDiagnosticTransition("activeCount", previous, 0);
-		}
+        /// <summary>
+        /// Clears all active toasts.
+        /// </summary>
+        public void ClearAll()
+        {
+            int previous = _toasts.Count;
+            _toasts.Clear();
+            RecordDiagnosticTransition("activeCount", previous, 0);
+        }
 
-		/// <summary>
-		/// Gets the number of active toasts.
-		/// </summary>
-		[YamlIgnore]
-		public int ActiveCount => _toasts.Count;
+        /// <summary>
+        /// Gets the number of active toasts.
+        /// </summary>
+        [YamlIgnore]
+        public int ActiveCount => _toasts.Count;
 
-		private void AddToast(ToastMessage toast)
-		{
-			int previous = _toasts.Count;
-			_toasts.Insert(0, toast);
+        private void AddToast(ToastMessage toast)
+        {
+            int previous = _toasts.Count;
+            _toasts.Insert(0, toast);
 
-			// Remove oldest if we exceed max
-			while (_toasts.Count > MaxToasts)
-			{
-				_toasts.RemoveAt(_toasts.Count - 1);
-			}
-			RecordDiagnosticTransition("activeCount", previous, _toasts.Count);
-		}
+            // Remove oldest if we exceed max
+            while (_toasts.Count > MaxToasts)
+            {
+                _toasts.RemoveAt(_toasts.Count - 1);
+            }
+            RecordDiagnosticTransition("activeCount", previous, _toasts.Count);
+        }
 
-		public override void DrawControl(FishUI UI, float Dt, float Time)
-		{
-			using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.ControlBounds);
-			if (_toasts.Count == 0)
-				return;
+        protected override void OnFishUIUpdate(FishUI UI, float Dt, float Time)
+        {
+            int beforeExpiration = _toasts.Count;
+            float delta = Math.Max(0, Dt);
+            for (int i = _toasts.Count - 1; i >= 0; i--)
+            {
+                _toasts[i].ElapsedTime += delta;
+                float timeRemaining = _toasts[i].Duration - _toasts[i].ElapsedTime;
+                if (timeRemaining < FadeOutDuration)
+                    _toasts[i].Alpha = FadeOutDuration <= 0 ? 0 : Math.Max(0, timeRemaining / FadeOutDuration);
+                if (_toasts[i].IsExpired)
+                    _toasts.RemoveAt(i);
+            }
+            RecordDiagnosticTransition("activeCount", beforeExpiration, _toasts.Count);
+        }
 
-			float screenWidth = UI.Graphics.GetWindowWidth();
-			float startX = screenWidth - ToastWidth - ScreenMargin;
-			float startY = ScreenMargin;
+        public override void DrawControl(FishUI UI, float Dt, float Time)
+        {
+            using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.ControlBounds);
+            if (_toasts.Count == 0)
+                return;
 
-			// Update and remove expired toasts
-			int beforeExpiration = _toasts.Count;
-			for (int i = _toasts.Count - 1; i >= 0; i--)
-			{
-				_toasts[i].ElapsedTime += Dt;
+            float screenWidth = UI.Graphics.GetWindowWidth();
+            float startX = screenWidth - ToastWidth - ScreenMargin;
+            float startY = ScreenMargin;
 
-				// Calculate fade-out alpha
-				float timeRemaining = _toasts[i].Duration - _toasts[i].ElapsedTime;
-				if (timeRemaining < FadeOutDuration)
-				{
-					_toasts[i].Alpha = Math.Max(0, timeRemaining / FadeOutDuration);
-				}
+            // Draw toasts from top to bottom
+            float currentY = startY;
+            for (int i = 0; i < _toasts.Count; i++)
+            {
+                var toast = _toasts[i];
+                DrawToast(UI, toast, startX, currentY);
+                currentY += ToastHeight + ToastSpacing;
+            }
+        }
 
-				if (_toasts[i].IsExpired)
-				{
-					_toasts.RemoveAt(i);
-				}
-			}
-			RecordDiagnosticTransition("activeCount", beforeExpiration, _toasts.Count);
+        private void DrawToast(FishUI UI, ToastMessage toast, float x, float y)
+        {
+            Vector2 pos = new Vector2(x, y);
+            Vector2 size = new Vector2(ToastWidth, ToastHeight);
 
-			// Draw toasts from top to bottom
-			float currentY = startY;
-			for (int i = 0; i < _toasts.Count; i++)
-			{
-				var toast = _toasts[i];
-				DrawToast(UI, toast, startX, currentY);
-				currentY += ToastHeight + ToastSpacing;
-			}
-		}
+            byte alpha = (byte)(toast.Alpha * 255);
 
-		private void DrawToast(FishUI UI, ToastMessage toast, float x, float y)
-		{
-			Vector2 pos = new Vector2(x, y);
-			Vector2 size = new Vector2(ToastWidth, ToastHeight);
+            // Get type color
+            FishColor typeColor = toast.Type switch
+            {
+                ToastType.Success => SuccessColor,
+                ToastType.Warning => WarningColor,
+                ToastType.Error => ErrorColor,
+                _ => InfoColor
+            };
+            typeColor = new FishColor(typeColor.R, typeColor.G, typeColor.B, alpha);
 
-			byte alpha = (byte)(toast.Alpha * 255);
+            // Draw background using tooltip texture if available, otherwise fallback
+            FishColor bgColor = new FishColor(BackgroundColor.R, BackgroundColor.G, BackgroundColor.B, alpha);
+            NPatch bgImg = UI.Settings.ImgTooltipNormal;
+            if (bgImg != null)
+            {
+                UI.Graphics.DrawNPatch(bgImg, pos, size, bgColor);
+            }
+            else
+            {
+                UI.Graphics.DrawRectangle(pos, size, bgColor);
+            }
 
-			// Get type color
-			FishColor typeColor = toast.Type switch
-			{
-				ToastType.Success => SuccessColor,
-				ToastType.Warning => WarningColor,
-				ToastType.Error => ErrorColor,
-				_ => InfoColor
-			};
-			typeColor = new FishColor(typeColor.R, typeColor.G, typeColor.B, alpha);
+            // Draw type indicator bar on the left
+            UI.Graphics.DrawRectangle(pos, new Vector2(4, size.Y), typeColor);
 
-			// Draw background using tooltip texture if available, otherwise fallback
-			FishColor bgColor = new FishColor(BackgroundColor.R, BackgroundColor.G, BackgroundColor.B, alpha);
-			NPatch bgImg = UI.Settings.ImgTooltipNormal;
-			if (bgImg != null)
-			{
-				UI.Graphics.DrawNPatch(bgImg, pos, size, bgColor);
-			}
-			else
-			{
-				UI.Graphics.DrawRectangle(pos, size, bgColor);
-			}
+            // Draw title if present
+            FishColor textColor = new FishColor(TextColor.R, TextColor.G, TextColor.B, alpha);
+            float textX = pos.X + ContentPadding + 6; // +6 for indicator bar
+            float textY = pos.Y + ContentPadding;
 
-			// Draw type indicator bar on the left
-			UI.Graphics.DrawRectangle(pos, new Vector2(4, size.Y), typeColor);
+            if (!string.IsNullOrEmpty(toast.Title))
+            {
+                // Draw title in type color
+                UI.Graphics.DrawTextColor(UI.Settings.FontDefault, toast.Title, new Vector2(textX, textY), typeColor);
+                textY += UI.Settings.FontDefault.Size + 4;
+            }
 
-			// Draw title if present
-			FishColor textColor = new FishColor(TextColor.R, TextColor.G, TextColor.B, alpha);
-			float textX = pos.X + ContentPadding + 6; // +6 for indicator bar
-			float textY = pos.Y + ContentPadding;
-
-			if (!string.IsNullOrEmpty(toast.Title))
-			{
-				// Draw title in type color
-				UI.Graphics.DrawTextColor(UI.Settings.FontDefault, toast.Title, new Vector2(textX, textY), typeColor);
-				textY += UI.Settings.FontDefault.Size + 4;
-			}
-
-			// Draw message
-			UI.Graphics.DrawTextColor(UI.Settings.FontDefault, toast.Message, new Vector2(textX, textY), textColor);
-		}
-	}
+            // Draw message
+            UI.Graphics.DrawTextColor(UI.Settings.FontDefault, toast.Message, new Vector2(textX, textY), textColor);
+        }
+    }
 }

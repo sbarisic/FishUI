@@ -5,482 +5,482 @@ using YamlDotNet.Serialization;
 
 namespace FishUI.Controls
 {
-	/// <summary>
-	/// Represents a color zone within a BarGauge.
-	/// </summary>
-	public class GaugeColorZone
-	{
-		/// <summary>
-		/// Start value of this zone (as a percentage of the gauge range, 0.0 to 1.0).
-		/// </summary>
-		public float Start { get; set; }
+    /// <summary>
+    /// Represents a color zone within a BarGauge.
+    /// </summary>
+    public class GaugeColorZone
+    {
+        /// <summary>
+        /// Start value of this zone (as a percentage of the gauge range, 0.0 to 1.0).
+        /// </summary>
+        public float Start { get; set; }
 
-		/// <summary>
-		/// End value of this zone (as a percentage of the gauge range, 0.0 to 1.0).
-		/// </summary>
-		public float End { get; set; }
+        /// <summary>
+        /// End value of this zone (as a percentage of the gauge range, 0.0 to 1.0).
+        /// </summary>
+        public float End { get; set; }
 
-		/// <summary>
-		/// Color of this zone.
-		/// </summary>
-		public FishColor Color { get; set; }
+        /// <summary>
+        /// Color of this zone.
+        /// </summary>
+        public FishColor Color { get; set; }
 
-		public GaugeColorZone() { }
+        public GaugeColorZone() { }
 
-		public GaugeColorZone(float start, float end, FishColor color)
-		{
-			Start = start;
-			End = end;
-			Color = color;
-		}
-	}
+        public GaugeColorZone(float start, float end, FishColor color)
+        {
+            Start = start;
+            End = end;
+            Color = color;
+        }
+    }
 
-	/// <summary>
-	/// Orientation for the BarGauge.
-	/// </summary>
-	public enum BarGaugeOrientation
-	{
-		Horizontal,
-		Vertical
-	}
+    /// <summary>
+    /// Orientation for the BarGauge.
+    /// </summary>
+    public enum BarGaugeOrientation
+    {
+        Horizontal,
+        Vertical
+    }
 
-	/// <summary>
-	/// A linear gauge control for displaying values with optional color zones and tick marks.
-	/// Useful for temperature, fuel level, progress indicators, etc.
-	/// </summary>
-	public partial class BarGauge : Control
-	{
-		/// <summary>
-		/// Minimum value of the gauge.
-		/// </summary>
-		[YamlMember]
-		public float MinValue { get; set; } = 0f;
+    /// <summary>
+    /// A linear gauge control for displaying values with optional color zones and tick marks.
+    /// Useful for temperature, fuel level, progress indicators, etc.
+    /// </summary>
+    public partial class BarGauge : Control
+    {
+        /// <summary>
+        /// Minimum value of the gauge.
+        /// </summary>
+        [YamlMember]
+        public float MinValue { get; set; } = 0f;
 
-		/// <summary>
-		/// Maximum value of the gauge.
-		/// </summary>
-		[YamlMember]
-		public float MaxValue { get; set; } = 100f;
+        /// <summary>
+        /// Maximum value of the gauge.
+        /// </summary>
+        [YamlMember]
+        public float MaxValue { get; set; } = 100f;
 
-		/// <summary>
-		/// Current value of the gauge.
-		/// </summary>
-		[YamlMember]
-		public float Value
-		{
-			get => _value;
-			set => _value = Math.Clamp(value, MinValue, MaxValue);
-		}
-		private float _value = 0f;
+        /// <summary>
+        /// Current value of the gauge.
+        /// </summary>
+        [YamlMember]
+        public float Value
+        {
+            get => _value;
+            set => _value = Math.Clamp(value, MinValue, MaxValue);
+        }
+        private float _value = 0f;
 
-		/// <summary>
-		/// Orientation of the gauge (Horizontal or Vertical).
-		/// </summary>
-		[YamlMember]
-		public BarGaugeOrientation Orientation { get; set; } = BarGaugeOrientation.Horizontal;
+        /// <summary>
+        /// Orientation of the gauge (Horizontal or Vertical).
+        /// </summary>
+        [YamlMember]
+        public BarGaugeOrientation Orientation { get; set; } = BarGaugeOrientation.Horizontal;
 
-		/// <summary>
-		/// Background color of the gauge track (unfilled area).
-		/// </summary>
-		[YamlMember]
-		public FishColor BackgroundColor { get; set; } = new FishColor(80, 80, 80, 255);
+        /// <summary>
+        /// Background color of the gauge track (unfilled area).
+        /// </summary>
+        [YamlMember]
+        public FishColor BackgroundColor { get; set; } = new FishColor(80, 80, 80, 255);
 
-		/// <summary>
-		/// Default fill color when no color zones are defined.
-		/// </summary>
-		[YamlMember]
-		public FishColor FillColor { get; set; } = new FishColor(0, 200, 100, 255);
+        /// <summary>
+        /// Default fill color when no color zones are defined.
+        /// </summary>
+        [YamlMember]
+        public FishColor FillColor { get; set; } = new FishColor(0, 200, 100, 255);
 
-		/// <summary>
-		/// Border color of the gauge.
-		/// </summary>
-		[YamlMember]
-		public FishColor BorderColor { get; set; } = new FishColor(80, 80, 80, 255);
+        /// <summary>
+        /// Border color of the gauge.
+        /// </summary>
+        [YamlMember]
+        public FishColor BorderColor { get; set; } = new FishColor(80, 80, 80, 255);
 
-		/// <summary>
-		/// Whether to show a border around the gauge.
-		/// </summary>
-		[YamlMember]
-		public bool ShowBorder { get; set; } = true;
+        /// <summary>
+        /// Whether to show a border around the gauge.
+        /// </summary>
+        [YamlMember]
+        public bool ShowBorder { get; set; } = true;
 
-		/// <summary>
-		/// Whether to show tick marks along the gauge.
-		/// </summary>
-		[YamlMember]
-		public bool ShowTicks { get; set; } = false;
+        /// <summary>
+        /// Whether to show tick marks along the gauge.
+        /// </summary>
+        [YamlMember]
+        public bool ShowTicks { get; set; } = false;
 
-		/// <summary>
-		/// Number of major tick divisions.
-		/// </summary>
-		[YamlMember]
-		public int TickCount { get; set; } = 5;
+        /// <summary>
+        /// Number of major tick divisions.
+        /// </summary>
+        [YamlMember]
+        public int TickCount { get; set; } = 5;
 
-		/// <summary>
-		/// Color of tick marks.
-		/// </summary>
-		[YamlMember]
-		public FishColor TickColor { get; set; } = new FishColor(0, 0, 0, 255);
+        /// <summary>
+        /// Color of tick marks.
+        /// </summary>
+        [YamlMember]
+        public FishColor TickColor { get; set; } = new FishColor(0, 0, 0, 255);
 
-		/// <summary>
-		/// Length of tick marks in pixels.
-		/// </summary>
-		[YamlMember]
-		public float TickLength { get; set; } = 5f;
+        /// <summary>
+        /// Length of tick marks in pixels.
+        /// </summary>
+        [YamlMember]
+        public float TickLength { get; set; } = 5f;
 
-		/// <summary>
-		/// Whether to show labels at tick positions.
-		/// </summary>
-		[YamlMember]
-		public bool ShowLabels { get; set; } = false;
+        /// <summary>
+        /// Whether to show labels at tick positions.
+        /// </summary>
+        [YamlMember]
+        public bool ShowLabels { get; set; } = false;
 
-		/// <summary>
-		/// Whether to show the current value as text.
-		/// </summary>
-		[YamlMember]
-		public bool ShowValue { get; set; } = false;
+        /// <summary>
+        /// Whether to show the current value as text.
+        /// </summary>
+        [YamlMember]
+        public bool ShowValue { get; set; } = false;
 
-		/// <summary>
-		/// Format string for value display (e.g., "F0" for no decimals, "F1" for one decimal).
-		/// </summary>
-		[YamlMember]
-		public string ValueFormat { get; set; } = "F0";
+        /// <summary>
+        /// Format string for value display (e.g., "F0" for no decimals, "F1" for one decimal).
+        /// </summary>
+        [YamlMember]
+        public string ValueFormat { get; set; } = "F0";
 
-		/// <summary>
-		/// Optional unit suffix for value display (e.g., "°C", "%", "L").
-		/// </summary>
-		[YamlMember]
-		public string UnitSuffix { get; set; } = "";
+        /// <summary>
+        /// Optional unit suffix for value display (e.g., "°C", "%", "L").
+        /// </summary>
+        [YamlMember]
+        public string UnitSuffix { get; set; } = "";
 
-		/// <summary>
-		/// Color zones for the gauge. If empty, uses FillColor for the entire range.
-		/// </summary>
-		[YamlIgnore]
-		public List<GaugeColorZone> ColorZones { get; set; } = new List<GaugeColorZone>();
+        /// <summary>
+        /// Color zones for the gauge. If empty, uses FillColor for the entire range.
+        /// </summary>
+        [YamlIgnore]
+        public List<GaugeColorZone> ColorZones { get; set; } = new List<GaugeColorZone>();
 
-		/// <summary>
-		/// Whether to show range labels at min/max positions (e.g., "E" and "F" for fuel).
-		/// </summary>
-		[YamlMember]
-		public bool ShowRangeLabels { get; set; } = false;
+        /// <summary>
+        /// Whether to show range labels at min/max positions (e.g., "E" and "F" for fuel).
+        /// </summary>
+        [YamlMember]
+        public bool ShowRangeLabels { get; set; } = false;
 
-		/// <summary>
-		/// Label to display at minimum value position (e.g., "E" for empty, "0" for RPM).
-		/// </summary>
-		[YamlMember]
-		public string MinLabel { get; set; } = "";
+        /// <summary>
+        /// Label to display at minimum value position (e.g., "E" for empty, "0" for RPM).
+        /// </summary>
+        [YamlMember]
+        public string MinLabel { get; set; } = "";
 
-		/// <summary>
-		/// Label to display at maximum value position (e.g., "F" for full, "8" for RPM x1000).
-		/// </summary>
-		[YamlMember]
-		public string MaxLabel { get; set; } = "";
+        /// <summary>
+        /// Label to display at maximum value position (e.g., "F" for full, "8" for RPM x1000).
+        /// </summary>
+        [YamlMember]
+        public string MaxLabel { get; set; } = "";
 
-		/// <summary>
-		/// Color for range labels.
-		/// </summary>
-		[YamlMember]
-		public FishColor RangeLabelColor { get; set; } = new FishColor(255, 255, 255, 255);
+        /// <summary>
+        /// Color for range labels.
+        /// </summary>
+        [YamlMember]
+        public FishColor RangeLabelColor { get; set; } = new FishColor(255, 255, 255, 255);
 
-		public BarGauge()
-		{
-			Size = new Vector2(250, 35);
-		}
+        public BarGauge()
+        {
+            Size = new Vector2(250, 35);
+        }
 
-		/// <summary>
-		/// Creates a BarGauge with specified range.
-		/// </summary>
-		public BarGauge(float minValue, float maxValue) : this()
-		{
-			MinValue = minValue;
-			MaxValue = maxValue;
-		}
+        /// <summary>
+        /// Creates a BarGauge with specified range.
+        /// </summary>
+        public BarGauge(float minValue, float maxValue) : this()
+        {
+            MinValue = minValue;
+            MaxValue = maxValue;
+        }
 
-		/// <summary>
-		/// Adds a color zone to the gauge.
-		/// </summary>
-		/// <param name="startPercent">Start of zone as percentage (0.0 to 1.0).</param>
-		/// <param name="endPercent">End of zone as percentage (0.0 to 1.0).</param>
-		/// <param name="color">Color for this zone.</param>
-		public void AddColorZone(float startPercent, float endPercent, FishColor color)
-		{
-			ColorZones.Add(new GaugeColorZone(startPercent, endPercent, color));
-		}
+        /// <summary>
+        /// Adds a color zone to the gauge.
+        /// </summary>
+        /// <param name="startPercent">Start of zone as percentage (0.0 to 1.0).</param>
+        /// <param name="endPercent">End of zone as percentage (0.0 to 1.0).</param>
+        /// <param name="color">Color for this zone.</param>
+        public void AddColorZone(float startPercent, float endPercent, FishColor color)
+        {
+            ColorZones.Add(new GaugeColorZone(startPercent, endPercent, color));
+        }
 
-		/// <summary>
-		/// Sets up a classic green-yellow-red temperature-style gauge.
-		/// </summary>
-		public void SetupTemperatureZones()
-		{
-			ColorZones.Clear();
-			ColorZones.Add(new GaugeColorZone(0f, 0.6f, new FishColor(0, 180, 80, 255)));    // Green
-			ColorZones.Add(new GaugeColorZone(0.6f, 0.8f, new FishColor(255, 200, 0, 255))); // Yellow
-			ColorZones.Add(new GaugeColorZone(0.8f, 1f, new FishColor(220, 50, 50, 255)));   // Red
-		}
+        /// <summary>
+        /// Sets up a classic green-yellow-red temperature-style gauge.
+        /// </summary>
+        public void SetupTemperatureZones()
+        {
+            ColorZones.Clear();
+            ColorZones.Add(new GaugeColorZone(0f, 0.6f, new FishColor(0, 180, 80, 255)));    // Green
+            ColorZones.Add(new GaugeColorZone(0.6f, 0.8f, new FishColor(255, 200, 0, 255))); // Yellow
+            ColorZones.Add(new GaugeColorZone(0.8f, 1f, new FishColor(220, 50, 50, 255)));   // Red
+        }
 
-		/// <summary>
-		/// Sets up a fuel-style gauge (red-yellow-green).
-		/// </summary>
-		public void SetupFuelZones()
-		{
-			ColorZones.Clear();
-			ColorZones.Add(new GaugeColorZone(0f, 0.2f, new FishColor(220, 50, 50, 255)));   // Red (low)
-			ColorZones.Add(new GaugeColorZone(0.2f, 0.4f, new FishColor(255, 200, 0, 255))); // Yellow
-			ColorZones.Add(new GaugeColorZone(0.4f, 1f, new FishColor(0, 180, 80, 255)));    // Green
-		}
+        /// <summary>
+        /// Sets up a fuel-style gauge (red-yellow-green).
+        /// </summary>
+        public void SetupFuelZones()
+        {
+            ColorZones.Clear();
+            ColorZones.Add(new GaugeColorZone(0f, 0.2f, new FishColor(220, 50, 50, 255)));   // Red (low)
+            ColorZones.Add(new GaugeColorZone(0.2f, 0.4f, new FishColor(255, 200, 0, 255))); // Yellow
+            ColorZones.Add(new GaugeColorZone(0.4f, 1f, new FishColor(0, 180, 80, 255)));    // Green
+        }
 
-		/// <summary>
-		/// Gets the normalized value (0.0 to 1.0) based on current value and range.
-		/// </summary>
-		private float GetNormalizedValue()
-		{
-			if (MaxValue <= MinValue)
-				return 0f;
-			return (Value - MinValue) / (MaxValue - MinValue);
-		}
+        /// <summary>
+        /// Gets the normalized value (0.0 to 1.0) based on current value and range.
+        /// </summary>
+        private float GetNormalizedValue()
+        {
+            if (MaxValue <= MinValue)
+                return 0f;
+            return (Value - MinValue) / (MaxValue - MinValue);
+        }
 
-		/// <summary>
-		/// Gets the fill color at the current value position.
-		/// </summary>
-		private FishColor GetFillColorAtValue()
-		{
-			if (ColorZones.Count == 0)
-				return FillColor;
+        /// <summary>
+        /// Gets the fill color at the current value position.
+        /// </summary>
+        private FishColor GetFillColorAtValue()
+        {
+            if (ColorZones.Count == 0)
+                return FillColor;
 
-			float normalized = GetNormalizedValue();
-			foreach (var zone in ColorZones)
-			{
-				if (normalized >= zone.Start && normalized <= zone.End)
-					return zone.Color;
-			}
-			return FillColor;
-		}
+            float normalized = GetNormalizedValue();
+            foreach (var zone in ColorZones)
+            {
+                if (normalized >= zone.Start && normalized <= zone.End)
+                    return zone.Color;
+            }
+            return FillColor;
+        }
 
-		public override void DrawControl(FishUI UI, float Dt, float Time)
-		{
-			using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.ControlBounds);
-			Vector2 pos = GetAbsolutePosition();
-			Vector2 size = GetAbsoluteSize();
-			float normalized = GetNormalizedValue();
+        public override void DrawControl(FishUI UI, float Dt, float Time)
+        {
+            using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.ControlBounds);
+            Vector2 pos = GetAbsolutePosition();
+            Vector2 size = GetAbsoluteSize();
+            float normalized = GetNormalizedValue();
 
-			// Determine gauge area (leave room for ticks/labels if shown)
-			Vector2 gaugePos = pos;
-			Vector2 gaugeSize = size;
+            // Determine gauge area (leave room for ticks/labels if shown)
+            Vector2 gaugePos = pos;
+            Vector2 gaugeSize = size;
 
-			if (ShowTicks || ShowLabels)
-			{
-				float margin = ShowLabels ? 15f : TickLength + 2f;
-				if (Orientation == BarGaugeOrientation.Horizontal)
-				{
-					gaugeSize.Y -= margin;
-				}
-				else
-				{
-					gaugeSize.X -= margin;
-				}
-			}
+            if (ShowTicks || ShowLabels)
+            {
+                float margin = ShowLabels ? 15f : TickLength + 2f;
+                if (Orientation == BarGaugeOrientation.Horizontal)
+                {
+                    gaugeSize.Y -= margin;
+                }
+                else
+                {
+                    gaugeSize.X -= margin;
+                }
+            }
 
-			// Draw background (gray unfilled area)
-			UI.Graphics.DrawRectangle(gaugePos, gaugeSize, BackgroundColor);
+            // Draw background (gray unfilled area)
+            UI.Graphics.DrawRectangle(gaugePos, gaugeSize, BackgroundColor);
 
-			// Draw filled portion with color zones (only up to current value)
-			if (ColorZones.Count > 0)
-			{
-				foreach (var zone in ColorZones)
-				{
-					DrawFilledZone(UI, gaugePos, gaugeSize, zone, normalized);
-				}
-			}
-			else
-			{
-				// No color zones - draw single fill color
-				DrawFill(UI, gaugePos, gaugeSize, normalized, FillColor);
-			}
+            // Draw filled portion with color zones (only up to current value)
+            if (ColorZones.Count > 0)
+            {
+                foreach (var zone in ColorZones)
+                {
+                    DrawFilledZone(UI, gaugePos, gaugeSize, zone, normalized);
+                }
+            }
+            else
+            {
+                // No color zones - draw single fill color
+                DrawFill(UI, gaugePos, gaugeSize, normalized, FillColor);
+            }
 
-			// Draw border
-			if (ShowBorder)
-			{
-				UI.Graphics.DrawRectangleOutline(gaugePos, gaugeSize, BorderColor);
-			}
+            // Draw border
+            if (ShowBorder)
+            {
+                UI.Graphics.DrawRectangleOutline(gaugePos, gaugeSize, BorderColor);
+            }
 
-			// Draw ticks
-			if (ShowTicks)
-			{
-				DrawTicks(UI, gaugePos, gaugeSize);
-			}
+            // Draw ticks
+            if (ShowTicks)
+            {
+                DrawTicks(UI, gaugePos, gaugeSize);
+            }
 
-			// Draw labels
-			if (ShowLabels)
-			{
-				DrawLabels(UI, gaugePos, gaugeSize);
-			}
+            // Draw labels
+            if (ShowLabels)
+            {
+                DrawLabels(UI, gaugePos, gaugeSize);
+            }
 
-			// Draw range labels (E/F, 0/8, etc.)
-			if (ShowRangeLabels)
-			{
-				DrawRangeLabels(UI, gaugePos, gaugeSize);
-			}
+            // Draw range labels (E/F, 0/8, etc.)
+            if (ShowRangeLabels)
+            {
+                DrawRangeLabels(UI, gaugePos, gaugeSize);
+            }
 
-			// Draw current value
-			if (ShowValue)
-			{
-				DrawValue(UI, gaugePos, gaugeSize);
-			}
-		}
+            // Draw current value
+            if (ShowValue)
+            {
+                DrawValue(UI, gaugePos, gaugeSize);
+            }
+        }
 
-		private void DrawFill(FishUI UI, Vector2 pos, Vector2 size, float normalized, FishColor color)
-		{
-			if (normalized <= 0)
-				return;
+        private void DrawFill(FishUI UI, Vector2 pos, Vector2 size, float normalized, FishColor color)
+        {
+            if (normalized <= 0)
+                return;
 
-			if (Orientation == BarGaugeOrientation.Horizontal)
-			{
-				float fillWidth = size.X * normalized;
-				UI.Graphics.DrawRectangle(pos, new Vector2(fillWidth, size.Y), color);
-			}
-			else
-			{
-				float fillHeight = size.Y * normalized;
-				UI.Graphics.DrawRectangle(
-					new Vector2(pos.X, pos.Y + size.Y - fillHeight),
-					new Vector2(size.X, fillHeight),
-					color);
-			}
-		}
+            if (Orientation == BarGaugeOrientation.Horizontal)
+            {
+                float fillWidth = size.X * normalized;
+                UI.Graphics.DrawRectangle(pos, new Vector2(fillWidth, size.Y), color);
+            }
+            else
+            {
+                float fillHeight = size.Y * normalized;
+                UI.Graphics.DrawRectangle(
+                    new Vector2(pos.X, pos.Y + size.Y - fillHeight),
+                    new Vector2(size.X, fillHeight),
+                    color);
+            }
+        }
 
-		private void DrawFilledZone(FishUI UI, Vector2 pos, Vector2 size, GaugeColorZone zone, float normalized)
-		{
-			// Only draw the portion of the zone that is within the filled area
-			float clampedStart = Math.Max(zone.Start, 0f);
-			float clampedEnd = Math.Min(zone.End, normalized);
+        private void DrawFilledZone(FishUI UI, Vector2 pos, Vector2 size, GaugeColorZone zone, float normalized)
+        {
+            // Only draw the portion of the zone that is within the filled area
+            float clampedStart = Math.Max(zone.Start, 0f);
+            float clampedEnd = Math.Min(zone.End, normalized);
 
-			if (clampedEnd <= clampedStart)
-				return;
+            if (clampedEnd <= clampedStart)
+                return;
 
-			if (Orientation == BarGaugeOrientation.Horizontal)
-			{
-				float startX = pos.X + size.X * clampedStart;
-				float endX = pos.X + size.X * clampedEnd;
-				UI.Graphics.DrawRectangle(
-					new Vector2(startX, pos.Y),
-					new Vector2(endX - startX, size.Y),
-					zone.Color);
-			}
-			else
-			{
-				float startY = pos.Y + size.Y * (1f - clampedEnd);
-				float endY = pos.Y + size.Y * (1f - clampedStart);
-				UI.Graphics.DrawRectangle(
-					new Vector2(pos.X, startY),
-					new Vector2(size.X, endY - startY),
-					zone.Color);
-			}
-		}
+            if (Orientation == BarGaugeOrientation.Horizontal)
+            {
+                float startX = pos.X + size.X * clampedStart;
+                float endX = pos.X + size.X * clampedEnd;
+                UI.Graphics.DrawRectangle(
+                    new Vector2(startX, pos.Y),
+                    new Vector2(endX - startX, size.Y),
+                    zone.Color);
+            }
+            else
+            {
+                float startY = pos.Y + size.Y * (1f - clampedEnd);
+                float endY = pos.Y + size.Y * (1f - clampedStart);
+                UI.Graphics.DrawRectangle(
+                    new Vector2(pos.X, startY),
+                    new Vector2(size.X, endY - startY),
+                    zone.Color);
+            }
+        }
 
-		private void DrawTicks(FishUI UI, Vector2 pos, Vector2 size)
-		{
-			for (int i = 0; i <= TickCount; i++)
-			{
-				float t = (float)i / TickCount;
+        private void DrawTicks(FishUI UI, Vector2 pos, Vector2 size)
+        {
+            for (int i = 0; i <= TickCount; i++)
+            {
+                float t = (float)i / TickCount;
 
-				if (Orientation == BarGaugeOrientation.Horizontal)
-				{
-					float x = pos.X + size.X * t;
-					UI.Graphics.DrawLine(
-						new Vector2(x, pos.Y + size.Y),
-						new Vector2(x, pos.Y + size.Y + TickLength),
-						1f, TickColor);
-				}
-				else
-				{
-					float y = pos.Y + size.Y * (1f - t);
-					UI.Graphics.DrawLine(
-						new Vector2(pos.X + size.X, y),
-						new Vector2(pos.X + size.X + TickLength, y),
-						1f, TickColor);
-				}
-			}
-		}
+                if (Orientation == BarGaugeOrientation.Horizontal)
+                {
+                    float x = pos.X + size.X * t;
+                    UI.Graphics.DrawLine(
+                        new Vector2(x, pos.Y + size.Y),
+                        new Vector2(x, pos.Y + size.Y + TickLength),
+                        1f, TickColor);
+                }
+                else
+                {
+                    float y = pos.Y + size.Y * (1f - t);
+                    UI.Graphics.DrawLine(
+                        new Vector2(pos.X + size.X, y),
+                        new Vector2(pos.X + size.X + TickLength, y),
+                        1f, TickColor);
+                }
+            }
+        }
 
-		private void DrawLabels(FishUI UI, Vector2 pos, Vector2 size)
-		{
-			for (int i = 0; i <= TickCount; i++)
-			{
-				float t = (float)i / TickCount;
-				float labelValue = MinValue + (MaxValue - MinValue) * t;
-				string labelText = labelValue.ToString(ValueFormat);
+        private void DrawLabels(FishUI UI, Vector2 pos, Vector2 size)
+        {
+            for (int i = 0; i <= TickCount; i++)
+            {
+                float t = (float)i / TickCount;
+                float labelValue = MinValue + (MaxValue - MinValue) * t;
+                string labelText = labelValue.ToString(ValueFormat);
 
-				if (Orientation == BarGaugeOrientation.Horizontal)
-				{
-					float x = pos.X + size.X * t;
-					Vector2 textSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, labelText);
-					UI.Graphics.DrawText(UI.Settings.FontDefault, labelText,
-						new Vector2(x - textSize.X / 2, pos.Y + size.Y + TickLength + 2));
-				}
-				else
-				{
-					float y = pos.Y + size.Y * (1f - t);
-					Vector2 textSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, labelText);
-					UI.Graphics.DrawText(UI.Settings.FontDefault, labelText,
-						new Vector2(pos.X + size.X + TickLength + 2, y - textSize.Y / 2));
-				}
-			}
-		}
+                if (Orientation == BarGaugeOrientation.Horizontal)
+                {
+                    float x = pos.X + size.X * t;
+                    Vector2 textSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, labelText);
+                    UI.Graphics.DrawText(UI.Settings.FontDefault, labelText,
+                        new Vector2(x - textSize.X / 2, pos.Y + size.Y + TickLength + 2));
+                }
+                else
+                {
+                    float y = pos.Y + size.Y * (1f - t);
+                    Vector2 textSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, labelText);
+                    UI.Graphics.DrawText(UI.Settings.FontDefault, labelText,
+                        new Vector2(pos.X + size.X + TickLength + 2, y - textSize.Y / 2));
+                }
+            }
+        }
 
-		private void DrawValue(FishUI UI, Vector2 pos, Vector2 size)
-		{
-			string valueText = Value.ToString(ValueFormat) + UnitSuffix;
-			Vector2 textSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, valueText);
+        private void DrawValue(FishUI UI, Vector2 pos, Vector2 size)
+        {
+            string valueText = Value.ToString(ValueFormat) + UnitSuffix;
+            Vector2 textSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, valueText);
 
-			// Center the value text on the gauge
-			Vector2 textPos = pos + size / 2 - textSize / 2;
-			UI.Graphics.DrawTextColor(UI.Settings.FontDefault, valueText, textPos, FishColor.White);
-		}
+            // Center the value text on the gauge
+            Vector2 textPos = pos + size / 2 - textSize / 2;
+            UI.Graphics.DrawTextColor(UI.Settings.FontDefault, valueText, textPos, FishColor.White);
+        }
 
-		private void DrawRangeLabels(FishUI UI, Vector2 pos, Vector2 size)
-		{
-			if (string.IsNullOrEmpty(MinLabel) && string.IsNullOrEmpty(MaxLabel))
-				return;
+        private void DrawRangeLabels(FishUI UI, Vector2 pos, Vector2 size)
+        {
+            if (string.IsNullOrEmpty(MinLabel) && string.IsNullOrEmpty(MaxLabel))
+                return;
 
-			if (Orientation == BarGaugeOrientation.Horizontal)
-			{
-				// Min label on the left
-				if (!string.IsNullOrEmpty(MinLabel))
-				{
-					Vector2 minTextSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, MinLabel);
-					float minX = pos.X - minTextSize.X - 4;
-					float minY = pos.Y + (size.Y - minTextSize.Y) / 2;
-					UI.Graphics.DrawTextColor(UI.Settings.FontDefault, MinLabel, new Vector2(minX, minY), RangeLabelColor);
-				}
+            if (Orientation == BarGaugeOrientation.Horizontal)
+            {
+                // Min label on the left
+                if (!string.IsNullOrEmpty(MinLabel))
+                {
+                    Vector2 minTextSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, MinLabel);
+                    float minX = pos.X - minTextSize.X - 4;
+                    float minY = pos.Y + (size.Y - minTextSize.Y) / 2;
+                    UI.Graphics.DrawTextColor(UI.Settings.FontDefault, MinLabel, new Vector2(minX, minY), RangeLabelColor);
+                }
 
-				// Max label on the right
-				if (!string.IsNullOrEmpty(MaxLabel))
-				{
-					Vector2 maxTextSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, MaxLabel);
-					float maxX = pos.X + size.X + 4;
-					float maxY = pos.Y + (size.Y - maxTextSize.Y) / 2;
-					UI.Graphics.DrawTextColor(UI.Settings.FontDefault, MaxLabel, new Vector2(maxX, maxY), RangeLabelColor);
-				}
-			}
-			else
-			{
-				// Min label at the bottom
-				if (!string.IsNullOrEmpty(MinLabel))
-				{
-					Vector2 minTextSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, MinLabel);
-					float minX = pos.X + (size.X - minTextSize.X) / 2;
-					float minY = pos.Y + size.Y + 4;
-					UI.Graphics.DrawTextColor(UI.Settings.FontDefault, MinLabel, new Vector2(minX, minY), RangeLabelColor);
-				}
+                // Max label on the right
+                if (!string.IsNullOrEmpty(MaxLabel))
+                {
+                    Vector2 maxTextSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, MaxLabel);
+                    float maxX = pos.X + size.X + 4;
+                    float maxY = pos.Y + (size.Y - maxTextSize.Y) / 2;
+                    UI.Graphics.DrawTextColor(UI.Settings.FontDefault, MaxLabel, new Vector2(maxX, maxY), RangeLabelColor);
+                }
+            }
+            else
+            {
+                // Min label at the bottom
+                if (!string.IsNullOrEmpty(MinLabel))
+                {
+                    Vector2 minTextSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, MinLabel);
+                    float minX = pos.X + (size.X - minTextSize.X) / 2;
+                    float minY = pos.Y + size.Y + 4;
+                    UI.Graphics.DrawTextColor(UI.Settings.FontDefault, MinLabel, new Vector2(minX, minY), RangeLabelColor);
+                }
 
-				// Max label at the top
-				if (!string.IsNullOrEmpty(MaxLabel))
-				{
-					Vector2 maxTextSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, MaxLabel);
-					float maxX = pos.X + (size.X - maxTextSize.X) / 2;
-					float maxY = pos.Y - maxTextSize.Y - 4;
-					UI.Graphics.DrawTextColor(UI.Settings.FontDefault, MaxLabel, new Vector2(maxX, maxY), RangeLabelColor);
-				}
-			}
-		}
-	}
+                // Max label at the top
+                if (!string.IsNullOrEmpty(MaxLabel))
+                {
+                    Vector2 maxTextSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, MaxLabel);
+                    float maxX = pos.X + (size.X - maxTextSize.X) / 2;
+                    float maxY = pos.Y - maxTextSize.Y - 4;
+                    UI.Graphics.DrawTextColor(UI.Settings.FontDefault, MaxLabel, new Vector2(maxX, maxY), RangeLabelColor);
+                }
+            }
+        }
+    }
 }
