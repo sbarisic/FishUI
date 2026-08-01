@@ -1,42 +1,32 @@
 # Diagnostic control coverage
 
-This inventory tracks controls whose important runtime state is not visible from the generic hierarchy, geometry, focus, input, and render records. A provider must remain bounded and must not copy item text, application objects, delegates, credentials, console contents, file paths, or other arbitrary values by default.
+This inventory tracks controls whose runtime state is not visible from generic hierarchy, geometry, focus, input, and render records. Providers are bounded and do not copy application objects, delegates, credentials, console contents, or unclassified text.
 
 ## Implemented
 
 - `Textbox` and `MultiLineEditbox`: text metrics, selection, caret, viewport, scrolling, and text privacy.
 - `ScrollBarH`, `ScrollBarV`, and `ScrollablePane`: scroll position, thumb metrics, viewport, and content offsets.
-- `Window`: window-specific layout and interaction state.
-- `DatePicker`: selected/displayed dates, popup geometry, hover, and calendar transitions.
-- `DropDown`: bounded selection indices, filtering counts, hover, scrolling, popup geometry, and transitions without item data.
-- `SpreadsheetGrid`: bounded dimensions and occupancy, selection, editing, visible ranges, scrolling, cell-area geometry, modes, and transitions without cell values.
-- `CheckBox` and `Slider`: current value and state transitions. These are included because they are companion controls in the SpreadsheetGrid diagnostic sample.
+- `Window`: window-specific layout, resize, and interaction state.
+- `DatePicker` and `DropDown`: bounded calendar/popup geometry, structural selection and filtering, scrolling, and transitions without item data.
+- `SpreadsheetGrid`: bounded dimensions and occupancy, selection, editing, visible ranges, scrolling, geometry, modes, and transitions without cell values.
+- `CheckBox` and `Slider`: current value, visual state, and transitions.
+- `DataGrid`: bounded selection, row/column and visible-range counts, hover/anchor, sort and resize state, scrolling, geometry, scrollbar identity, and structural transitions. Row values and `UserData` are excluded.
+- `ListBox` and `ItemListbox`: bounded selection, item/visible/widget counts, hover/anchor, height and scroll state, and scrollbar identity. Item text, widgets, and `UserData` are excluded.
+- `TreeView`: weak per-owner node identities, bounded traversal, expanded/lazy/visible counts, selection/hover, scrolling, and cycle/duplicate warnings. Optional selected labels are text-classified; tags are excluded.
+- `TabControl`: tab/availability counts, selected/hover indices, header/content geometry, selected content identity, and count/selection transitions. The selected title is text-classified; `Tag` is excluded.
+- `PropertyGrid`: structural item/category/visibility counts, selection/editor/context-menu state, scrolling, and reset/editor transitions. Capture reads metadata only and never invokes application getters, formatters, or `ToString()`.
+- `GameConsole`: open/closing and animation state, geometry, bounded counts, dropped writes, completion/history state, input metrics, child identities, and content-free command outcomes. Command names, lines, arguments, input, output, delegates, and logger state are excluded.
+- `ContextMenu`, `MenuBar`, `MenuBarItem`, and `MenuItem`: open/popup state, submenu chain and ownership by runtime ID, hover state, check/invocation outcomes, and text-classified labels/shortcuts. Actions, icon paths, and `UserData` are excluded.
+- `TimePicker` and `FilePickerDialog`: time/spinner modes and transitions; cached file/directory counts, selection, navigation capability, child identities, and content-free outcomes. File capture makes no filesystem calls; paths, filenames, and filters are text-classified.
+- `NumericUpDown`, `ToggleSwitch`, and `RadioButton`: numeric range/step/precision/parse/button state and value transitions; toggle/radio state and animation/visual modes. Labels are text-classified and no synthetic radio group is created.
+- `Timeline` and `LineChart`: view/data ranges, geometry, drag/cursor and pause/auto-scroll state, bounded series counts, and discrete drag/pause transitions. Point values and high-frequency motion remain snapshot-only; series names and formats are text-classified.
+- `ProgressBar`, `BarGauge`, `RadialGauge`, `VUMeter`, and `BigDigitDisplay`: value/range/normalization, orientation/mode, ticks/zones/peak/alignment, and mode transitions. Formats, units, labels, and display text are text-classified.
+- `AnimatedImageBox`: bounded frame assets, playback modes/timing, sequence count changes, play/pause/stop, and completion. Asset identifiers are text-classified; per-frame advancement stays out of rolling history.
+- `ToastNotification`: bounded severity counts, current lifetime/alpha, queue transitions, and expiration without titles or message bodies.
+- `ParticleEmitter`: aggregate capacity/emission/configuration state and start/stop/burst/clear transitions without particle enumeration or per-frame count events.
 
-## High-priority gaps
-
-- `DataGrid`: row/column counts, selected indices, hovered row, sort columns/directions, scroll position, and visible ranges. Never copy row values or row `UserData`.
-- `ListBox` and `ItemListbox`: bounded selected indices, hover, scroll position, item/visible counts, and runtime scrollbar identity. Never copy item text, widgets, or `UserData`.
-- `TreeView`: selected-node structural ID, expanded/visible node counts, hover, scroll position, and visible range. Node labels and tags need text/value privacy.
-- `TabControl`: selected and hovered indices, enabled-tab count, content bounds, and selection transitions. Tab titles should be omitted or text-redacted.
-- `PropertyGrid`: selected/editor state, expanded-category counts, visible range, and scroll state. Reflected objects and property values must never enter diagnostics by default.
-- `GameConsole`: open/closing state, animation progress, dimensions, history/output/pending-write counts, and command execution outcomes. Command lines, input, output, delegates, and logger objects are sensitive and require explicit redaction rules. The current console implementation is otherwise untouched.
-- `ContextMenu`, `MenuBar`, `MenuBarItem`, and `MenuItem`: open submenu chain, hovered/selected structural indices, popup geometry, and modal/input ownership.
-- `TimePicker`: selected time, active field, popup/edit state, and transitions, following the privacy rules used by `DatePicker`.
-- `FilePickerDialog`: navigation and selection state with path-specific privacy. Raw paths and filesystem objects must be excluded unless explicitly permitted.
-
-## Medium-priority gaps
-
-- `NumericUpDown`: aggregate numeric value/range/step, parse validity, pressed button, and value transitions. Its runtime textbox already supplies text-input diagnostics.
-- `ToggleSwitch` and `RadioButton`: checked state and transitions. Radio-group ownership should be structural rather than an arbitrary object reference.
-- `ControlScrollable`: generic content offset, viewport, and scrollbar state for subclasses that do not use `ScrollablePane`.
-- `Timeline`: view range, cursor/current time, drag mode, and zoom/pan transitions.
-- `LineChart`: series/point counts, visible time/value ranges, cursor mode, and selected series without labels or point values by default.
-- `SelectionBox`: selection rectangle, active drag phase, and selected-control runtime IDs.
-- `ProgressBar`, `BarGauge`, `RadialGauge`, `VUMeter`, and `BigDigitDisplay`: normalized value/range, orientation, mode, and animation state. Treat telemetry values as value-redactable.
-- `AnimatedImageBox`: frame index/count, playback state, timing, and resource identity under asset-path privacy.
-- `ToastNotification`: bounded queue count, current severity/lifetime, and transition state without message text.
-- `ParticleEmitter`: active-particle count, emission state, and configured bounds without enumerating particles.
+All providers use the shared writer limits. Provider strings are explicitly either closed structural tokens or privacy-classified text, and projected arrays/dictionaries are independent copies for each request. Collection, viewport, chart, menu, picker, gauge, animation, toast, and particle controls also publish explicit render semantics where ownership is unambiguous.
 
 ## Generic coverage is sufficient
 
-`Button`, `Label`, `StaticText`, `ImageBox`, `Panel`, `GroupBox`, `Titlebar`, `Tooltip`, `FlowLayout`, `GridLayout`, and `StackLayout` currently have no additional high-value state that justifies a dedicated provider. Their hierarchy, geometry, visibility, focus, pointer state, render ownership, clips, and resource calls are already captured. Revisit this only when one of these controls gains state that cannot be inferred from the generic snapshot.
+`ControlScrollable` and `SelectionBox` are empty marker controls, so generic diagnostics are sufficient. `Button`, `Label`, `StaticText`, `ImageBox`, `Panel`, `GroupBox`, `Titlebar`, `Tooltip`, `FlowLayout`, `GridLayout`, and `StackLayout` currently have no additional high-value state that justifies a dedicated provider. Their hierarchy, geometry, visibility, focus, pointer state, render ownership, clips, and resource calls are already captured. Revisit this only when one gains state that cannot be inferred from the generic snapshot.

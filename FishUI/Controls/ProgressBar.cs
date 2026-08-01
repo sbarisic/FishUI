@@ -14,7 +14,7 @@ namespace FishUI.Controls
 		Vertical
 	}
 
-	public class ProgressBar : Control
+	public partial class ProgressBar : Control
 	{
 		[YamlMember]
 		public ProgressBarOrientation Orientation { get; set; } = ProgressBarOrientation.Horizontal;
@@ -34,7 +34,17 @@ namespace FishUI.Controls
 		/// If true, the progress bar will display an indeterminate/marquee animation
 		/// </summary>
 		[YamlMember]
-		public bool IsIndeterminate { get; set; } = false;
+		private bool _isIndeterminate;
+		public bool IsIndeterminate
+		{
+			get => _isIndeterminate;
+			set
+			{
+				bool previous = _isIndeterminate;
+				_isIndeterminate = value;
+				RecordDiagnosticTransition("indeterminate", previous, value);
+			}
+		}
 
 		/// <summary>
 		/// The speed of the indeterminate animation (cycles per second)
@@ -109,6 +119,7 @@ namespace FishUI.Controls
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
+			using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.ControlBounds);
 			Vector2 pos = GetAbsolutePosition();
 			Vector2 size = GetAbsoluteSize();
 

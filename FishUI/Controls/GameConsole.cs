@@ -65,7 +65,7 @@ namespace FishUI.Controls
 	/// A root-level, Quake-style game console implemented as a runtime composite.
 	/// Runtime children are an implementation detail and are not serialized.
 	/// </summary>
-	public class GameConsole : Control
+	public partial class GameConsole : Control
 	{
 		private sealed class ParsedConsoleCommand
 		{
@@ -386,6 +386,7 @@ namespace FishUI.Controls
 
 		public override void DrawControl(FishUI ui, float deltaTime, float time)
 		{
+			using FishUIDebugRenderScope semantic = ui.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.ControlBounds);
 			ui.Graphics.DrawRectangle(GetAbsolutePosition(), GetAbsoluteSize(), BackgroundColor);
 		}
 
@@ -399,6 +400,7 @@ namespace FishUI.Controls
 			}
 
 			IsOpen = true;
+			RecordDiagnosticTransition("isOpen", false, true);
 			Visible = true;
 			_childrenInputBlocked = false;
 			ApplyFocusProxies(true);
@@ -427,6 +429,7 @@ namespace FishUI.Controls
 				return;
 
 			IsOpen = false;
+			RecordDiagnosticTransition("isOpen", true, false);
 			_captureLease?.Dispose();
 			_captureLease = null;
 			_childrenInputBlocked = true;
@@ -733,8 +736,16 @@ namespace FishUI.Controls
 			if (echo) WriteLine((Prompt ?? "") + parsed.Trimmed);
 			if (_commandLookup.TryGetValue(parsed.Name, out GameConsoleCommand command))
 			{
-				try { command.Invoke(new GameConsoleCommandContext(this, command, parsed.Raw, parsed.Arguments)); }
-				catch (Exception ex) { WriteLine($"[GameConsole] {command.Name}: {ex.Message}"); }
+				try
+				{
+					command.Invoke(new GameConsoleCommandContext(this, command, parsed.Raw, parsed.Arguments));
+					RecordDiagnosticTransition("commandExecution", "started", "succeeded");
+				}
+				catch (Exception ex)
+				{
+					RecordDiagnosticTransition("commandExecution", "started", "failed");
+					WriteLine($"[GameConsole] {command.Name}: {ex.Message}");
+				}
 				return;
 			}
 
@@ -748,6 +759,7 @@ namespace FishUI.Controls
 					catch (Exception ex) { WriteLine($"[GameConsole] UnknownCommand: {ex.Message}"); }
 				}
 			}
+			RecordDiagnosticTransition("commandExecution", "started", args.Handled ? "handled" : "unknown");
 			if (!args.Handled) WriteLine($"Unknown command: {parsed.Name}");
 		}
 

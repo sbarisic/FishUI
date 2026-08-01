@@ -140,7 +140,7 @@ namespace FishUI.Controls
 			writer.Write("maximum", MaxValue);
 			writer.Write("step", Step);
 			writer.Write("normalizedValue", GetNormalizedValue());
-			writer.Write("orientation", Orientation.ToString());
+			writer.WriteToken("orientation", Orientation.ToString());
 			writer.Write("isDragging", _isDragging);
 			writer.Write("showValueLabel", ShowValueLabel);
 		}

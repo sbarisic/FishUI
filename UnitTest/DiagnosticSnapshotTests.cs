@@ -66,6 +66,15 @@ public sealed class DiagnosticSnapshotTests
 		fixture.UI.Diagnostics.RollingEventHistoryDuration = TimeSpan.FromSeconds(-1);
 		Assert.Equal(1, fixture.UI.Diagnostics.MaximumRollingHistoryEvents);
 		Assert.Equal(TimeSpan.Zero, fixture.UI.Diagnostics.RollingEventHistoryDuration);
+
+		fixture.UI.Diagnostics.MaximumControlCollectionEntries = 0;
+		fixture.UI.Diagnostics.MaximumControlScanEntries = 0;
+		fixture.UI.Diagnostics.MaximumTotalControlScanEntries = 0;
+		fixture.UI.Diagnostics.MaximumControlTextLength = -1;
+		Assert.Equal(1, fixture.UI.Diagnostics.MaximumControlCollectionEntries);
+		Assert.Equal(1, fixture.UI.Diagnostics.MaximumControlScanEntries);
+		Assert.Equal(1, fixture.UI.Diagnostics.MaximumTotalControlScanEntries);
+		Assert.Equal(0, fixture.UI.Diagnostics.MaximumControlTextLength);
 	}
 
 	[Fact]
@@ -126,8 +135,8 @@ public sealed class DiagnosticSnapshotTests
 		fixture.Update();
 		FishUIDebugSnapshot snapshot = await task;
 
-		Assert.DoesNotContain(snapshot.RecentEvents, item => item.Message?.StartsWith("OLD:") == true);
-		Assert.Contains(snapshot.RecentEvents, item => item.Message?.StartsWith("RECENT:") == true);
+		Assert.DoesNotContain(snapshot.RecentEvents, item => item.Message == "OLD");
+		Assert.Contains(snapshot.RecentEvents, item => item.Message == "RECENT");
 		Assert.Contains(snapshot.RecentEvents, item => item.Sequence == snapshot.TriggerEventSequence);
 		Assert.InRange(snapshot.ActualHistorySeconds, 0, 10);
 	}
@@ -186,7 +195,7 @@ public sealed class DiagnosticSnapshotTests
 
 		Assert.Equal(10, snapshot.RequestedHistorySeconds);
 		Assert.InRange(snapshot.ActualHistorySeconds, 4.9, 5.1);
-		Assert.Contains(snapshot.RecentEvents, item => item.Message?.StartsWith("PRE_TRIGGER:") == true);
+		Assert.Contains(snapshot.RecentEvents, item => item.Message == "PRE_TRIGGER");
 		Assert.Equal(FishUIDiagnosticEventType.HotkeyHandled,
 			Assert.Single(snapshot.RecentEvents, item => item.Sequence == snapshot.TriggerEventSequence).Type);
 	}
@@ -223,8 +232,311 @@ public sealed class DiagnosticSnapshotTests
 		Assert.Null(first.GraphicsCalls[0].TextPreview);
 		Assert.Contains(second.GraphicsCalls, call => call.TextPreview == "secret");
 		Assert.All(first.GraphicsCalls, call => Assert.Null(call.TextPreview));
-		Assert.Null(Assert.Single(first.Controls, control => control.Id == "provider").ControlData);
-		Assert.Equal("sensitive", Assert.Single(second.Controls, control => control.Id == "provider").ControlData!["value"]);
+		Assert.Null(Assert.Single(first.Controls, control => control.Type == nameof(ValueProviderControl)).ControlData);
+		Assert.Equal("sensitive", Assert.Single(second.Controls, control => control.Type == nameof(ValueProviderControl)).ControlData!["value"]);
+	}
+
+	[Fact]
+	public async Task ProvidersRunOnceAfterDrawAndObserveFinalState()
+	{
+		using var fixture = new FishUITestFixture();
+		fixture.UI.Diagnostics.Enabled = true;
+		var control = new CountingProviderControl { Size = new Vector2(10, 10) };
+		fixture.UI.AddControl(control);
+
+		Task<FishUIDebugSnapshot> task = FishUIDiagnostics.CaptureAsync(fixture.UI, StructuredOptions());
+		fixture.Update();
+		FishUIDebugSnapshot snapshot = await task;
+
+		Assert.Equal(1, control.ProviderCalls);
+		FishUIControlSnapshot state = Assert.Single(snapshot.Controls, item => item.Type == nameof(CountingProviderControl));
+		Assert.Equal(42, state.ControlData!["drawResolvedValue"]);
+	}
+
+	[Fact]
+	public async Task InvalidProviderKeySkipsOnlyThatFieldAndWarnsOnce()
+	{
+		using var fixture = new FishUITestFixture();
+		fixture.UI.Diagnostics.Enabled = true;
+		fixture.UI.AddControl(new InvalidKeyProviderControl { Size = new Vector2(10, 10) });
+
+		Task<FishUIDebugSnapshot> task = FishUIDiagnostics.CaptureAsync(fixture.UI, StructuredOptions());
+		fixture.Update();
+		FishUIDebugSnapshot snapshot = await task;
+
+		FishUIControlSnapshot state = Assert.Single(snapshot.Controls);
+		Assert.Equal(7, state.ControlData!["validField"]);
+		Assert.DoesNotContain("bad-key", state.ControlData.Keys);
+		Assert.Single(snapshot.Warnings, warning => warning.Code == "CONTROL_DATA_INVALID_KEY");
+	}
+
+	[Fact]
+	public async Task UnrelatedProviderFailureKeepsExistingPartialProviderBehavior()
+	{
+		using var fixture = new FishUITestFixture();
+		fixture.UI.Diagnostics.Enabled = true;
+		fixture.UI.AddControl(new ThrowingProviderControl { Size = new Vector2(10, 10) });
+
+		Task<FishUIDebugSnapshot> task = FishUIDiagnostics.CaptureAsync(fixture.UI, StructuredOptions());
+		fixture.Update();
+		FishUIDebugSnapshot snapshot = await task;
+
+		Assert.Null(Assert.Single(snapshot.Controls).ControlData);
+		Assert.Contains(snapshot.Warnings, warning => warning.Code == "SNAPSHOT_PROVIDER_FAILED");
+	}
+
+	[Fact]
+	public async Task ProviderCollectionsAndTextAreBoundedAndDeepCopiedPerRequest()
+	{
+		using var fixture = new FishUITestFixture();
+		fixture.UI.Diagnostics.Enabled = true;
+		fixture.UI.Diagnostics.PrivacyPolicy.RedactText = false;
+		fixture.UI.Diagnostics.MaximumControlCollectionEntries = 2;
+		fixture.UI.Diagnostics.MaximumControlTextLength = 5;
+		fixture.UI.Diagnostics.ResetEventRecorder();
+		fixture.UI.AddControl(new CollectionProviderControl { Size = new Vector2(10, 10) });
+		FishUIDebugSnapshotOptions shortText = StructuredOptions();
+		shortText.RedactText = false;
+		shortText.IncludeTextPreview = true;
+		shortText.MaximumTextPreviewLength = 3;
+		FishUIDebugSnapshotOptions longText = StructuredOptions();
+		longText.RedactText = false;
+		longText.IncludeTextPreview = true;
+		longText.MaximumTextPreviewLength = 20;
+
+		Task<FishUIDebugSnapshot> firstTask = FishUIDiagnostics.CaptureAsync(fixture.UI, shortText);
+		Task<FishUIDebugSnapshot> secondTask = FishUIDiagnostics.CaptureAsync(fixture.UI, longText);
+		fixture.Update();
+		FishUIDebugSnapshot first = await firstTask;
+		FishUIDebugSnapshot second = await secondTask;
+		Dictionary<string, object> firstData = Assert.Single(first.Controls).ControlData!;
+		Dictionary<string, object> secondData = Assert.Single(second.Controls).ControlData!;
+
+		Assert.Equal("sec", firstData["label"]);
+		Assert.Equal("secre", secondData["label"]);
+		int[] firstInts = Assert.IsType<int[]>(firstData["integers"]);
+		int[] secondInts = Assert.IsType<int[]>(secondData["integers"]);
+		long[] firstLongs = Assert.IsType<long[]>(firstData["longs"]);
+		long[] secondLongs = Assert.IsType<long[]>(secondData["longs"]);
+		string[] firstStrings = Assert.IsType<string[]>(firstData["strings"]);
+		string[] secondStrings = Assert.IsType<string[]>(secondData["strings"]);
+		Assert.Equal(2, firstInts.Length);
+		Assert.Equal(3, firstData["integersSourceCount"]);
+		Assert.Equal(true, firstData["integersTruncated"]);
+		firstInts[0] = 99;
+		firstLongs[0] = 99;
+		firstStrings[0] = "changed";
+		Assert.Equal(1, secondInts[0]);
+		Assert.Equal(4L, secondLongs[0]);
+		Assert.Equal("alpha", secondStrings[0]);
+	}
+
+	[Fact]
+	public async Task ControlPrivacyModesKeepOnlyPermittedProviderData()
+	{
+		using var fixture = new FishUITestFixture();
+		fixture.UI.Diagnostics.Enabled = true;
+		fixture.UI.Diagnostics.PrivacyPolicy.RedactText = false;
+		fixture.UI.Diagnostics.ResetEventRecorder();
+		fixture.UI.AddControl(new PrivacyProviderControl(FishUIDebugPrivacyMode.RedactText) { Size = new Vector2(10, 10) });
+		fixture.UI.AddControl(new PrivacyProviderControl(FishUIDebugPrivacyMode.RedactValues) { Size = new Vector2(10, 10) });
+		fixture.UI.AddControl(new PrivacyProviderControl(FishUIDebugPrivacyMode.ExcludeControlData) { Size = new Vector2(10, 10) });
+		FishUIDebugSnapshotOptions options = StructuredOptions();
+		options.RedactText = false;
+		options.IncludeTextPreview = true;
+
+		Task<FishUIDebugSnapshot> task = FishUIDiagnostics.CaptureAsync(fixture.UI, options);
+		fixture.Update();
+		FishUIDebugSnapshot snapshot = await task;
+		FishUIControlSnapshot[] states = snapshot.Controls.OrderBy(item => item.ControlId).ToArray();
+
+		Assert.Equal(3, states.Length);
+		Assert.Equal(12, states[0].ControlData!["number"]);
+		Assert.DoesNotContain("label", states[0].ControlData.Keys);
+		Assert.Null(states[1].ControlData);
+		Assert.Null(states[2].ControlData);
+	}
+
+	[Fact]
+	public async Task CaptureWideScanBudgetStopsLaterProviders()
+	{
+		using var fixture = new FishUITestFixture();
+		fixture.UI.Diagnostics.Enabled = true;
+		fixture.UI.Diagnostics.MaximumControlScanEntries = 100;
+		fixture.UI.Diagnostics.MaximumTotalControlScanEntries = 3;
+		fixture.UI.AddControl(new ScanningProviderControl { Size = new Vector2(10, 10) });
+		fixture.UI.AddControl(new ScanningProviderControl { Size = new Vector2(10, 10) });
+
+		Task<FishUIDebugSnapshot> task = FishUIDiagnostics.CaptureAsync(fixture.UI, StructuredOptions());
+		fixture.Update();
+		FishUIDebugSnapshot snapshot = await task;
+
+		Assert.Equal(3, snapshot.ControlScanEntries);
+		Assert.Equal(3, snapshot.ControlScanBudget);
+		Assert.True(snapshot.ControlScanLimitReached);
+		Assert.Equal(3, snapshot.Controls.Sum(item => (int)item.ControlData!["scanned"]));
+		Assert.Contains(snapshot.Warnings, warning => warning.Code == "CONTROL_DATA_SCAN_LIMIT_REACHED");
+	}
+
+	[Fact]
+	public void EveryMeaningfulControlFamilyExposesSnapshotCoverage()
+	{
+		Type[] covered =
+		{
+			typeof(DataGrid), typeof(ListBox), typeof(ItemListbox), typeof(TreeView), typeof(TabControl),
+			typeof(PropertyGrid), typeof(GameConsole), typeof(ContextMenu), typeof(MenuBar), typeof(MenuBarItem),
+			typeof(MenuItem), typeof(TimePicker), typeof(FilePickerDialog), typeof(NumericUpDown), typeof(ToggleSwitch),
+			typeof(RadioButton), typeof(Timeline), typeof(LineChart), typeof(ProgressBar), typeof(BarGauge),
+			typeof(RadialGauge), typeof(VUMeter), typeof(BigDigitDisplay), typeof(AnimatedImageBox),
+			typeof(ToastNotification), typeof(ParticleEmitter)
+		};
+
+		Assert.All(covered, type => Assert.True(typeof(IFishUIDebugSnapshotProvider).IsAssignableFrom(type), type.FullName));
+		Assert.False(typeof(IFishUIDebugSnapshotProvider).IsAssignableFrom(typeof(ControlScrollable)));
+		Assert.False(typeof(IFishUIDebugSnapshotProvider).IsAssignableFrom(typeof(SelectionBox)));
+	}
+
+	[Fact]
+	public async Task EveryMeaningfulControlFamilyProducesProviderData()
+	{
+		using var fixture = new FishUITestFixture();
+		fixture.UI.Diagnostics.Enabled = true;
+		fixture.UI.Diagnostics.PrivacyPolicy.RedactText = false;
+		fixture.UI.Diagnostics.ResetEventRecorder();
+		fixture.FileSystem.AddDirectory("root");
+		Control[] controls =
+		{
+			new DataGrid(), new ListBox(), new ItemListbox(), new TreeView(), new TabControl(),
+			new PropertyGrid(), new GameConsole(), new ContextMenu(), new MenuBar(), new MenuBarItem(),
+			new MenuItem(), new TimePicker(), new FilePickerDialog(FilePickerMode.Open, fixture.FileSystem, "root"),
+			new NumericUpDown(), new ToggleSwitch(), new RadioButton(), new Timeline(), new LineChart(),
+			new ProgressBar(), new BarGauge(), new RadialGauge(), new VUMeter(), new BigDigitDisplay(),
+			new AnimatedImageBox(), new ToastNotification(), new ParticleEmitter()
+		};
+		for (int i = 0; i < controls.Length; i++)
+		{
+			Control control = controls[i];
+			control.ID = "coverage_" + i;
+			control.Visible = false;
+			fixture.UI.AddControl(control);
+		}
+
+		FishUIDebugSnapshotOptions options = StructuredOptions();
+		options.RedactText = false;
+		options.IncludeTextPreview = true;
+		Task<FishUIDebugSnapshot> task = FishUIDiagnostics.CaptureAsync(fixture.UI, options);
+		fixture.Update();
+		FishUIDebugSnapshot snapshot = await task;
+
+		for (int i = 0; i < controls.Length; i++)
+		{
+			FishUIControlSnapshot state = Assert.Single(snapshot.Controls, item => item.Id == "coverage_" + i);
+			Assert.NotNull(state.ControlData);
+			Assert.NotEmpty(state.ControlData!);
+		}
+		FishUIControlSnapshot picker = Assert.Single(snapshot.Controls, item => item.Type == nameof(FilePickerDialog));
+		Assert.Equal("Open", picker.ControlData!["mode"]);
+	}
+
+	[Fact]
+	public async Task PropertyGridProviderDoesNotInvokeApplicationGetters()
+	{
+		using var fixture = new FishUITestFixture();
+		fixture.UI.Diagnostics.Enabled = true;
+		var hostile = new HostilePropertyObject();
+		var grid = new PropertyGrid { Size = new Vector2(200, 100), SelectedObject = hostile, Visible = false };
+		fixture.UI.AddControl(grid);
+		int readsBeforeCapture = hostile.GetterReads;
+
+		Task<FishUIDebugSnapshot> task = FishUIDiagnostics.CaptureAsync(fixture.UI, StructuredOptions());
+		fixture.Update();
+		FishUIDebugSnapshot snapshot = await task;
+
+		Assert.Equal(readsBeforeCapture, hostile.GetterReads);
+		FishUIControlSnapshot state = Assert.Single(snapshot.Controls, item => item.Type == nameof(PropertyGrid));
+		Assert.Equal(grid.Items.Count, state.ControlData!["itemCount"]);
+	}
+
+	[Fact]
+	public async Task TreeNodeIdentityIsStableAndCyclesAndDuplicatesAreBounded()
+	{
+		using var fixture = new FishUITestFixture();
+		fixture.UI.Diagnostics.Enabled = true;
+		var tree = new TreeView { Size = new Vector2(200, 100), Visible = false };
+		var node = new TreeNode("marker-node") { IsExpanded = true };
+		tree.AddNode(node);
+		tree.SelectNode(node);
+		fixture.UI.AddControl(tree);
+
+		Task<FishUIDebugSnapshot> firstTask = FishUIDiagnostics.CaptureAsync(fixture.UI, StructuredOptions());
+		fixture.Update();
+		long firstId = (long)Assert.Single((await firstTask).Controls).ControlData!["selectedNodeId"];
+
+		node.Children.Add(node);
+		tree.Nodes.Add(node);
+		Task<FishUIDebugSnapshot> secondTask = FishUIDiagnostics.CaptureAsync(fixture.UI, StructuredOptions());
+		fixture.Update();
+		FishUIDebugSnapshot second = await secondTask;
+		FishUIControlSnapshot state = Assert.Single(second.Controls);
+
+		Assert.Equal(firstId, (long)state.ControlData!["selectedNodeId"]);
+		Assert.Contains(second.Warnings, warning => warning.Code == "CONTROL_MODEL_CYCLE");
+		Assert.Contains(second.Warnings, warning => warning.Code == "CONTROL_MODEL_DUPLICATE_REFERENCE");
+	}
+
+	[Fact]
+	public async Task CoveredControlsPublishExplicitRenderSemantics()
+	{
+		using var fixture = new FishUITestFixture();
+		fixture.UI.Diagnostics.Enabled = true;
+		fixture.Settings.FontDefault = new FontRef { Size = 14 };
+		fixture.UI.AddControl(new ProgressBar { Size = new Vector2(100, 20) });
+		var grid = new DataGrid { Position = new Vector2(0, 30), Size = new Vector2(200, 100) };
+		grid.AddColumn("A");
+		grid.AddRow("1");
+		fixture.UI.AddControl(grid);
+
+		Task<FishUIDebugSnapshot> task = FishUIDiagnostics.CaptureAsync(fixture.UI, StructuredOptions());
+		fixture.Update();
+		FishUIDebugSnapshot snapshot = await task;
+		long progressId = Assert.Single(snapshot.Controls, item => item.Type == nameof(ProgressBar)).ControlId;
+		long gridId = Assert.Single(snapshot.Controls, item => item.Type == nameof(DataGrid)).ControlId;
+
+		Assert.Contains(snapshot.GraphicsCalls, call => call.ControlId == progressId && call.Semantic == FishUIRenderSemantic.ControlBounds);
+		Assert.Contains(snapshot.GraphicsCalls, call => call.ControlId == gridId && call.Semantic == FishUIRenderSemantic.Viewport);
+	}
+
+	[Fact]
+	public async Task RedactedBundleContainsNoSensitiveMarkerMetadata()
+	{
+		using var fixture = new FishUITestFixture();
+		fixture.UI.Diagnostics.Enabled = true;
+		fixture.UI.Diagnostics.RollingEventHistoryEnabled = true;
+		const string marker = "MARKER_SECRET_4F19";
+		fixture.UI.AddControl(new MarkerProviderControl
+		{
+			ID = marker,
+			DesignerName = marker,
+			Size = new Vector2(20, 20)
+		});
+		fixture.UI.Diagnostics.ReportLiveWarning("MARKER_WARNING", marker);
+
+		Task<FishUIDebugSnapshot> task = FishUIDiagnostics.CaptureAsync(fixture.UI, StructuredOptions());
+		fixture.Update();
+		FishUIDebugSnapshot snapshot = await task;
+		string directory = Path.Combine(Path.GetTempPath(), "fishui-diagnostic-privacy-" + Guid.NewGuid().ToString("N"));
+		try
+		{
+			snapshot.SaveDirectory(directory);
+			string exportedText = string.Join("\n", Directory.GetFiles(directory, "*.json")
+				.Concat(Directory.GetFiles(directory, "*.txt")).Select(File.ReadAllText));
+			Assert.DoesNotContain(marker, exportedText, StringComparison.Ordinal);
+			Assert.Contains("MARKER_WARNING", exportedText, StringComparison.Ordinal);
+		}
+		finally
+		{
+			if (Directory.Exists(directory)) Directory.Delete(directory, true);
+		}
 	}
 
 	[Fact]
@@ -304,8 +616,8 @@ public sealed class DiagnosticSnapshotTests
 		Task<FishUIDebugSnapshot> task = FishUIDiagnostics.CaptureAsync(fixture.UI, StructuredOptions());
 		fixture.Update();
 		FishUIDebugSnapshot snapshot = await task;
-		FishUIControlSnapshot parentState = Assert.Single(snapshot.Controls, control => control.Id == "parent");
-		FishUIControlSnapshot childState = Assert.Single(snapshot.Controls, control => control.Id == "child");
+		FishUIControlSnapshot parentState = Assert.Single(snapshot.Controls, control => control.ChildCount == 1);
+		FishUIControlSnapshot childState = Assert.Single(snapshot.Controls, control => control.ParentControlId == parentState.ControlId);
 
 		Assert.True(childState.ControlId > 0);
 		Assert.Equal(parentState.ControlId, childState.ParentControlId);
@@ -326,7 +638,7 @@ public sealed class DiagnosticSnapshotTests
 		fixture.Update();
 		FishUIDebugSnapshot snapshot = await task;
 
-		FishUIControlSnapshot removed = Assert.Single(snapshot.Controls, control => control.Id == "removed");
+		FishUIControlSnapshot removed = Assert.Single(snapshot.Controls, control => control.Type == nameof(Panel));
 		Assert.True(removed.RemovedDuringDraw);
 		Assert.False(removed.CreatedDuringDraw);
 	}
@@ -549,12 +861,17 @@ public sealed class DiagnosticSnapshotTests
 		using var fixture = new FishUITestFixture();
 		fixture.UI.Diagnostics.Enabled = true;
 		fixture.UI.Diagnostics.RollingEventHistoryEnabled = true;
+		fixture.UI.Diagnostics.PrivacyPolicy.RedactText = false;
+		fixture.UI.Diagnostics.ResetEventRecorder();
 		var first = new Panel { ID = "duplicate", Size = new Vector2(10, 10) };
 		var second = new Panel { ID = "duplicate", Size = new Vector2(10, 10) };
 		fixture.UI.AddControl(first);
 		fixture.UI.AddControl(second);
 		fixture.UI.FocusControl(second);
-		Task<FishUIDebugSnapshot> task = FishUIDiagnostics.CaptureAsync(fixture.UI, StructuredOptions());
+		FishUIDebugSnapshotOptions pathOptions = StructuredOptions();
+		pathOptions.RedactText = false;
+		pathOptions.IncludeTextPreview = true;
+		Task<FishUIDebugSnapshot> task = FishUIDiagnostics.CaptureAsync(fixture.UI, pathOptions);
 
 		fixture.Update();
 		FishUIDebugSnapshot snapshot = await task;
@@ -886,8 +1203,11 @@ public sealed class DiagnosticSnapshotTests
 		fixture.Update();
 		FishUIDebugSnapshot snapshot = await capture;
 
-		Assert.False(Assert.Single(snapshot.Controls, control => control.Id == "rounding").Geometry.PartiallyClipped);
-		Assert.True(Assert.Single(snapshot.Controls, control => control.Id == "actual").Geometry.PartiallyClipped);
+		FishUIControlSnapshot parentState = Assert.Single(snapshot.Controls, control => control.ChildCount == 2);
+		FishUIControlSnapshot[] children = snapshot.Controls.Where(control => control.ParentControlId == parentState.ControlId)
+			.OrderBy(control => control.ControlId).ToArray();
+		Assert.False(children[0].Geometry.PartiallyClipped);
+		Assert.True(children[1].Geometry.PartiallyClipped);
 	}
 
 	[Fact]
@@ -918,9 +1238,9 @@ public sealed class DiagnosticSnapshotTests
 
 		fixture.Update();
 		FishUIDebugSnapshot snapshot = await capture;
-		FishUIControlSnapshot gridState = Assert.Single(snapshot.Controls, control => control.Id == "grid");
-		FishUIControlSnapshot checkState = Assert.Single(snapshot.Controls, control => control.Id == "check");
-		FishUIControlSnapshot sliderState = Assert.Single(snapshot.Controls, control => control.Id == "slider");
+		FishUIControlSnapshot gridState = Assert.Single(snapshot.Controls, control => control.Type == nameof(SpreadsheetGrid));
+		FishUIControlSnapshot checkState = Assert.Single(snapshot.Controls, control => control.Type == nameof(CheckBox));
+		FishUIControlSnapshot sliderState = Assert.Single(snapshot.Controls, control => control.Type == nameof(Slider));
 
 		Assert.Equal(20, gridState.ControlData!["rowCount"]);
 		Assert.Equal(4, gridState.ControlData["selectedColumn"]);
@@ -1000,8 +1320,7 @@ public sealed class DiagnosticSnapshotTests
 		FishUIDebugSnapshot secondSnapshot = await secondTask;
 
 		Assert.NotEqual(firstSnapshot.UiSessionId, secondSnapshot.UiSessionId);
-		Assert.Equal(Assert.Single(firstSnapshot.Controls, control => control.Id == "same").ControlId,
-			Assert.Single(secondSnapshot.Controls, control => control.Id == "same").ControlId);
+		Assert.Equal(Assert.Single(firstSnapshot.Controls).ControlId, Assert.Single(secondSnapshot.Controls).ControlId);
 	}
 
 	[Fact]
@@ -1158,6 +1477,86 @@ public sealed class DiagnosticSnapshotTests
 	private sealed class ValueProviderControl : Control, IFishUIDebugSnapshotProvider
 	{
 		public void WriteDebugSnapshot(FishUIDebugSnapshotWriter writer) => writer.Write("value", "sensitive");
+	}
+
+	private sealed class CountingProviderControl : Control, IFishUIDebugSnapshotProvider
+	{
+		private int _drawResolvedValue;
+		public int ProviderCalls { get; private set; }
+		public override void DrawControl(FishUI.FishUI ui, float dt, float time) => _drawResolvedValue = 42;
+		public void WriteDebugSnapshot(FishUIDebugSnapshotWriter writer)
+		{
+			ProviderCalls++;
+			writer.Write("drawResolvedValue", _drawResolvedValue);
+		}
+	}
+
+	private sealed class InvalidKeyProviderControl : Control, IFishUIDebugSnapshotProvider
+	{
+		public void WriteDebugSnapshot(FishUIDebugSnapshotWriter writer)
+		{
+			writer.Write("bad-key", 1);
+			writer.Write("also bad", 2);
+			writer.Write("validField", 7);
+		}
+	}
+
+	private sealed class ThrowingProviderControl : Control, IFishUIDebugSnapshotProvider
+	{
+		public void WriteDebugSnapshot(FishUIDebugSnapshotWriter writer)
+		{
+			writer.Write("validField", 7);
+			throw new InvalidOperationException("provider marker secret");
+		}
+	}
+
+	private sealed class CollectionProviderControl : Control, IFishUIDebugSnapshotProvider
+	{
+		public void WriteDebugSnapshot(FishUIDebugSnapshotWriter writer)
+		{
+			writer.WriteText("label", "secret-marker");
+			writer.Write("integers", new[] { 1, 2, 3 });
+			writer.Write("longs", new long[] { 4, 5, 6 });
+			writer.WriteText("strings", new[] { "alpha", "bravo", "charlie" });
+		}
+	}
+
+	private sealed class PrivacyProviderControl : Control, IFishUIDebugSnapshotProvider, IFishUIDebugPrivacyProvider
+	{
+		private readonly FishUIDebugPrivacyMode _mode;
+		public PrivacyProviderControl(FishUIDebugPrivacyMode mode) => _mode = mode;
+		public FishUIDebugPrivacyMode GetDebugPrivacyMode() => _mode;
+		public void WriteDebugSnapshot(FishUIDebugSnapshotWriter writer)
+		{
+			writer.Write("number", 12);
+			writer.WriteText("label", "marker-secret");
+		}
+	}
+
+	private sealed class ScanningProviderControl : Control, IFishUIDebugSnapshotProvider
+	{
+		public void WriteDebugSnapshot(FishUIDebugSnapshotWriter writer)
+		{
+			int scanned = 0;
+			while (scanned < 10 && writer.TryConsumeScanEntry()) scanned++;
+			writer.Write("scanned", scanned);
+		}
+	}
+
+	private sealed class HostilePropertyObject
+	{
+		public int GetterReads { get; private set; }
+		public string Value
+		{
+			get { GetterReads++; return "do-not-read-during-capture"; }
+			set { }
+		}
+	}
+
+	private sealed class MarkerProviderControl : Control, IFishUIDebugSnapshotProvider
+	{
+		public void WriteDebugSnapshot(FishUIDebugSnapshotWriter writer) =>
+			writer.WriteText("label", "MARKER_SECRET_4F19");
 	}
 
 	private sealed class KeySinkControl : Control

@@ -53,7 +53,7 @@ namespace FishUI.Controls
 	/// Toasts stack in the top-right corner and auto-dismiss after a timeout.
 	/// Add this control once to your UI to enable toast notifications.
 	/// </summary>
-	public class ToastNotification : Control
+	public partial class ToastNotification : Control
 	{
 		/// <summary>
 		/// List of active toast messages.
@@ -211,7 +211,9 @@ namespace FishUI.Controls
 		/// </summary>
 		public void ClearAll()
 		{
+			int previous = _toasts.Count;
 			_toasts.Clear();
+			RecordDiagnosticTransition("activeCount", previous, 0);
 		}
 
 		/// <summary>
@@ -222,6 +224,7 @@ namespace FishUI.Controls
 
 		private void AddToast(ToastMessage toast)
 		{
+			int previous = _toasts.Count;
 			_toasts.Insert(0, toast);
 
 			// Remove oldest if we exceed max
@@ -229,10 +232,12 @@ namespace FishUI.Controls
 			{
 				_toasts.RemoveAt(_toasts.Count - 1);
 			}
+			RecordDiagnosticTransition("activeCount", previous, _toasts.Count);
 		}
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
+			using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.ControlBounds);
 			if (_toasts.Count == 0)
 				return;
 
@@ -241,6 +246,7 @@ namespace FishUI.Controls
 			float startY = ScreenMargin;
 
 			// Update and remove expired toasts
+			int beforeExpiration = _toasts.Count;
 			for (int i = _toasts.Count - 1; i >= 0; i--)
 			{
 				_toasts[i].ElapsedTime += Dt;
@@ -257,6 +263,7 @@ namespace FishUI.Controls
 					_toasts.RemoveAt(i);
 				}
 			}
+			RecordDiagnosticTransition("activeCount", beforeExpiration, _toasts.Count);
 
 			// Draw toasts from top to bottom
 			float currentY = startY;

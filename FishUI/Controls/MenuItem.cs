@@ -11,7 +11,7 @@ namespace FishUI.Controls
 	/// Represents a single item in a ContextMenu or MenuBar.
 	/// Can be a regular item, separator, or container for submenus.
 	/// </summary>
-	public class MenuItem : Control
+	public partial class MenuItem : Control
 	{
 		/// <summary>
 		/// The display text for this menu item.
@@ -160,14 +160,26 @@ namespace FishUI.Controls
 
 			if (IsCheckable)
 			{
+				bool previous = IsChecked;
 				IsChecked = !IsChecked;
+				RecordDiagnosticTransition("isChecked", previous, IsChecked);
 			}
 
-			OnClicked?.Invoke(this);
+			try
+			{
+				OnClicked?.Invoke(this);
+				RecordDiagnosticTransition("invocation", "started", "succeeded");
+			}
+			catch
+			{
+				RecordDiagnosticTransition("invocation", "started", "failed");
+				throw;
+			}
 		}
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
+			using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.ControlBounds);
 			Vector2 pos = GetAbsolutePosition();
 			Vector2 size = GetAbsoluteSize();
 

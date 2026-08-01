@@ -15,13 +15,15 @@
     <Compile Include="..\FishUI\Controls\Base\Control.Children.cs" Link="Controls\Base\Control.Children.cs" />
     <Compile Include="..\FishUI\Controls\Base\Control.cs" Link="Controls\Base\Control.cs" />
     <Compile Include="..\FishUI\Controls\Base\Control.Drawing.cs" Link="Controls\Base\Control.Drawing.cs" />
+	<Compile Include="..\FishUI\Controls\Base\Control.Diagnostics.cs" Link="Controls\Base\Control.Diagnostics.cs" />
     <Compile Include="..\FishUI\Controls\Base\Control.Input.cs" Link="Controls\Base\Control.Input.cs" />
 	<Compile Include="..\FishUI\Controls\Base\Control.Lifecycle.cs" Link="Controls\Base\Control.Lifecycle.cs" />
 	<Compile Include="..\FishUI\Controls\GameConsole.cs" Link="Controls\GameConsole.cs" />
     <Compile Include="..\FishUI\Controls\Base\Control.Position.cs" Link="Controls\Base\Control.Position.cs" />
     <Compile Include="..\FishUI\Controls\BigDigitDisplay.cs" Link="Controls\BigDigitDisplay.cs" />
     <Compile Include="..\FishUI\Controls\Button.cs" Link="Controls\Button.cs" />
-    <Compile Include="..\FishUI\Controls\CheckBox.cs" Link="Controls\CheckBox.cs" />
+	<Compile Include="..\FishUI\Controls\CheckBox.cs" Link="Controls\CheckBox.cs" />
+	<Compile Include="..\FishUI\Controls\ControlDiagnosticsProviders.cs" Link="Controls\ControlDiagnosticsProviders.cs" />
     <Compile Include="..\FishUI\Controls\ContextMenu.cs" Link="Controls\ContextMenu.cs" />
     <Compile Include="..\FishUI\Controls\ControlScrollable.cs" Link="Controls\ControlScrollable.cs" />
     <Compile Include="..\FishUI\Controls\DataGrid.cs" Link="Controls\DataGrid.cs" />

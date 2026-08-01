@@ -165,7 +165,7 @@ namespace FishUI.Controls
 	/// <summary>
 	/// A hierarchical tree control with expand/collapse and selection support.
 	/// </summary>
-	public class TreeView : Control
+	public partial class TreeView : Control
 	{
 		/// <summary>
 		/// Root nodes of the tree.
@@ -304,10 +304,12 @@ namespace FishUI.Controls
 		/// </summary>
 		public void SelectNode(TreeNode node)
 		{
+			long oldNodeId = DiagnosticNodeId(SelectedNode);
 			if (SelectedNode != null)
 				SelectedNode.IsSelected = false;
 
 			SelectedNode = node;
+			RecordDiagnosticTransition("selectedNodeId", oldNodeId, DiagnosticNodeId(node));
 
 			if (node != null)
 			{
@@ -340,7 +342,9 @@ namespace FishUI.Controls
 
 			if (node.IsExpanded != expanded)
 			{
+				bool previous = node.IsExpanded;
 				node.IsExpanded = expanded;
+				RecordDiagnosticTransition("nodeExpanded", previous, expanded);
 				OnNodeExpandedChanged?.Invoke(this, node, expanded);
 			}
 		}
@@ -529,6 +533,7 @@ namespace FishUI.Controls
 		public override void HandleMouseWheel(FishUI UI, FishInputState InState, float WheelDelta)
 		{
 			base.HandleMouseWheel(UI, InState, WheelDelta);
+			float previousOffset = _scrollOffset;
 
 			if (_scrollBar != null)
 			{
@@ -540,6 +545,7 @@ namespace FishUI.Controls
 					_scrollBar.ThumbPosition = 1;
 				_scrollOffset = _scrollBar.ThumbPosition * Math.Max(0, _totalContentHeight - Size.Y);
 			}
+			RecordDiagnosticTransition("scrollOffset", previousOffset, _scrollOffset);
 		}
 
 		public override void HandleKeyDown(FishUI UI, FishInputState InState, int KeyCode)
@@ -597,6 +603,7 @@ namespace FishUI.Controls
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
+			using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Viewport);
 			Vector2 pos = GetAbsolutePosition();
 			Vector2 size = GetAbsoluteSize();
 

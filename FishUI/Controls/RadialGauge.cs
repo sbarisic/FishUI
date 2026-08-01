@@ -9,7 +9,7 @@ namespace FishUI.Controls
 	/// A circular/radial gauge control for displaying values like speedometers, RPM gauges, etc.
 	/// Supports configurable angle range, tick marks, labels, color zones, and needle rendering.
 	/// </summary>
-	public class RadialGauge : Control
+	public partial class RadialGauge : Control
 	{
 		/// <summary>
 		/// Minimum value of the gauge.
@@ -254,6 +254,7 @@ namespace FishUI.Controls
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
+			using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.ControlBounds);
 			Vector2 pos = GetAbsolutePosition();
 			Vector2 size = GetAbsoluteSize();
 

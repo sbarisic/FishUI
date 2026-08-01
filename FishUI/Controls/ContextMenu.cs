@@ -11,7 +11,7 @@ namespace FishUI.Controls
 	/// A popup context menu that displays a list of menu items.
 	/// Can be shown at any position and supports nested submenus.
 	/// </summary>
-	public class ContextMenu : Control
+	public partial class ContextMenu : Control
 	{
 		/// <summary>
 		/// Whether the context menu is currently visible.
@@ -143,6 +143,7 @@ namespace FishUI.Controls
 			Position = new FishUIPosition(PositionMode.Absolute, position);
 			RecalculateSize();
 			IsOpen = true;
+			RecordDiagnosticTransition("isOpen", false, true);
 			Visible = true;
 			HoveredIndex = -1;
 			BringToFront();
@@ -163,7 +164,9 @@ namespace FishUI.Controls
 		public void Close()
 		{
 			CloseSubmenu();
+			bool wasOpen = IsOpen;
 			IsOpen = false;
+			RecordDiagnosticTransition("isOpen", wasOpen, false);
 			Visible = false;
 			HoveredIndex = -1;
 			OnClosed?.Invoke(this);
@@ -178,7 +181,9 @@ namespace FishUI.Controls
 		public void CloseThis()
 		{
 			CloseSubmenu();
+			bool wasOpen = IsOpen;
 			IsOpen = false;
+			RecordDiagnosticTransition("isOpen", wasOpen, false);
 			Visible = false;
 			HoveredIndex = -1;
 			OnClosed?.Invoke(this);
@@ -191,8 +196,10 @@ namespace FishUI.Controls
 		{
 			if (OpenSubmenu != null)
 			{
+				long oldId = OpenSubmenu.DiagnosticRuntimeId;
 				OpenSubmenu.CloseThis();
 				OpenSubmenu = null;
+				RecordDiagnosticTransition("openSubmenuControlId", oldId, 0);
 			}
 		}
 
@@ -360,7 +367,9 @@ namespace FishUI.Controls
 			Vector2 submenuPos = new Vector2(itemPos.X + itemSize.X - 2, itemPos.Y);
 
 			item.Submenu.Show(submenuPos);
+			long oldId = OpenSubmenu?.DiagnosticRuntimeId ?? 0;
 			OpenSubmenu = item.Submenu;
+			RecordDiagnosticTransition("openSubmenuControlId", oldId, OpenSubmenu.DiagnosticRuntimeId);
 		}
 
 		public override void HandleMouseLeave(FishUI UI, FishInputState InState)
@@ -548,6 +557,7 @@ namespace FishUI.Controls
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
+			using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.ControlBounds);
 			if (!IsOpen)
 				return;
 

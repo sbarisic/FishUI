@@ -232,14 +232,19 @@ namespace FishUI.Controls
 				out int firstVisibleRow, out int lastVisibleRow, out int firstVisibleColumn, out int lastVisibleColumn);
 
 			long totalCells = (long)_rowCount * _columnCount;
-			int scanLimit = (int)Math.Min(totalCells, MaximumDiagnosticCellsScanned);
 			int scanned = 0;
 			int nonEmpty = 0;
-			for (int row = 0; row < _rowCount && scanned < scanLimit; row++)
+			bool scanStopped = false;
+			for (int row = 0; row < _rowCount && !scanStopped; row++)
 			{
 				int columns = Math.Min(_columnCount, _cellData[row].Count);
-				for (int column = 0; column < columns && scanned < scanLimit; column++)
+				for (int column = 0; column < columns; column++)
 				{
+					if (scanned >= MaximumDiagnosticCellsScanned || !writer.TryConsumeScanEntry())
+					{
+						scanStopped = true;
+						break;
+					}
 					if (!string.IsNullOrEmpty(_cellData[row][column])) nonEmpty++;
 					scanned++;
 				}

@@ -23,13 +23,15 @@ A request queued before `TickDraw` starts participates in that draw. A request q
 
 Several callers can share one draw recording pass. Each caller receives a distinct `RequestId` and independently projected snapshot; those snapshots share a `CaptureId`. `UiSessionId` scopes both IDs and all runtime control IDs. `LastCapture` is the last completed per-request projection.
 
-Per-request `RedactText`, `RedactValues`, and `IncludeControlData` settings can remove more data from that projection. They cannot weaken the session privacy floor. The authoritative control tree is captured after drawing; `preDrawGeometry`, `createdDuringDraw`, and `removedDuringDraw` identify changes made by lazy drawing or layout work.
+Per-request `RedactText`, `RedactValues`, and `IncludeControlData` settings can remove more data from that projection. They cannot weaken the session privacy floor. The authoritative control tree is captured after drawing; `preDrawGeometry`, `createdDuringDraw`, and `removedDuringDraw` identify changes made by lazy drawing or layout work. Provider data is collected only once, after the final identity/path traversal, so lazy draw-time state is visible and expensive models are not scanned twice.
+
+Control providers share bounded collection and scan contracts. The default limits are 256 emitted entries per collection, 100,000 scanned entries per provider, 500,000 scanned entries across the final capture pass, and 512 characters for any collected text value. `controlScanEntries`, `controlScanBudget`, and `controlScanLimitReached` report capture-wide use. Truncated collections include source/emitted counts and emit stable warnings. Invalid third-party field keys are skipped without discarding valid fields from that provider.
 
 Date pickers add bounded calendar state to their control record: whether the popup is open, its pixel bounds, the displayed month, the selected date, and the hovered date. Their open/close, month-navigation, and selection changes also appear as state-change events when event history is active. Date values remain subject to session and request value redaction.
 
 Drop-down controls record bounded structural state: popup and search-box bounds, selected indices, selection count, hovered and filtered indices, item counts, and scrolling metrics. Open/close, selection, and search-length changes appear in the event timeline. Item text, custom-renderer delegates, and item `UserData` are never copied into control data; the selected-index list is capped at 256 entries and reports truncation.
 
-Spreadsheet grids record selection, edit state, scroll position, visible row and column ranges, cell geometry, cursor and heat-map modes, and bounded occupancy counts. Cell contents are never copied. Cell-change events contain coordinates and old/new lengths only. Check boxes and sliders also record their current values and state transitions. See [Diagnostic control coverage](DIAGNOSTIC_CONTROL_COVERAGE.md) for the remaining control inventory.
+Spreadsheet grids record selection, edit state, scroll position, visible row and column ranges, cell geometry, cursor and heat-map modes, and bounded occupancy counts. Cell contents are never copied. Cell-change events contain coordinates and old/new lengths only. Check boxes and sliders also record their current values and state transitions. See [Diagnostic control coverage](DIAGNOSTIC_CONTROL_COVERAGE.md) for the complete provider inventory.
 
 `Ctrl+Shift+F12` queues the default capture when diagnostics and the diagnostic hotkey are enabled. In Debug builds, rolling event history is enabled by default; in Release builds it is disabled until the application enables it. The hotkey capture includes up to the configured rolling-history duration before the trigger plus events from the captured frame. Enabling only the hotkey does not enable continuous recording.
 
@@ -61,6 +63,8 @@ ui.Diagnostics.ResetEventRecorder(); // commits a weaker policy for future data
 ```
 
 Strengthening privacy clears buffered data that could violate the new policy. Weakening a policy does not reveal old data and takes effect only after `ResetEventRecorder`. Password protection cannot be weakened by request settings.
+
+Provider privacy has four modes. `Default` collects normal bounded data. `RedactText` keeps structural and numeric fields but omits classified text. `RedactValues` and `ExcludeControlData` omit the provider dictionary. Request projection can remove more data but cannot recover text discarded by the session or control policy. Paths, control names and IDs, theme names, render assets, exception and artifact messages, warning/event details, and provider dictionary text use the same text policy. Warning codes, event types, stages, enum tokens, and control type names remain structural.
 
 Exception stacks are excluded unless both the request and session privacy policy allow them.
 

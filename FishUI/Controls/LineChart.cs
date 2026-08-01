@@ -129,7 +129,7 @@ namespace FishUI.Controls
 	/// A line chart control for real-time data visualization.
 	/// Displays one or more data series as lines over a configurable time window.
 	/// </summary>
-	public class LineChart : Control
+	public partial class LineChart : Control
 	{
 		/// <summary>
 		/// Minimum value on the Y-axis.
@@ -363,7 +363,9 @@ namespace FishUI.Controls
 		/// </summary>
 		public void Pause()
 		{
+			bool previous = IsPaused;
 			IsPaused = true;
+			RecordDiagnosticTransition("paused", previous, true);
 		}
 
 		/// <summary>
@@ -371,7 +373,9 @@ namespace FishUI.Controls
 		/// </summary>
 		public void Resume()
 		{
+			bool previous = IsPaused;
 			IsPaused = false;
+			RecordDiagnosticTransition("paused", previous, false);
 		}
 
 		public override void HandleMousePress(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
@@ -384,7 +388,9 @@ namespace FishUI.Controls
 				if (Pos.X >= _chartPos.X && Pos.X <= _chartPos.X + _chartSize.X &&
 					Pos.Y >= _chartPos.Y && Pos.Y <= _chartPos.Y + _chartSize.Y)
 				{
+					bool previous = IsDraggingCursor;
 					IsDraggingCursor = true;
+					RecordDiagnosticTransition("draggingCursor", previous, true);
 					CursorTime = ScreenXToTime(Pos.X);
 					FireCursorMoved();
 				}
@@ -397,7 +403,9 @@ namespace FishUI.Controls
 
 			if (Btn == FishMouseButton.Left)
 			{
+				bool previous = IsDraggingCursor;
 				IsDraggingCursor = false;
+				RecordDiagnosticTransition("draggingCursor", previous, false);
 			}
 		}
 
@@ -414,6 +422,7 @@ namespace FishUI.Controls
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
+			using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Viewport);
 			base.DrawControl(UI, Dt, Time);
 
 			Vector2 pos = GetAbsolutePosition();

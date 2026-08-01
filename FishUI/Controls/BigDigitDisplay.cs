@@ -18,7 +18,7 @@ namespace FishUI.Controls
 	/// A large text display control designed for digital readouts like speedometers, 
 	/// RPM gauges, counters, or any application requiring prominent numeric/text display.
 	/// </summary>
-	public class BigDigitDisplay : Control
+	public partial class BigDigitDisplay : Control
 	{
 		/// <summary>
 		/// The text/value to display. Can be numeric or any string.
@@ -132,6 +132,7 @@ namespace FishUI.Controls
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
+			using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.ControlBounds);
 			Vector2 absPos = GetAbsolutePosition();
 			Vector2 absSize = GetAbsoluteSize();
 

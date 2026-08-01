@@ -10,7 +10,7 @@ namespace FishUI.Controls
 	/// <summary>
 	/// A numeric input control with up/down increment buttons.
 	/// </summary>
-	public class NumericUpDown : Control
+	public partial class NumericUpDown : Control
 	{
 		/// <summary>
 		/// The current numeric value.
@@ -24,7 +24,9 @@ namespace FishUI.Controls
 				float newValue = Math.Clamp(value, MinValue, MaxValue);
 				if (_value != newValue)
 				{
+					float oldValue = _value;
 					_value = newValue;
+					RecordDiagnosticTransition("value", oldValue, _value);
 					UpdateTextFromValue();
 					OnValueChanged?.Invoke(this, _value);
 				}
@@ -78,6 +80,7 @@ namespace FishUI.Controls
 		private bool _upButtonPressed = false;
 		private bool _downButtonHovered = false;
 		private bool _downButtonPressed = false;
+		private bool _diagnosticParseValid = true;
 
 		public NumericUpDown()
 		{
@@ -109,12 +112,17 @@ namespace FishUI.Controls
 
 		private void OnTextboxTextChanged(Textbox sender, string text)
 		{
-			if (float.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out float parsed))
+			bool valid = float.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out float parsed);
+			RecordDiagnosticTransition("parseValid", _diagnosticParseValid, valid);
+			_diagnosticParseValid = valid;
+			if (valid)
 			{
 				float clamped = Math.Clamp(parsed, MinValue, MaxValue);
 				if (_value != clamped)
 				{
+					float oldValue = _value;
 					_value = clamped;
+					RecordDiagnosticTransition("value", oldValue, _value);
 					OnValueChanged?.Invoke(this, _value);
 				}
 			}
@@ -288,6 +296,7 @@ namespace FishUI.Controls
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
+			using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.ControlBounds);
 			UpdateInternalSizes();
 
 			Vector2 absPos = GetAbsolutePosition();

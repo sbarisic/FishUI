@@ -308,7 +308,7 @@ namespace FishUI.Controls
 	/// A Windows Forms-like property editor control that displays and edits object properties.
 	/// Supports categorization, common types (string, int, float, bool, enum), and nested objects.
 	/// </summary>
-	public class PropertyGrid : Control
+	public partial class PropertyGrid : Control
 	{
 		/// <summary>
 		/// The object being edited.
@@ -1080,6 +1080,7 @@ namespace FishUI.Controls
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
+			using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Viewport);
 			Vector2 absPos = GetAbsolutePosition();
 			Vector2 absSize = GetAbsoluteSize();
 			IFishUIGfx gfx = UI.Graphics;
@@ -1235,13 +1236,20 @@ namespace FishUI.Controls
 				if (item.IsCategoryHeader)
 				{
 					// Toggle category expansion
+					bool previousExpanded = item.IsExpanded;
+					bool hadEditor = _activeEditor != null;
 					item.IsExpanded = !item.IsExpanded;
 					DestroyActiveEditor();
+					RecordDiagnosticTransition("categoryExpanded", previousExpanded, item.IsExpanded);
+					RecordDiagnosticTransition("editorActive", hadEditor, false);
 				}
 				else
 				{
 					// Select property
+					int previousIndex = _selectedItem == null ? -1 : _visibleItems.IndexOf(_selectedItem);
+					bool hadEditor = _activeEditor != null;
 					_selectedItem = item;
+					RecordDiagnosticTransition("selectedVisibleIndex", previousIndex, index);
 
 					// Create editor in value column
 					float scrollBarWidth = _scrollBar?.Visible == true ? 16 : 0;
@@ -1251,6 +1259,7 @@ namespace FishUI.Controls
 					float itemY = index * RowHeight - _scrollOffset;
 
 					CreateEditorForItem(UI, item, nameColumnWidth, itemY, valueWidth, RowHeight);
+					RecordDiagnosticTransition("editorActive", hadEditor, _activeEditor != null);
 				}
 			}
 		}
@@ -1277,6 +1286,7 @@ namespace FishUI.Controls
 
 		public override void HandleMouseWheel(FishUI UI, FishInputState InState, float WheelDelta)
 		{
+			float previousOffset = _scrollOffset;
 			float contentHeight = _visibleItems.Count * RowHeight;
 			float visibleHeight = GetAbsoluteSize().Y;
 			float maxScroll = Math.Max(0, contentHeight - visibleHeight);
@@ -1288,6 +1298,7 @@ namespace FishUI.Controls
 			{
 				_scrollBar.ThumbPosition = _scrollOffset / maxScroll;
 			}
+			RecordDiagnosticTransition("scrollOffset", previousOffset, _scrollOffset);
 		}
 
 		/// <summary>
@@ -1321,6 +1332,7 @@ namespace FishUI.Controls
 			resetItem.Disabled = !item.CanResetToDefault();
 			resetItem.OnClicked += _ =>
 			{
+				bool reset = false;
 				if (_contextMenuItem != null && _contextMenuItem.CanResetToDefault())
 				{
 					var oldValue = _contextMenuItem.GetValue();
@@ -1329,8 +1341,10 @@ namespace FishUI.Controls
 						var newValue = _contextMenuItem.GetValue();
 						OnPropertyValueChanged?.Invoke(this, _contextMenuItem, oldValue, newValue);
 						DestroyActiveEditor();
+						reset = true;
 					}
 				}
+				RecordDiagnosticTransition("resetOutcome", "pending", reset ? "succeeded" : "rejected");
 			};
 
 			// Add to FishUI root if not already added

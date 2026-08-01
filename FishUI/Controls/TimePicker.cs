@@ -12,7 +12,7 @@ namespace FishUI.Controls
 	/// <summary>
 	/// A time picker control with hour, minute, and optional second spinners.
 	/// </summary>
-	public class TimePicker : Control
+	public partial class TimePicker : Control
 	{
 		private TimeSpan _value = TimeSpan.Zero;
 		private bool _use24HourFormat = true;
@@ -47,7 +47,9 @@ namespace FishUI.Controls
 
 				if (_value != clamped)
 				{
+					long oldTicks = _value.Ticks;
 					_value = clamped;
+					RecordDiagnosticTransition("valueTicks", oldTicks, _value.Ticks);
 					UpdateSpinnersFromValue();
 					OnValueChanged?.Invoke(this, _value);
 				}
@@ -65,7 +67,9 @@ namespace FishUI.Controls
 			{
 				if (_use24HourFormat != value)
 				{
+					bool oldValue = _use24HourFormat;
 					_use24HourFormat = value;
+					RecordDiagnosticTransition("use24HourFormat", oldValue, _use24HourFormat);
 					UpdateSpinnersFromValue();
 				}
 			}
@@ -199,13 +203,16 @@ namespace FishUI.Controls
 			TimeSpan newValue = new TimeSpan(totalHours, _minute, _second);
 			if (_value != newValue)
 			{
+				long oldTicks = _value.Ticks;
 				_value = newValue;
+				RecordDiagnosticTransition("valueTicks", oldTicks, _value.Ticks);
 				OnValueChanged?.Invoke(this, _value);
 			}
 		}
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
+			using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.ControlBounds);
 			// Don't call base.DrawControl - we don't want a background rectangle
 			// The separator areas should be transparent
 

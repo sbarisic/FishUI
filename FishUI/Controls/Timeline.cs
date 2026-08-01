@@ -35,7 +35,7 @@ namespace FishUI.Controls
 	/// Displays a time range with a selectable view window.
 	/// Designed to work as a companion to LineChart for historical data browsing.
 	/// </summary>
-	public class Timeline : Control
+	public partial class Timeline : Control
 	{
 		/// <summary>
 		/// Minimum time value of the entire timeline range.
@@ -185,9 +185,13 @@ namespace FishUI.Controls
 		/// </summary>
 		public void SetView(float start, float end)
 		{
+			float oldStart = _viewStart;
+			float oldEnd = _viewEnd;
 			_viewStart = Math.Clamp(start, MinTime, MaxTime - MinViewWidth);
 			_viewEnd = Math.Clamp(end, _viewStart + MinViewWidth, MaxTime);
 			FireViewChanged();
+			if (IsDiagnosticEventRecordingEnabled && (oldStart != _viewStart || oldEnd != _viewEnd))
+				RecordDiagnosticTransition("viewChange", "started", "completed");
 		}
 
 		/// <summary>
@@ -232,6 +236,7 @@ namespace FishUI.Controls
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
+			using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Viewport);
 			base.DrawControl(UI, Dt, Time);
 
 			Vector2 pos = GetAbsolutePosition();
@@ -388,6 +393,8 @@ namespace FishUI.Controls
 			_dragStartMouseX = Pos.X;
 			_dragStartViewStart = _viewStart;
 			_dragStartViewEnd = _viewEnd;
+			if (_dragMode != DragMode.None)
+				RecordDiagnosticTransition("dragMode", DragMode.None.ToString(), _dragMode.ToString());
 		}
 
 		public override void HandleMouseRelease(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
@@ -396,7 +403,9 @@ namespace FishUI.Controls
 
 			if (Btn == FishMouseButton.Left)
 			{
+				DragMode previous = _dragMode;
 				_dragMode = DragMode.None;
+				RecordDiagnosticTransition("dragMode", previous.ToString(), DragMode.None.ToString());
 			}
 		}
 

@@ -181,7 +181,7 @@ namespace FishUI.Controls
 			writer.Write("minimumSize", FishUIDebugPoint.From(MinSize));
 			writer.Write("maximumSize", FishUIDebugPoint.From(MaxSize));
 			writer.Write("resizing", _isResizing);
-			writer.Write("resizeEdge", _resizeDirection.ToString());
+			writer.WriteToken("resizeEdge", _resizeDirection.ToString());
 			writer.Write("modal", IsModal);
 			writer.Write("active", IsActive);
 		}

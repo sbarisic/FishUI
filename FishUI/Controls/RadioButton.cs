@@ -6,7 +6,7 @@ using YamlDotNet.Serialization;
 
 namespace FishUI.Controls
 {
-	public class RadioButton : Control
+	public partial class RadioButton : Control
 	{
 		/// <summary>
 		/// Whether the radio button is currently IsChecked.
@@ -33,6 +33,7 @@ namespace FishUI.Controls
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
+			using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.ControlBounds);
 			//base.Draw(UI, Dt, Time);
 
 			NPatch Cur = UI.Settings.ImgRadioButtonUnchecked;
@@ -60,7 +61,11 @@ namespace FishUI.Controls
 		public override void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
 		{
 			if (Btn == FishMouseButton.Left)
+			{
+				bool oldValue = IsChecked;
 				IsChecked = !IsChecked;
+				RecordDiagnosticTransition("isChecked", oldValue, IsChecked);
+			}
 		}
 
 	}

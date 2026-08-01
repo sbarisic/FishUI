@@ -6,7 +6,7 @@ namespace FishUI.Controls
 {
 	public delegate void ToggleSwitchChangedFunc(ToggleSwitch Sender, bool IsOn);
 
-	public class ToggleSwitch : Control
+	public partial class ToggleSwitch : Control
 	{
 		/// <summary>
 		/// Whether the toggle switch is currently on
@@ -19,7 +19,9 @@ namespace FishUI.Controls
 			{
 				if (_isOn != value)
 				{
+					bool oldValue = _isOn;
 					_isOn = value;
+					RecordDiagnosticTransition("isOn", oldValue, _isOn);
 					OnToggleChanged?.Invoke(this, _isOn);
 				}
 			}
@@ -146,6 +148,7 @@ namespace FishUI.Controls
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
+			using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.ControlBounds);
 			Vector2 pos = GetAbsolutePosition();
 			Vector2 size = GetAbsoluteSize();
 

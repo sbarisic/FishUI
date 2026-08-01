@@ -24,7 +24,7 @@ namespace FishUI.Controls
 	/// A file picker dialog for selecting files to open or save.
 	/// Uses FishUI controls for a consistent look and dependency-free implementation.
 	/// </summary>
-	public class FilePickerDialog : Window
+	public partial class FilePickerDialog : Window
 	{
 		/// <summary>
 		/// Event raised when a file is selected and OK is clicked.
@@ -89,6 +89,10 @@ namespace FishUI.Controls
 		private Button _goButton;
 		private Label _filterLabel;
 		private IFishUIFileSystem _fileSystem;
+		private int _diagnosticDirectoryCount;
+		private int _diagnosticFileCount;
+		private bool _diagnosticCanNavigateUp;
+		private string _diagnosticSelectedPath;
 
 		/// <summary>
 		/// Creates a new file picker dialog.
@@ -222,6 +226,10 @@ namespace FishUI.Controls
 				return;
 
 			_fileListBox.Items.Clear();
+			_diagnosticDirectoryCount = 0;
+			_diagnosticFileCount = 0;
+			_diagnosticCanNavigateUp = !string.IsNullOrEmpty(_currentDirectory) &&
+				!string.IsNullOrEmpty(_fileSystem.GetParentDirectory(_currentDirectory));
 
 			// Add directories
 			var directories = _fileSystem.GetDirectories(_currentDirectory);
@@ -230,6 +238,7 @@ namespace FishUI.Controls
 				string name = _fileSystem.GetFileName(dir);
 				if (!string.IsNullOrEmpty(name))
 				{
+					_diagnosticDirectoryCount++;
 					var item = new ListBoxItem($"[DIR] {name}");
 					item.UserData = dir;
 					_fileListBox.AddItem(item);
@@ -243,6 +252,7 @@ namespace FishUI.Controls
 				string name = _fileSystem.GetFileName(file);
 				if (!string.IsNullOrEmpty(name))
 				{
+					_diagnosticFileCount++;
 					var item = new ListBoxItem(name);
 					item.UserData = file;
 					_fileListBox.AddItem(item);
@@ -254,11 +264,14 @@ namespace FishUI.Controls
 		{
 			if (item?.UserData is string path)
 			{
+				_diagnosticSelectedPath = path;
+				RecordDiagnosticTransition("selectedIndex", -1, index);
 				if (_fileSystem.IsDirectory(path))
 				{
 					// Double-click behavior: navigate into directory
 					// For now, single click on directory navigates
 					CurrentDirectory = path;
+					RecordDiagnosticTransition("navigation", "pending", "directory");
 				}
 				else
 				{
@@ -273,6 +286,7 @@ namespace FishUI.Controls
 			if (!string.IsNullOrEmpty(parent))
 			{
 				CurrentDirectory = parent;
+				RecordDiagnosticTransition("navigation", "pending", "parent");
 			}
 		}
 
@@ -281,6 +295,7 @@ namespace FishUI.Controls
 			if (_fileSystem.IsDirectory(path))
 			{
 				CurrentDirectory = path;
+				RecordDiagnosticTransition("navigation", "pending", "path");
 			}
 		}
 
@@ -291,6 +306,7 @@ namespace FishUI.Controls
 				return;
 
 			string fullPath = _fileSystem.CombinePath(_currentDirectory, fileName);
+			_diagnosticSelectedPath = fullPath;
 
 			// For Open mode, check if file exists
 			if (Mode == FilePickerMode.Open && !_fileSystem.Exists(fullPath))
@@ -300,12 +316,14 @@ namespace FishUI.Controls
 			}
 
 			CloseDialog();
+			RecordDiagnosticTransition("confirmation", "pending", "confirmed");
 			OnFileConfirmed?.Invoke(this, fullPath);
 		}
 
 		private void Cancel()
 		{
 			CloseDialog();
+			RecordDiagnosticTransition("confirmation", "pending", "cancelled");
 			OnDialogCancelled?.Invoke(this);
 		}
 

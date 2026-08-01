@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Text.Json.Serialization;
 
@@ -144,6 +145,7 @@ namespace FishUI
 		public long? CauseSequence { get; set; }
 		public long? InteractionId { get; set; }
 		public string Message { get; set; }
+		public string SensitiveDetail { get; set; }
 		public FishUIPointerEventData Pointer { get; set; }
 		public FishUIKeyEventData Key { get; set; }
 		public FishUITextEventData Text { get; set; }
@@ -164,6 +166,7 @@ namespace FishUI
 		public FishUIDiagnosticSeverity Severity { get; set; }
 		public string Code { get; set; }
 		public string Message { get; set; }
+		public string SensitiveDetail { get; set; }
 		public Guid UiSessionId { get; set; }
 		public long? CaptureId { get; set; }
 		public long? RequestId { get; set; }
@@ -233,6 +236,7 @@ namespace FishUI
 		public FishUIControlGeometrySnapshot Geometry { get; set; }
 		public FishUIControlGeometrySnapshot PreDrawGeometry { get; set; }
 		public Dictionary<string, object> ControlData { get; set; }
+		[JsonIgnore] internal HashSet<string> TextControlDataKeys { get; set; }
 	}
 
 	public sealed class FishUIHitTestCandidate
@@ -357,6 +361,9 @@ namespace FishUI
 		public int ProjectedEventCount { get; set; }
 		public bool RollingHistoryTruncatedByCapacity { get; set; }
 		public long RollingHistoryCapacityDiscardedTotal { get; set; }
+		public int ControlScanEntries { get; set; }
+		public int ControlScanBudget { get; set; }
+		public bool ControlScanLimitReached { get; set; }
 		public float UiScale { get; set; }
 		public string GraphicsBackend { get; set; }
 		public string Theme { get; set; }
@@ -417,15 +424,152 @@ namespace FishUI
 	public sealed class FishUIDebugSnapshotWriter
 	{
 		private readonly Dictionary<string, object> _values;
-		internal FishUIDebugSnapshotWriter(Dictionary<string, object> values) { _values = values; }
-		public void Write(string name, bool value) => _values[name] = value;
-		public void Write(string name, int value) => _values[name] = value;
-		public void Write(string name, long value) => _values[name] = value;
-		public void Write(string name, float value) => _values[name] = value;
-		public void Write(string name, double value) => _values[name] = value;
-		public void Write(string name, string value) => _values[name] = value;
-		public void Write(string name, int[] value) => _values[name] = value == null ? null : (int[])value.Clone();
-		public void Write(string name, FishUIDebugPoint value) => _values[name] = value;
-		public void Write(string name, FishUIDebugRect value) => _values[name] = value;
+		private readonly HashSet<string> _textKeys;
+		private readonly FishUIControlScanBudget _batchBudget;
+		private readonly Action<string, string, string> _warning;
+		private readonly bool _allowText;
+		private bool _reportedInvalidKey;
+		private int _providerScanned;
+
+		internal FishUIDebugSnapshotWriter(Dictionary<string, object> values, HashSet<string> textKeys,
+			FishUIControlScanBudget batchBudget, int maximumCollectionEntries, int maximumScanEntries,
+			int maximumTextLength, bool allowText, Action<string, string, string> warning)
+		{
+			_values = values;
+			_textKeys = textKeys;
+			_batchBudget = batchBudget;
+			MaximumCollectionEntries = Math.Max(1, maximumCollectionEntries);
+			MaximumScanEntries = Math.Max(1, maximumScanEntries);
+			MaximumTextLength = Math.Max(0, maximumTextLength);
+			_allowText = allowText;
+			_warning = warning;
+		}
+
+		public int MaximumCollectionEntries { get; }
+		public int MaximumScanEntries { get; }
+		public int MaximumTextLength { get; }
+		public int ScannedEntries => _providerScanned;
+		public bool ScanLimitReached { get; private set; }
+		public void ReportWarning(string code, string message, string sensitiveDetail = null) =>
+			_warning?.Invoke(code, message, sensitiveDetail);
+
+		public bool TryConsumeScanEntry()
+		{
+			if (_providerScanned >= MaximumScanEntries || _batchBudget != null && !_batchBudget.TryConsume())
+			{
+				ScanLimitReached = true;
+				return false;
+			}
+			_providerScanned++;
+			return true;
+		}
+
+		public void Write(string name, bool value) { if (Valid(name)) _values[name] = value; }
+		public void Write(string name, int value) { if (Valid(name)) _values[name] = value; }
+		public void Write(string name, long value) { if (Valid(name)) _values[name] = value; }
+		public void Write(string name, float value) { if (Valid(name)) _values[name] = value; }
+		public void Write(string name, double value) { if (Valid(name)) _values[name] = value; }
+		public void Write(string name, string value) => WriteText(name, value);
+		public void Write(string name, int[] value)
+			=> Write(name, value, value?.Length ?? 0);
+		public void Write(string name, int[] value, int sourceCount)
+		{
+			if (!Valid(name)) return;
+			int count = value == null ? 0 : Math.Min(value.Length, MaximumCollectionEntries);
+			_values[name] = value == null ? null : value.Take(count).ToArray();
+			WriteCollectionMetadata(name, Math.Max(sourceCount, value?.Length ?? 0), count);
+		}
+		public void Write(string name, long[] value)
+			=> Write(name, value, value?.Length ?? 0);
+		public void Write(string name, long[] value, int sourceCount)
+		{
+			if (!Valid(name)) return;
+			int count = value == null ? 0 : Math.Min(value.Length, MaximumCollectionEntries);
+			_values[name] = value == null ? null : value.Take(count).ToArray();
+			WriteCollectionMetadata(name, Math.Max(sourceCount, value?.Length ?? 0), count);
+		}
+		public void Write(string name, string[] value) => WriteText(name, value);
+		public void Write(string name, FishUIDebugPoint value) { if (Valid(name)) _values[name] = value; }
+		public void Write(string name, FishUIDebugRect value) { if (Valid(name)) _values[name] = value; }
+
+		public void WriteToken(string name, string value)
+		{
+			if (Valid(name)) _values[name] = value;
+		}
+
+		public void WriteText(string name, string value)
+		{
+			if (!Valid(name) || !_allowText) return;
+			_textKeys.Add(name);
+			if (value == null) { _values[name] = null; return; }
+			_values[name] = value.Length <= MaximumTextLength ? value : value.Substring(0, MaximumTextLength);
+			_values[name + "OriginalLength"] = value.Length;
+			_values[name + "Truncated"] = value.Length > MaximumTextLength;
+		}
+
+		public void WriteText(string name, string[] value)
+			=> WriteText(name, value, value?.Length ?? 0);
+		public void WriteText(string name, string[] value, int sourceCount)
+		{
+			if (!Valid(name) || !_allowText) return;
+			_textKeys.Add(name);
+			if (value == null) { _values[name] = null; return; }
+			int count = Math.Min(value.Length, MaximumCollectionEntries);
+			var copy = new string[count];
+			var originalLengths = new int[count];
+			for (int i = 0; i < count; i++)
+			{
+				string item = value[i];
+				originalLengths[i] = item?.Length ?? 0;
+				copy[i] = item == null || item.Length <= MaximumTextLength ? item : item.Substring(0, MaximumTextLength);
+			}
+			_values[name] = copy;
+			_values[name + "OriginalLengths"] = originalLengths;
+			bool textTruncated = value.Any(item => item != null && item.Length > MaximumTextLength);
+			WriteCollectionMetadata(name, Math.Max(sourceCount, value.Length), count, textTruncated);
+		}
+
+		private void WriteCollectionMetadata(string name, int sourceCount, int emittedCount, bool itemTruncated = false)
+		{
+			bool truncated = sourceCount > emittedCount || itemTruncated;
+			_values[name + "SourceCount"] = sourceCount;
+			_values[name + "EmittedCount"] = emittedCount;
+			_values[name + "Truncated"] = truncated;
+			if (truncated)
+				_warning?.Invoke("CONTROL_DATA_COLLECTION_TRUNCATED", "A control-data collection was truncated.", null);
+		}
+
+		private bool Valid(string name)
+		{
+			bool valid = !string.IsNullOrEmpty(name) && name.Length <= 112 && IsAsciiLetter(name[0]);
+			for (int i = 1; valid && i < name.Length; i++)
+				valid = IsAsciiLetter(name[i]) || name[i] >= '0' && name[i] <= '9' || name[i] == '_';
+			if (valid) return true;
+			if (!_reportedInvalidKey)
+			{
+				_reportedInvalidKey = true;
+				_warning?.Invoke("CONTROL_DATA_INVALID_KEY", "A snapshot provider supplied an invalid field key.", null);
+			}
+			return false;
+		}
+
+		private static bool IsAsciiLetter(char value) =>
+			value >= 'A' && value <= 'Z' || value >= 'a' && value <= 'z';
+	}
+
+	internal sealed class FishUIControlScanBudget
+	{
+		private int _remaining;
+		internal FishUIControlScanBudget(int maximum) { Maximum = Math.Max(1, maximum); _remaining = Maximum; }
+		internal int Maximum { get; }
+		internal int Consumed => Maximum - _remaining;
+		internal bool LimitReached { get; private set; }
+		internal bool TryConsume()
+		{
+			if (_remaining <= 0) { LimitReached = true; return false; }
+			_remaining--;
+			if (_remaining == 0) LimitReached = true;
+			return true;
+		}
 	}
 }

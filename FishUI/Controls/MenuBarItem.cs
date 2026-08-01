@@ -13,7 +13,7 @@ namespace FishUI.Controls
 	/// <summary>
 	/// A top-level item in a MenuBar that can display a dropdown menu when clicked.
 	/// </summary>
-	public class MenuBarItem : Control
+	public partial class MenuBarItem : Control
 	{
 		/// <summary>
 		/// The display text for this menu item.
@@ -132,6 +132,7 @@ namespace FishUI.Controls
 				return;
 
 			IsOpen = true;
+			RecordDiagnosticTransition("isOpen", false, true);
 
 			// Position dropdown below this item
 			Vector2 absPos = GetAbsolutePosition();
@@ -163,6 +164,7 @@ namespace FishUI.Controls
 			{
 				_dropdownMenu.CloseThis();
 				IsOpen = false;
+				RecordDiagnosticTransition("isOpen", true, false);
 				OnClosed?.Invoke(this);
 			}
 		}
@@ -172,7 +174,9 @@ namespace FishUI.Controls
 		/// </summary>
 		private void OnDropdownMenuClosed(ContextMenu sender)
 		{
+			bool wasOpen = IsOpen;
 			IsOpen = false;
+			RecordDiagnosticTransition("isOpen", wasOpen, false);
 			ParentMenuBar?.OnDropdownClosed(this);
 			OnClosed?.Invoke(this);
 		}
@@ -190,6 +194,7 @@ namespace FishUI.Controls
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
+			using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.ControlBounds);
 			Vector2 absPos = GetAbsolutePosition();
 			Vector2 absSize = GetAbsoluteSize();
 

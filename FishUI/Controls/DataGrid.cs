@@ -108,7 +108,7 @@ namespace FishUI.Controls
 	/// <summary>
 	/// A multi-column list control with sortable headers, resizable columns, and row selection.
 	/// </summary>
-	public class DataGrid : Control
+	public partial class DataGrid : Control
 	{
 		/// <summary>
 		/// The columns in the DataGrid. Can be serialized to/from YAML.
@@ -205,29 +205,46 @@ namespace FishUI.Controls
 
 		#region Column Management
 
-		public void AddColumn(DataGridColumn column) => Columns.Add(column);
+		public void AddColumn(DataGridColumn column)
+		{
+			int previous = Columns.Count;
+			Columns.Add(column);
+			RecordDiagnosticTransition("columnCount", previous, Columns.Count);
+		}
 
 		public void AddColumn(string header, float width = 100f, bool sortable = true)
-			=> Columns.Add(new DataGridColumn(header, width, sortable));
+			=> AddColumn(new DataGridColumn(header, width, sortable));
 
-		public void ClearColumns() => Columns.Clear();
+		public void ClearColumns()
+		{
+			int previous = Columns.Count;
+			Columns.Clear();
+			RecordDiagnosticTransition("columnCount", previous, 0);
+		}
 
 		#endregion
 
 		#region Row Management
 
-		public void AddRow(DataGridRow row) => _rows.Add(row);
+		public void AddRow(DataGridRow row)
+		{
+			int previous = _rows.Count;
+			_rows.Add(row);
+			RecordDiagnosticTransition("rowCount", previous, _rows.Count);
+		}
 
-		public void AddRow(params string[] cells) => _rows.Add(new DataGridRow(cells));
+		public void AddRow(params string[] cells) => AddRow(new DataGridRow(cells));
 
 		public IReadOnlyList<DataGridRow> Rows => _rows;
 
 		public void ClearRows()
 		{
+			int previous = _rows.Count;
 			_rows.Clear();
 			_selectedIndex = -1;
 			_selectedIndices.Clear();
 			_scrollOffset = Vector2.Zero;
+			RecordDiagnosticTransition("rowCount", previous, 0);
 		}
 
 		public DataGridRow GetRow(int index)
@@ -246,6 +263,7 @@ namespace FishUI.Controls
 
 			int lastIndex = _selectedIndex;
 			_selectedIndex = index;
+			RecordDiagnosticTransition("selectedIndex", lastIndex, _selectedIndex);
 
 			if (lastIndex != _selectedIndex && _selectedIndex >= 0)
 			{
@@ -265,9 +283,11 @@ namespace FishUI.Controls
 
 		public void ClearSelection()
 		{
+			int previous = _selectedIndex;
 			_selectedIndex = -1;
 			_selectedIndices.Clear();
 			_selectionAnchor = -1;
+			RecordDiagnosticTransition("selectedIndex", previous, -1);
 		}
 
 		public bool IsIndexSelected(int index)
@@ -293,7 +313,9 @@ namespace FishUI.Controls
 					Columns[i].SortDirection = SortDirection.None;
 			}
 
+			SortDirection previousDirection = Columns[columnIndex].SortDirection;
 			Columns[columnIndex].SortDirection = direction;
+			RecordDiagnosticTransition("sortDirection", previousDirection.ToString(), direction.ToString());
 
 			if (direction != SortDirection.None)
 			{
@@ -337,6 +359,7 @@ namespace FishUI.Controls
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
+			using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Viewport);
 			// Calculate row height based on font if not set
 			_rowHeight = RowHeight > 0 ? Scale(RowHeight) : UI.Settings.FontDefault.Size + 4;
 
@@ -635,6 +658,7 @@ namespace FishUI.Controls
 				_resizingColumnIndex = _hoverResizeColumnIndex;
 				_resizeStartX = Pos.X;
 				_resizeStartWidth = Columns[_resizingColumnIndex].Width;
+				RecordDiagnosticTransition("resizingColumnIndex", -1, _resizingColumnIndex);
 				return;
 			}
 
@@ -664,6 +688,8 @@ namespace FishUI.Controls
 			if (_hoveredRowIndex < 0)
 				return;
 
+			int previousIndex = _selectedIndex;
+			int previousCount = _selectedIndices.Count;
 			if (MultiSelect)
 			{
 				if (InState.CtrlDown)
@@ -695,6 +721,8 @@ namespace FishUI.Controls
 					_selectedIndex = _hoveredRowIndex;
 				}
 				OnRowSelected?.Invoke(this, _hoveredRowIndex, _rows[_hoveredRowIndex]);
+				RecordDiagnosticTransition("selectedIndex", previousIndex, _selectedIndex);
+				RecordDiagnosticTransition("selectedCount", previousCount, _selectedIndices.Count);
 			}
 			else
 			{
@@ -705,12 +733,18 @@ namespace FishUI.Controls
 		public override void HandleMouseRelease(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
 		{
 			base.HandleMouseRelease(UI, InState, Btn, Pos);
+			if (_resizingColumnIndex >= 0 && _resizingColumnIndex < Columns.Count)
+			{
+				RecordDiagnosticTransition("columnWidth", _resizeStartWidth, Columns[_resizingColumnIndex].Width);
+				RecordDiagnosticTransition("resizingColumnIndex", _resizingColumnIndex, -1);
+			}
 			_resizingColumnIndex = -1;
 		}
 
 		public override void HandleMouseWheel(FishUI UI, FishInputState InState, float Delta)
 		{
 			base.HandleMouseWheel(UI, InState, Delta);
+			float previousOffset = _scrollOffset.Y;
 
 			if (_scrollBar != null && _scrollBar.Visible)
 			{
@@ -733,6 +767,7 @@ namespace FishUI.Controls
 				float minScroll = Math.Min(0, viewHeight - contentHeight);
 				_scrollOffset.Y = Math.Clamp(_scrollOffset.Y, minScroll, maxScroll);
 			}
+			RecordDiagnosticTransition("scrollOffsetY", previousOffset, _scrollOffset.Y);
 		}
 
 		public override void HandleKeyPress(FishUI UI, FishInputState InState, FishKey Key)

@@ -199,7 +199,7 @@ namespace FishUI.Controls
 	/// A particle emitter control that spawns and manages animated particles.
 	/// Supports image-based particles, color interpolation, and various emission shapes.
 	/// </summary>
-	public class ParticleEmitter : Control
+	public partial class ParticleEmitter : Control
 	{
 		private readonly List<Particle> _particles = new List<Particle>();
 		private readonly Random _random = new Random();
@@ -238,7 +238,17 @@ namespace FishUI.Controls
 		/// <summary>
 		/// Gets or sets whether the emitter is actively emitting particles.
 		/// </summary>
-		public bool IsEmitting { get; set; } = true;
+		private bool _isEmitting = true;
+		public bool IsEmitting
+		{
+			get => _isEmitting;
+			set
+			{
+				bool previous = _isEmitting;
+				_isEmitting = value;
+				RecordDiagnosticTransition("emitting", previous, value);
+			}
+		}
 
 		/// <summary>
 		/// Gets or sets the maximum number of particles. Older particles are removed when exceeded.
@@ -264,10 +274,12 @@ namespace FishUI.Controls
 		/// <param name="count">Number of particles to emit.</param>
 		public void Burst(int count)
 		{
+			int before = _particles.Count;
 			for (int i = 0; i < count; i++)
 			{
 				EmitParticle();
 			}
+			RecordDiagnosticTransition("burstCount", 0, Math.Max(0, _particles.Count - before));
 		}
 
 		/// <summary>
@@ -275,7 +287,9 @@ namespace FishUI.Controls
 		/// </summary>
 		public void Clear()
 		{
+			int previous = _particles.Count;
 			_particles.Clear();
+			RecordDiagnosticTransition("activeParticleCount", previous, 0);
 		}
 
 		/// <summary>
@@ -368,6 +382,7 @@ namespace FishUI.Controls
 		/// <inheritdoc/>
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
+			using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.ControlBounds);
 			// Update emission
 			if (IsEmitting && EmissionRate > 0)
 			{

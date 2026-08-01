@@ -155,8 +155,8 @@ namespace FishUI.Controls
 		public void WriteDebugSnapshot(FishUIDebugSnapshotWriter writer)
 		{
 			writer.Write("isOpen", _isOpen);
-			writer.Write("selectedDate", _value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
-			writer.Write("displayedMonth", _displayMonth.ToString("yyyy-MM", CultureInfo.InvariantCulture));
+			writer.WriteToken("selectedDate", _value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+			writer.WriteToken("displayedMonth", _displayMonth.ToString("yyyy-MM", CultureInfo.InvariantCulture));
 			writer.Write("hoveredDayIndex", _hoveredDay);
 			if (!_isOpen)
 				return;
@@ -173,7 +173,7 @@ namespace FishUI.Controls
 			{
 				DateTime? hoveredDate = GetDateFromDayIndex(_hoveredDay);
 				if (hoveredDate.HasValue)
-					writer.Write("hoveredDate", hoveredDate.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+					writer.WriteToken("hoveredDate", hoveredDate.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
 			}
 		}
 

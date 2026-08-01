@@ -84,11 +84,11 @@ namespace FishUI
 				Semantic = owner.Semantic,
 				BoundsPixels = bounds,
 				EffectiveClipPixels = Clone(_effectiveClip),
-				Asset = asset,
+				Asset = _session.CollectCaptureText(asset),
 				TextLength = text?.Length
 			};
 			if (text != null && _session.ShouldCollectTextPreview)
-				call.TextPreview = text.Substring(0, Math.Min(text.Length, _session.MaximumCollectedTextPreview));
+				call.TextPreview = _session.CollectCaptureText(text);
 			Calls.Add(call);
 
 			if (bounds != null && (!IsFinite(bounds) || bounds.Width < 0 || bounds.Height < 0))

@@ -48,7 +48,7 @@ namespace FishUI.Controls
 	/// A linear gauge control for displaying values with optional color zones and tick marks.
 	/// Useful for temperature, fuel level, progress indicators, etc.
 	/// </summary>
-	public class BarGauge : Control
+	public partial class BarGauge : Control
 	{
 		/// <summary>
 		/// Minimum value of the gauge.
@@ -257,6 +257,7 @@ namespace FishUI.Controls
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
+			using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.ControlBounds);
 			Vector2 pos = GetAbsolutePosition();
 			Vector2 size = GetAbsoluteSize();
 			float normalized = GetNormalizedValue();

@@ -51,7 +51,7 @@ namespace FishUI.Controls
 	/// <summary>
 	/// A tab control that displays multiple tabs with switchable content panels.
 	/// </summary>
-	public class TabControl : Control
+	public partial class TabControl : Control
 	{
 		/// <summary>
 		/// The list of tab pages in this control.
@@ -133,6 +133,7 @@ namespace FishUI.Controls
 				{
 					int oldIndex = _selectedIndex;
 					_selectedIndex = value;
+					RecordDiagnosticTransition("selectedIndex", oldIndex, _selectedIndex);
 					UpdateContentVisibility();
 					OnSelectedIndexChanged?.Invoke(this, oldIndex, _selectedIndex);
 				}
@@ -195,6 +196,7 @@ namespace FishUI.Controls
 		/// </summary>
 		public void AddTab(TabPage page)
 		{
+			int previousCount = TabPages.Count;
 			TabPages.Add(page);
 
 			// Setup content panel positioning
@@ -210,6 +212,7 @@ namespace FishUI.Controls
 			}
 
 			UpdateContentVisibility();
+			RecordDiagnosticTransition("tabCount", previousCount, TabPages.Count);
 		}
 
 		/// <summary>
@@ -231,6 +234,8 @@ namespace FishUI.Controls
 		{
 			if (index >= 0 && index < TabPages.Count)
 			{
+				int previousCount = TabPages.Count;
+				int previousSelection = _selectedIndex;
 				var page = TabPages[index];
 				RemoveChild(page.Content);
 				TabPages.RemoveAt(index);
@@ -241,6 +246,8 @@ namespace FishUI.Controls
 				}
 
 				UpdateContentVisibility();
+				RecordDiagnosticTransition("tabCount", previousCount, TabPages.Count);
+				RecordDiagnosticTransition("selectedIndex", previousSelection, _selectedIndex);
 			}
 		}
 
@@ -326,6 +333,7 @@ namespace FishUI.Controls
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
+			using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.ControlBounds);
 			Vector2 absPos = GetAbsolutePosition();
 			Vector2 absSize = GetAbsoluteSize();
 

@@ -417,7 +417,7 @@ namespace FishUI.Controls
 			writer.Write("cursorPosition", CursorPosition);
 			writer.Write("selectionStart", SelectionStart);
 			writer.Write("selectionLength", SelectionLength);
-			writer.Write("font", viewport.Font?.Path);
+			writer.WriteText("font", viewport.Font?.Path);
 		}
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)

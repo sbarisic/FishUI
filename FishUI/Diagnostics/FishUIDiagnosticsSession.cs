@@ -103,6 +103,7 @@ namespace FishUI
 			internal int? FramebufferHeightPixels;
 			internal float? FramebufferScaleX;
 			internal float? FramebufferScaleY;
+			internal FishUIControlScanBudget ControlScanBudget;
 		}
 
 		private sealed class ExportWork
@@ -142,6 +143,10 @@ namespace FishUI
 		private bool _eventRecordingWasEnabled;
 		private bool _hasRecordedPointerState;
 		private float _dragStartThresholdPixels = 3f;
+		private int _maximumControlCollectionEntries = 256;
+		private int _maximumControlScanEntries = 100000;
+		private int _maximumTotalControlScanEntries = 500000;
+		private int _maximumControlTextLength = 512;
 		private FishUIPointerSnapshot _backendPointer;
 		private FishUIPointerSnapshot _effectivePointer;
 		private FishUIModifierSnapshot _modifiers;
@@ -159,6 +164,26 @@ namespace FishUI
 		public bool CaptureOnWarningEnabled { get; set; }
 		public TimeSpan CaptureOnWarningDeduplicationExpiry { get; set; } = TimeSpan.FromMinutes(5);
 		public int MaximumCaptureRenderCommands { get; set; } = 100000;
+		public int MaximumControlCollectionEntries
+		{
+			get => _maximumControlCollectionEntries;
+			set => _maximumControlCollectionEntries = Math.Max(1, value);
+		}
+		public int MaximumControlScanEntries
+		{
+			get => _maximumControlScanEntries;
+			set => _maximumControlScanEntries = Math.Max(1, value);
+		}
+		public int MaximumTotalControlScanEntries
+		{
+			get => _maximumTotalControlScanEntries;
+			set => _maximumTotalControlScanEntries = Math.Max(1, value);
+		}
+		public int MaximumControlTextLength
+		{
+			get => _maximumControlTextLength;
+			set => _maximumControlTextLength = Math.Max(0, value);
+		}
 		public int MaximumCaptureEvents
 		{
 			get => _maximumCaptureEvents;
@@ -228,7 +253,9 @@ namespace FishUI
 		}
 		internal bool ShouldCollectTextPreview => _active != null && _active.Superset.IncludeTextPreview && !PrivacyPolicy.EffectiveRedactText;
 		internal bool ShouldCollectControlData => _active != null && _active.Superset.IncludeControlData && !PrivacyPolicy.EffectiveRedactValues;
+		internal bool ShouldCollectControlText => ShouldCollectControlData && ShouldCollectTextPreview;
 		internal int MaximumCollectedTextPreview => _active?.Superset.MaximumTextPreviewLength ?? 0;
+		internal int MaximumCollectedControlTextLength => Math.Min(MaximumControlTextLength, MaximumCollectedTextPreview);
 		internal FishUIRenderOwner CurrentRenderOwner => _renderOwners.Count == 0 ? default : _renderOwners.Peek();
 
 		internal FishUIDiagnosticsSession(FishUI ui)
@@ -300,7 +327,7 @@ namespace FishUI
 		{
 			if (!Enabled || string.IsNullOrWhiteSpace(code)) return;
 			Record(FishUIDiagnosticEventCategory.Warning,
-				FishUIDiagnosticEventType.RenderWarning, control, code + ":" + message);
+				FishUIDiagnosticEventType.RenderWarning, control, code, sensitiveDetail: message);
 			if (!CaptureOnWarningEnabled || IsCapturing) return;
 			long controlId = control?.DiagnosticRuntimeId ?? 0;
 			string key = code + "|" + controlId.ToString(CultureInfo.InvariantCulture) + "|" + (detailSignature ?? string.Empty);
@@ -437,7 +464,7 @@ namespace FishUI
 			UpdateEventRecorderState();
 			_active.RenderRecorder = new FishUIRenderRecorder(this, _active.Superset.MaximumRenderCommands);
 			_currentPaths.Clear();
-			try { _active.PreDraw = new FishUIControlSnapshotBuilder(this, _ui, _active.Warnings).Capture(); }
+			try { _active.PreDraw = new FishUIControlSnapshotBuilder(this, _ui, _active.Warnings, false).Capture(); }
 			catch (Exception ex)
 			{
 				_active.PreDraw = new Dictionary<Control, FishUIControlSnapshot>();
@@ -451,7 +478,9 @@ namespace FishUI
 			if (_active == null) return;
 			try
 			{
-				_active.Final = new FishUIControlSnapshotBuilder(this, _ui, _active.Warnings).Capture();
+				_active.ControlScanBudget = new FishUIControlScanBudget(MaximumTotalControlScanEntries);
+				_active.Final = new FishUIControlSnapshotBuilder(this, _ui, _active.Warnings, true,
+					_active.ControlScanBudget).Capture();
 				ApplyPreDrawDifferences(_active.PreDraw, _active.Final);
 			}
 			catch (Exception ex)
@@ -473,7 +502,9 @@ namespace FishUI
 				{
 					try
 					{
-						batch.Final = new FishUIControlSnapshotBuilder(this, _ui, batch.Warnings).Capture();
+						batch.ControlScanBudget = new FishUIControlScanBudget(MaximumTotalControlScanEntries);
+						batch.Final = new FishUIControlSnapshotBuilder(this, _ui, batch.Warnings, true,
+							batch.ControlScanBudget).Capture();
 						ApplyPreDrawDifferences(batch.PreDraw, batch.Final);
 					}
 					catch (Exception ex)
@@ -488,7 +519,8 @@ namespace FishUI
 						warning.Code + ":" + warning.Message);
 				if (failure != null)
 					Record(FishUIDiagnosticEventCategory.Capture, FishUIDiagnosticEventType.CaptureFailure, null,
-						$"capture={batch.CaptureId};stage={failureStage};{failure.GetType().Name}:{failure.Message}");
+						$"capture={batch.CaptureId};stage={failureStage};exception={failure.GetType().Name}",
+						sensitiveDetail: failure.Message);
 				IReadOnlyList<FishUIDiagnosticEvent> frozenEvents = Events.GetRecentEvents(MaximumCaptureEvents);
 				long frozenLatestSequence = Events.LatestSequence;
 				long frozenDiscardedCount = Events.DiscardedOldestCount;
@@ -599,13 +631,27 @@ namespace FishUI
 		internal int RegisterCurrentPath(Control control, string path)
 		{
 			EnsureIdentity(control);
-			_currentPaths[control.DiagnosticRuntimeId] = path;
-			string key = _hierarchyRevision.ToString(CultureInfo.InvariantCulture) + ":" + control.DiagnosticRuntimeId + ":" + path;
+			string collectedPath = CollectPersistentText(path);
+			_currentPaths[control.DiagnosticRuntimeId] = collectedPath;
+			string key = _hierarchyRevision.ToString(CultureInfo.InvariantCulture) + ":" + control.DiagnosticRuntimeId + ":" + (collectedPath ?? string.Empty);
 			if (_pathIds.TryGetValue(key, out int existing)) return existing;
 			int id = _paths.Count + 1;
 			_pathIds[key] = id;
-			_paths.Add(new FishUIDiagnosticPathEntry { PathId = id, ControlId = control.DiagnosticRuntimeId, HierarchyRevision = _hierarchyRevision, Path = path });
+			_paths.Add(new FishUIDiagnosticPathEntry { PathId = id, ControlId = control.DiagnosticRuntimeId, HierarchyRevision = _hierarchyRevision, Path = collectedPath });
 			return id;
+		}
+
+		internal string CollectPersistentText(string value)
+		{
+			if (value == null || PrivacyPolicy.EffectiveRedactText) return null;
+			return value.Length <= MaximumControlTextLength ? value : value.Substring(0, MaximumControlTextLength);
+		}
+
+		internal string CollectCaptureText(string value)
+		{
+			if (value == null || !ShouldCollectTextPreview) return null;
+			int maximum = MaximumCollectedControlTextLength;
+			return value.Length <= maximum ? value : value.Substring(0, maximum);
 		}
 
 		internal long NextTraceId() => ++_nextTraceId;
@@ -615,7 +661,7 @@ namespace FishUI
 		internal FishUIDiagnosticEvent Record(FishUIDiagnosticEventCategory category, FishUIDiagnosticEventType type,
 			Control control, string message = null, FishUIPointerEventData pointer = null, FishUIKeyEventData key = null,
 			FishUITextEventData text = null, FishUIFocusEventData focus = null, FishUIStateEventData state = null,
-			long? interactionId = null, bool bypassFilter = false)
+			long? interactionId = null, bool bypassFilter = false, string sensitiveDetail = null)
 		{
 			if (!Events.Options.Enabled) return null;
 			if (type == FishUIDiagnosticEventType.MouseMoved && !Events.Options.RecordMouseMovement) return null;
@@ -651,7 +697,8 @@ namespace FishUI
 			{
 				UiSessionId = UiSessionId, Frame = Frame, TimeSeconds = TimeSeconds, Category = category, Type = type,
 				ControlId = controlId, PathId = pathId, CauseSequence = _causeSequence, InteractionId = interactionId,
-				Message = message, Pointer = pointer, Key = key, Text = text, Focus = focus, State = state
+				Message = message, SensitiveDetail = CollectPersistentText(sensitiveDetail),
+				Pointer = pointer, Key = key, Text = text, Focus = focus, State = state
 			}, bypassFilter);
 		}
 
@@ -751,7 +798,11 @@ namespace FishUI
 				ActualHistorySeconds = actualHistorySeconds, ProjectedEventCount = projectedEvents.Count,
 				RollingHistoryTruncatedByCapacity = truncatedByCapacity,
 				RollingHistoryCapacityDiscardedTotal = frozenCapacityDiscarded,
-				UiScale = _ui.Settings?.UIScale ?? 1, GraphicsBackend = _ui.Graphics?.GetType().Name, Theme = _ui.Settings?.CurrentTheme?.Name,
+				ControlScanEntries = batch.ControlScanBudget?.Consumed ?? 0,
+				ControlScanBudget = batch.ControlScanBudget?.Maximum ?? MaximumTotalControlScanEntries,
+				ControlScanLimitReached = batch.ControlScanBudget?.LimitReached ?? false,
+				UiScale = _ui.Settings?.UIScale ?? 1, GraphicsBackend = _ui.Graphics?.GetType().Name,
+				Theme = ProjectText(_ui.Settings?.CurrentTheme?.Name, options),
 				LatestEventSequence = frozenLatestSequence, EventsDiscardedOldestCount = frozenDiscardedCount,
 				FocusControlId = Id(_ui.InputActiveControl), HoveredControlId = Id(_ui.DiagnosticsHoveredControl),
 				PressedControlId = Id(_ui.DiagnosticsPressedControl), ModalControlId = Id(_ui.ModalControl),
@@ -759,21 +810,22 @@ namespace FishUI
 				Controls = options.IncludeControlTree ? ProjectControls(batch.Final.Values, options) : new List<FishUIControlSnapshot>(),
 				GraphicsCalls = options.IncludeRenderCommands ? ProjectCalls(batch.RenderRecorder.Calls, options) : new List<FishUIGraphicsCall>(),
 				GraphicsTruncationCounts = ProjectTruncationCounts(batch.RenderRecorder, options),
-				Warnings = batch.Warnings.Select(value => CloneWarning(value, batch.CaptureId, request.RequestId)).ToList(),
-				Paths = _paths.Select(ClonePath).ToList(),
+				Warnings = batch.Warnings.Select(value => CloneWarning(value, batch.CaptureId, request.RequestId, options)).ToList(),
+				Paths = _paths.Select(value => ClonePath(value, options)).ToList(),
 				RecentEvents = options.IncludeRecentEvents ? projectedEvents : new List<FishUIDiagnosticEvent>(),
 				Failure = captureFailure == null ? null : new FishUIDebugCaptureFailure
 				{
 					UiSessionId = UiSessionId, CaptureId = batch.CaptureId, RequestId = request.RequestId,
 					Stage = captureFailureStage, ExceptionType = captureFailure.GetType().FullName,
-					Message = captureFailure.Message,
-					StackTrace = options.IncludeExceptionStackTrace && PrivacyPolicy.IncludeExceptionStackTrace ? captureFailure.StackTrace : null
+					Message = ProjectText(captureFailure.Message, options),
+					StackTrace = options.IncludeExceptionStackTrace && PrivacyPolicy.IncludeExceptionStackTrace
+						? ProjectText(captureFailure.StackTrace, options) : null
 				}
 			};
 			snapshot.IncludesRecentEvents = options.IncludeRecentEvents;
 			snapshot.IncludesInteractionSummary = options.IncludeInteractionSummary;
-			snapshot.Artifacts["screenshot"] = ArtifactForRequest(batch.ScreenshotArtifact, options.IncludeScreenshot);
-			snapshot.Artifacts["overlay"] = ArtifactForRequest(batch.OverlayArtifact, options.IncludeAnnotatedOverlay);
+			snapshot.Artifacts["screenshot"] = ArtifactForRequest(batch.ScreenshotArtifact, options.IncludeScreenshot, options);
+			snapshot.Artifacts["overlay"] = ArtifactForRequest(batch.OverlayArtifact, options.IncludeAnnotatedOverlay, options);
 			if (options.IncludeScreenshot && batch.ScreenshotArtifact?.Status == FishUIDiagnosticArtifactStatus.Available) snapshot.ScreenshotPng = (byte[])batch.Screenshot.Clone();
 			if (options.IncludeAnnotatedOverlay && batch.OverlayArtifact?.Status == FishUIDiagnosticArtifactStatus.Available) snapshot.OverlayPng = (byte[])batch.Overlay.Clone();
 			if (options.IncludeInteractionSummary)
@@ -786,8 +838,12 @@ namespace FishUI
 		{
 			int take = Math.Min(calls.Count, Math.Max(0, options.MaximumRenderCommands));
 			var result = calls.Take(take).Select(CloneGraphicsCall).ToList();
-			if (options.RedactText || PrivacyPolicy.EffectiveRedactText)
-				foreach (var call in result) call.TextPreview = null;
+			foreach (var call in result)
+			{
+				call.Owner = ProjectText(call.Owner, options);
+				call.Asset = ProjectText(call.Asset, options);
+				call.TextPreview = ProjectText(call.TextPreview, options);
+			}
 			return result;
 		}
 
@@ -839,6 +895,7 @@ namespace FishUI
 			if (options.RedactText || PrivacyPolicy.EffectiveRedactText)
 				foreach (var record in result)
 				{
+					record.SensitiveDetail = null;
 					if (record.Text != null) { record.Text.Redacted = true; record.Text.Character = null; record.Text.CodePoint = null; }
 					if (record.Type == FishUIDiagnosticEventType.KeyPressed && record.Key != null && IsPotentialTextKey(record.Key.Key))
 					{
@@ -849,6 +906,8 @@ namespace FishUI
 				}
 			if (options.RedactValues || PrivacyPolicy.EffectiveRedactValues)
 				foreach (var record in result) if (record.State != null) { record.State.OldValue = null; record.State.NewValue = null; }
+			if (!options.RedactText && !PrivacyPolicy.EffectiveRedactText)
+				foreach (var record in result) record.SensitiveDetail = ProjectText(record.SensitiveDetail, options);
 			return result;
 		}
 
@@ -858,6 +917,24 @@ namespace FishUI
 			List<FishUIControlSnapshot> result = controls.OrderBy(control => control.ControlId).Select(CloneControl).ToList();
 			if (!options.IncludeControlData || options.RedactValues || PrivacyPolicy.EffectiveRedactValues)
 				foreach (FishUIControlSnapshot control in result) control.ControlData = null;
+			foreach (FishUIControlSnapshot control in result)
+			{
+				control.Path = ProjectText(control.Path, options);
+				control.Id = ProjectText(control.Id, options);
+				control.DesignerName = ProjectText(control.DesignerName, options);
+				if (control.ControlData == null || control.TextControlDataKeys == null) continue;
+				if (options.RedactText || !options.IncludeTextPreview || PrivacyPolicy.EffectiveRedactText)
+				{
+					foreach (string key in control.TextControlDataKeys) control.ControlData.Remove(key);
+				}
+				else
+				{
+					int limit = Math.Min(MaximumControlTextLength, Math.Max(0, options.MaximumTextPreviewLength));
+					foreach (string key in control.TextControlDataKeys.ToArray())
+						if (control.ControlData.TryGetValue(key, out object value))
+							control.ControlData[key] = TruncateControlTextValue(value, limit);
+				}
+			}
 			return result;
 		}
 
@@ -869,6 +946,7 @@ namespace FishUI
 				TimeSeconds = value.TimeSeconds, DeltaSincePreviousEventMs = value.DeltaSincePreviousEventMs,
 				Category = value.Category, Type = value.Type, ControlId = value.ControlId, PathId = value.PathId,
 				CauseSequence = value.CauseSequence, InteractionId = value.InteractionId, Message = value.Message,
+				SensitiveDetail = value.SensitiveDetail,
 				Pointer = value.Pointer == null ? null : new FishUIPointerEventData
 				{
 					BackendPointer = ClonePointer(value.Pointer.BackendPointer), EffectivePointer = ClonePointer(value.Pointer.EffectivePointer),
@@ -980,7 +1058,8 @@ namespace FishUI
 					MarginLogical = value.LayoutInput.MarginLogical, PaddingLogical = value.LayoutInput.PaddingLogical
 				},
 				Geometry = CloneGeometry(value.Geometry), PreDrawGeometry = CloneGeometry(value.PreDrawGeometry),
-				ControlData = value.ControlData == null ? null : value.ControlData.ToDictionary(pair => pair.Key, pair => CloneControlValue(pair.Value))
+				ControlData = value.ControlData == null ? null : value.ControlData.ToDictionary(pair => pair.Key, pair => CloneControlValue(pair.Value)),
+				TextControlDataKeys = value.TextControlDataKeys == null ? null : new HashSet<string>(value.TextControlDataKeys, StringComparer.Ordinal)
 			};
 		}
 
@@ -989,7 +1068,34 @@ namespace FishUI
 			if (value is FishUIDebugPoint point) return ClonePoint(point);
 			if (value is FishUIDebugRect rectangle) return CloneRect(rectangle);
 			if (value is int[] integers) return (int[])integers.Clone();
+			if (value is long[] longs) return (long[])longs.Clone();
+			if (value is string[] strings) return (string[])strings.Clone();
 			return value;
+		}
+
+		private static object TruncateControlTextValue(object value, int maximumLength)
+		{
+			if (value is string text)
+				return text.Length <= maximumLength ? text : text.Substring(0, maximumLength);
+			if (value is string[] texts)
+			{
+				var copy = new string[texts.Length];
+				for (int i = 0; i < texts.Length; i++)
+				{
+					string item = texts[i];
+					copy[i] = item == null || item.Length <= maximumLength ? item : item.Substring(0, maximumLength);
+				}
+				return copy;
+			}
+			return CloneControlValue(value);
+		}
+
+		private string ProjectText(string value, FishUIDebugSnapshotOptions options)
+		{
+			if (value == null || options.RedactText || !options.IncludeTextPreview || PrivacyPolicy.EffectiveRedactText)
+				return null;
+			int maximum = Math.Min(MaximumControlTextLength, Math.Max(0, options.MaximumTextPreviewLength));
+			return value.Length <= maximum ? value : value.Substring(0, maximum);
 		}
 
 		private static FishUIControlGeometrySnapshot CloneGeometry(FishUIControlGeometrySnapshot value)
@@ -1004,16 +1110,19 @@ namespace FishUI
 			};
 		}
 
-		private static FishUIDiagnosticWarning CloneWarning(FishUIDiagnosticWarning value, long captureId, long requestId) => new FishUIDiagnosticWarning
+		private FishUIDiagnosticWarning CloneWarning(FishUIDiagnosticWarning value, long captureId, long requestId,
+			FishUIDebugSnapshotOptions options) => new FishUIDiagnosticWarning
 		{
 			Severity = value.Severity, Code = value.Code, Message = value.Message, UiSessionId = value.UiSessionId,
+			SensitiveDetail = ProjectText(value.SensitiveDetail, options),
 			CaptureId = captureId, RequestId = requestId, ControlId = value.ControlId,
 			EventSequence = value.EventSequence, GraphicsSequence = value.GraphicsSequence
 		};
 
-		private static FishUIDiagnosticPathEntry ClonePath(FishUIDiagnosticPathEntry value) => new FishUIDiagnosticPathEntry
+		private FishUIDiagnosticPathEntry ClonePath(FishUIDiagnosticPathEntry value, FishUIDebugSnapshotOptions options) => new FishUIDiagnosticPathEntry
 		{
-			PathId = value.PathId, ControlId = value.ControlId, HierarchyRevision = value.HierarchyRevision, Path = value.Path
+			PathId = value.PathId, ControlId = value.ControlId, HierarchyRevision = value.HierarchyRevision,
+			Path = ProjectText(value.Path, options)
 		};
 
 		private static FishUIPointerSnapshot ClonePointer(FishUIPointerSnapshot value)
@@ -1154,7 +1263,8 @@ namespace FishUI
 		private void RecordArtifactFailure(CaptureBatch batch, string stage, Exception failure)
 		{
 			Record(FishUIDiagnosticEventCategory.Capture, FishUIDiagnosticEventType.CaptureFailure, null,
-				$"capture={batch.CaptureId};stage={stage};{failure.GetType().Name}:{failure.Message}", bypassFilter: true);
+				$"capture={batch.CaptureId};stage={stage};exception={failure.GetType().Name}",
+				bypassFilter: true, sensitiveDetail: failure.Message);
 		}
 
 		private void MarkDiagnosticFailure(CaptureBatch batch, string stage, Exception failure)
@@ -1166,11 +1276,13 @@ namespace FishUI
 			}
 			batch.Warnings.Add(new FishUIDiagnosticWarning
 			{
-				Severity = FishUIDiagnosticSeverity.Error, Code = "CAPTURE_STAGE_FAILED", Message = stage + ": " + failure.Message,
+				Severity = FishUIDiagnosticSeverity.Error, Code = "CAPTURE_STAGE_FAILED", Message = stage,
+				SensitiveDetail = CollectPersistentText(failure.Message),
 				UiSessionId = UiSessionId
 			});
 			Record(FishUIDiagnosticEventCategory.Capture, FishUIDiagnosticEventType.CaptureFailure, null,
-				$"capture={batch.CaptureId};stage={stage};{failure.GetType().Name}:{failure.Message}");
+				$"capture={batch.CaptureId};stage={stage};exception={failure.GetType().Name}",
+				sensitiveDetail: failure.Message);
 		}
 
 		private static void CollectRenderWarnings(CaptureBatch batch)
@@ -1288,7 +1400,9 @@ namespace FishUI
 				parts.Push(CurrentPathSegment(current, siblings));
 				current = parent;
 			}
-			string path = "root/" + string.Join("/", parts); _currentPaths[control.DiagnosticRuntimeId] = path; return path;
+			string path = CollectPersistentText("root/" + string.Join("/", parts));
+			_currentPaths[control.DiagnosticRuntimeId] = path;
+			return path;
 		}
 
 		private static string CurrentPathSegment(Control control, IReadOnlyList<Control> siblings)
@@ -1345,12 +1459,14 @@ namespace FishUI
 		}
 		private static bool RectEquals(FishUIDebugRect a, FishUIDebugRect b) => a == null ? b == null : b != null && a.X == b.X && a.Y == b.Y && a.Width == b.Width && a.Height == b.Height;
 		private long? Id(Control control) { if (control == null) return null; EnsureIdentity(control); return control.DiagnosticRuntimeId; }
-		private static FishUIDiagnosticArtifact Artifact(FishUIDiagnosticArtifactStatus status, string stage = null, string message = null) => new FishUIDiagnosticArtifact { Status = status, FailureStage = stage, Message = message };
-		private static FishUIDiagnosticArtifact ArtifactForRequest(FishUIDiagnosticArtifact artifact, bool included)
+		private FishUIDiagnosticArtifact Artifact(FishUIDiagnosticArtifactStatus status, string stage = null, string message = null) =>
+			new FishUIDiagnosticArtifact { Status = status, FailureStage = stage, Message = CollectPersistentText(message) };
+		private FishUIDiagnosticArtifact ArtifactForRequest(FishUIDiagnosticArtifact artifact, bool included,
+			FishUIDebugSnapshotOptions options)
 		{
 			if (!included) return Artifact(FishUIDiagnosticArtifactStatus.Excluded);
 			if (artifact == null) return Artifact(FishUIDiagnosticArtifactStatus.Unavailable);
-			return Artifact(artifact.Status, artifact.FailureStage, artifact.Message);
+			return Artifact(artifact.Status, artifact.FailureStage, ProjectText(artifact.Message, options));
 		}
 	}
 }

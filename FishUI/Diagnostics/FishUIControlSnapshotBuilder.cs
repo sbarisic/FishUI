@@ -17,10 +17,16 @@ namespace FishUI
 		private readonly HashSet<Control> _visiting = new HashSet<Control>(ReferenceComparer.Instance);
 		private readonly HashSet<string> _ids = new HashSet<string>(StringComparer.Ordinal);
 		private readonly FishUIDebugRect _window;
+		private readonly bool _includeProviderData;
+		private readonly FishUIControlScanBudget _scanBudget;
 
-		internal FishUIControlSnapshotBuilder(FishUIDiagnosticsSession session, FishUI ui, List<FishUIDiagnosticWarning> warnings)
+		internal FishUIControlSnapshotBuilder(FishUIDiagnosticsSession session, FishUI ui,
+			List<FishUIDiagnosticWarning> warnings, bool includeProviderData = true,
+			FishUIControlScanBudget scanBudget = null)
 		{
 			_session = session; _ui = ui; _warnings = warnings;
+			_includeProviderData = includeProviderData;
+			_scanBudget = scanBudget;
 			_window = new FishUIDebugRect(0, 0, ui.Width > 0 ? ui.Width : ui.Graphics.GetWindowWidth(), ui.Height > 0 ? ui.Height : ui.Graphics.GetWindowHeight());
 		}
 
@@ -30,6 +36,9 @@ namespace FishUI
 			var segments = CreateSegments(roots);
 			for (int i = 0; i < roots.Length; i++)
 				Visit(roots[i], null, "root/" + segments[i], _window, true, null);
+			if (_includeProviderData)
+				foreach (var pair in _result.OrderBy(value => value.Value.ControlId))
+					ApplyProvider(pair.Key, pair.Value);
 			return _result;
 		}
 
@@ -56,7 +65,7 @@ namespace FishUI
 				Warn("PARENT_POINTER_MISMATCH", "The stored parent differs from the hierarchy FishUI traversed.", control);
 
 			if (!string.IsNullOrEmpty(control.ID) && !_ids.Add(control.ID))
-				Warn("DUPLICATE_CONTROL_ID", $"Duplicate control ID '{control.ID}'.", control);
+				Warn("DUPLICATE_CONTROL_ID", "A duplicate control ID was detected.", control, control.ID);
 
 			Vector2 pos = control.GetAbsolutePosition();
 			Vector2 size = control.GetAbsoluteSize();
@@ -70,10 +79,10 @@ namespace FishUI
 			var snapshot = new FishUIControlSnapshot
 			{
 				ControlId = control.DiagnosticRuntimeId,
-				Path = path,
+				Path = _session.CollectPersistentText(path),
 				Type = control.GetType().Name,
-				Id = control.ID,
-				DesignerName = control.DesignerName,
+				Id = _session.CollectPersistentText(control.ID),
+				DesignerName = _session.CollectPersistentText(control.DesignerName),
 				ParentControlId = traversalParent?.DiagnosticRuntimeId,
 				DeclaredParentControlId = declaredParent?.DiagnosticRuntimeId,
 				ChildCount = control.Children?.Count ?? 0,
@@ -105,7 +114,6 @@ namespace FishUI
 				}
 			};
 
-			ApplyProvider(control, snapshot);
 			_result.Add(control, snapshot);
 			_session.RegisterCurrentPath(control, path);
 
@@ -133,19 +141,28 @@ namespace FishUI
 			{
 				if (!_session.ShouldCollectControlData)
 					return;
-				if (control is IFishUIDebugPrivacyProvider privacy &&
-					privacy.GetDebugPrivacyMode() != FishUIDebugPrivacyMode.Default)
+				FishUIDebugPrivacyMode mode = control is IFishUIDebugPrivacyProvider privacy
+					? privacy.GetDebugPrivacyMode() : FishUIDebugPrivacyMode.Default;
+				if (mode == FishUIDebugPrivacyMode.RedactValues || mode == FishUIDebugPrivacyMode.ExcludeControlData)
 					return;
 				if (control is IFishUIDebugSnapshotProvider provider)
 				{
 					snapshot.ControlData = new Dictionary<string, object>(StringComparer.Ordinal);
-					provider.WriteDebugSnapshot(new FishUIDebugSnapshotWriter(snapshot.ControlData));
+					snapshot.TextControlDataKeys = new HashSet<string>(StringComparer.Ordinal);
+					var writer = new FishUIDebugSnapshotWriter(snapshot.ControlData, snapshot.TextControlDataKeys,
+						_scanBudget, _session.MaximumControlCollectionEntries, _session.MaximumControlScanEntries,
+						_session.MaximumCollectedControlTextLength,
+						mode != FishUIDebugPrivacyMode.RedactText && _session.ShouldCollectControlText,
+						(code, message, detail) => Warn(code, message, control, detail));
+					provider.WriteDebugSnapshot(writer);
+					if (writer.ScanLimitReached)
+						Warn("CONTROL_DATA_SCAN_LIMIT_REACHED", "A control-data scan limit was reached.", control);
 				}
 			}
 			catch (Exception ex)
 			{
 				snapshot.ControlData = null;
-				Warn("SNAPSHOT_PROVIDER_FAILED", "The control snapshot provider failed: " + ex.Message, control);
+				Warn("SNAPSHOT_PROVIDER_FAILED", "The control snapshot provider failed.", control, ex.Message);
 			}
 		}
 
@@ -181,11 +198,12 @@ namespace FishUI
 			return bases;
 		}
 
-		private void Warn(string code, string message, Control control)
+		private void Warn(string code, string message, Control control, string sensitiveDetail = null)
 		{
 			_warnings.Add(new FishUIDiagnosticWarning
 			{
 				Severity = FishUIDiagnosticSeverity.Warning, Code = code, Message = message,
+				SensitiveDetail = _session.CollectPersistentText(sensitiveDetail),
 				UiSessionId = _session.UiSessionId, ControlId = control?.DiagnosticRuntimeId
 			});
 		}

@@ -16,7 +16,7 @@ namespace FishUI.Controls
 	/// <summary>
 	/// A VU meter control for visualizing audio levels with peak hold indicator.
 	/// </summary>
-	public class VUMeter : Control
+	public partial class VUMeter : Control
 	{
 		/// <summary>
 		/// Current level value (0.0 to 1.0).
@@ -181,6 +181,7 @@ namespace FishUI.Controls
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
+			using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.ControlBounds);
 			// Update peak decay
 			if (_peakHoldTimer > 0)
 			{

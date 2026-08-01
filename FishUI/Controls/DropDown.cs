@@ -181,13 +181,13 @@ namespace FishUI.Controls
 			float itemHeight = GetEffectiveItemHeight();
 			int hoveredItemIndex = HoveredIndex < 0 ? -1 : FilteredIndexToItemIndex(HoveredIndex);
 			int displayedItemCount = GetDisplayedItemCount();
-			DiagnosticSelection selection = GetDiagnosticSelection();
+			DiagnosticSelection selection = GetDiagnosticSelection(writer);
 			writer.Write("isOpen", IsOpen);
 			writer.Write("multiSelect", MultiSelect);
 			writer.Write("searchable", Searchable);
 			writer.Write("itemCount", Items.Count);
 			writer.Write("selectedIndex", SelectedIndex);
-			writer.Write("selectedIndices", selection.Indices);
+			writer.Write("selectedIndices", selection.Indices, selection.Count);
 			writer.Write("selectedCount", selection.Count);
 			writer.Write("selectedIndicesTruncated", selection.Count > selection.Indices.Length);
 			writer.Write("hoveredDisplayIndex", HoveredIndex);
@@ -898,6 +898,22 @@ namespace FishUI.Controls
 			if (SelectedIndex >= 0)
 				return new DiagnosticSelection(1, new[] { SelectedIndex });
 			return new DiagnosticSelection(0, Array.Empty<int>());
+		}
+
+		private DiagnosticSelection GetDiagnosticSelection(FishUIDebugSnapshotWriter writer)
+		{
+			if (!MultiSelect)
+				return SelectedIndex >= 0
+					? new DiagnosticSelection(1, new[] { SelectedIndex })
+					: new DiagnosticSelection(0, Array.Empty<int>());
+			var indices = new List<int>();
+			foreach (int index in SelectedIndices)
+			{
+				if (!writer.TryConsumeScanEntry()) break;
+				if (indices.Count < writer.MaximumCollectionEntries) indices.Add(index);
+			}
+			indices.Sort();
+			return new DiagnosticSelection(SelectedIndices.Count, indices.ToArray());
 		}
 
 		private void RecordSearchChange(int oldLength, int oldFilteredCount)

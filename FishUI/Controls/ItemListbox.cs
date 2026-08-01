@@ -78,7 +78,7 @@ namespace FishUI.Controls
 	/// A listbox control that supports custom widget controls as items.
 	/// Each item can contain either plain text or a custom Control widget.
 	/// </summary>
-	public class ItemListbox : Control
+	public partial class ItemListbox : Control
 	{
 		List<ItemListboxItem> Items = new List<ItemListboxItem>();
 
@@ -144,12 +144,14 @@ namespace FishUI.Controls
 		/// </summary>
 		public void AddItem(ItemListboxItem item)
 		{
+			int previous = Items.Count;
 			Items.Add(item);
 			if (item.Widget != null)
 			{
 				item.Widget.Visible = false;
 				AddChild(item.Widget);
 			}
+			RecordDiagnosticTransition("itemCount", previous, Items.Count);
 		}
 
 		/// <summary>
@@ -176,6 +178,7 @@ namespace FishUI.Controls
 			if (index < 0 || index >= Items.Count)
 				return;
 
+			int previous = Items.Count;
 			var item = Items[index];
 			if (item.Widget != null)
 				RemoveChild(item.Widget);
@@ -184,6 +187,7 @@ namespace FishUI.Controls
 
 			if (SelectedIndex >= Items.Count)
 				SelectedIndex = Items.Count - 1;
+			RecordDiagnosticTransition("itemCount", previous, Items.Count);
 		}
 
 		/// <summary>
@@ -191,6 +195,7 @@ namespace FishUI.Controls
 		/// </summary>
 		public void ClearItems()
 		{
+			int previous = Items.Count;
 			foreach (var item in Items)
 			{
 				if (item.Widget != null)
@@ -199,6 +204,7 @@ namespace FishUI.Controls
 			Items.Clear();
 			SelectedIndex = -1;
 			HoveredIndex = -1;
+			RecordDiagnosticTransition("itemCount", previous, 0);
 		}
 
 		/// <summary>
@@ -245,6 +251,7 @@ namespace FishUI.Controls
 				index = Items.Count - 1;
 
 			SelectedIndex = index;
+			RecordDiagnosticTransition("selectedIndex", lastSelectedIndex, SelectedIndex);
 
 			if (lastSelectedIndex != SelectedIndex && SelectedIndex >= 0)
 			{
@@ -318,6 +325,7 @@ namespace FishUI.Controls
 
 		public override void HandleMouseWheel(FishUI UI, FishInputState InState, float WheelDelta)
 		{
+			float previousOffset = ScrollOffset.Y;
 			if (ScrollBar != null && ScrollBar.Visible)
 			{
 				if (WheelDelta > 0)
@@ -337,6 +345,7 @@ namespace FishUI.Controls
 
 				ScrollOffset.Y = Math.Clamp(ScrollOffset.Y, minScroll, maxScroll);
 			}
+			RecordDiagnosticTransition("scrollOffsetY", previousOffset, ScrollOffset.Y);
 		}
 
 		void CreateScrollBar(FishUI UI)
@@ -359,6 +368,7 @@ namespace FishUI.Controls
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
+			using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Viewport);
 			if (ShowScrollBar)
 				CreateScrollBar(UI);
 			else if (ScrollBar != null)

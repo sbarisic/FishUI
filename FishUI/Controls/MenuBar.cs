@@ -14,7 +14,7 @@ namespace FishUI.Controls
 	/// A horizontal menu bar control typically placed at the top of an application window.
 	/// Contains MenuBarItems which can open dropdown menus when clicked.
 	/// </summary>
-	public class MenuBar : Control
+	public partial class MenuBar : Control
 	{
 		/// <summary>
 		/// Height of the menu bar.
@@ -84,8 +84,10 @@ namespace FishUI.Controls
 		{
 			if (OpenItem != null)
 			{
+				long oldId = OpenItem.DiagnosticRuntimeId;
 				OpenItem.CloseDropdown();
 				OpenItem = null;
+				RecordDiagnosticTransition("openItemControlId", oldId, 0);
 			}
 		}
 
@@ -100,6 +102,7 @@ namespace FishUI.Controls
 			CloseOpenMenu();
 			OpenItem = item;
 			item.OpenDropdown();
+			RecordDiagnosticTransition("openItemControlId", 0, item.DiagnosticRuntimeId);
 		}
 
 		/// <summary>
@@ -122,7 +125,9 @@ namespace FishUI.Controls
 		{
 			if (OpenItem == item)
 			{
+				long oldId = OpenItem.DiagnosticRuntimeId;
 				OpenItem = null;
+				RecordDiagnosticTransition("openItemControlId", oldId, 0);
 			}
 		}
 
@@ -154,6 +159,7 @@ namespace FishUI.Controls
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
+			using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.ControlBounds);
 			Vector2 absPos = GetAbsolutePosition();
 			Vector2 absSize = GetAbsoluteSize();
 

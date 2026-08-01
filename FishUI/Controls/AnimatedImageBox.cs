@@ -8,7 +8,7 @@ namespace FishUI.Controls
 	/// <summary>
 	/// An image box control that displays animated frame sequences.
 	/// </summary>
-	public class AnimatedImageBox : Control
+	public partial class AnimatedImageBox : Control
 	{
 		/// <summary>
 		/// The frames of the animation as an array of images.
@@ -109,7 +109,9 @@ namespace FishUI.Controls
 		/// </summary>
 		public void AddFrame(ImageRef frame)
 		{
+			int previous = Frames.Count;
 			Frames.Add(frame);
+			RecordDiagnosticTransition("frameCount", previous, Frames.Count);
 		}
 
 		/// <summary>
@@ -117,8 +119,10 @@ namespace FishUI.Controls
 		/// </summary>
 		public void ClearFrames()
 		{
+			int previous = Frames.Count;
 			Frames.Clear();
 			_currentFrame = 0;
+			RecordDiagnosticTransition("frameCount", previous, 0);
 		}
 
 		/// <summary>
@@ -126,7 +130,9 @@ namespace FishUI.Controls
 		/// </summary>
 		public void Play()
 		{
+			bool oldValue = IsPlaying;
 			IsPlaying = true;
+			RecordDiagnosticTransition("playing", oldValue, true);
 		}
 
 		/// <summary>
@@ -134,7 +140,9 @@ namespace FishUI.Controls
 		/// </summary>
 		public void Pause()
 		{
+			bool oldValue = IsPlaying;
 			IsPlaying = false;
+			RecordDiagnosticTransition("playing", oldValue, false);
 		}
 
 		/// <summary>
@@ -142,7 +150,9 @@ namespace FishUI.Controls
 		/// </summary>
 		public void Stop()
 		{
+			bool oldValue = IsPlaying;
 			IsPlaying = false;
+			RecordDiagnosticTransition("playing", oldValue, false);
 			_currentFrame = Reverse ? Frames.Count - 1 : 0;
 			_frameTimer = 0f;
 			_pingPongForward = true;
@@ -211,6 +221,7 @@ namespace FishUI.Controls
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
+			using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.ControlBounds);
 			// Update animation
 			if (IsPlaying && Frames.Count > 1)
 			{
@@ -260,6 +271,7 @@ namespace FishUI.Controls
 						if (!Loop)
 						{
 							IsPlaying = false;
+							RecordDiagnosticTransition("completion", "pending", "completed");
 							OnAnimationComplete?.Invoke(this);
 						}
 					}
@@ -278,6 +290,7 @@ namespace FishUI.Controls
 					{
 						_currentFrame = 0;
 						IsPlaying = false;
+						RecordDiagnosticTransition("completion", "pending", "completed");
 						OnAnimationComplete?.Invoke(this);
 					}
 				}
@@ -295,6 +308,7 @@ namespace FishUI.Controls
 					{
 						_currentFrame = Frames.Count - 1;
 						IsPlaying = false;
+						RecordDiagnosticTransition("completion", "pending", "completed");
 						OnAnimationComplete?.Invoke(this);
 					}
 				}

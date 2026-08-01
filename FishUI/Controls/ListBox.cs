@@ -49,7 +49,7 @@ namespace FishUI.Controls
 		}
 	}
 
-	public class ListBox : Control
+	public partial class ListBox : Control
 	{
 		/// <summary>
 		/// The list of items in the ListBox. Can be serialized to/from YAML.
@@ -165,7 +165,9 @@ namespace FishUI.Controls
 
 		public void AddItem(ListBoxItem Itm)
 		{
+			int previous = Items.Count;
 			Items.Add(Itm);
+			RecordDiagnosticTransition("itemCount", previous, Items.Count);
 		}
 
 		public void SelectIndex(int Idx)
@@ -186,6 +188,7 @@ namespace FishUI.Controls
 				Idx = Items.Count - 1;
 
 			_selectedIndex = Idx;
+			RecordDiagnosticTransition("selectedIndex", LastSelectedIndex, _selectedIndex);
 
 			if (LastSelectedIndex != _selectedIndex)
 			{
@@ -232,9 +235,13 @@ namespace FishUI.Controls
 		/// </summary>
 		public void ClearSelection()
 		{
+			int previousIndex = _selectedIndex;
+			int previousCount = GetSelectedIndices().Length;
 			SelectedIndices.Clear();
 			_selectedIndex = -1;
 			SelectionAnchor = -1;
+			RecordDiagnosticTransition("selectedIndex", previousIndex, -1);
+			RecordDiagnosticTransition("selectedCount", previousCount, 0);
 		}
 
 		/// <summary>
@@ -245,12 +252,14 @@ namespace FishUI.Controls
 			if (!MultiSelect)
 				return;
 
+			int previousCount = SelectedIndices.Count;
 			SelectedIndices.Clear();
 			for (int i = 0; i < Items.Count; i++)
 				SelectedIndices.Add(i);
 
 			if (Items.Count > 0)
 				_selectedIndex = 0;
+			RecordDiagnosticTransition("selectedCount", previousCount, SelectedIndices.Count);
 		}
 
 		/// <summary>
@@ -352,6 +361,7 @@ namespace FishUI.Controls
 
 		public override void HandleMouseWheel(FishUI UI, FishInputState InState, float WheelDelta)
 		{
+			float previousOffset = ScrollOffset.Y;
 			if (ScrollBar != null)
 			{
 				// Delegate to scrollbar if it exists
@@ -374,6 +384,7 @@ namespace FishUI.Controls
 
 				ScrollOffset.Y = Math.Clamp(ScrollOffset.Y, minScroll, maxScroll);
 			}
+			RecordDiagnosticTransition("scrollOffsetY", previousOffset, ScrollOffset.Y);
 		}
 
 		void CreateScrollBar(FishUI UI)
@@ -407,6 +418,7 @@ namespace FishUI.Controls
 
 		public override void DrawControl(FishUI UI, float Dt, float Time)
 		{
+			using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Viewport);
 			Vector2 absPos = GetAbsolutePosition();
 			Vector2 absSize = GetAbsoluteSize();
 
