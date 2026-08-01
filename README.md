@@ -668,6 +668,10 @@ Additional documentation is available in the `docs/` folder:
 
 - **[Custom Control Creation Guide](docs/CUSTOM_CONTROLS.md)** - How to create your own controls
 - **[Diagnostic Snapshot Guide](docs/DIAGNOSTICS.md)** - Capture lifecycle, privacy, framebuffer, and export contracts
+- **[FishUI 2.0 Runtime Contracts](docs/RUNTIME_2.0.md)** - Lifecycle, frames, input, overlays, serialization, and resource ownership
+- **[FishUI 2.0 Migration Guide](docs/MIGRATING_TO_2.0.md)** - Required changes for 1.x applications and backends
+- **[FishUI 2.0 Codebase Audit](docs/CODEBASE_AUDIT.md)** - Baseline defects, coverage, and verification scope
+- **[Custom Backend Guide](docs/BACKEND_GUIDE.md)** - Graphics, clipping, input, and backend resource ownership
 - **[Theme Creation Guide](docs/THEMING.md)** - Creating custom themes with YAML
 
 ## Requirements
@@ -708,6 +712,9 @@ FishUI/
 ├── docs/                   # Documentation
 │   ├── CUSTOM_CONTROLS.md  # Custom control creation guide
 │   ├── DIAGNOSTICS.md      # Diagnostic snapshot guide
+│   ├── RUNTIME_2.0.md      # FishUI 2.0 runtime contracts
+│   ├── MIGRATING_TO_2.0.md # FishUI 2.0 migration guide
+│   ├── CODEBASE_AUDIT.md   # Baseline audit and verification evidence
 │   └── THEMING.md          # Theme creation guide
 └── screenshots/            # Screenshot gallery
 ```
