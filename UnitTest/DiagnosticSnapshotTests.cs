@@ -142,7 +142,7 @@ public sealed class DiagnosticSnapshotTests
     }
 
     [Fact]
-    public void DiagnosticHotkeyIsInactiveWhenDisabledAndCapturesFollowingDrawWhenEnabled()
+    public async Task DiagnosticHotkeyIsInactiveWhenDisabledAndCapturesFollowingDrawWhenEnabled()
     {
         using (var disabled = new FishUITestFixture())
         {
@@ -167,6 +167,7 @@ public sealed class DiagnosticSnapshotTests
             enabled.Input.SimulateKeyDown(FishKey.LeftShift);
             enabled.Input.SimulateKeyDown(FishKey.F12);
             enabled.Update();
+            await enabled.UI.Diagnostics.WaitForPendingExportsAsync();
             Assert.Equal(2, sink.KeyPressCount);
             Assert.Equal(FishUIDebugCaptureReason.Hotkey, enabled.UI.Diagnostics.LastCapture?.CaptureReason);
             FishUIDebugSnapshot snapshot = enabled.UI.Diagnostics.LastCapture!;
@@ -178,7 +179,7 @@ public sealed class DiagnosticSnapshotTests
     }
 
     [Fact]
-    public void DiagnosticHotkeyIncludesRollingPreTriggerHistory()
+    public async Task DiagnosticHotkeyIncludesRollingPreTriggerHistory()
     {
         using var fixture = new FishUITestFixture();
         fixture.UI.Diagnostics.Enabled = true;
@@ -191,6 +192,7 @@ public sealed class DiagnosticSnapshotTests
         fixture.Input.SimulateKeyDown(FishKey.F12);
 
         fixture.Update(5);
+        await fixture.UI.Diagnostics.WaitForPendingExportsAsync();
         FishUIDebugSnapshot snapshot = Assert.IsType<FishUIDebugSnapshot>(fixture.UI.Diagnostics.LastCapture);
 
         Assert.Equal(10, snapshot.RequestedHistorySeconds);
@@ -911,7 +913,6 @@ public sealed class DiagnosticSnapshotTests
         Task<FishUIDebugSnapshot> task = FishUIDiagnostics.CaptureAsync(ui, new FishUIDebugSnapshotOptions());
 
         Assert.Throws<InvalidOperationException>(() => ui.Tick(0.016f, 1));
-        Assert.True(task.IsCompleted, "The partial capture must complete before the draw exception is rethrown.");
         FishUIDebugSnapshot snapshot = await task.WaitAsync(TimeSpan.FromSeconds(5));
 
         Assert.Equal(FishUIDebugCaptureStatus.Partial, snapshot.CaptureStatus);
@@ -931,7 +932,7 @@ public sealed class DiagnosticSnapshotTests
         ui.Tick(0.016f, 1);
         FishUIDebugSnapshot snapshot = await task;
 
-        Assert.Equal(FishUIDebugCaptureStatus.Complete, snapshot.CaptureStatus);
+        Assert.Equal(FishUIDebugCaptureStatus.Partial, snapshot.CaptureStatus);
         Assert.Equal(FishUIDiagnosticArtifactStatus.Failed, snapshot.Artifacts["screenshot"].Status);
         Assert.Equal("framebufferValidation", snapshot.Artifacts["screenshot"].FailureStage);
         Assert.Equal(1, graphics.ReleaseCount);
@@ -1444,6 +1445,64 @@ public sealed class DiagnosticSnapshotTests
 
         Assert.True(trackedDuringCaptureCompletion);
         lock (order) Assert.Equal(new[] { "capture", "export" }, order);
+    }
+
+    [Fact]
+    public async Task DeferredBatchRejectsSeventeenthProgrammaticRequestWithoutReadingFramebuffer()
+    {
+        using var fixture = new FishUITestFixture();
+        var release = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        fixture.UI.Diagnostics.MaximumPendingArtifactJobs = 2;
+        fixture.UI.Diagnostics.MaximumDeferredCaptureRequests = 16;
+        fixture.UI.Diagnostics.AutoExportAsync = (_, _) => release.Task;
+
+        Task<FishUIDebugSnapshot> first = FishUIDiagnostics.CaptureAsync(fixture.UI, StructuredOptions());
+        fixture.Update();
+        Task<FishUIDebugSnapshot> second = FishUIDiagnostics.CaptureAsync(fixture.UI, StructuredOptions());
+        fixture.Update();
+        Task<FishUIDebugSnapshot>[] deferred = Enumerable.Range(0, 16)
+            .Select(_ => FishUIDiagnostics.CaptureAsync(fixture.UI, StructuredOptions())).ToArray();
+        Task<FishUIDebugSnapshot> overflow = FishUIDiagnostics.CaptureAsync(fixture.UI, StructuredOptions());
+
+        await Assert.ThrowsAsync<FishUIDiagnosticQueueFullException>(() => overflow);
+        release.TrySetResult(true);
+        await first.WaitAsync(TimeSpan.FromSeconds(5));
+        await second.WaitAsync(TimeSpan.FromSeconds(5));
+        await fixture.UI.Diagnostics.WaitForPendingExportsAsync();
+        fixture.Update();
+        await Task.WhenAll(deferred).WaitAsync(TimeSpan.FromSeconds(5));
+    }
+
+    [Fact]
+    public async Task HotkeyRequestsCoalesceWhileWaitingForADraw()
+    {
+        using var fixture = new FishUITestFixture();
+        Task<FishUIDebugSnapshot> first = FishUIDiagnostics.CaptureAsync(fixture.UI,
+            StructuredOptions(), FishUIDebugCaptureReason.Hotkey);
+        Task<FishUIDebugSnapshot> second = FishUIDiagnostics.CaptureAsync(fixture.UI,
+            StructuredOptions(), FishUIDebugCaptureReason.Hotkey);
+
+        Assert.Same(first, second);
+        fixture.Update();
+        FishUIDebugSnapshot snapshot = await first.WaitAsync(TimeSpan.FromSeconds(5));
+        Assert.Equal(FishUIDebugCaptureReason.Hotkey, snapshot.CaptureReason);
+    }
+
+    [Fact]
+    public async Task FramebufferOwnedByWorkerCompletesAfterUiDisposal()
+    {
+        var graphics = new FramebufferGraphics();
+        FishUI.FishUI ui = CreateUi(graphics);
+        EnableFramebuffer(ui);
+        Task<FishUIDebugSnapshot> capture = FishUIDiagnostics.CaptureAsync(ui, new FishUIDebugSnapshotOptions());
+
+        ui.Tick(0.016f, 1);
+        ui.Dispose();
+        FishUIDebugSnapshot snapshot = await capture.WaitAsync(TimeSpan.FromSeconds(5));
+
+        Assert.NotNull(snapshot.ScreenshotPng);
+        Assert.Equal(1, graphics.ReleaseCount);
+        await ui.Diagnostics.WaitForPendingExportsAsync();
     }
 
     private static FishUI.FishUI CreateUi(IFishUIGfx graphics)

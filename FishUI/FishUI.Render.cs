@@ -63,7 +63,7 @@ namespace FishUI
                     VirtualMouse.Draw(Graphics);
 
                 failureStage = "framebufferCapture";
-                Diagnostics.BeforeEndDrawing(Graphics);
+                Diagnostics.AfterAllDrawingBeforeGraphicsEnd(Graphics);
                 failureStage = "endDrawing";
                 Graphics.EndDrawing();
             }

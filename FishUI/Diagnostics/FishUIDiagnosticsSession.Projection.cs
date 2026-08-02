@@ -53,6 +53,7 @@ namespace FishUI
                 frozenCapacityDiscardedThrough >= cutoff;
             Exception captureFailure = failure ?? batch.DiagnosticFailure;
             string captureFailureStage = failure != null ? failureStage : batch.DiagnosticFailureStage;
+            DateTimeOffset runtimeTimestamp = DateTimeOffset.UtcNow;
             var snapshot = new FishUIDebugSnapshot
             {
                 FishUIVersion = typeof(FishUI).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? typeof(FishUI).Assembly.GetName().Version?.ToString(),
@@ -60,10 +61,10 @@ namespace FishUI
                 RequestId = request.RequestId,
                 CaptureId = batch.CaptureId,
                 CaptureReason = request.Reason,
-                DefaultExportName = $"fishui-{UiSessionId:N}-capture-{batch.CaptureId:D8}-request-{request.RequestId:D8}",
+                DefaultExportName = $"fishui-{runtimeTimestamp:yyyyMMdd'T'HHmmss.fffffff'Z'}-{UiSessionId:N}-capture-{batch.CaptureId:D8}-request-{request.RequestId:D8}",
                 CaptureStatus = captureFailure == null ? FishUIDebugCaptureStatus.Complete : FishUIDebugCaptureStatus.Partial,
                 Frame = Frame,
-                RuntimeTimestamp = DateTimeOffset.UtcNow,
+                RuntimeTimestamp = runtimeTimestamp,
                 TimeSeconds = TimeSeconds,
                 DeltaTimeSeconds = DeltaTimeSeconds,
                 WindowWidthPixels = batch.CoordinateWidthPixels,
@@ -115,10 +116,6 @@ namespace FishUI
             };
             snapshot.IncludesRecentEvents = options.IncludeRecentEvents;
             snapshot.IncludesInteractionSummary = options.IncludeInteractionSummary;
-            snapshot.Artifacts["screenshot"] = ArtifactForRequest(batch.ScreenshotArtifact, options.IncludeScreenshot, options);
-            snapshot.Artifacts["overlay"] = ArtifactForRequest(batch.OverlayArtifact, options.IncludeAnnotatedOverlay, options);
-            if (options.IncludeScreenshot && batch.ScreenshotArtifact?.Status == FishUIDiagnosticArtifactStatus.Available) snapshot.ScreenshotPng = (byte[])batch.Screenshot.Clone();
-            if (options.IncludeAnnotatedOverlay && batch.OverlayArtifact?.Status == FishUIDiagnosticArtifactStatus.Available) snapshot.OverlayPng = (byte[])batch.Overlay.Clone();
             if (options.IncludeInteractionSummary)
                 snapshot.InteractionSummary = FishUIInteractionSummary.Create(projectedEvents, request.Reason,
                     requestedHistorySeconds, actualHistorySeconds, truncatedByCapacity);
