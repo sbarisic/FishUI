@@ -6,6 +6,11 @@ using System.Text.Json.Serialization;
 
 namespace FishUI
 {
+    public sealed class FishUIDiagnosticQueueFullException : InvalidOperationException
+    {
+        public FishUIDiagnosticQueueFullException(string message) : base(message) { }
+    }
+
     public enum FishUIDebugCaptureReason { ManualApi, Hotkey, Warning, Exception, TestFailure }
     public enum FishUIDebugCaptureStatus { Complete, Partial }
     public enum FishUIDebugPrivacyMode { Default, RedactText, RedactValues, ExcludeControlData }
