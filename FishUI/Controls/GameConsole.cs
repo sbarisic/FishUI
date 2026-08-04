@@ -144,6 +144,7 @@ namespace FishUI.Controls
         private bool _childrenBuilt;
         private IDisposable _captureLease;
         private Control _previousFocus;
+        private Control _suspendedModal;
         private bool _changingInputInternally;
         private bool _childrenInputBlocked = true;
         private int _observedCursorPosition;
@@ -342,7 +343,8 @@ namespace FishUI.Controls
                 _childrenInputBlocked = false;
                 ApplyFocusProxies(true);
                 _captureLease = ui.AcquireKeyboardCapture(this);
-                ui.FocusControl(_input);
+                SuspendModal(ui);
+                FocusInputIfEligible(ui);
             }
         }
 
@@ -355,7 +357,16 @@ namespace FishUI.Controls
             UnbindToggleHotkeys(ui);
             ApplyFocusProxies(false);
             _childrenInputBlocked = true;
-            RestorePreviousFocus(ui);
+            if (!ui.IsDisposingOrDisposed)
+            {
+                RestoreSuspendedModal(ui);
+                RestorePreviousFocus(ui);
+            }
+            else
+            {
+                _suspendedModal = null;
+                _previousFocus = null;
+            }
             Visible = false;
             IsOpen = false;
             OpenProgress = 0;
@@ -372,6 +383,8 @@ namespace FishUI.Controls
 
             SyncVisualProperties();
             FlushPendingWrites();
+            if (IsOpen && !ReferenceEquals(ui.InputActiveControl, _input))
+                FocusInputIfEligible(ui);
             if (_input.CursorPosition != _observedCursorPosition)
             {
                 _observedCursorPosition = _input.CursorPosition;
@@ -400,7 +413,11 @@ namespace FishUI.Controls
             FishUI ui = AttachedFishUI;
             if (IsOpen)
             {
-                if (ui != null) ui.FocusControl(_input);
+                if (ui != null)
+                {
+                    SuspendModal(ui);
+                    FocusInputIfEligible(ui);
+                }
                 return;
             }
 
@@ -418,7 +435,8 @@ namespace FishUI.Controls
                         _previousFocus = focused;
                     _captureLease = ui.AcquireKeyboardCapture(this);
                 }
-                ui.FocusControl(_input);
+                SuspendModal(ui);
+                FocusInputIfEligible(ui);
                 AnimateTo(1f);
             }
             else
@@ -442,6 +460,7 @@ namespace FishUI.Controls
             FishUI ui = AttachedFishUI;
             if (ui != null)
             {
+                RestoreSuspendedModal(ui);
                 RestorePreviousFocus(ui);
                 AnimateTo(0f);
             }
@@ -586,12 +605,42 @@ namespace FishUI.Controls
         private void RestorePreviousFocus(FishUI ui)
         {
             Control target = _previousFocus;
-            if (target != null && target.AttachedFishUI == ui && !target.Disabled && target.Focusable &&
-                target.IsHierarchyVisible() && !ReferenceEquals(target, this) && !target.IsDescendantOf(this))
+            if (target != null && target.Focusable && ui.IsControlEffectivelyInteractive(target)
+                && !ReferenceEquals(target, this) && !target.IsDescendantOf(this))
                 ui.FocusControl(target);
             else
                 ui.ClearFocus();
             _previousFocus = null;
+        }
+
+        private void SuspendModal(FishUI ui)
+        {
+            Control modal = ui.ModalControl;
+            if (modal == null || ReferenceEquals(modal, this))
+                return;
+            _suspendedModal = modal;
+            ui.SetModalControl(this);
+        }
+
+        private void RestoreSuspendedModal(FishUI ui)
+        {
+            Control suspended = _suspendedModal;
+            _suspendedModal = null;
+            if (suspended == null && !ReferenceEquals(ui.ModalControl, this))
+                return;
+            if (ui.ModalControl != null && !ReferenceEquals(ui.ModalControl, this))
+                return;
+            if (suspended != null && suspended.AttachedFishUI == ui
+                && suspended.IsHierarchyVisible() && suspended.IsHierarchyEnabled())
+                ui.SetModalControl(suspended);
+            else
+                ui.SetModalControl(null);
+        }
+
+        private void FocusInputIfEligible(FishUI ui)
+        {
+            if (_input != null && ui.IsControlEffectivelyInteractive(_input))
+                ui.FocusControl(_input);
         }
 
         private void RebindToggleHotkeys()
