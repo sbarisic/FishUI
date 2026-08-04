@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-test-pack:
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+        configuration: [Debug, Release]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - run: dotnet restore FishUI.sln
+      - run: dotnet format FishUI.sln --verify-no-changes --no-restore
+      - run: dotnet build FishUI.sln -c ${{ matrix.configuration }} --no-restore
+      - run: dotnet test FishUI.sln -c ${{ matrix.configuration }} --no-build --no-restore
+      - shell: pwsh
+        run: ./scripts/Test-Coverage.ps1 -Configuration ${{ matrix.configuration }} -ResultsDirectory .test-results/coverage
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.os }}-${{ matrix.configuration }}
+          path: .test-results/coverage/**/coverage.cobertura.xml
+      - shell: pwsh
+        run: ./scripts/Test-UnitySourceLinks.ps1
+      - shell: pwsh
+        run: ./scripts/Test-LocalPackages.ps1 -Configuration ${{ matrix.configuration }}
+      - run: dotnet list FishUI.sln package --vulnerable --include-transitive

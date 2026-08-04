@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FishUI.Controls
 {
-	public class ControlScrollable : Control
-	{
-	}
+    public class ControlScrollable : Control
+    {
+    }
 }

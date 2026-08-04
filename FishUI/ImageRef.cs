@@ -1,75 +1,54 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace FishUI
 {
-	public class ImageRef
-	{
-		public string Path;
-		public int Width;
-		public int Height;
+    /// <summary>Immutable metadata handle for an image owned by a graphics backend.</summary>
+    public sealed class ImageRef
+    {
+        public string Path { get; }
+        public int Width { get; }
+        public int Height { get; }
+        public object Userdata { get; }
+        public object Userdata2 { get; }
+        public bool IsAtlasRegion { get; }
+        public int SourceX { get; }
+        public int SourceY { get; }
+        public int SourceW { get; }
+        public int SourceH { get; }
+        public ImageRef AtlasParent { get; }
 
-		public object Userdata;
-		public object Userdata2;
+        public ImageRef(string path = null, int width = 0, int height = 0, object userdata = null, object userdata2 = null)
+            : this(path, width, height, userdata, userdata2, false, 0, 0, width, height, null)
+        {
+        }
 
-		/// <summary>
-		/// When true, this ImageRef represents a sub-region of an atlas image.
-		/// </summary>
-		public bool IsAtlasRegion;
+        private ImageRef(string path, int width, int height, object userdata, object userdata2,
+            bool isAtlasRegion, int sourceX, int sourceY, int sourceW, int sourceH, ImageRef atlasParent)
+        {
+            Path = path;
+            Width = width;
+            Height = height;
+            Userdata = userdata;
+            Userdata2 = userdata2;
+            IsAtlasRegion = isAtlasRegion;
+            SourceX = sourceX;
+            SourceY = sourceY;
+            SourceW = sourceW;
+            SourceH = sourceH;
+            AtlasParent = atlasParent;
+        }
 
-		/// <summary>
-		/// Source X coordinate within the atlas (when IsAtlasRegion is true).
-		/// </summary>
-		public int SourceX;
+        public static ImageRef FromAtlasRegion(ImageRef atlas, int x, int y, int width, int height)
+        {
+            if (atlas == null) throw new ArgumentNullException(nameof(atlas));
+            return new ImageRef(atlas.Path, width, height, atlas.Userdata, atlas.Userdata2, true,
+                x, y, width, height, atlas);
+        }
 
-		/// <summary>
-		/// Source Y coordinate within the atlas (when IsAtlasRegion is true).
-		/// </summary>
-		public int SourceY;
-
-		/// <summary>
-		/// Source width within the atlas (when IsAtlasRegion is true).
-		/// </summary>
-		public int SourceW;
-
-		/// <summary>
-		/// Source height within the atlas (when IsAtlasRegion is true).
-		/// </summary>
-		public int SourceH;
-
-		/// <summary>
-		/// Reference to the parent atlas ImageRef (when IsAtlasRegion is true).
-		/// </summary>
-		public ImageRef AtlasParent;
-
-		/// <summary>
-		/// Creates a sub-region ImageRef from an atlas.
-		/// </summary>
-		public static ImageRef FromAtlasRegion(ImageRef atlas, int x, int y, int width, int height)
-		{
-			return new ImageRef
-			{
-				Path = atlas.Path,
-				Width = width,
-				Height = height,
-				Userdata = atlas.Userdata,
-				Userdata2 = atlas.Userdata2,
-				IsAtlasRegion = true,
-				SourceX = x,
-				SourceY = y,
-				SourceW = width,
-				SourceH = height,
-				AtlasParent = atlas
-			};
-		}
-
-		/// <summary>
-		/// Creates a sub-region ImageRef from an atlas using a theme region.
-		/// </summary>
-		public static ImageRef FromAtlasRegion(ImageRef atlas, FishUIThemeRegion region)
-		{
-			return FromAtlasRegion(atlas, region.X, region.Y, region.Width, region.Height);
-		}
-	}
+        public static ImageRef FromAtlasRegion(ImageRef atlas, FishUIThemeRegion region)
+        {
+            if (region == null) throw new ArgumentNullException(nameof(region));
+            return FromAtlasRegion(atlas, region.X, region.Y, region.Width, region.Height);
+        }
+    }
 }

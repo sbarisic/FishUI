@@ -5,186 +5,186 @@ using System.Numerics;
 
 namespace FishUI
 {
-	/// <summary>
-	/// Interface for the graphics backend. Implement this to use FishUI with different rendering libraries.
-	/// </summary>
-	public interface IFishUIGfx
-	{
-		/// <summary>
-		/// Initializes the graphics backend.
-		/// </summary>
-		public void Init();
+    /// <summary>
+    /// Interface for the graphics backend. Implement this to use FishUI with different rendering libraries.
+    /// </summary>
+    public interface IFishUIGfx
+    {
+        /// <summary>
+        /// Initializes the graphics backend.
+        /// </summary>
+        public void Init();
 
-		/// <summary>
-		/// Called at the start of each frame before drawing controls.
-		/// </summary>
-		/// <param name="Dt">Delta time since last frame.</param>
-		public void BeginDrawing(float Dt);
+        /// <summary>
+        /// Called at the start of each frame before drawing controls.
+        /// </summary>
+        /// <param name="Dt">Delta time since last frame.</param>
+        public void BeginDrawing(float Dt);
 
-		/// <summary>
-		/// Called at the end of each frame after drawing all controls.
-		/// </summary>
-		public void EndDrawing();
+        /// <summary>
+        /// Called at the end of each frame after drawing all controls.
+        /// </summary>
+        public void EndDrawing();
 
-		/// <summary>
-		/// Sets the scissor clipping region.
-		/// </summary>
-		public void BeginScissor(Vector2 Pos, Vector2 Size);
+        /// <summary>
+        /// Sets the scissor clipping region.
+        /// </summary>
+        public void BeginScissor(Vector2 Pos, Vector2 Size);
 
-		/// <summary>
-		/// Pushes a new scissor region onto the scissor stack.
-		/// </summary>
-		public void PushScissor(Vector2 Pos, Vector2 Size);
+        /// <summary>
+        /// Pushes a new scissor region onto the scissor stack.
+        /// </summary>
+        public void PushScissor(Vector2 Pos, Vector2 Size);
 
-		/// <summary>
-		/// Pops the top scissor region from the stack.
-		/// </summary>
-		public void PopScissor();
+        /// <summary>
+        /// Pops the top scissor region from the stack.
+        /// </summary>
+        public void PopScissor();
 
-		/// <summary>
-		/// Ends scissor clipping.
-		/// </summary>
-		public void EndScissor();
+        /// <summary>
+        /// Ends scissor clipping.
+        /// </summary>
+        public void EndScissor();
 
-		/// <summary>
-		/// Gets the window width in pixels.
-		/// </summary>
-		public int GetWindowWidth();
+        /// <summary>
+        /// Gets the window width in pixels.
+        /// </summary>
+        public int GetWindowWidth();
 
-		/// <summary>
-		/// Gets the window height in pixels.
-		/// </summary>
-		public int GetWindowHeight();
+        /// <summary>
+        /// Gets the window height in pixels.
+        /// </summary>
+        public int GetWindowHeight();
 
-		/// <summary>
-		/// Sets the input focus to the current window, bringing it to the foreground if it is not already active.
-		/// </summary>
-		/// <remarks>Use this method to ensure that the window is ready to receive user input. If the window is
-		/// already focused, calling this method has no effect.</remarks>
-		public void FocusWindow();
+        /// <summary>
+        /// Sets the input focus to the current window, bringing it to the foreground if it is not already active.
+        /// </summary>
+        /// <remarks>Use this method to ensure that the window is ready to receive user input. If the window is
+        /// already focused, calling this method has no effect.</remarks>
+        public void FocusWindow();
 
-		// Loading
+        // Loading
 
-		/// <summary>
-		/// Loads a font from a file.
-		/// </summary>
-		public FontRef LoadFont(string FileName, float Size, float Spacing, FishColor Color);
+        /// <summary>
+        /// Loads a font from a file.
+        /// </summary>
+        public FontRef LoadFont(string FileName, float Size, float Spacing, FishColor Color);
 
-		/// <summary>
-		/// Loads a font from a file with a specific style.
-		/// </summary>
-		public FontRef LoadFont(string FileName, float Size, float Spacing, FishColor Color, FontStyle Style);
+        /// <summary>
+        /// Loads a font from a file with a specific style.
+        /// </summary>
+        public FontRef LoadFont(string FileName, float Size, float Spacing, FishColor Color, FontStyle Style);
 
-		/// <summary>
-		/// Loads an image from a file.
-		/// </summary>
-		public ImageRef LoadImage(string FileName);
+        /// <summary>
+        /// Loads an image from a file.
+        /// </summary>
+        public ImageRef LoadImage(string FileName);
 
-		/// <summary>
-		/// Loads a sub-region of an image from a file.
-		/// </summary>
-		public ImageRef LoadImage(string FileName, int X, int Y, int W, int H);
+        /// <summary>
+        /// Loads a sub-region of an image from a file.
+        /// </summary>
+        public ImageRef LoadImage(string FileName, int X, int Y, int W, int H);
 
-		/// <summary>
-		/// Creates a sub-region image from an existing image.
-		/// </summary>
-		public ImageRef LoadImage(ImageRef Orig, int X, int Y, int W, int H);
+        /// <summary>
+        /// Creates a sub-region image from an existing image.
+        /// </summary>
+        public ImageRef LoadImage(ImageRef Orig, int X, int Y, int W, int H);
 
-		/// <summary>
-		/// Gets the color of a pixel in an image.
-		/// </summary>
-		public FishColor GetImageColor(ImageRef Img, Vector2 Pos);
+        /// <summary>
+        /// Gets the color of a pixel in an image.
+        /// </summary>
+        public FishColor GetImageColor(ImageRef Img, Vector2 Pos);
 
-		/// <summary>
-		/// Measures the size of text when rendered with the specified font.
-		/// </summary>
-		public Vector2 MeasureText(FontRef Fn, string Text);
+        /// <summary>
+        /// Measures the size of text when rendered with the specified font.
+        /// </summary>
+        public Vector2 MeasureText(FontRef Fn, string Text);
 
-		/// <summary>
-		/// Gets font metrics (line height, ascent, descent, baseline) for a font.
-		/// </summary>
-		public FishUIFontMetrics GetFontMetrics(FontRef Fn);
+        /// <summary>
+        /// Gets font metrics (line height, ascent, descent, baseline) for a font.
+        /// </summary>
+        public FishUIFontMetrics GetFontMetrics(FontRef Fn);
 
-		// Drawing
+        // Drawing
 
-		/// <summary>
-		/// Draws a line between two points.
-		/// </summary>
-		public void DrawLine(Vector2 Pos1, Vector2 Pos2, float Thick, FishColor Clr);
+        /// <summary>
+        /// Draws a line between two points.
+        /// </summary>
+        public void DrawLine(Vector2 Pos1, Vector2 Pos2, float Thick, FishColor Clr);
 
-		/// <summary>
-		/// Draws a filled rectangle.
-		/// </summary>
-		public void DrawRectangle(Vector2 Position, Vector2 Size, FishColor Color);
+        /// <summary>
+        /// Draws a filled rectangle.
+        /// </summary>
+        public void DrawRectangle(Vector2 Position, Vector2 Size, FishColor Color);
 
-		/// <summary>
-		/// Draws a rectangle outline.
-		/// </summary>
-		public void DrawRectangleOutline(Vector2 Position, Vector2 Size, FishColor Color);
+        /// <summary>
+        /// Draws a rectangle outline.
+        /// </summary>
+        public void DrawRectangleOutline(Vector2 Position, Vector2 Size, FishColor Color);
 
-		/// <summary>
-		/// Draws an image at the specified position.
-		/// </summary>
-		public void DrawImage(ImageRef Img, Vector2 Pos, float Rot, float Scale, FishColor Color);
+        /// <summary>
+        /// Draws an image at the specified position.
+        /// </summary>
+        public void DrawImage(ImageRef Img, Vector2 Pos, float Rot, float Scale, FishColor Color);
 
-		/// <summary>
-		/// Draws an image scaled to the specified size.
-		/// </summary>
-		public void DrawImage(ImageRef Img, Vector2 Pos, Vector2 Size, float Rot, float Scale, FishColor Color);
+        /// <summary>
+        /// Draws an image scaled to the specified size.
+        /// </summary>
+        public void DrawImage(ImageRef Img, Vector2 Pos, Vector2 Size, float Rot, float Scale, FishColor Color);
 
-		/// <summary>
-		/// Draws a 9-patch (9-slice) image.
-		/// </summary>
-		public void DrawNPatch(NPatch NP, Vector2 Pos, Vector2 Size, FishColor Color);
+        /// <summary>
+        /// Draws a 9-patch (9-slice) image.
+        /// </summary>
+        public void DrawNPatch(NPatch NP, Vector2 Pos, Vector2 Size, FishColor Color);
 
-		/// <summary>
-		/// Draws a 9-patch (9-slice) image with rotation.
-		/// </summary>
-		public void DrawNPatch(NPatch NP, Vector2 Pos, Vector2 Size, FishColor Color, float Rotation);
+        /// <summary>
+        /// Draws a 9-patch (9-slice) image with rotation.
+        /// </summary>
+        public void DrawNPatch(NPatch NP, Vector2 Pos, Vector2 Size, FishColor Color, float Rotation);
 
-		/// <summary>
-		/// Draws text at the specified position.
-		/// </summary>
-		public void DrawText(FontRef Fn, string Text, Vector2 Pos);
+        /// <summary>
+        /// Draws text at the specified position.
+        /// </summary>
+        public void DrawText(FontRef Fn, string Text, Vector2 Pos);
 
-		/// <summary>
-		/// Draws text with a custom color.
-		/// </summary>
-		public void DrawTextColor(FontRef Fn, string Text, Vector2 Pos, FishColor Color);
+        /// <summary>
+        /// Draws text with a custom color.
+        /// </summary>
+        public void DrawTextColor(FontRef Fn, string Text, Vector2 Pos, FishColor Color);
 
-		/// <summary>
-		/// Draws text with a custom color and scale factor.
-		/// </summary>
-		/// <param name="Fn">Font to use.</param>
-		/// <param name="Text">Text to draw.</param>
-		/// <param name="Pos">Position to draw at.</param>
-		/// <param name="Color">Color of the text.</param>
-		/// <param name="Scale">Scale multiplier (1.0 = normal size).</param>
-		public void DrawTextColorScale(FontRef Fn, string Text, Vector2 Pos, FishColor Color, float Scale);
+        /// <summary>
+        /// Draws text with a custom color and scale factor.
+        /// </summary>
+        /// <param name="Fn">Font to use.</param>
+        /// <param name="Text">Text to draw.</param>
+        /// <param name="Pos">Position to draw at.</param>
+        /// <param name="Color">Color of the text.</param>
+        /// <param name="Scale">Scale multiplier (1.0 = normal size).</param>
+        public void DrawTextColorScale(FontRef Fn, string Text, Vector2 Pos, FishColor Color, float Scale);
 
-		/// <summary>
-		/// Sets the texture filter mode for an image. Call before drawing to change filtering.
-		/// </summary>
-		/// <param name="Img">The image to set the filter for.</param>
-		/// <param name="pixelated">True for nearest-neighbor (pixelated), false for smooth (bilinear/trilinear).</param>
-		public void SetImageFilter(ImageRef Img, bool pixelated);
+        /// <summary>
+        /// Sets the texture filter mode for an image. Call before drawing to change filtering.
+        /// </summary>
+        /// <param name="Img">The image to set the filter for.</param>
+        /// <param name="pixelated">True for nearest-neighbor (pixelated), false for smooth (bilinear/trilinear).</param>
+        public void SetImageFilter(ImageRef Img, bool pixelated);
 
-		/// <summary>
-		/// Draws a filled circle.
-		/// </summary>
-		/// <param name="Center">Center position of the circle.</param>
-		/// <param name="Radius">Radius of the circle.</param>
-		/// <param name="Color">Fill color.</param>
-		public void DrawCircle(Vector2 Center, float Radius, FishColor Color);
+        /// <summary>
+        /// Draws a filled circle.
+        /// </summary>
+        /// <param name="Center">Center position of the circle.</param>
+        /// <param name="Radius">Radius of the circle.</param>
+        /// <param name="Color">Fill color.</param>
+        public void DrawCircle(Vector2 Center, float Radius, FishColor Color);
 
-		/// <summary>
-		/// Draws a circle outline.
-		/// </summary>
-		/// <param name="Center">Center position of the circle.</param>
-		/// <param name="Radius">Radius of the circle.</param>
-		/// <param name="Color">Outline color.</param>
-		/// <param name="Thickness">Line thickness.</param>
-		public void DrawCircleOutline(Vector2 Center, float Radius, FishColor Color, float Thickness = 1f);
+        /// <summary>
+        /// Draws a circle outline.
+        /// </summary>
+        /// <param name="Center">Center position of the circle.</param>
+        /// <param name="Radius">Radius of the circle.</param>
+        /// <param name="Color">Outline color.</param>
+        /// <param name="Thickness">Line thickness.</param>
+        public void DrawCircleOutline(Vector2 Center, float Radius, FishColor Color, float Thickness = 1f);
 
-	}
+    }
 }

@@ -48,26 +48,14 @@ public class MyGfx : SimpleFishUIGfx
     public override ImageRef LoadImage(string FileName)
     {
         // Load image and return ImageRef with Width, Height, and Userdata
-        return new ImageRef
-        {
-            Path = FileName,
-            Width = /* image width */,
-            Height = /* image height */,
-            Userdata = /* your native texture/image object */
-        };
+        return new ImageRef(FileName, imageWidth, imageHeight, nativeTexture, cpuImage);
     }
 
     public override FontRef LoadFont(string FileName, float Size, float Spacing, FishColor Color)
     {
         // Load font and return FontRef
-        return new FontRef
-        {
-            Path = FileName,
-            Size = Size,
-            Spacing = Spacing,
-            Color = Color,
-            Userdata = /* your native font object */
-        };
+        return new FontRef(FileName, nativeFont, Size, Spacing, Color,
+            FontStyle.Regular, isMonospaced: false, lineHeight: Size);
     }
 
     public override void BeginScissor(Vector2 Pos, Vector2 Size)
@@ -138,14 +126,7 @@ public override ImageRef LoadImage(string FileName)
 {
     var texture = YourGraphicsLib.LoadTexture(FileName);
     
-    return new ImageRef
-    {
-        Path = FileName,
-        Width = texture.Width,
-        Height = texture.Height,
-        Userdata = texture,      // Store your native texture here
-        Userdata2 = null         // Optional: store CPU-side image data for GetImageColor
-    };
+    return new ImageRef(FileName, texture.Width, texture.Height, texture);
 }
 ```
 
@@ -158,16 +139,8 @@ public override FontRef LoadFont(string FileName, float Size, float Spacing, Fis
 {
     var font = YourGraphicsLib.LoadFont(FileName, (int)Size);
     
-    return new FontRef
-    {
-        Path = FileName,
-        Size = Size,
-        Spacing = Spacing,
-        Color = Color,
-        Userdata = font,         // Store your native font here
-        LineHeight = Size,       // Line height in pixels
-        IsMonospaced = false     // Set true for fixed-width fonts
-    };
+    return new FontRef(FileName, font, Size, Spacing, Color,
+        FontStyle.Regular, isMonospaced: false, lineHeight: Size);
 }
 ```
 
@@ -357,62 +330,48 @@ This approach requires implementing all 25+ methods but gives you full control o
 
 ## Input Backend
 
-You also need to implement `IFishUIInput` for user input. Here's a minimal example:
+Implement `IFishUIInput` for pointer, keyboard, text, and touch input.
 
 ```csharp
+using System;
 using FishUI;
 using System.Numerics;
 
 public class MyInput : IFishUIInput
 {
-    public FishInputState GetInputState()
-    {
-        FishInputState state = new FishInputState();
-        
-        // Mouse position
-        state.MousePos = GetMousePosition();
-        state.MouseDelta = GetMouseDelta();
-        
-        // Mouse buttons
-        state.LeftDown = IsMouseButtonDown(0);
-        state.LeftPressed = IsMouseButtonPressed(0);
-        state.LeftReleased = IsMouseButtonReleased(0);
-        
-        state.RightDown = IsMouseButtonDown(1);
-        state.RightPressed = IsMouseButtonPressed(1);
-        state.RightReleased = IsMouseButtonReleased(1);
-        
-        state.MiddleDown = IsMouseButtonDown(2);
-        state.MiddlePressed = IsMouseButtonPressed(2);
-        state.MiddleReleased = IsMouseButtonReleased(2);
-        
-        // Mouse wheel
-        state.MouseWheel = GetMouseWheelMove();
-        
-        // Keyboard (implement as needed)
-        state.KeyPressed = GetPressedKeys();
-        state.KeyDown = GetDownKeys();
-        state.TextInput = GetTextInput();
-        
-        return state;
-    }
+    public FishKey GetKeyPressed() => ReadNextPressedKey();
+    public int GetCharPressed() => ReadNextGeneratedCharacter();
+    public bool IsKeyDown(FishKey key) => ReadKeyDown(key);
+    public bool IsKeyUp(FishKey key) => !ReadKeyDown(key);
+    public bool IsKeyPressed(FishKey key) => ReadKeyPressed(key);
+    public bool IsKeyReleased(FishKey key) => ReadKeyReleased(key);
+    public Vector2 GetMousePosition() => ReadMousePosition();
+    public float GetMouseWheelMove() => ReadWheelDelta();
+    public bool IsMouseDown(FishMouseButton button) => ReadMouseDown(button);
+    public bool IsMouseUp(FishMouseButton button) => !ReadMouseDown(button);
+    public bool IsMousePressed(FishMouseButton button) => ReadMousePressed(button);
+    public bool IsMouseReleased(FishMouseButton button) => ReadMouseReleased(button);
+    public FishTouchPoint[] GetTouchPoints() => Array.Empty<FishTouchPoint>();
 }
 ```
+
+`GetKeyPressed` and `GetCharPressed` are consumptive queue methods. Return one item per call and return zero when the queue is empty. FishUI drains each queue once per update.
+
+Return stable touch IDs with `Press`, `Motion`, and `Release` records. Return `Array.Empty<FishTouchPoint>()` when no touch exists.
 
 ---
 
 ## Best Practices
 
-### 1. Use Userdata Fields
-Store native objects in `ImageRef.Userdata` and `FontRef.Userdata` to avoid dictionary lookups:
+### 1. Own and release native resources
+
+Store native objects in immutable `ImageRef` and `FontRef` handles. The backend owns these objects. Release each native resource exactly once when the backend is disposed.
 
 ```csharp
-// Good - direct access
 Texture2D tex = (Texture2D)Img.Userdata;
-
-// Avoid - dictionary lookup
-Texture2D tex = _textures[Img.Path];
 ```
+
+FishUI does not dispose an injected backend. The application must dispose FishUI first and then dispose the backend.
 
 ### 2. Implement Frame Lifecycle
 Override `BeginDrawing` and `EndDrawing` if your graphics library needs frame begin/end calls:

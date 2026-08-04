@@ -98,7 +98,7 @@ FishUI is a flexible GUI framework that separates UI logic from rendering, allow
 | **Gauges** | RadialGauge, BarGauge, VUMeter |
 | **Data** | DataGrid, SpreadsheetGrid, PropertyGrid, ItemListbox |
 | **Effects** | ParticleEmitter |
-| **Utility** | Tooltip, Titlebar |
+| **Utility** | Tooltip, Titlebar, GameConsole |
 
 ### Framework Features
 
@@ -401,6 +401,34 @@ content.Position = new Vector2(10, 10);
 window.AddChild(content);
 ```
 
+### Quake-Style Game Console
+
+Add `GameConsole` as a root control. It opens from the top with Grave or Shift+Grave, focuses its command input, and exposes a capture signal for the game input layer.
+
+```csharp
+GameConsole console = new GameConsole();
+console.RegisterCommand("teleport", context =>
+{
+    // Parse context.Arguments and update the game on the UI thread.
+    context.Console.WriteLine("Teleport command received.");
+}, "Teleports the player.", "teleport <x> <y> <z>", "tp");
+
+ui.AddControl(console); // GameConsole must be a root.
+```
+
+Use split update/draw calls when gameplay must inspect keyboard capture in the same frame:
+
+```csharp
+ui.TickUpdate(deltaTime, currentTime);
+
+if (!ui.WantsKeyboardCapture)
+    game.ProcessInput();
+
+ui.TickDraw(deltaTime, currentTime);
+```
+
+`WriteLine` and `console.Logger` are safe for background producers. Command registration, execution, opening, closing, and UI properties remain UI-thread operations. A matched text-consuming hotkey suppresses all generated characters remaining in that update frame.
+
 ### Gauges
 
 ```csharp
@@ -629,6 +657,7 @@ dotnet run -- --sample 0
 - **Virtual Cursor**: Keyboard/gamepad navigation
 - **Game Menu**: Example game-style UI
 - **Windows 98 Notepad**: Classic text editor clone with in-memory Open/Save, Find, clipboard commands, and Word Wrap
+- **Diagnostic Snapshot**: Capture structured input, layout, rendering, and multiline scrolling state on the next draw
 - **Editor Layout**: Load and display layouts from FishUIEditor
 - **Data Controls**: DataGrid, SpreadsheetGrid, DatePicker, TimePicker
 - **Serialization**: Layout save/load with event handler binding
@@ -638,6 +667,11 @@ dotnet run -- --sample 0
 Additional documentation is available in the `docs/` folder:
 
 - **[Custom Control Creation Guide](docs/CUSTOM_CONTROLS.md)** - How to create your own controls
+- **[Diagnostic Snapshot Guide](docs/DIAGNOSTICS.md)** - Capture lifecycle, privacy, framebuffer, and export contracts
+- **[FishUI 2.0 Runtime Contracts](docs/RUNTIME_2.0.md)** - Lifecycle, frames, input, overlays, serialization, and resource ownership
+- **[FishUI 2.0 Migration Guide](docs/MIGRATING_TO_2.0.md)** - Required changes for 1.x applications and backends
+- **[FishUI 2.0 Codebase Audit](docs/CODEBASE_AUDIT.md)** - Baseline defects, coverage, and verification scope
+- **[Custom Backend Guide](docs/BACKEND_GUIDE.md)** - Graphics, clipping, input, and backend resource ownership
 - **[Theme Creation Guide](docs/THEMING.md)** - Creating custom themes with YAML
 
 ## Requirements
@@ -677,6 +711,10 @@ FishUI/
 ├── NugetTest/              # NuGet package testing project
 ├── docs/                   # Documentation
 │   ├── CUSTOM_CONTROLS.md  # Custom control creation guide
+│   ├── DIAGNOSTICS.md      # Diagnostic snapshot guide
+│   ├── RUNTIME_2.0.md      # FishUI 2.0 runtime contracts
+│   ├── MIGRATING_TO_2.0.md # FishUI 2.0 migration guide
+│   ├── CODEBASE_AUDIT.md   # Baseline audit and verification evidence
 │   └── THEMING.md          # Theme creation guide
 └── screenshots/            # Screenshot gallery
 ```
