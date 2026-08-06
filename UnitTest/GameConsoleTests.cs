@@ -123,6 +123,36 @@ namespace UnitTest
         }
 
         [Fact]
+        public void ToggleHotkey_SuspendsAndRestoresExistingModalAndFocus()
+        {
+            using FishUITestFixture fixture = new FishUITestFixture();
+            Panel modal = new Panel { Size = new Vector2(200, 100) };
+            Button modalButton = new Button { Focusable = true, Size = new Vector2(80, 24) };
+            modal.AddChild(modalButton);
+            GameConsole console = new GameConsole { AnimationDuration = 0 };
+            fixture.UI.AddControl(modal);
+            fixture.UI.AddControl(console);
+            fixture.UI.SetModalControl(modal);
+            fixture.UI.FocusControl(modalButton);
+
+            fixture.Input.SimulateKeyDown(FishKey.Grave);
+            fixture.Update();
+
+            Assert.True(console.IsOpen);
+            Assert.Same(console, fixture.UI.ModalControl);
+            Assert.Same(FindInput(console), fixture.UI.InputActiveControl);
+
+            fixture.Input.SimulateKeyUp(FishKey.Grave);
+            fixture.Update();
+            fixture.Input.SimulateKeyDown(FishKey.Grave);
+            fixture.Update();
+
+            Assert.False(console.IsOpen);
+            Assert.Same(modal, fixture.UI.ModalControl);
+            Assert.Same(modalButton, fixture.UI.InputActiveControl);
+        }
+
+        [Fact]
         public void DeferredDeadKeyCharacter_IsDiscardedAfterOpeningConsole()
         {
             using FishUITestFixture fixture = new FishUITestFixture();

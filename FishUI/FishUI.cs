@@ -148,6 +148,7 @@ namespace FishUI
         private bool _keyboardInputConsumedThisFrame;
         private bool _disposed;
         private FishUILifecycleState _lifecycleState;
+        internal bool IsDisposingOrDisposed => _disposed;
         private int? _activeTouchId;
         private Vector2 _activeTouchPosition;
         private readonly HashSet<FishKey> _activeKeys = new HashSet<FishKey>();
