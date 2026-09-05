@@ -13,7 +13,7 @@ namespace FishUI.Controls
 
     public delegate void SliderValueChangedFunc(Slider Sender, float Value);
 
-    public class Slider : Control, IFishUIDebugSnapshotProvider
+    public class Slider : Control, IFishUINumericRange, IFishUIDebugSnapshotProvider
     {
         [YamlMember]
         public SliderOrientation Orientation { get; set; } = SliderOrientation.Horizontal;
@@ -27,7 +27,7 @@ namespace FishUI.Controls
             get => _value;
             set
             {
-                float newValue = Math.Clamp(value, MinValue, MaxValue);
+                float newValue = NumericRange.ReadingLayout ? NumericRange.Finite(value) : Math.Clamp(NumericRange.Finite(value), MinValue, MaxValue);
                 if (_value != newValue)
                 {
                     float oldValue = _value;
@@ -46,19 +46,29 @@ namespace FishUI.Controls
         /// Minimum value of the slider
         /// </summary>
         [YamlMember]
-        public float MinValue { get; set; } = 0f;
+        public float MinValue { get => _minimum; set { if (NumericRange.ReadingLayout) _minimum = NumericRange.Finite(value); else SetRange(value, _maximum); } }
+        private float _minimum;
 
         /// <summary>
         /// Maximum value of the slider
         /// </summary>
         [YamlMember]
-        public float MaxValue { get; set; } = 100f;
+        public float MaxValue { get => _maximum; set { if (NumericRange.ReadingLayout) _maximum = NumericRange.Finite(value); else SetRange(_minimum, value); } }
+        private float _maximum = 100;
+        public void SetRange(float minimum, float maximum)
+        {
+            NumericRange.Validate(minimum, maximum);
+            _minimum = minimum;
+            _maximum = maximum;
+            Value = _value;
+        }
 
         /// <summary>
         /// Step increment for value changes (0 = continuous)
         /// </summary>
         [YamlMember]
-        public float Step { get; set; } = 0f;
+        public float Step { get => _step; set => _step = NumericRange.NonNegative(value); }
+        private float _step;
 
         /// <summary>
         /// Background/track color of the slider
@@ -214,7 +224,7 @@ namespace FishUI.Controls
             // Apply step if configured
             if (Step > 0)
             {
-                newValue = (float)Math.Round(newValue / Step) * Step;
+                newValue = MinValue + (float)Math.Round((newValue - MinValue) / Step) * Step;
             }
 
             Value = newValue;

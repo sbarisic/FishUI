@@ -1,5 +1,7 @@
 # Migrating to FishUI 2.0
 
+See [Unicode, layout, and update hardening](HARDENING.md) for the current Rune input, numeric-range, catch-up, and text-metrics contracts.
+
 FishUI 2.0 makes lifecycle, input, serialization, and backend ownership explicit.
 
 Call `FishUI.Init()` before any tick. A successful call is idempotent. Ticks before initialization and all use after disposal throw. Dispose FishUI before disposing its injected graphics backend; FishUI never disposes injected services.

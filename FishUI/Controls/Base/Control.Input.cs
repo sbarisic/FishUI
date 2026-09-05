@@ -1,10 +1,11 @@
+using System.Text;
 using System.Numerics;
 
 namespace FishUI.Controls
 {
     internal interface IFishUITextInputFilter
     {
-        bool ShouldAcceptTextInput(FishUI ui, FishInputState input, char character);
+        bool ShouldAcceptTextInput(FishUI ui, FishInputState input, Rune character);
     }
 
     public abstract partial class Control
@@ -129,7 +130,9 @@ namespace FishUI.Controls
         /// <summary>
         /// Called when text is typed while this control has focus.
         /// </summary>
-        public virtual void HandleTextInput(FishUI UI, FishInputState InState, char Chr)
+        public void HandleTextInput(FishUI UI, FishInputState input, char character) => HandleTextInput(UI, input, Rune.TryCreate(character, out Rune rune) ? rune : Rune.ReplacementChar);
+
+        public virtual void HandleTextInput(FishUI UI, FishInputState InState, Rune Chr)
         {
         }
 

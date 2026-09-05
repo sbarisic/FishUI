@@ -67,11 +67,7 @@ namespace FishUI.Controls
             string Txt = Text;
             if (!string.IsNullOrEmpty(Txt))
             {
-                if (Parent is CheckBox || Parent is RadioButton)
-                {
-                    Position.X = Parent.GetAbsoluteSize().X + 4;
-                    Position.Y = Parent.GetAbsoluteSize().Y / 2 - UI.Settings.FontLabel.Size / 2;
-                }
+
 
 
                 Vector2 TxtSz = UI.Graphics.MeasureText(UI.Settings.FontLabel, Txt);
@@ -115,6 +111,11 @@ namespace FishUI.Controls
 
         protected override void PrepareLayout(FishUI UI)
         {
+                if (Parent is CheckBox || Parent is RadioButton)
+                {
+                    Position.X = Parent.GetAbsoluteSize().X + 4;
+                    Position.Y = Parent.GetAbsoluteSize().Y / 2 - UI.Settings.FontLabel.Size / 2;
+                }
             UpdateAutoSize(UI);
         }
     }

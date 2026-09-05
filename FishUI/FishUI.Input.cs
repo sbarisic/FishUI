@@ -1,3 +1,4 @@
+using System.Text;
 using FishUI.Controls;
 using System;
 using System.Numerics;
@@ -11,6 +12,7 @@ namespace FishUI
 {
     public partial class FishUI
     {
+        private static Rune Scalar(int value) => Rune.TryCreate(value, out Rune rune) ? rune : Rune.ReplacementChar;
         void UpdateSingleControl(Control Ctl, FishInputState InState, FishInputState InLast)
         {
             if (!Ctl.Visible)
@@ -188,9 +190,9 @@ namespace FishUI
                             {
                                 CharacterCount = 1,
                                 LineCount = rejectedCharacter == '\n' ? 1 : 0,
-                                Character = ((char)rejectedCharacter).ToString(),
+                                Character = Scalar(rejectedCharacter).ToString(),
                                 CodePoint = rejectedCharacter,
-                                UnicodeCategory = char.GetUnicodeCategory((char)rejectedCharacter).ToString()
+                                UnicodeCategory = Rune.GetUnicodeCategory(Scalar(rejectedCharacter)).ToString()
                             });
                 }
                 if (rejectedCount == maximumCharacters)
@@ -216,7 +218,7 @@ namespace FishUI
                     characterCount++;
                     Control textTarget = InputActiveControl;
                     bool accepted = !(textTarget is IFishUITextInputFilter filter) ||
-                        filter.ShouldAcceptTextInput(this, InState, (char)InChr);
+                        filter.ShouldAcceptTextInput(this, InState, Scalar(InChr));
                     if (!accepted)
                     {
                         if (Diagnostics.IsEventRecordingEnabled)
@@ -225,9 +227,9 @@ namespace FishUI
                                 {
                                     CharacterCount = 1,
                                     LineCount = InChr == '\n' ? 1 : 0,
-                                    Character = ((char)InChr).ToString(),
+                                    Character = Scalar(InChr).ToString(),
                                     CodePoint = InChr,
-                                    UnicodeCategory = char.GetUnicodeCategory((char)InChr).ToString()
+                                    UnicodeCategory = Rune.GetUnicodeCategory(Scalar(InChr)).ToString()
                                 });
                         continue;
                     }
@@ -239,12 +241,12 @@ namespace FishUI
                             {
                                 CharacterCount = 1,
                                 LineCount = InChr == '\n' ? 1 : 0,
-                                Character = ((char)InChr).ToString(),
+                                Character = Scalar(InChr).ToString(),
                                 CodePoint = InChr,
-                                UnicodeCategory = char.GetUnicodeCategory((char)InChr).ToString()
+                                UnicodeCategory = Rune.GetUnicodeCategory(Scalar(InChr)).ToString()
                             });
                     using (Diagnostics.EnterCause(textEvent?.Sequence))
-                        textTarget.HandleTextInput(this, InState, (char)InChr);
+                        textTarget.HandleTextInput(this, InState, Scalar(InChr));
                 }
                 if (characterCount == maximumCharacters)
                     Diagnostics.ReportLiveWarning("INPUT_CHARACTER_QUEUE_LIMIT_REACHED",

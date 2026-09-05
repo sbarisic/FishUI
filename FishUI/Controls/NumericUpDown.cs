@@ -10,7 +10,7 @@ namespace FishUI.Controls
     /// <summary>
     /// A numeric input control with up/down increment buttons.
     /// </summary>
-    public partial class NumericUpDown : Control
+    public partial class NumericUpDown : Control, IFishUINumericRange
     {
         /// <summary>
         /// The current numeric value.
@@ -21,7 +21,7 @@ namespace FishUI.Controls
             get => _value;
             set
             {
-                float newValue = Math.Clamp(value, MinValue, MaxValue);
+                float newValue = NumericRange.ReadingLayout ? NumericRange.Finite(value) : Math.Clamp(NumericRange.Finite(value), MinValue, MaxValue);
                 if (_value != newValue)
                 {
                     float oldValue = _value;
@@ -38,19 +38,29 @@ namespace FishUI.Controls
         /// Minimum allowed value.
         /// </summary>
         [YamlMember]
-        public float MinValue { get; set; } = 0f;
+        public float MinValue { get => _minimum; set { if (NumericRange.ReadingLayout) _minimum = NumericRange.Finite(value); else SetRange(value, _maximum); } }
+        private float _minimum;
 
         /// <summary>
         /// Maximum allowed value.
         /// </summary>
         [YamlMember]
-        public float MaxValue { get; set; } = 100f;
+        public float MaxValue { get => _maximum; set { if (NumericRange.ReadingLayout) _maximum = NumericRange.Finite(value); else SetRange(_minimum, value); } }
+        private float _maximum = 100;
+        public void SetRange(float minimum, float maximum)
+        {
+            NumericRange.Validate(minimum, maximum);
+            _minimum = minimum;
+            _maximum = maximum;
+            Value = _value;
+        }
 
         /// <summary>
         /// Step increment for up/down buttons and arrow keys.
         /// </summary>
         [YamlMember]
-        public float Step { get; set; } = 1f;
+        public float Step { get => _step; set => _step = NumericRange.NonNegative(value); }
+        private float _step = 1;
 
         /// <summary>
         /// Number of decimal places to display.
@@ -91,8 +101,7 @@ namespace FishUI.Controls
 
         public NumericUpDown(float value, float minValue = 0f, float maxValue = 100f, float step = 1f) : this()
         {
-            MinValue = minValue;
-            MaxValue = maxValue;
+            SetRange(minValue, maxValue);
             Step = step;
             Value = value;
         }
@@ -112,7 +121,7 @@ namespace FishUI.Controls
 
         private void OnTextboxTextChanged(Textbox sender, string text)
         {
-            bool valid = float.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out float parsed);
+            bool valid = float.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out float parsed) && float.IsFinite(parsed);
             RecordDiagnosticTransition("parseValid", _diagnosticParseValid, valid);
             _diagnosticParseValid = valid;
             if (valid)

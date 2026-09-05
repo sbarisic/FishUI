@@ -1,6 +1,8 @@
 ﻿# FishUI
 
-A dependency-free, immediate-mode-inspired GUI library for .NET applications with backend-agnostic rendering.
+Current source contracts and migration notes: [Unicode, layout, and update hardening](docs/HARDENING.md).
+
+A backend-independent, retained-control GUI library for .NET applications with backend-agnostic rendering.
 
 [![.NET 9.0](https://img.shields.io/badge/.NET-9.0-purple.svg)](https://dotnet.microsoft.com/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -37,7 +39,7 @@ FishUI is a flexible GUI framework that separates UI logic from rendering, allow
 
 **Key Principles:**
 - **Backend Agnostic**: Implement your own graphics and input handlers via simple interfaces
-- **Dependency Free**: Core library has no external dependencies except YamlDotNet for serialization
+- **Small Core**: YamlDotNet supplies theme and layout serialization
 - **Game-Ready**: Designed for real-time applications with features like virtual cursor support
 - **Themeable**: YAML-based theme system with atlas/9-slice support
 

@@ -8,6 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\FishUI\NumericRange.cs" Link="NumericRange.cs" />
+    <Compile Include="..\FishUI\TextElements.cs" Link="TextElements.cs" />
     <Compile Include="..\FishUI\Controls\AnimatedImageBox.cs" Link="Controls\AnimatedImageBox.cs" />
     <Compile Include="..\FishUI\Controls\BarGauge.cs" Link="Controls\BarGauge.cs" />
     <Compile Include="..\FishUI\Controls\Base\Control.Anchoring.cs" Link="Controls\Base\Control.Anchoring.cs" />

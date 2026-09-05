@@ -1,5 +1,7 @@
 # Implementing a Custom Graphics Backend for FishUI
 
+See [Unicode, layout, and update hardening](HARDENING.md) for the current Rune input, numeric-range, catch-up, and text-metrics contracts.
+
 This guide explains how to create a custom graphics backend for FishUI. FishUI is designed to be renderer-agnostic, allowing you to use it with any graphics library (Raylib, MonoGame, SDL, OpenGL, etc.).
 
 ## Table of Contents
@@ -412,5 +414,5 @@ The FishUI theme uses a texture atlas. Make sure your image drawing correctly ha
 
 - [IFishUIGfx.cs](../FishUI/IFishUIGfx.cs) - Full interface definition
 - [SimpleFishUIGfx.cs](../FishUI/SimpleFishUIGfx.cs) - Base class with defaults
-- [RaylibGfx2.cs](../FishUISample/RaylibGfx2.cs) - Complete Raylib example
-- [RaylibInput.cs](../RaylibFishGfx/RaylibInput.cs) - Raylib input example
+- [RaylibFishGfx.cs](../RaylibFishUI/RaylibFishGfx.cs) - Complete Raylib example
+- [RaylibInput.cs](../RaylibFishUI/RaylibInput.cs) - Raylib input example

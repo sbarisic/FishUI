@@ -10,6 +10,9 @@ namespace FishUI
     /// </summary>
     public interface IFishUIGfx
     {
+        bool TryMeasureTextAdvances(FontRef font, string text, Span<float> advances, Span<float> leading) => false;
+        long GetTextMetricsVersion(FontRef font) => 0;
+
         /// <summary>
         /// Initializes the graphics backend.
         /// </summary>

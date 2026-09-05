@@ -195,6 +195,8 @@ namespace FishUI
         public ImageRef LoadImage(string FileName, int X, int Y, int W, int H) { _recorder.Record(FishUIGraphicsCallCategory.Resource, "LoadImageRegion", new FishUIDebugRect(X, Y, W, H), FileName); return _inner.LoadImage(FileName, X, Y, W, H); }
         public ImageRef LoadImage(ImageRef Orig, int X, int Y, int W, int H) { _recorder.Record(FishUIGraphicsCallCategory.Resource, "LoadImageRegion", new FishUIDebugRect(X, Y, W, H), Orig?.Path); return _inner.LoadImage(Orig, X, Y, W, H); }
         public FishColor GetImageColor(ImageRef Img, Vector2 Pos) { _recorder.Record(FishUIGraphicsCallCategory.Measurement, "GetImageColor", new FishUIDebugRect(Pos.X, Pos.Y, 1, 1), Img?.Path); return _inner.GetImageColor(Img, Pos); }
+        public bool TryMeasureTextAdvances(FontRef font, string text, Span<float> advances, Span<float> leading) => _inner.TryMeasureTextAdvances(font, text, advances, leading);
+        public long GetTextMetricsVersion(FontRef font) => _inner.GetTextMetricsVersion(font);
         public Vector2 MeasureText(FontRef Fn, string Text) { _recorder.Record(FishUIGraphicsCallCategory.Measurement, "MeasureText", asset: Fn?.Path, text: Text); return _inner.MeasureText(Fn, Text); }
         public FishUIFontMetrics GetFontMetrics(FontRef Fn) { _recorder.Record(FishUIGraphicsCallCategory.Measurement, "GetFontMetrics", asset: Fn?.Path); return _inner.GetFontMetrics(Fn); }
         public void DrawLine(Vector2 Pos1, Vector2 Pos2, float Thick, FishColor Clr) { _recorder.Record(FishUIGraphicsCallCategory.Rendering, "DrawLine", Bounds(Pos1, Pos2, Thick)); _inner.DrawLine(Pos1, Pos2, Thick, Clr); }

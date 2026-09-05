@@ -37,6 +37,11 @@ namespace UnitTest.Mocks
         public ImageRef LoadImage(ImageRef Orig, int X, int Y, int W, int H) => new ImageRef(Orig.Path, W, H);
 
         public FishColor GetImageColor(ImageRef Img, Vector2 Pos) => FishColor.White;
+        public bool TryMeasureTextAdvances(FontRef font, string text, Span<float> advances, Span<float> leading)
+        {
+            for (int i = 0; i <= text.Length; i++) { advances[i] = i * 8; leading[i] = 0; }
+            return true;
+        }
         public Vector2 MeasureText(FontRef Fn, string Text) => new Vector2(Text?.Length * 8 ?? 0, 16);
         public FishUIFontMetrics GetFontMetrics(FontRef Fn) => new FishUIFontMetrics { LineHeight = 16, Ascent = 12, Descent = 4, Baseline = 12 };
 

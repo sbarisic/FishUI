@@ -9,13 +9,13 @@
 
 ### Code Style
 - Avoid PowerShell commands - they get stuck; use tools and file operations instead
-- Maintain "dependency-free" philosophy - keep core library minimal
-- Backend implementations should remain in separate sample projects
+- Keep the core library small; YamlDotNet provides serialization
+- Backend implementations belong in separate adapter projects
 - Breaking backwards compatibility is acceptable if it simplifies or improves the project
 
 ### Project Structure
-- FishUI: Core library (no external dependencies)
+- FishUI: Core library with YamlDotNet serialization
 - FishUIDemos: Sample applications with Raylib backend
 - FishUIEditor: Visual layout editor for designing interfaces
-- Theme files: CEGUI files in `data/cegui_theme/` for atlas coordinates reference
+- Theme files: YAML in `FishUI/data/themes/`; atlas regions are defined in FishUISettings
 - GWEN skin atlas (gwen.png): 512x512 pixels of UI elements

@@ -54,9 +54,9 @@ namespace FishUI.Controls
             get => _text ?? "";
             set
             {
-                string newValue = value ?? "";
+                string newValue = TextElements.Normalize(value);
                 if (MaxLength > 0 && newValue.Length > MaxLength)
-                    newValue = newValue.Substring(0, MaxLength);
+                    newValue = TextElements.Truncate(newValue, MaxLength);
                 if (_text != newValue)
                 {
                     string oldValue = _text;
@@ -86,7 +86,7 @@ namespace FishUI.Controls
             get => _cursorPosition;
             set
             {
-                int newValue = Math.Clamp(value, 0, Text.Length);
+                int newValue = TextElements.Floor(Text, value);
                 if (_cursorPosition == newValue)
                     return;
 
@@ -197,7 +197,7 @@ namespace FishUI.Controls
             int end = SelectionStart + SelectionLength;
             if (start > end)
                 (start, end) = (end, start);
-            return (Math.Max(0, start), Math.Min(Text.Length, end));
+            return (TextElements.Floor(Text, start), TextElements.Ceiling(Text, Math.Clamp(end, 0, Text.Length)));
         }
 
         /// <summary>
@@ -259,6 +259,7 @@ namespace FishUI.Controls
         /// </summary>
         public void Paste(string text)
         {
+            text = TextElements.Normalize(text);
             if (ReadOnly || string.IsNullOrEmpty(text))
                 return;
 
@@ -273,7 +274,7 @@ namespace FishUI.Controls
                 if (availableSpace <= 0)
                     return;
                 if (text.Length > availableSpace)
-                    text = text.Substring(0, availableSpace);
+                    text = TextElements.Truncate(text, availableSpace);
             }
 
             // Insert text at cursor position
@@ -335,7 +336,7 @@ namespace FishUI.Controls
                     // Check if we're closer to this position or the previous one
                     if (i > 0)
                     {
-                        string prevSubstring = displayText.Substring(0, i - 1);
+                        string prevSubstring = displayText.Substring(0, TextElements.Previous(displayText, i));
                         float prevCharX = textStartX + UI.Graphics.MeasureText(viewport.Font, prevSubstring).X;
                         if (mouseX - prevCharX < charX - mouseX)
                             return i - 1;
@@ -524,7 +525,7 @@ namespace FishUI.Controls
             }
         }
 
-        public override void HandleTextInput(FishUI UI, FishInputState InState, char Chr)
+        public override void HandleTextInput(FishUI UI, FishInputState InState, Rune Chr)
         {
             if (UI.InputActiveControl != this)
                 return;
@@ -532,7 +533,7 @@ namespace FishUI.Controls
             // Handle Ctrl key combinations
             if (InState.CtrlDown)
             {
-                switch (char.ToLower(Chr))
+                switch (Rune.ToLowerInvariant(Chr).Value)
                 {
                     case 'a': // Select All
                         SelectAll();
@@ -565,7 +566,7 @@ namespace FishUI.Controls
             if (ReadOnly)
                 return;
 
-            if (Chr == '\b') // Backspace
+            if (Chr.Value == '\b') // Backspace
             {
                 if (HasSelection)
                 {
@@ -573,12 +574,13 @@ namespace FishUI.Controls
                 }
                 else if (CursorPosition > 0)
                 {
-                    _text = Text.Remove(CursorPosition - 1, 1);
-                    CursorPosition--;
+                    int previous = TextElements.Previous(Text, CursorPosition);
+                    _text = Text.Remove(previous, CursorPosition - previous);
+                    CursorPosition = previous;
                     OnTextChanged?.Invoke(this, _text);
                 }
             }
-            else if (Chr == 127) // Delete key (sometimes sent as 127)
+            else if (Chr.Value == 127) // Delete key (sometimes sent as 127)
             {
                 if (HasSelection)
                 {
@@ -586,23 +588,23 @@ namespace FishUI.Controls
                 }
                 else if (CursorPosition < Text.Length)
                 {
-                    _text = Text.Remove(CursorPosition, 1);
+                    _text = Text.Remove(CursorPosition, TextElements.Next(Text, CursorPosition) - CursorPosition);
                     OnTextChanged?.Invoke(this, _text);
                 }
             }
-            else if (!char.IsControl(Chr) || Chr == '\t')
+            else if (!Rune.IsControl(Chr) || Chr.Value == '\t')
             {
                 // Delete selection first if any
                 if (HasSelection)
                     DeleteSelection();
 
                 // Check max length
-                if (MaxLength > 0 && Text.Length >= MaxLength)
+                if (MaxLength > 0 && Text.Length + Chr.Utf16SequenceLength > MaxLength)
                     return;
 
                 // Insert character at cursor position
                 _text = Text.Insert(CursorPosition, Chr.ToString());
-                CursorPosition++;
+                CursorPosition += Chr.Utf16SequenceLength;
                 OnTextChanged?.Invoke(this, _text);
             }
         }
@@ -664,7 +666,7 @@ namespace FishUI.Controls
                             {
                                 SelectionStart = CursorPosition;
                             }
-                            CursorPosition--;
+                            CursorPosition = TextElements.Previous(Text, CursorPosition);
                             SelectionLength = CursorPosition - SelectionStart;
                         }
                         else
@@ -677,7 +679,7 @@ namespace FishUI.Controls
                             }
                             else
                             {
-                                CursorPosition--;
+                                CursorPosition = TextElements.Previous(Text, CursorPosition);
                             }
                         }
                     }
@@ -692,7 +694,7 @@ namespace FishUI.Controls
                             {
                                 SelectionStart = CursorPosition;
                             }
-                            CursorPosition++;
+                            CursorPosition = TextElements.Next(Text, CursorPosition);
                             SelectionLength = CursorPosition - SelectionStart;
                         }
                         else
@@ -705,7 +707,7 @@ namespace FishUI.Controls
                             }
                             else
                             {
-                                CursorPosition++;
+                                CursorPosition = TextElements.Next(Text, CursorPosition);
                             }
                         }
                     }
@@ -751,7 +753,7 @@ namespace FishUI.Controls
                         }
                         else if (CursorPosition < Text.Length)
                         {
-                            _text = Text.Remove(CursorPosition, 1);
+                            _text = Text.Remove(CursorPosition, TextElements.Next(Text, CursorPosition) - CursorPosition);
                             OnTextChanged?.Invoke(this, _text);
                         }
                     }

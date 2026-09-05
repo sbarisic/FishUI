@@ -653,10 +653,10 @@ namespace FishUI.Controls
             }
         }
 
-        public override void HandleTextInput(FishUI UI, FishInputState InState, char Character)
+        public override void HandleTextInput(FishUI UI, FishInputState InState, Rune Character)
         {
             // Handle text input for search when dropdown is open and searchable
-            if (IsOpen && Searchable && !char.IsControl(Character))
+            if (IsOpen && Searchable && !Rune.IsControl(Character))
             {
                 int oldLength = SearchText.Length;
                 int oldFilteredCount = FilteredIndices.Count;

@@ -1,5 +1,7 @@
 # FishUI 2.0 codebase audit
 
+This is the historical FishUI 2.0 audit. See [current hardening contracts](HARDENING.md) for subsequent fixes and validation.
+
 Baseline: `982a71297434a34157368f9e1ad8065bc4711c62`.
 
 The baseline built successfully and passed 183 tests. Its measured coverage was 39.8% line and 33.1% branch. The 2.0 revision addresses the confirmed runtime defects found during that audit:
@@ -20,4 +22,4 @@ The final automated run passed 223 tests and measured 60.91% line coverage and 4
 
 The Raylib diagnostic sample completed 30-frame runs with both host-owned and backend-owned Raylib frames. Each run produced a complete five-file bundle with an available screenshot and overlay, 1280 by 720 coordinate and framebuffer dimensions, unit X/Y scale, and no diagnostic warnings. This validates capture orientation and resource shutdown at the current desktop scale.
 
-The baseline coverage artifact was generated under `.audit-results`. The directory is intentionally not shipped; this document preserves its result. CI enforces 55% line and 45% branch floors on Windows and Linux and uploads each Cobertura report. Physical high-DPI framebuffer behavior still requires manual runtime checks at 125% and 200% display scaling because CI does not emulate those display modes.
+The baseline coverage artifact was generated under `.audit-results`. The directory is intentionally not shipped; this document preserves its result. The former CI workflow enforced 55% line and 45% branch floors on Windows and Linux. That workflow was subsequently removed; these historical figures are not current enforcement or coverage results. Physical high-DPI framebuffer behavior still requires manual runtime checks at 125% and 200% display scaling because CI does not emulate those display modes.

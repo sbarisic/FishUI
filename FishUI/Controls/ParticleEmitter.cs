@@ -203,7 +203,7 @@ namespace FishUI.Controls
     {
         private readonly List<Particle> _particles = new List<Particle>();
         private readonly Random _random = new Random();
-        private float _emitAccumulator;
+        private double _emitAccumulator;
 
         /// <summary>
         /// Gets or sets the particle configuration.
@@ -233,7 +233,8 @@ namespace FishUI.Controls
         /// <summary>
         /// Gets or sets the emission rate (particles per second). Set to 0 for manual burst emission.
         /// </summary>
-        public float EmissionRate { get; set; } = 10f;
+        public float EmissionRate { get => _emissionRate; set => _emissionRate = NumericRange.NonNegative(value); }
+        private float _emissionRate = 10;
 
         /// <summary>
         /// Gets or sets whether the emitter is actively emitting particles.
@@ -253,7 +254,17 @@ namespace FishUI.Controls
         /// <summary>
         /// Gets or sets the maximum number of particles. Older particles are removed when exceeded.
         /// </summary>
-        public int MaxParticles { get; set; } = 500;
+        public int MaxParticles
+        {
+            get => _maximumParticles;
+            set
+            {
+                if (value < 0) throw new ArgumentOutOfRangeException(nameof(value));
+                _maximumParticles = value;
+                if (_particles.Count > value) _particles.RemoveRange(0, _particles.Count - value);
+            }
+        }
+        private int _maximumParticles = 500;
 
         /// <summary>
         /// Gets the current number of active particles.
@@ -274,7 +285,11 @@ namespace FishUI.Controls
         /// <param name="count">Number of particles to emit.</param>
         public void Burst(int count)
         {
+            if (count < 0) throw new ArgumentOutOfRangeException(nameof(count));
+            count = Math.Min(count, MaxParticles);
             int before = _particles.Count;
+            int remove = Math.Max(0, _particles.Count - (MaxParticles - count));
+            if (remove > 0) _particles.RemoveRange(0, remove);
             for (int i = 0; i < count; i++)
             {
                 EmitParticle();
@@ -297,6 +312,7 @@ namespace FishUI.Controls
         /// </summary>
         public void EmitAt(Vector2 localPosition)
         {
+            if (MaxParticles == 0) return;
             if (_particles.Count >= MaxParticles)
             {
                 // Remove oldest particle
@@ -310,6 +326,7 @@ namespace FishUI.Controls
 
         private void EmitParticle()
         {
+            if (MaxParticles == 0) return;
             if (_particles.Count >= MaxParticles)
             {
                 _particles.RemoveAt(0);
@@ -385,12 +402,10 @@ namespace FishUI.Controls
             if (IsEmitting && EmissionRate > 0)
             {
                 _emitAccumulator += delta;
-                float emitInterval = 1f / EmissionRate;
-                while (_emitAccumulator >= emitInterval)
-                {
-                    _emitAccumulator -= emitInterval;
-                    EmitParticle();
-                }
+                double emitInterval = 1.0 / EmissionRate;
+                double due = Math.Floor(_emitAccumulator / emitInterval);
+                _emitAccumulator %= emitInterval;
+                if (due > 0) Burst((int)Math.Min(due, MaxParticles));
             }
 
             for (int i = _particles.Count - 1; i >= 0; i--)

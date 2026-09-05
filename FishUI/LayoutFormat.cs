@@ -46,7 +46,14 @@ namespace FishUI
             foreach (KeyValuePair<string, Type> mapping in effective.TypeRegistry.Mappings)
                 builder = builder.WithTagMapping(mapping.Key, mapping.Value);
 
-            List<object> values = builder.Build().Deserialize<List<object>>(data) ?? new List<object>();
+            List<object> values;
+            bool previousReading = NumericRange.ReadingLayout;
+            try
+            {
+                NumericRange.ReadingLayout = true;
+                values = builder.Build().Deserialize<List<object>>(data) ?? new List<object>();
+            }
+            finally { NumericRange.ReadingLayout = previousReading; }
             List<Control> controls = new List<Control>(values.Count);
             for (int i = 0; i < values.Count; i++)
             {
@@ -55,7 +62,7 @@ namespace FishUI
                 controls.Add(control);
             }
             ValidateGraph(controls, effective);
-            for (int i = 0; i < controls.Count; i++) LinkParents(controls[i]);
+            for (int i = 0; i < controls.Count; i++) { LinkParents(controls[i]); ValidateRanges(controls[i]); }
             return controls;
         }
 
@@ -82,6 +89,12 @@ namespace FishUI
             }
 
             for (int i = original.Length - 1; i >= 0; i--) ui.RemoveControl(original[i]);
+        }
+
+        private static void ValidateRanges(Control control)
+        {
+            if (control is IFishUINumericRange range) range.SetRange(range.MinValue, range.MaxValue);
+            foreach (Control child in control.Children) ValidateRanges(child);
         }
 
         private static SerializerBuilder ConfigureSerializer(SerializerBuilder builder, FishUILayoutSerializationOptions options)

@@ -1,5 +1,7 @@
 # FishUI 2.0 runtime contracts
 
+See [Unicode, layout, and update hardening](HARDENING.md) for the current Rune input, numeric-range, catch-up, and text-metrics contracts.
+
 ## Lifecycle
 
 A FishUI instance starts in the `Created` state. Call `Init()` before frame processing. A successful `Init()` call is idempotent. An initialization failure leaves the instance in `Created`, so the application can retry.

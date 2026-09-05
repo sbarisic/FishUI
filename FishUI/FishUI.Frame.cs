@@ -33,6 +33,8 @@ namespace FishUI
         /// <param name="Time">The current time, in seconds, used for time-dependent calculations and animations.</param>
         public void TickUpdate(float Dt, float Time)
         {
+            if (!float.IsFinite(Dt) || !float.IsFinite(Time))
+                throw new ArgumentOutOfRangeException(nameof(Dt), "Frame values must be finite.");
             EnsureInitialized();
             InvalidateNonInteractiveState();
             int rootCount = Controls.Count;
@@ -253,6 +255,8 @@ namespace FishUI
         /// <param name="Time">The current time, in seconds, used to determine the state of controls during the draw operation.</param>
         public void TickDraw(float Dt, float Time)
         {
+            if (!float.IsFinite(Dt) || !float.IsFinite(Time))
+                throw new ArgumentOutOfRangeException(nameof(Dt), "Frame values must be finite.");
             EnsureInitialized();
             if (!_framePrepared)
                 throw new InvalidOperationException("FishUI.TickUpdate() must prepare a frame before FishUI.TickDraw().");

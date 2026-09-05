@@ -86,7 +86,7 @@ namespace FishUI.Controls
                 return _owner.PreviewCommandKey(ui, input, key);
             }
 
-            public bool ShouldAcceptTextInput(FishUI ui, FishInputState input, char character)
+            public bool ShouldAcceptTextInput(FishUI ui, FishInputState input, Rune character)
             {
                 return _owner.ShouldAcceptTextInput(character);
             }
@@ -673,7 +673,7 @@ namespace FishUI.Controls
             _discardDeferredToggleCharacter = opening && IsOpen && ToggleKey == FishKey.Grave;
         }
 
-        private bool ShouldAcceptTextInput(char character)
+        private bool ShouldAcceptTextInput(Rune character)
         {
             if (!_discardDeferredToggleCharacter)
                 return true;
@@ -682,11 +682,11 @@ namespace FishUI.Controls
             return !IsDeferredGraveKeyCharacter(character);
         }
 
-        private static bool IsDeferredGraveKeyCharacter(char character)
+        private static bool IsDeferredGraveKeyCharacter(Rune character)
         {
             // Grave is a dead key on several keyboard layouts. Some backends defer its
             // generated character until the next physical key resolves the composition.
-            switch (character)
+            switch (character.Value)
             {
                 case '`':
                 case '~':

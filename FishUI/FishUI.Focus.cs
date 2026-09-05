@@ -60,9 +60,10 @@ namespace FishUI
         /// </summary>
         List<Control> GetFocusableControls()
         {
+            FreezeFrameHierarchy();
             List<Control> focusable = new List<Control>();
             CollectFocusableControls(OrderedControls, focusable);
-            focusable.Sort(CompareTabOrder);
+            focusable = focusable.OrderBy(control => control.TabIndex).ToList();
             return focusable;
         }
 

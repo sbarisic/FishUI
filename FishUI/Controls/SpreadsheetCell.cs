@@ -1,3 +1,4 @@
+using System.Text;
 using System;
 using System.Numerics;
 using YamlDotNet.Serialization;
@@ -188,12 +189,12 @@ namespace FishUI.Controls
             }
         }
 
-        public override void HandleTextInput(FishUI UI, FishInputState InState, char Character)
+        public override void HandleTextInput(FishUI UI, FishInputState InState, Rune Character)
         {
             if (!_isEditing)
                 return;
 
-            if (!char.IsControl(Character))
+            if (!Rune.IsControl(Character))
             {
                 _editValue = _editValue.Insert(_cursorPos, Character.ToString());
                 _cursorPos++;

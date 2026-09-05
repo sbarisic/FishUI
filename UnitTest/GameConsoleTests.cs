@@ -15,7 +15,7 @@ namespace UnitTest
             public PreviewControl() => Focusable = true;
             public override bool PreviewKeyPress(FishUI.FishUI ui, FishInputState input, FishKey key) => Consume;
             public override void HandleKeyPress(FishUI.FishUI ui, FishInputState input, FishKey key) => KeyPresses++;
-            public override void HandleTextInput(FishUI.FishUI ui, FishInputState input, char character) => Text += character;
+            public override void HandleTextInput(FishUI.FishUI ui, FishInputState input, System.Text.Rune character) => Text += character;
         }
 
         private sealed class LifecycleControl : Control

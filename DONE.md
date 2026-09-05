@@ -1,5 +1,11 @@
 # FishUI - Completed Items
 
+## September 2026 correctness fixes
+
+Rune input, grapheme-safe textbox/multiline editing, stable tab ties, prepared label positions, atomic numeric ranges, bounded animation/particle catch-up, and cached wrapping are covered by runtime regression tests. See [contracts and validation](docs/HARDENING.md).
+
+The control and editor milestones below are historical accomplishments, not a new acceptance checklist.
+
 Consolidated list of completed features, improvements, and controls.
 
 ---

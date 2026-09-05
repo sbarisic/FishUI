@@ -1,5 +1,7 @@
 # RaylibFishGfx
 
+See [current source migration notes](docs/HARDENING.md) for Rune input and the optional text-metrics backend contract. Package examples do not imply that this source revision has been published to NuGet.
+
 Raylib graphics and input backend for [FishUI](https://www.nuget.org/packages/FishUI). Provides a complete, production-ready implementation using [Raylib-cs](https://www.nuget.org/packages/Raylib-cs).
 
 [![.NET 9.0](https://img.shields.io/badge/.NET-9.0-purple.svg)](https://dotnet.microsoft.com/)

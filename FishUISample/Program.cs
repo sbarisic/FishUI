@@ -15,6 +15,14 @@ namespace FishUISample
         static bool ScreenshotMade = false;
         static int Ctr = 10;
 
+        static string CapturePath(string fileName)
+        {
+            string root = Environment.GetEnvironmentVariable("FISHUI_CAPTURE_ROOT");
+            if (!string.IsNullOrWhiteSpace(root) && !Path.IsPathFullyQualified(root))
+                throw new ArgumentException("FISHUI_CAPTURE_ROOT must be an absolute path.");
+            return Path.Combine(root ?? "../../../../screenshots", fileName);
+        }
+
 
         /// <summary>
         /// Takes a screenshot and saves it to the screenshots folder.
@@ -28,7 +36,7 @@ namespace FishUISample
             }
 
             DateTime Now = DateTime.Now;
-            string FName = $"../../../../screenshots/{Title}_{Now.ToString("ddMMyyyy_HHmmss")}.png";
+            string FName = CapturePath($"{Title}_{Now:ddMMyyyy_HHmmss}.png");
 
             ScreenCapture.Queue(FName);
         }
@@ -48,7 +56,7 @@ namespace FishUISample
                 ScreenshotMade = true;
 
                 DateTime Now = DateTime.Now;
-                string FName = $"../../../../screenshots/ss_{Now.ToString("ddMMyyyy_HHmmss")}.png";
+                string FName = CapturePath($"ss_{Now:ddMMyyyy_HHmmss}.png");
 
                 ScreenCapture.Queue(FName);
             }

@@ -1,6 +1,8 @@
 # FishUI
 
-A dependency-free, immediate-mode-inspired GUI library for .NET applications with backend-agnostic rendering.
+Current source contracts and migration notes: [Unicode, layout, and update hardening](docs/HARDENING.md).
+
+A backend-independent, retained-control GUI library for .NET applications with backend-agnostic rendering.
 
 [![.NET 9.0](https://img.shields.io/badge/.NET-9.0-purple.svg)](https://dotnet.microsoft.com/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/sbarisic/FishUI/blob/master/LICENSE)

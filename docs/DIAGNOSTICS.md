@@ -1,5 +1,7 @@
 # Diagnostic snapshots
 
+See [Unicode, layout, and update hardening](HARDENING.md) for the current Rune input, numeric-range, catch-up, and text-metrics contracts.
+
 FishUI diagnostics record structured input, hierarchy, hit-test, layout, and rendering information for one `FishUI` instance. Image capture is optional. A graphics backend supports images only when it implements `IFishUIFramebufferProvider`.
 
 ## Enable recording and request a capture

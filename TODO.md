@@ -1,5 +1,10 @@
 ﻿# FishUI - TODO
 
+## Text and rendering follow-ups
+
+- [ ] Complex text shaping, bidirectional layout, and IME composition.
+- [ ] Validate physical high-DPI behavior at 125% and 200%, and run the runtime suites on Linux.
+
 A list of planned features, improvements, and new controls for FishUI.
 
 > **CPX (Complexity Points)** - 1 to 5 scale:
@@ -91,7 +96,7 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 
 ## Unit Testing **MEDIUM PRIORITY**
 
-*All unit tests completed - 78 tests covering core functionality*
+The original 78-test milestone is historical. Current regression commands and scope are recorded in [hardening notes](docs/HARDENING.md).
 
 > Note: Tests located in UnitTest project with mock implementations for all core interfaces
 
@@ -115,7 +120,7 @@ A visual layout editor for designing FishUI interfaces. Located in the `FishUIEd
 
 - Try to edit files and use tools WITHOUT POWERSHELL where possible, shell scripts get stuck and then manually terminate
 - Prioritize controls that are commonly needed in game development
-- Maintain the "dependency-free" philosophy - keep the core library minimal
+- Keep the core library small; YamlDotNet remains the serialization dependency
 - Backend implementations should remain in separate sample projects
 - Do not be afraid to break backwards compatibility if new changes will simplify or improve the project
 - CEGUI theme files in `data/cegui_theme/` provide reference for accurate atlas coordinates

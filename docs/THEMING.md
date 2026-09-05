@@ -408,7 +408,7 @@ See `FishUIDemos/Samples/SampleThemeSwitcher.cs` for a complete example of runti
 
 ### Reference Atlas
 
-The included `gwen.png` atlas (512x512) provides a complete set of control graphics. Use the CEGUI reference files in `data/cegui_theme/` for exact coordinates:
+The included `gwen.png` atlas (512x512) provides a complete set of control graphics. Use the checked-in theme YAML under `FishUI/data/themes/` and the atlas regions in FishUISettings for current coordinates:
 - `GWEN.imageset.xml` - Region coordinates
 - `GWEN.looknfeel.xml` - Control styling reference
 
@@ -571,4 +571,4 @@ regions:
 - [docs/CUSTOM_CONTROLS.md](CUSTOM_CONTROLS.md) - Custom control creation with theme support
 - [FishUIDemos/Samples/SampleThemeSwitcher.cs](../FishUIDemos/Samples/SampleThemeSwitcher.cs) - Runtime theme switching example
 - [data/themes/gwen.yaml](../FishUI/data/themes/gwen.yaml) - Complete reference theme
-- [data/cegui_theme/](../FishUI/data/cegui_theme/) - CEGUI reference files for atlas coordinates
+- [Theme definitions](../FishUI/data/themes/) - Current YAML theme definitions

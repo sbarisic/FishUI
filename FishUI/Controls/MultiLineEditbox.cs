@@ -1,3 +1,4 @@
+using System.Linq;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
@@ -102,6 +103,8 @@ namespace FishUI.Controls
         private Vector2 _cachedLayoutSize;
         private FontRef _cachedLayoutFont;
         private float _cachedLayoutScale = -1f;
+        private float _cachedFontSize, _cachedFontSpacing;
+        private long _cachedMetricsVersion;
 
         /// <summary>
         /// Gets or sets the full text content with line breaks.
@@ -112,7 +115,7 @@ namespace FishUI.Controls
             get => string.Join("\n", _lines);
             set
             {
-                string newValue = value ?? "";
+                string newValue = TextElements.Normalize(value);
                 _lines = new List<string>(newValue.Split('\n'));
                 if (_lines.Count == 0)
                     _lines.Add("");
@@ -157,7 +160,7 @@ namespace FishUI.Controls
             get => _cursorColumn;
             set
             {
-                int newValue = Math.Max(0, value);
+                int newValue = TextElements.Floor(_lines[Math.Clamp(CursorRow, 0, _lines.Count - 1)], value);
                 if (_cursorColumn == newValue)
                     return;
 
@@ -493,7 +496,7 @@ namespace FishUI.Controls
             float scale = ui?.Settings?.UIScale ?? 1f;
             bool geometryChanged = _viewportLayout != null &&
                 (_cachedLayoutSize != scaledSize || !ReferenceEquals(_cachedLayoutFont, font) ||
-                 Math.Abs(_cachedLayoutScale - scale) > LayoutEpsilon);
+                 Math.Abs(_cachedLayoutScale - scale) > LayoutEpsilon || _cachedFontSize != (font?.Size ?? 0) || _cachedFontSpacing != (font?.Spacing ?? 0) || _cachedMetricsVersion != (ui?.Graphics.GetTextMetricsVersion(font) ?? 0));
             bool revealAfterRebuild = geometryChanged && IsCaretVisible(_viewportLayout);
 
             if (!_layoutDirty && !geometryChanged && _viewportLayout != null)
@@ -572,6 +575,8 @@ namespace FishUI.Controls
             _cachedLayoutSize = scaledSize;
             _cachedLayoutFont = font;
             _cachedLayoutScale = scale;
+            _cachedFontSize = font?.Size ?? 0; _cachedFontSpacing = font?.Spacing ?? 0;
+            _cachedMetricsVersion = (ui?.Graphics.GetTextMetricsVersion(font) ?? 0);
             _layoutDirty = false;
             _scrollOffsetPixels = Math.Clamp(_scrollOffsetPixels, 0, _viewportLayout.MaxVerticalOffset);
             _horizontalScrollOffsetPixels = Math.Clamp(_horizontalScrollOffsetPixels, 0, _viewportLayout.MaxHorizontalOffset);
@@ -621,21 +626,29 @@ namespace FishUI.Controls
                     continue;
                 }
 
+                int[] boundaries = System.Globalization.StringInfo.ParseCombiningCharacters(line).Append(line.Length).ToArray();
+                float[] advances = new float[line.Length + 1], leading = new float[line.Length + 1];
+                bool hasAdvances = ui.Graphics.TryMeasureTextAdvances(font, line, advances, leading);
+                bool monotonic = font.Spacing >= 0;
+                if (hasAdvances)
+                    for (int index = 1; index < boundaries.Length; index++)
+                        monotonic &= advances[boundaries[index]] >= advances[boundaries[index - 1]];
+                int boundaryIndex = 0;
                 int start = 0;
                 while (start < line.Length)
                 {
                     int remaining = line.Length - start;
-                    int fit = 0;
-                    for (int length = 1; length <= remaining; length++)
+                    int low = boundaryIndex + 1, high = boundaries.Length - 1, fitIndex = boundaryIndex;
+                    while (low <= high)
                     {
-                        float width = ui.Graphics.MeasureText(font, line.Substring(start, length)).X;
-                        if (width > availableWidth)
-                            break;
-                        fit = length;
+                        int middle = monotonic ? low + (high - low) / 2 : low;
+                        int end = boundaries[middle];
+                        float width = hasAdvances ? advances[end] - advances[start] - leading[start] : ui.Graphics.MeasureText(font, line.Substring(start, end - start)).X;
+                        if (width <= availableWidth) { fitIndex = middle; low = middle + 1; }
+                        else { if (!monotonic) break; high = middle - 1; }
                     }
-
-                    if (fit == 0)
-                        fit = 1;
+                    if (fitIndex == boundaryIndex) fitIndex++;
+                    int fit = boundaries[fitIndex] - start;
 
                     if (fit < remaining)
                     {
@@ -650,11 +663,12 @@ namespace FishUI.Controls
                         }
 
                         if (whitespaceBreak >= start)
-                            fit = whitespaceBreak - start + 1;
+                            fit = TextElements.Next(line, whitespaceBreak) - start;
                     }
 
                     result.Add(new VisualLine(row, start, fit));
                     start += fit;
+                    boundaryIndex = Array.BinarySearch(boundaries, start);
                 }
             }
 
@@ -742,8 +756,8 @@ namespace FishUI.Controls
             // Clamp to valid ranges
             startRow = Math.Clamp(startRow, 0, _lines.Count - 1);
             endRow = Math.Clamp(endRow, 0, _lines.Count - 1);
-            startCol = Math.Clamp(startCol, 0, _lines[startRow].Length);
-            endCol = Math.Clamp(endCol, 0, _lines[endRow].Length);
+            startCol = TextElements.Floor(_lines[startRow], startCol);
+            endCol = TextElements.Ceiling(_lines[endRow], Math.Clamp(endCol, 0, _lines[endRow].Length));
 
             return ((startRow, startCol), (endRow, endCol));
         }
@@ -837,6 +851,7 @@ namespace FishUI.Controls
         /// </summary>
         public void Paste(string text)
         {
+            text = TextElements.Normalize(text);
             if (ReadOnly || string.IsNullOrEmpty(text))
                 return;
 
@@ -1269,12 +1284,9 @@ namespace FishUI.Controls
         {
             if (HasFocus)
             {
-                _cursorBlinkTimer += deltaTime;
-                while (_cursorBlinkTimer >= 0.5f)
-                {
-                    _cursorBlinkTimer -= 0.5f;
-                    _cursorVisible = !_cursorVisible;
-                }
+                double elapsed = _cursorBlinkTimer + (double)Math.Max(0, deltaTime);
+                if (Math.Floor(elapsed / .5) % 2 == 1) _cursorVisible = !_cursorVisible;
+                _cursorBlinkTimer = (float)(elapsed % .5);
             }
             else
             {
@@ -1598,14 +1610,14 @@ namespace FishUI.Controls
             EnsureCursorVisible();
         }
 
-        public override void HandleTextInput(FishUI UI, FishInputState InState, char Chr)
+        public override void HandleTextInput(FishUI UI, FishInputState InState, Rune Chr)
         {
             base.HandleTextInput(UI, InState, Chr);
 
             // Handle Ctrl key combinations
             if (InState.CtrlDown)
             {
-                switch (char.ToLower(Chr))
+                switch (Rune.ToLowerInvariant(Chr).Value)
                 {
                     case 'a': // Select All
                         SelectAll();
@@ -1639,7 +1651,7 @@ namespace FishUI.Controls
                 return;
 
             // Filter control characters
-            if (char.IsControl(Chr) && Chr != '\t')
+            if (Rune.IsControl(Chr) && Chr.Value != '\t')
                 return;
 
             // Delete selection first if any
@@ -1742,13 +1754,13 @@ namespace FishUI.Controls
                 int col = visual.StartColumn;
                 float accumulatedWidth = 0f;
 
-                for (int i = visual.StartColumn; i < visual.EndColumn; i++)
+                for (int i = visual.StartColumn; i < visual.EndColumn; i = TextElements.Next(line, i))
                 {
-                    float charWidth = UI.Graphics.MeasureText(layout.Font, line[i].ToString()).X;
+                    float charWidth = UI.Graphics.MeasureText(layout.Font, line.Substring(i, TextElements.Next(line, i) - i)).X;
                     if (accumulatedWidth + charWidth / 2 >= relativeX)
                         break;
                     accumulatedWidth += charWidth;
-                    col++;
+                    col = TextElements.Next(line, col);
                 }
                 CursorColumn = col;
             }
@@ -1762,7 +1774,7 @@ namespace FishUI.Controls
         {
             if (CursorColumn > 0)
             {
-                CursorColumn--;
+                CursorColumn = TextElements.Previous(_lines[CursorRow], CursorColumn);
             }
             else if (CursorRow > 0)
             {
@@ -1775,7 +1787,7 @@ namespace FishUI.Controls
         {
             if (CursorColumn < _lines[CursorRow].Length)
             {
-                CursorColumn++;
+                CursorColumn = TextElements.Next(_lines[CursorRow], CursorColumn);
             }
             else if (CursorRow < _lines.Count - 1)
             {
@@ -1804,6 +1816,7 @@ namespace FishUI.Controls
 
         private void InsertTextInternal(string text)
         {
+            text = TextElements.Normalize(text);
             string currentLine = _lines[CursorRow];
             _lines[CursorRow] = currentLine.Insert(CursorColumn, text);
             CursorColumn += text.Length;
@@ -1855,8 +1868,9 @@ namespace FishUI.Controls
             if (CursorColumn > 0)
             {
                 string line = _lines[CursorRow];
-                _lines[CursorRow] = line.Remove(CursorColumn - 1, 1);
-                CursorColumn--;
+                int previous = TextElements.Previous(line, CursorColumn);
+                _lines[CursorRow] = line.Remove(previous, CursorColumn - previous);
+                CursorColumn = previous;
             }
             else if (CursorRow > 0)
             {
@@ -1882,7 +1896,7 @@ namespace FishUI.Controls
             string line = _lines[CursorRow];
             if (CursorColumn < line.Length)
             {
-                _lines[CursorRow] = line.Remove(CursorColumn, 1);
+                _lines[CursorRow] = line.Remove(CursorColumn, TextElements.Next(line, CursorColumn) - CursorColumn);
             }
             else if (CursorRow < _lines.Count - 1)
             {

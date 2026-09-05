@@ -48,19 +48,28 @@ namespace FishUI.Controls
     /// A linear gauge control for displaying values with optional color zones and tick marks.
     /// Useful for temperature, fuel level, progress indicators, etc.
     /// </summary>
-    public partial class BarGauge : Control
+    public partial class BarGauge : Control, IFishUINumericRange
     {
         /// <summary>
         /// Minimum value of the gauge.
         /// </summary>
         [YamlMember]
-        public float MinValue { get; set; } = 0f;
+        public float MinValue { get => _minimum; set { if (NumericRange.ReadingLayout) _minimum = NumericRange.Finite(value); else SetRange(value, _maximum); } }
+        private float _minimum;
 
         /// <summary>
         /// Maximum value of the gauge.
         /// </summary>
         [YamlMember]
-        public float MaxValue { get; set; } = 100f;
+        public float MaxValue { get => _maximum; set { if (NumericRange.ReadingLayout) _maximum = NumericRange.Finite(value); else SetRange(_minimum, value); } }
+        private float _maximum = 100;
+        public void SetRange(float minimum, float maximum)
+        {
+            NumericRange.Validate(minimum, maximum);
+            _minimum = minimum;
+            _maximum = maximum;
+            Value = _value;
+        }
 
         /// <summary>
         /// Current value of the gauge.
@@ -69,7 +78,7 @@ namespace FishUI.Controls
         public float Value
         {
             get => _value;
-            set => _value = Math.Clamp(value, MinValue, MaxValue);
+            set => _value = NumericRange.ReadingLayout ? NumericRange.Finite(value) : Math.Clamp(NumericRange.Finite(value), MinValue, MaxValue);
         }
         private float _value = 0f;
 
@@ -191,8 +200,7 @@ namespace FishUI.Controls
         /// </summary>
         public BarGauge(float minValue, float maxValue) : this()
         {
-            MinValue = minValue;
-            MaxValue = maxValue;
+            SetRange(minValue, maxValue);
         }
 
         /// <summary>

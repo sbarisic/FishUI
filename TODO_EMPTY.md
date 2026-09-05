@@ -1,5 +1,7 @@
 # Project Name - TODO
 
+This file is a reusable backlog template. The live backlog is [TODO.md](TODO.md).
+
 A list of planned features, improvements, and tasks for this project.
 
 > **CPX (Complexity Points)** - 1 to 5 scale:

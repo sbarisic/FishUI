@@ -1,5 +1,7 @@
 # Creating Custom Controls in FishUI
 
+Custom text controls use [Rune input and grapheme-safe offsets](HARDENING.md). Keep layout changes in PrepareLayout and rendering in DrawControl.
+
 This guide explains how to create custom controls for FishUI. Whether you need a specialized widget or want to extend the library with new functionality, this document covers everything you need to know.
 
 ## Table of Contents
@@ -272,10 +274,10 @@ public override void HandleKeyRelease(FishUI.FishUI UI, FishInputState InState, 
 }
 
 // Called for text input (typed characters)
-public override void HandleTextInput(FishUI.FishUI UI, FishInputState InState, string Text)
+public override void HandleTextInput(FishUI.FishUI UI, FishInputState InState, System.Text.Rune character)
 {
-    base.HandleTextInput(UI, InState, Text);
-    // Text contains the typed character(s)
+    base.HandleTextInput(UI, InState, character);
+    // character is one Unicode scalar; character.ToString() preserves supplementary input.
 }
 ```
 

@@ -1,3 +1,4 @@
+using System.Text;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -943,13 +944,13 @@ namespace FishUI.Controls
             }
         }
 
-        public override void HandleTextInput(FishUI UI, FishInputState InState, char Character)
+        public override void HandleTextInput(FishUI UI, FishInputState InState, Rune Character)
         {
             int oldLength = _editValue?.Length ?? 0;
             if (!IsEditing)
             {
                 // Start editing on any printable character
-                if (!char.IsControl(Character))
+                if (!Rune.IsControl(Character))
                 {
                     BeginEdit();
                     _editValue = "";
@@ -959,7 +960,7 @@ namespace FishUI.Controls
                     return;
             }
 
-            if (!char.IsControl(Character))
+            if (!Rune.IsControl(Character))
             {
                 _editValue = _editValue.Insert(_cursorPos, Character.ToString());
                 _cursorPos++;

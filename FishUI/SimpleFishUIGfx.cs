@@ -203,6 +203,8 @@ namespace FishUI
         /// Measures text size. Must be overridden for text rendering.
         /// </summary>
         public abstract Vector2 MeasureText(FontRef Fn, string Text);
+        public virtual bool TryMeasureTextAdvances(FontRef font, string text, Span<float> advances, Span<float> leading) => false;
+        public virtual long GetTextMetricsVersion(FontRef font) => 0;
 
         /// <summary>
         /// Gets font metrics. Default implementation estimates from MeasureText.
