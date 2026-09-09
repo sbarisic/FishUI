@@ -413,9 +413,10 @@ namespace FishUI.Controls
                         }
                         Vector2 drawOffset = (size - drawSize) / 2;
 
-                        UI.Graphics.PushScissor(pos, size);
-                        UI.Graphics.DrawImage(image, pos + drawOffset, drawSize, 0f, 1f, drawColor);
-                        UI.Graphics.PopScissor();
+                        using (UI.Graphics.PushScissorScope(pos, size))
+                        {
+                            UI.Graphics.DrawImage(image, pos + drawOffset, drawSize, 0f, 1f, drawColor);
+                        }
                     }
                     break;
             }

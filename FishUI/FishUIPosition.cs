@@ -28,10 +28,11 @@ namespace FishUI
     [Flags]
     public enum DockMode
     {
-        Left,
-        Top,
-        Right,
-        Bottom,
+        None = 0,
+        Left = 1,
+        Top = 2,
+        Right = 4,
+        Bottom = 8,
 
         Horizontal = Left | Right,
         Vertical = Top | Bottom,

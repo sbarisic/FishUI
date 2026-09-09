@@ -1,5 +1,7 @@
 # Unicode, layout, and update hardening
 
+The subsequent [codebase revision](REVISION_2026_09_09.md) records further fixes, validation, and the `DockMode` numeric compatibility change.
+
 This revision fixes the September 2026 audit findings. It retains the .NET 9 runtime, backend ownership, YAML control tags, and update/draw split. It does not restore the removed GitHub Actions workflow.
 
 ## Input and editing

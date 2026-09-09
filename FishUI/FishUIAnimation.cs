@@ -205,10 +205,7 @@ namespace FishUI
         public void Update(float dt)
         {
             ElapsedTime += dt;
-            ApplyValue?.Invoke(CurrentValue);
-
-            if (IsComplete)
-                ApplyValue?.Invoke(EndValue);
+            ApplyValue?.Invoke(IsComplete ? EndValue : CurrentValue);
         }
     }
 
@@ -246,10 +243,7 @@ namespace FishUI
         public void Update(float dt)
         {
             ElapsedTime += dt;
-            ApplyValue?.Invoke(CurrentValue);
-
-            if (IsComplete)
-                ApplyValue?.Invoke(EndValue);
+            ApplyValue?.Invoke(IsComplete ? EndValue : CurrentValue);
         }
     }
 
@@ -286,10 +280,7 @@ namespace FishUI
         public void Update(float dt)
         {
             ElapsedTime += dt;
-            ApplyValue?.Invoke(CurrentValue);
-
-            if (IsComplete)
-                ApplyValue?.Invoke(EndValue);
+            ApplyValue?.Invoke(IsComplete ? EndValue : CurrentValue);
         }
     }
 
@@ -407,52 +398,55 @@ namespace FishUI
         /// <param name="dt">Delta time in seconds.</param>
         public void Update(float dt)
         {
-            int floatCount = _floatAnimations.Count;
-            int vectorCount = _vector2Animations.Count;
-            int colorCount = _colorAnimations.Count;
-            UpdateFloatAnimations(dt, floatCount);
-            UpdateVectorAnimations(dt, vectorCount);
-            UpdateColorAnimations(dt, colorCount);
+            FishUIAnimation[] floats = _floatAnimations.ToArray();
+            FishUIAnimationVector2[] vectors = _vector2Animations.ToArray();
+            FishUIAnimationColor[] colors = _colorAnimations.ToArray();
+            UpdateFloatAnimations(dt, floats);
+            UpdateVectorAnimations(dt, vectors);
+            UpdateColorAnimations(dt, colors);
         }
 
-        private void UpdateFloatAnimations(float dt, int initialCount)
+        private void UpdateFloatAnimations(float dt, FishUIAnimation[] snapshot)
         {
-            for (int i = initialCount - 1; i >= 0; i--)
+            for (int i = snapshot.Length - 1; i >= 0; i--)
             {
-                if (i >= _floatAnimations.Count) continue;
-                FishUIAnimation animation = _floatAnimations[i];
+                FishUIAnimation animation = snapshot[i];
+                if (!_floatAnimations.Contains(animation)) continue;
                 animation.Update(dt);
                 if (!animation.IsComplete) continue;
                 int currentIndex = _floatAnimations.IndexOf(animation);
-                if (currentIndex >= 0) _floatAnimations.RemoveAt(currentIndex);
+                if (currentIndex < 0) continue;
+                _floatAnimations.RemoveAt(currentIndex);
                 animation.OnComplete?.Invoke();
             }
         }
 
-        private void UpdateVectorAnimations(float dt, int initialCount)
+        private void UpdateVectorAnimations(float dt, FishUIAnimationVector2[] snapshot)
         {
-            for (int i = initialCount - 1; i >= 0; i--)
+            for (int i = snapshot.Length - 1; i >= 0; i--)
             {
-                if (i >= _vector2Animations.Count) continue;
-                FishUIAnimationVector2 animation = _vector2Animations[i];
+                FishUIAnimationVector2 animation = snapshot[i];
+                if (!_vector2Animations.Contains(animation)) continue;
                 animation.Update(dt);
                 if (!animation.IsComplete) continue;
                 int currentIndex = _vector2Animations.IndexOf(animation);
-                if (currentIndex >= 0) _vector2Animations.RemoveAt(currentIndex);
+                if (currentIndex < 0) continue;
+                _vector2Animations.RemoveAt(currentIndex);
                 animation.OnComplete?.Invoke();
             }
         }
 
-        private void UpdateColorAnimations(float dt, int initialCount)
+        private void UpdateColorAnimations(float dt, FishUIAnimationColor[] snapshot)
         {
-            for (int i = initialCount - 1; i >= 0; i--)
+            for (int i = snapshot.Length - 1; i >= 0; i--)
             {
-                if (i >= _colorAnimations.Count) continue;
-                FishUIAnimationColor animation = _colorAnimations[i];
+                FishUIAnimationColor animation = snapshot[i];
+                if (!_colorAnimations.Contains(animation)) continue;
                 animation.Update(dt);
                 if (!animation.IsComplete) continue;
                 int currentIndex = _colorAnimations.IndexOf(animation);
-                if (currentIndex >= 0) _colorAnimations.RemoveAt(currentIndex);
+                if (currentIndex < 0) continue;
+                _colorAnimations.RemoveAt(currentIndex);
                 animation.OnComplete?.Invoke();
             }
         }

@@ -32,7 +32,7 @@ namespace FishUI
 
     internal class AtlasDto
     {
-        public bool Enabled { get; set; }
+        public bool? Enabled { get; set; }
         public string Path { get; set; }
     }
 
@@ -153,10 +153,8 @@ namespace FishUI
             // Map atlas settings
             if (dto.Atlas != null)
             {
-                // Only override UseAtlas if explicitly set to true, or if we're setting a new path
-                // This allows child themes to override just the path while inheriting enabled state
-                if (dto.Atlas.Enabled)
-                    theme.UseAtlas = true;
+                if (dto.Atlas.Enabled.HasValue)
+                    theme.UseAtlas = dto.Atlas.Enabled.Value;
 
                 if (!string.IsNullOrEmpty(dto.Atlas.Path))
                 {

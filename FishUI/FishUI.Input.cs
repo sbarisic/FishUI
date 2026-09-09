@@ -39,7 +39,7 @@ namespace FishUI
                     diagnosticEvent = Diagnostics.Record(FishUIDiagnosticEventCategory.Pointer,
                         FishUIDiagnosticEventType.MouseButtonPressed, ControlUnderMouse, MBtn.ToString(),
                         new FishUIPointerEventData { Button = MBtn.ToString(), PositionPixels = FishUIDebugPoint.From(InState.MousePos) });
-                if (ControlUnderMouse != null)
+                if (IsControlEffectivelyInteractive(ControlUnderMouse))
                 {
                     // Bring the root control to front (for windows, panels, etc.)
                     BringControlToFrontOnClick(ControlUnderMouse);
@@ -47,6 +47,7 @@ namespace FishUI
                     using (Diagnostics.EnterCause(diagnosticEvent?.Sequence))
                     {
                         ControlUnderMouse.HandleMousePress(this, InState, MBtn, InState.MousePos);
+                        if (!IsControlEffectivelyInteractive(ControlUnderMouse)) return;
                         ClickedControl = ControlUnderMouse;
                         Control focusTarget = FindMouseFocusTarget(ControlUnderMouse);
                         if (recordDiagnostics)
@@ -102,10 +103,11 @@ namespace FishUI
                         interactionId: MBtn == FishMouseButton.Left && ActiveDiagnosticDragStarted ? ActiveDragInteractionId : null);
                 using (Diagnostics.EnterCause(diagnosticEvent?.Sequence))
                 {
-                    if (ControlUnderMouse != null)
-                        ControlUnderMouse.HandleMouseRelease(this, InState, MBtn, InState.MousePos);
+                    Control releaseTarget = IsControlEffectivelyInteractive(pressOwner) ? pressOwner : ControlUnderMouse;
+                    if (IsControlEffectivelyInteractive(releaseTarget))
+                        releaseTarget.HandleMouseRelease(this, InState, MBtn, InState.MousePos);
 
-                    if (ClickedControl != null && ControlUnderMouse == ClickedControl)
+                    if (IsControlEffectivelyInteractive(ClickedControl) && ControlUnderMouse == ClickedControl)
                     {
                         // Check for double-click
                         bool isDoubleClick = false;
@@ -207,7 +209,8 @@ namespace FishUI
                 if (Input.IsKeyPressed(FishKey.Backspace))
                     InputActiveControl.HandleTextInput(this, InState, '\b');
 
-                if (Input.IsKeyPressed(FishKey.Enter) || Input.IsKeyPressed(FishKey.KpEnter))
+                if (IsControlEffectivelyInteractive(InputActiveControl) &&
+                    (Input.IsKeyPressed(FishKey.Enter) || Input.IsKeyPressed(FishKey.KpEnter)))
                     InputActiveControl.HandleTextInput(this, InState, '\n');
 
                 int InChr = 0;
@@ -217,8 +220,10 @@ namespace FishUI
                 {
                     characterCount++;
                     Control textTarget = InputActiveControl;
+                    if (!IsControlEffectivelyInteractive(textTarget)) continue;
                     bool accepted = !(textTarget is IFishUITextInputFilter filter) ||
                         filter.ShouldAcceptTextInput(this, InState, Scalar(InChr));
+                    accepted &= ReferenceEquals(InputActiveControl, textTarget) && IsControlEffectivelyInteractive(textTarget);
                     if (!accepted)
                     {
                         if (Diagnostics.IsEventRecordingEnabled)

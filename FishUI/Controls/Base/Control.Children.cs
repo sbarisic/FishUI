@@ -8,6 +8,18 @@ namespace FishUI.Controls
         private Control[] _frameChildren = Array.Empty<Control>();
         private Control[] _frameChildrenPaintOrder = Array.Empty<Control>();
         private int _frameChildrenSignature;
+        private Control[] _traversalChildren = Array.Empty<Control>();
+
+        internal static Control[] SnapshotControls(List<Control> controls, ref Control[] snapshot)
+        {
+            bool changed = controls.Count != snapshot.Length;
+            for (int i = 0; !changed && i < controls.Count; i++)
+                changed = !ReferenceEquals(controls[i], snapshot[i]);
+            if (changed) snapshot = controls.ToArray();
+            return snapshot;
+        }
+
+        private Control[] GetTraversalChildren() => SnapshotControls(Children, ref _traversalChildren);
 
         [YamlDotNet.Serialization.YamlIgnore]
         internal Control[] FrameChildren => _frameChildren;
@@ -113,6 +125,16 @@ namespace FishUI.Controls
             }
             catch (Exception attachFailure)
             {
+                Exception cleanupFailure = null;
+                try
+                {
+                    if (newUi != null)
+                    {
+                        newUi.PrepareSubtreeDetach(Child);
+                        Child.DetachSubtree(newUi);
+                    }
+                }
+                catch (Exception ex) { cleanupFailure = ex; }
                 Children.Remove(Child);
                 Child.Parent = null;
                 try
@@ -120,7 +142,13 @@ namespace FishUI.Controls
                     RestoreOldOwner(Child, oldParent, oldUi, oldIndex, oldZDepth);
                     if (oldUi != null) Child.AttachSubtree(oldUi);
                 }
-                catch (Exception rollbackFailure) { throw new AggregateException(attachFailure, rollbackFailure); }
+                catch (Exception rollbackFailure)
+                {
+                    throw new AggregateException(cleanupFailure == null
+                        ? new[] { attachFailure, rollbackFailure }
+                        : new[] { attachFailure, cleanupFailure, rollbackFailure });
+                }
+                if (cleanupFailure != null) throw new AggregateException(attachFailure, cleanupFailure);
                 throw;
             }
             newUi?.Diagnostics.NotifyHierarchyChanged();

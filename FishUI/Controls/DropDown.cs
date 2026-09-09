@@ -778,64 +778,65 @@ namespace FishUI.Controls
             int visibleCount = MaxVisibleItems > 0 ? Math.Min(itemCount, MaxVisibleItems) : itemCount;
 
             // Draw items
-            UI.Graphics.PushScissor(listPos + new Vector2(2, 2 + yOffset), listSize - new Vector2(4, 4 + yOffset));
-
-            for (int i = 0; i < visibleCount; i++)
+            using (UI.Graphics.PushScissorScope(listPos + new Vector2(2, 2 + yOffset), listSize - new Vector2(4, 4 + yOffset)))
             {
-                int actualIndex = displayIndices[i];
-                bool isSelected = MultiSelect ? SelectedIndices.Contains(actualIndex) : (actualIndex == SelectedIndex);
-                bool isHovered = (i == HoveredIndex);
 
-                float y = listPos.Y + 2 + yOffset + i * itemHeight;
-                Vector2 itemPos = new Vector2(listPos.X + 2, y) + ScrollOffset;
-                Vector2 itemSize = new Vector2(listSize.X - 4, itemHeight);
-
-                // Draw selection/hover background
-                NPatch itemBg = null;
-                if (isHovered)
-                    itemBg = UI.Settings.ImgSelectionBoxNormal;
-                else if (isSelected && !MultiSelect)
-                    itemBg = UI.Settings.ImgListBoxItmSelected;
-
-                if (itemBg != null)
-                    UI.Graphics.DrawNPatch(itemBg, itemPos, itemSize, Color);
-
-                // Calculate text offset (checkbox takes space in multi-select mode)
-                float textXOffset = MultiSelect ? 20 : 2;
-
-                // Draw checkbox in multi-select mode
-                if (MultiSelect)
+                for (int i = 0; i < visibleCount; i++)
                 {
-                    float checkSize = 14;
-                    float checkY = itemPos.Y + (itemHeight - checkSize) / 2;
-                    Vector2 checkPos = new Vector2(itemPos.X + 2, checkY);
+                    int actualIndex = displayIndices[i];
+                    bool isSelected = MultiSelect ? SelectedIndices.Contains(actualIndex) : (actualIndex == SelectedIndex);
+                    bool isHovered = (i == HoveredIndex);
 
-                    // Draw checkbox background
-                    NPatch checkBg = isSelected ? UI.Settings.ImgCheckboxChecked : UI.Settings.ImgCheckboxUnchecked;
-                    if (checkBg != null)
-                        UI.Graphics.DrawNPatch(checkBg, checkPos, new Vector2(checkSize, checkSize), Color);
+                    float y = listPos.Y + 2 + yOffset + i * itemHeight;
+                    Vector2 itemPos = new Vector2(listPos.X + 2, y) + ScrollOffset;
+                    Vector2 itemSize = new Vector2(listSize.X - 4, itemHeight);
+
+                    // Draw selection/hover background
+                    NPatch itemBg = null;
+                    if (isHovered)
+                        itemBg = UI.Settings.ImgSelectionBoxNormal;
+                    else if (isSelected && !MultiSelect)
+                        itemBg = UI.Settings.ImgListBoxItmSelected;
+
+                    if (itemBg != null)
+                        UI.Graphics.DrawNPatch(itemBg, itemPos, itemSize, Color);
+
+                    // Calculate text offset (checkbox takes space in multi-select mode)
+                    float textXOffset = MultiSelect ? 20 : 2;
+
+                    // Draw checkbox in multi-select mode
+                    if (MultiSelect)
+                    {
+                        float checkSize = 14;
+                        float checkY = itemPos.Y + (itemHeight - checkSize) / 2;
+                        Vector2 checkPos = new Vector2(itemPos.X + 2, checkY);
+
+                        // Draw checkbox background
+                        NPatch checkBg = isSelected ? UI.Settings.ImgCheckboxChecked : UI.Settings.ImgCheckboxUnchecked;
+                        if (checkBg != null)
+                            UI.Graphics.DrawNPatch(checkBg, checkPos, new Vector2(checkSize, checkSize), Color);
+                        else
+                        {
+                            // Fallback: draw simple checkbox
+                            UI.Graphics.DrawRectangle(checkPos, new Vector2(checkSize, checkSize), new FishColor(200, 200, 200, 255));
+                            if (isSelected)
+                                UI.Graphics.DrawRectangle(checkPos + new Vector2(3, 3), new Vector2(checkSize - 6, checkSize - 6), new FishColor(50, 120, 200, 255));
+                        }
+                    }
+
+                    // Use custom renderer if set, otherwise default text rendering
+                    if (CustomItemRenderer != null)
+                    {
+                        CustomItemRenderer(UI, Items[actualIndex], itemPos + new Vector2(textXOffset, 0), itemSize - new Vector2(textXOffset + 2, 0), isSelected, isHovered);
+                    }
                     else
                     {
-                        // Fallback: draw simple checkbox
-                        UI.Graphics.DrawRectangle(checkPos, new Vector2(checkSize, checkSize), new FishColor(200, 200, 200, 255));
-                        if (isSelected)
-                            UI.Graphics.DrawRectangle(checkPos + new Vector2(3, 3), new Vector2(checkSize - 6, checkSize - 6), new FishColor(50, 120, 200, 255));
+                        FishColor txtColor = FishColor.Black;
+                        UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Items[actualIndex].Text, itemPos + new Vector2(textXOffset, 0) + StartOffset, txtColor);
                     }
                 }
 
-                // Use custom renderer if set, otherwise default text rendering
-                if (CustomItemRenderer != null)
-                {
-                    CustomItemRenderer(UI, Items[actualIndex], itemPos + new Vector2(textXOffset, 0), itemSize - new Vector2(textXOffset + 2, 0), isSelected, isHovered);
-                }
-                else
-                {
-                    FishColor txtColor = FishColor.Black;
-                    UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Items[actualIndex].Text, itemPos + new Vector2(textXOffset, 0) + StartOffset, txtColor);
-                }
             }
-
-            UI.Graphics.PopScissor();
 
             // Show "no results" message if filter has no matches
             if (Searchable && !string.IsNullOrEmpty(SearchText) && displayIndices.Count == 0)

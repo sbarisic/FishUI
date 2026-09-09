@@ -79,7 +79,7 @@ namespace FishUI.Controls
             // Trim old points if MaxPoints is set
             if (MaxPoints > 0 && Points.Count > MaxPoints)
             {
-                Points.RemoveAt(0);
+                Points.RemoveRange(0, Points.Count - MaxPoints);
             }
         }
 
@@ -109,6 +109,7 @@ namespace FishUI.Controls
             {
                 if (time >= Points[i].X && time <= Points[i + 1].X)
                 {
+                    if (Points[i + 1].X == Points[i].X) return Points[i + 1].Y;
                     // Linear interpolation
                     float t = (time - Points[i].X) / (Points[i + 1].X - Points[i].X);
                     return Points[i].Y + t * (Points[i + 1].Y - Points[i].Y);

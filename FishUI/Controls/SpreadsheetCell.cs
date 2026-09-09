@@ -24,6 +24,7 @@ namespace FishUI.Controls
             get => _value;
             set
             {
+                value = TextElements.Normalize(value);
                 if (_value != value)
                 {
                     _value = value ?? "";
@@ -86,7 +87,7 @@ namespace FishUI.Controls
 
         public SpreadsheetCell(string value) : this()
         {
-            _value = value ?? "";
+            _value = TextElements.Normalize(value);
         }
 
         /// <summary>
@@ -160,9 +161,10 @@ namespace FishUI.Controls
                     float textX = pos.X + 3;
                     float textY = pos.Y + (size.Y - textSize.Y) / 2;
 
-                    UI.Graphics.PushScissor(pos + new Vector2(2, 0), size - new Vector2(4, 0));
-                    UI.Graphics.DrawTextColor(font, displayText, new Vector2(textX, textY), FishColor.Black);
-                    UI.Graphics.PopScissor();
+                    using (UI.Graphics.PushScissorScope(pos + new Vector2(2, 0), size - new Vector2(4, 0)))
+                    {
+                        UI.Graphics.DrawTextColor(font, displayText, new Vector2(textX, textY), FishColor.Black);
+                    }
                 }
 
                 // Draw cursor when editing
@@ -197,7 +199,7 @@ namespace FishUI.Controls
             if (!Rune.IsControl(Character))
             {
                 _editValue = _editValue.Insert(_cursorPos, Character.ToString());
-                _cursorPos++;
+                _cursorPos = TextElements.Ceiling(_editValue, _cursorPos + Character.Utf16SequenceLength);
             }
         }
 
@@ -217,23 +219,24 @@ namespace FishUI.Controls
                 case FishKey.Backspace:
                     if (_cursorPos > 0 && _editValue.Length > 0)
                     {
-                        _editValue = _editValue.Remove(_cursorPos - 1, 1);
-                        _cursorPos--;
+                        int previous = TextElements.Previous(_editValue, _cursorPos);
+                        _editValue = _editValue.Remove(previous, _cursorPos - previous);
+                        _cursorPos = previous;
                     }
                     break;
                 case FishKey.Delete:
                     if (_cursorPos < _editValue.Length)
                     {
-                        _editValue = _editValue.Remove(_cursorPos, 1);
+                        _editValue = _editValue.Remove(_cursorPos, TextElements.Next(_editValue, _cursorPos) - _cursorPos);
                     }
                     break;
                 case FishKey.Left:
                     if (_cursorPos > 0)
-                        _cursorPos--;
+                        _cursorPos = TextElements.Previous(_editValue, _cursorPos);
                     break;
                 case FishKey.Right:
                     if (_cursorPos < _editValue.Length)
-                        _cursorPos++;
+                        _cursorPos = TextElements.Next(_editValue, _cursorPos);
                     break;
                 case FishKey.Home:
                     _cursorPos = 0;

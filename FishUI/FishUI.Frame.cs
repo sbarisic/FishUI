@@ -11,6 +11,7 @@ namespace FishUI
 {
     public partial class FishUI
     {
+        private Control[] _traversalControls = Array.Empty<Control>();
         /// <summary>
         /// Main update and render method. Call this every frame.
         /// </summary>
@@ -37,14 +38,15 @@ namespace FishUI
                 throw new ArgumentOutOfRangeException(nameof(Dt), "Frame values must be finite.");
             EnsureInitialized();
             InvalidateNonInteractiveState();
-            int rootCount = Controls.Count;
-            for (int i = 0; i < rootCount && i < Controls.Count; i++)
-                Controls[i].EnsureInitializedSubtree(this);
+            Control[] roots = Control.SnapshotControls(Controls, ref _traversalControls);
+            for (int i = 0; i < roots.Length; i++)
+                if (roots[i].GetParent() == null) roots[i].EnsureInitializedSubtree(this);
             Animations.Update(Math.Max(0, Dt));
-            for (int i = 0; i < rootCount && i < Controls.Count; i++)
-                Controls[i].UpdateSubtree(this, Dt, Time);
-            for (int i = 0; i < rootCount && i < Controls.Count; i++)
-                Controls[i].PrepareLayoutSubtree(this);
+            for (int i = 0; i < roots.Length; i++)
+                if (roots[i].GetParent() == null) roots[i].UpdateSubtree(this, Dt, Time);
+            for (int i = 0; i < roots.Length; i++)
+                if (roots[i].GetParent() == null) roots[i].PrepareLayoutSubtree(this);
+            InvalidateNonInteractiveState();
             FreezeFrameHierarchy();
             _framePrepared = true;
 

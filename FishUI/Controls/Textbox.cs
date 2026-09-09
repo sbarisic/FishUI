@@ -426,57 +426,58 @@ namespace FishUI.Controls
             TextboxViewport viewport = CalculateViewport(UI, true);
             using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.ControlBounds))
                 UI.Graphics.DrawNPatch(viewport.Patch, GetAbsolutePosition(), GetAbsoluteSize(), Color);
-            UI.Graphics.PushScissor(viewport.Position, viewport.Size);
-
-            // Draw selection highlight
-            if (HasSelection && UI.InputActiveControl == this && !viewport.ShowPlaceholder)
+            using (UI.Graphics.PushScissorScope(viewport.Position, viewport.Size))
             {
-                var (selStart, selEnd) = GetSelectionRange();
-                string beforeSel = viewport.DisplayText.Substring(0, selStart);
-                string selText = viewport.DisplayText.Substring(selStart, selEnd - selStart);
 
-                float selStartX = viewport.TextPosition.X + UI.Graphics.MeasureText(viewport.Font, beforeSel).X;
-                float selWidth = UI.Graphics.MeasureText(viewport.Font, selText).X;
+                // Draw selection highlight
+                if (HasSelection && UI.InputActiveControl == this && !viewport.ShowPlaceholder)
+                {
+                    var (selStart, selEnd) = GetSelectionRange();
+                    string beforeSel = viewport.DisplayText.Substring(0, selStart);
+                    string selText = viewport.DisplayText.Substring(selStart, selEnd - selStart);
 
-                using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Selection))
-                    UI.Graphics.DrawRectangle(
-                        new Vector2(selStartX, viewport.TextPosition.Y),
-                        new Vector2(selWidth, viewport.TextSize.Y),
-                        SelectionColor
-                    );
+                    float selStartX = viewport.TextPosition.X + UI.Graphics.MeasureText(viewport.Font, beforeSel).X;
+                    float selWidth = UI.Graphics.MeasureText(viewport.Font, selText).X;
+
+                    using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Selection))
+                        UI.Graphics.DrawRectangle(
+                            new Vector2(selStartX, viewport.TextPosition.Y),
+                            new Vector2(selWidth, viewport.TextSize.Y),
+                            SelectionColor
+                        );
+                }
+
+                // Draw text
+                using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Text))
+                {
+                    if (viewport.ShowPlaceholder)
+                        UI.Graphics.DrawTextColor(viewport.Font, viewport.TextToDraw, viewport.TextPosition, PlaceholderColor);
+                    else if (TextColorOverride.HasValue)
+                        UI.Graphics.DrawTextColor(viewport.Font, viewport.TextToDraw, viewport.TextPosition, TextColorOverride.Value);
+                    else
+                        UI.Graphics.DrawText(viewport.Font, viewport.TextToDraw, viewport.TextPosition);
+                }
+
+                // Draw cursor
+                bool drawCursor = false;
+                if (UI.InputActiveControl == this && !viewport.ShowPlaceholder)
+                    drawCursor = MathF.Sin(Time * 5) > 0;
+
+                if (drawCursor || (UI.InputActiveControl == this && viewport.ShowPlaceholder))
+                {
+                    string textBeforeCursor = viewport.DisplayText.Substring(0, Math.Min(CursorPosition, viewport.DisplayText.Length));
+                    float cursorX = viewport.TextPosition.X + UI.Graphics.MeasureText(viewport.Font, textBeforeCursor).X;
+
+                    float cursorHeight = viewport.TextSize.Y > 0 ? viewport.TextSize.Y : GetAbsoluteSize().Y - Scale(4);
+                    Vector2 cursorStart = new Vector2(cursorX, viewport.TextPosition.Y);
+                    Vector2 cursorEnd = new Vector2(cursorX, viewport.TextPosition.Y + cursorHeight);
+
+                    if (drawCursor || viewport.ShowPlaceholder)
+                        using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Caret))
+                            UI.Graphics.DrawLine(cursorStart, cursorEnd, 1, CursorColorOverride ?? FishColor.Black);
+                }
+
             }
-
-            // Draw text
-            using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Text))
-            {
-                if (viewport.ShowPlaceholder)
-                    UI.Graphics.DrawTextColor(viewport.Font, viewport.TextToDraw, viewport.TextPosition, PlaceholderColor);
-                else if (TextColorOverride.HasValue)
-                    UI.Graphics.DrawTextColor(viewport.Font, viewport.TextToDraw, viewport.TextPosition, TextColorOverride.Value);
-                else
-                    UI.Graphics.DrawText(viewport.Font, viewport.TextToDraw, viewport.TextPosition);
-            }
-
-            // Draw cursor
-            bool drawCursor = false;
-            if (UI.InputActiveControl == this && !viewport.ShowPlaceholder)
-                drawCursor = MathF.Sin(Time * 5) > 0;
-
-            if (drawCursor || (UI.InputActiveControl == this && viewport.ShowPlaceholder))
-            {
-                string textBeforeCursor = viewport.DisplayText.Substring(0, Math.Min(CursorPosition, viewport.DisplayText.Length));
-                float cursorX = viewport.TextPosition.X + UI.Graphics.MeasureText(viewport.Font, textBeforeCursor).X;
-
-                float cursorHeight = viewport.TextSize.Y > 0 ? viewport.TextSize.Y : GetAbsoluteSize().Y - Scale(4);
-                Vector2 cursorStart = new Vector2(cursorX, viewport.TextPosition.Y);
-                Vector2 cursorEnd = new Vector2(cursorX, viewport.TextPosition.Y + cursorHeight);
-
-                if (drawCursor || viewport.ShowPlaceholder)
-                    using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Caret))
-                        UI.Graphics.DrawLine(cursorStart, cursorEnd, 1, CursorColorOverride ?? FishColor.Black);
-            }
-
-            UI.Graphics.PopScissor();
         }
 
         public override void HandleMousePress(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)

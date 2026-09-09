@@ -423,14 +423,6 @@ namespace FishUI.Controls
             float cellWidth = width / DaysInWeek;
             float cellHeight = height / MaxWeeksDisplayed;
 
-            // Get first day of month and days in month
-            int daysInMonth = DateTime.DaysInMonth(_displayMonth.Year, _displayMonth.Month);
-            int firstDayOfWeek = (int)_displayMonth.DayOfWeek;
-
-            // Get previous month days to show
-            DateTime prevMonth = _displayMonth.AddMonths(-1);
-            int daysInPrevMonth = DateTime.DaysInMonth(prevMonth.Year, prevMonth.Month);
-
             int dayIndex = 0;
             for (int week = 0; week < MaxWeeksDisplayed; week++)
             {
@@ -439,33 +431,11 @@ namespace FishUI.Controls
                     float cellX = x + dow * cellWidth;
                     float cellY = y + week * cellHeight;
 
-                    int displayDay;
-                    bool isCurrentMonth;
-                    DateTime cellDate;
-
-                    if (dayIndex < firstDayOfWeek)
-                    {
-                        // Previous month
-                        displayDay = daysInPrevMonth - firstDayOfWeek + dayIndex + 1;
-                        isCurrentMonth = false;
-                        cellDate = new DateTime(prevMonth.Year, prevMonth.Month, displayDay);
-                    }
-                    else if (dayIndex < firstDayOfWeek + daysInMonth)
-                    {
-                        // Current month
-                        displayDay = dayIndex - firstDayOfWeek + 1;
-                        isCurrentMonth = true;
-                        cellDate = new DateTime(_displayMonth.Year, _displayMonth.Month, displayDay);
-                    }
-                    else
-                    {
-                        // Next month
-                        displayDay = dayIndex - firstDayOfWeek - daysInMonth + 1;
-                        isCurrentMonth = false;
-                        DateTime nextMonth = _displayMonth.AddMonths(1);
-                        cellDate = new DateTime(nextMonth.Year, nextMonth.Month, displayDay);
-                    }
-
+                    DateTime? date = GetDateFromDayIndex(dayIndex);
+                    if (!date.HasValue) { dayIndex++; continue; }
+                    DateTime cellDate = date.Value;
+                    int displayDay = cellDate.Day;
+                    bool isCurrentMonth = cellDate.Month == _displayMonth.Month;
                     // Draw cell background
                     bool isSelected = cellDate.Date == _value.Date;
                     bool isToday = cellDate.Date == DateTime.Today;
@@ -625,28 +595,28 @@ namespace FishUI.Controls
             Vector2 prevYearPos = new Vector2(calPos.X + padding, calPos.Y + padding);
             if (IsPointInRect(mousePos, prevYearPos, btnSize))
             {
-                SetDisplayedMonth(_displayMonth.AddYears(-1));
+                MoveDisplayedMonth(-12);
                 return;
             }
 
             Vector2 prevMonthPos = new Vector2(prevYearPos.X + btnWidth + 2, prevYearPos.Y);
             if (IsPointInRect(mousePos, prevMonthPos, btnSize))
             {
-                SetDisplayedMonth(_displayMonth.AddMonths(-1));
+                MoveDisplayedMonth(-1);
                 return;
             }
 
             Vector2 nextYearPos = new Vector2(calPos.X + calSize.X - padding - btnWidth, calPos.Y + padding);
             if (IsPointInRect(mousePos, nextYearPos, btnSize))
             {
-                SetDisplayedMonth(_displayMonth.AddYears(1));
+                MoveDisplayedMonth(12);
                 return;
             }
 
             Vector2 nextMonthPos = new Vector2(nextYearPos.X - btnWidth - 2, nextYearPos.Y);
             if (IsPointInRect(mousePos, nextMonthPos, btnSize))
             {
-                SetDisplayedMonth(_displayMonth.AddMonths(1));
+                MoveDisplayedMonth(1);
                 return;
             }
 
@@ -664,34 +634,17 @@ namespace FishUI.Controls
 
         private DateTime? GetDateFromDayIndex(int dayIndex)
         {
-            int daysInMonth = DateTime.DaysInMonth(_displayMonth.Year, _displayMonth.Month);
-            int firstDayOfWeek = (int)_displayMonth.DayOfWeek;
-
-            if (dayIndex < firstDayOfWeek)
-            {
-                // Previous month
-                DateTime prevMonth = _displayMonth.AddMonths(-1);
-                int daysInPrevMonth = DateTime.DaysInMonth(prevMonth.Year, prevMonth.Month);
-                int day = daysInPrevMonth - firstDayOfWeek + dayIndex + 1;
-                return new DateTime(prevMonth.Year, prevMonth.Month, day);
-            }
-            else if (dayIndex < firstDayOfWeek + daysInMonth)
-            {
-                // Current month
-                int day = dayIndex - firstDayOfWeek + 1;
-                return new DateTime(_displayMonth.Year, _displayMonth.Month, day);
-            }
-            else
-            {
-                // Next month
-                DateTime nextMonth = _displayMonth.AddMonths(1);
-                int day = dayIndex - firstDayOfWeek - daysInMonth + 1;
-                if (day > DateTime.DaysInMonth(nextMonth.Year, nextMonth.Month))
-                    return null;
-                return new DateTime(nextMonth.Year, nextMonth.Month, day);
-            }
+            if (dayIndex < 0 || dayIndex >= DaysInWeek * MaxWeeksDisplayed) return null;
+            long ticks = _displayMonth.Ticks + (dayIndex - (int)_displayMonth.DayOfWeek) * TimeSpan.TicksPerDay;
+            return ticks < DateTime.MinValue.Ticks || ticks > DateTime.MaxValue.Ticks ? null : new DateTime(ticks);
         }
 
+        private void MoveDisplayedMonth(int months)
+        {
+            int monthIndex = (_displayMonth.Year - 1) * 12 + _displayMonth.Month - 1 + months;
+            if (monthIndex < 0 || monthIndex >= 9999 * 12) return;
+            SetDisplayedMonth(new DateTime(monthIndex / 12 + 1, monthIndex % 12 + 1, 1));
+        }
         private void SetDisplayedMonth(DateTime value)
         {
             DateTime oldValue = _displayMonth;

@@ -177,12 +177,10 @@ namespace FishUI.Controls
                 if (Direction == FlowDirection.RightToLeft)
                 {
                     mainAxisPos = containerSize.X - LayoutPadding;
-                    line.Reverse();
                 }
                 else if (Direction == FlowDirection.BottomToTop)
                 {
                     mainAxisPos = containerSize.Y - LayoutPadding;
-                    line.Reverse();
                 }
 
                 foreach (var child in line)
@@ -273,7 +271,7 @@ namespace FishUI.Controls
                         // Start new line
                         currentLineMainSize = childMainSize;
                         currentLineCrossSize = childCrossSize;
-                        firstInLine = true;
+                        firstInLine = false;
                     }
                     else
                     {

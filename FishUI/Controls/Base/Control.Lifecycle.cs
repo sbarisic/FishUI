@@ -101,9 +101,9 @@ namespace FishUI.Controls
             if (AttachedFishUI != ui)
                 return;
             OnFishUIUpdate(ui, deltaTime, time);
-            int childCount = Children.Count;
-            for (int i = 0; i < childCount && i < Children.Count; i++)
-                Children[i].UpdateSubtree(ui, deltaTime, time);
+            Control[] children = GetTraversalChildren();
+            for (int i = 0; i < children.Length; i++)
+                if (children[i].Parent == this) children[i].UpdateSubtree(ui, deltaTime, time);
         }
 
         internal void PostInputUpdateSubtree(FishUI ui, float deltaTime, float time)
@@ -125,9 +125,9 @@ namespace FishUI.Controls
                 Init(ui);
                 _initializedFishUI = ui;
             }
-            int childCount = Children.Count;
-            for (int i = 0; i < childCount && i < Children.Count; i++)
-                Children[i].EnsureInitializedSubtree(ui);
+            Control[] children = GetTraversalChildren();
+            for (int i = 0; i < children.Length; i++)
+                if (children[i].Parent == this) children[i].EnsureInitializedSubtree(ui);
         }
 
         internal void PrepareLayoutSubtree(FishUI ui)
@@ -135,9 +135,9 @@ namespace FishUI.Controls
             if (AttachedFishUI != ui)
                 return;
             PrepareLayout(ui);
-            int childCount = Children.Count;
-            for (int i = 0; i < childCount && i < Children.Count; i++)
-                Children[i].PrepareLayoutSubtree(ui);
+            Control[] children = GetTraversalChildren();
+            for (int i = 0; i < children.Length; i++)
+                if (children[i].Parent == this) children[i].PrepareLayoutSubtree(ui);
         }
 
         internal void ResizeSubtree(FishUI ui, int width, int height)

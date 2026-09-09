@@ -218,6 +218,9 @@ namespace FishUI
         /// </summary>
         public static string FloatLiteral(float value)
         {
+            if (float.IsNaN(value)) return "float.NaN";
+            if (float.IsPositiveInfinity(value)) return "float.PositiveInfinity";
+            if (float.IsNegativeInfinity(value)) return "float.NegativeInfinity";
             return value.ToString("G", System.Globalization.CultureInfo.InvariantCulture) + "f";
         }
 
@@ -250,7 +253,11 @@ namespace FishUI
         /// </summary>
         public static string EnumLiteral<T>(T value) where T : Enum
         {
-            return $"{typeof(T).Name}.{value}";
+            string text = value.ToString();
+            if (text.Length > 0 && (char.IsDigit(text[0]) || text[0] == '-'))
+                return $"({typeof(T).Name}){text}";
+            string[] names = text.Split(new[] { ", " }, StringSplitOptions.None);
+            return string.Join(" | ", Array.ConvertAll(names, name => $"{typeof(T).Name}.{name}"));
         }
 
         /// <summary>

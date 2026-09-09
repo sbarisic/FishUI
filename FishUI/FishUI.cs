@@ -321,6 +321,13 @@ namespace FishUI
             }
             catch (Exception attachFailure)
             {
+                Exception cleanupFailure = null;
+                try
+                {
+                    PrepareSubtreeDetach(C);
+                    C.DetachSubtree(this);
+                }
+                catch (Exception ex) { cleanupFailure = ex; }
                 Controls.Remove(C);
                 C._FishUI = null;
                 _nextZDepth = previousNextZDepth;
@@ -339,7 +346,13 @@ namespace FishUI
                     }
                     if (oldUi != null) C.AttachSubtree(oldUi);
                 }
-                catch (Exception rollbackFailure) { throw new AggregateException(attachFailure, rollbackFailure); }
+                catch (Exception rollbackFailure)
+                {
+                    throw new AggregateException(cleanupFailure == null
+                        ? new[] { attachFailure, rollbackFailure }
+                        : new[] { attachFailure, cleanupFailure, rollbackFailure });
+                }
+                if (cleanupFailure != null) throw new AggregateException(attachFailure, cleanupFailure);
                 throw;
             }
             Diagnostics.NotifyHierarchyChanged();

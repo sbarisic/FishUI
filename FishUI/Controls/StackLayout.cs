@@ -116,11 +116,13 @@ namespace FishUI.Controls
             {
                 float mainAxis = LayoutPadding;
                 float crossAxis = 0;
+                int visibleCount = 0;
 
                 foreach (var child in Children)
                 {
                     if (!child.Visible)
                         continue;
+                    visibleCount++;
 
                     if (Orientation == StackOrientation.Vertical)
                     {
@@ -135,7 +137,7 @@ namespace FishUI.Controls
                 }
 
                 // Remove last spacing and add end padding
-                if (Children.Count > 0)
+                if (visibleCount > 0)
                     mainAxis = mainAxis - Spacing + LayoutPadding;
                 else
                     mainAxis = LayoutPadding * 2;

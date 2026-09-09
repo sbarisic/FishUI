@@ -241,6 +241,8 @@ namespace FishUI.Controls
         {
             int previous = _rows.Count;
             _rows.Clear();
+            _selectionAnchor = -1;
+            _hoveredRowIndex = -1;
             _selectedIndex = -1;
             _selectedIndices.Clear();
             _scrollOffset = Vector2.Zero;
@@ -263,6 +265,9 @@ namespace FishUI.Controls
 
             int lastIndex = _selectedIndex;
             _selectedIndex = index;
+            _selectedIndices.Clear();
+            if (index >= 0) _selectedIndices.Add(index);
+            _selectionAnchor = index;
             RecordDiagnosticTransition("selectedIndex", lastIndex, _selectedIndex);
 
             if (lastIndex != _selectedIndex && _selectedIndex >= 0)
@@ -332,22 +337,22 @@ namespace FishUI.Controls
 
         #region ScrollBar
 
+        private float GetMaximumScroll() => Math.Max(0,
+            _rows.Count * _rowHeight - Math.Max(0, GetAbsoluteSize().Y - Scale(HeaderHeight)));
+
         private void CreateScrollBar(FishUI UI)
         {
             if (_scrollBar != null)
                 return;
 
-            RemoveAllChildren();
-
             _scrollBar = new ScrollBarV();
             // Use local coordinates (unscaled) - position relative to parent
             _scrollBar.Position = new Vector2(Size.X - 16, HeaderHeight);
-            _scrollBar.Size = new Vector2(16, Size.Y - HeaderHeight);
+            _scrollBar.Size = new Vector2(16, Math.Max(0, Size.Y - HeaderHeight));
             _scrollBar.ThumbHeight = 0.5f;
             _scrollBar.OnScrollChanged += (_, scroll, delta) =>
             {
-                float contentHeight = _rows.Count * _rowHeight;
-                _scrollOffset = new Vector2(0, -scroll * contentHeight);
+                _scrollOffset = new Vector2(0, -scroll * GetMaximumScroll());
             };
 
             AddRuntimeChild(_scrollBar);
@@ -357,15 +362,12 @@ namespace FishUI.Controls
 
         #region Rendering
 
-        public override void DrawControl(FishUI UI, float Dt, float Time)
+        protected override void PrepareLayout(FishUI UI)
         {
-            using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Viewport);
             // Calculate row height based on font if not set
-            _rowHeight = RowHeight > 0 ? Scale(RowHeight) : UI.Settings.FontDefault.Size + 4;
+            _rowHeight = RowHeight > 0 ? Scale(RowHeight) : (UI.Settings.FontDefault?.Size ?? 16) + Scale(4);
 
-            Vector2 pos = GetAbsolutePosition();
             Vector2 size = GetAbsoluteSize();
-            var font = UI.Settings.FontDefault;
             float headerH = Scale(HeaderHeight);
 
             // Calculate current local size (actual size after anchor stretching, unscaled for child positioning)
@@ -381,7 +383,7 @@ namespace FishUI.Controls
                 {
                     // Use actual local dimensions (accounts for anchor stretching)
                     _scrollBar.Position = new Vector2(localWidth - 16, HeaderHeight);
-                    _scrollBar.Size = new Vector2(16, localHeight - HeaderHeight);
+                    _scrollBar.Size = new Vector2(16, Math.Max(0, localHeight - HeaderHeight));
 
                     float contentHeight = _rows.Count * _rowHeight;
                     float viewHeight = size.Y - headerH;
@@ -399,6 +401,19 @@ namespace FishUI.Controls
                 RemoveChild(_scrollBar);
                 _scrollBar = null;
             }
+
+            float maximumScroll = GetMaximumScroll();
+            _scrollOffset.Y = Math.Clamp(_scrollOffset.Y, -maximumScroll, 0);
+            if (_scrollBar != null) _scrollBar.ThumbPosition = maximumScroll > 0 ? -_scrollOffset.Y / maximumScroll : 0;
+        }
+
+        public override void DrawControl(FishUI UI, float Dt, float Time)
+        {
+            using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Viewport);
+            Vector2 pos = GetAbsolutePosition();
+            Vector2 size = GetAbsoluteSize();
+            var font = UI.Settings.FontDefault;
+            float headerH = Scale(HeaderHeight);
 
             float scrollBarW = (_scrollBar?.Visible ?? false) ? _scrollBar.GetAbsoluteSize().X : 0;
             float contentWidth = size.X - scrollBarW;
@@ -421,9 +436,10 @@ namespace FishUI.Controls
             // Draw rows with scissoring
             float rowAreaY = pos.Y + headerH;
             float rowAreaHeight = size.Y - headerH;
-            UI.Graphics.PushScissor(new Vector2(pos.X + 2, rowAreaY), new Vector2(contentWidth - 4, rowAreaHeight));
-            DrawRows(UI, new Vector2(pos.X + 2, rowAreaY), contentWidth - 4, rowAreaHeight, font, scrollBarW);
-            UI.Graphics.PopScissor();
+            using (UI.Graphics.PushScissorScope(new Vector2(pos.X + 2, rowAreaY), new Vector2(contentWidth - 4, rowAreaHeight)))
+            {
+                DrawRows(UI, new Vector2(pos.X + 2, rowAreaY), contentWidth - 4, rowAreaHeight, font, scrollBarW);
+            }
         }
 
         private void DrawHeader(FishUI UI, Vector2 pos, float width, float height, FontRef font)
@@ -476,9 +492,10 @@ namespace FishUI.Controls
                     float textX = x + 4;
                     float textY = pos.Y + (height - textSize.Y) / 2;
 
-                    UI.Graphics.PushScissor(new Vector2(x + 2, pos.Y), new Vector2(colW - 4, height));
-                    UI.Graphics.DrawTextColor(font, text, new Vector2(textX, textY), new FishColor(0, 0, 0, 255));
-                    UI.Graphics.PopScissor();
+                    using (UI.Graphics.PushScissorScope(new Vector2(x + 2, pos.Y), new Vector2(colW - 4, height)))
+                    {
+                        UI.Graphics.DrawTextColor(font, text, new Vector2(textX, textY), new FishColor(0, 0, 0, 255));
+                    }
                 }
 
                 x += colW;
@@ -553,9 +570,10 @@ namespace FishUI.Controls
                         float textX = x + 4;
                         float textY = y + (_rowHeight - textSize.Y) / 2;
 
-                        UI.Graphics.PushScissor(new Vector2(x + 2, y), new Vector2(colW - 4, _rowHeight));
-                        UI.Graphics.DrawTextColor(font, cellText, new Vector2(textX, textY), textColor);
-                        UI.Graphics.PopScissor();
+                        using (UI.Graphics.PushScissorScope(new Vector2(x + 2, y), new Vector2(colW - 4, _rowHeight)))
+                        {
+                            UI.Graphics.DrawTextColor(font, cellText, new Vector2(textX, textY), textColor);
+                        }
                     }
 
                     x += colW;
@@ -648,6 +666,8 @@ namespace FishUI.Controls
 
             if (Btn != FishMouseButton.Left)
                 return;
+
+            if (_resizingColumnIndex < 0) HandleMouseMove(UI, InState, Pos);
 
             Vector2 ctrlPos = GetAbsolutePosition();
             float headerH = Scale(HeaderHeight);

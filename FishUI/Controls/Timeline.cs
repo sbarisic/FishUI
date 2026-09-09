@@ -216,8 +216,8 @@ namespace FishUI.Controls
             }
             else
             {
-                _viewStart = 0;
-                _viewEnd = chart.TimeWindow;
+                _viewStart = chart.ViewStart;
+                _viewEnd = chart.ViewStart + chart.TimeWindow;
             }
         }
 
@@ -227,6 +227,7 @@ namespace FishUI.Controls
         public void SyncToLineChart(LineChart chart)
         {
             chart.TimeWindow = _viewEnd - _viewStart;
+            if (!chart.AutoScroll) chart.ViewStart = _viewStart;
             if (chart.AutoScroll)
             {
                 // Can't directly set CurrentTime in auto-scroll mode
@@ -244,8 +245,6 @@ namespace FishUI.Controls
 
             // Calculate track area
             float labelOffset = ShowLabels ? Scale(LabelHeight) : 0;
-            _trackPos = new Vector2(pos.X, pos.Y);
-            _trackSize = new Vector2(size.X, size.Y - labelOffset);
 
             // Draw background
             UI.Graphics.DrawRectangle(pos, size, BackgroundColor);
@@ -452,6 +451,13 @@ namespace FishUI.Controls
             float norm = (screenX - _trackPos.X) / _trackSize.X;
             norm = Math.Clamp(norm, 0f, 1f);
             return MinTime + norm * (MaxTime - MinTime);
+        }
+
+        protected override void PrepareLayout(FishUI ui)
+        {
+            _trackPos = GetAbsolutePosition();
+            Vector2 size = GetAbsoluteSize();
+            _trackSize = new Vector2(size.X, Math.Max(0, size.Y - (ShowLabels ? Scale(LabelHeight) : 0)));
         }
 
         private void FireViewChanged()

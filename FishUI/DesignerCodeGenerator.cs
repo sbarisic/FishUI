@@ -13,6 +13,8 @@ namespace FishUI
     /// </summary>
     public class DesignerCodeGenerator
     {
+        private static readonly HashSet<string> Keywords = new HashSet<string>((
+            "abstract as base bool break byte case catch char checked class const continue decimal default delegate do double else enum event explicit extern false finally fixed float for foreach goto if implicit in int interface internal is lock long namespace new null object operator out override params private protected public readonly ref return sbyte sealed short sizeof stackalloc static string struct switch this throw true try typeof uint ulong unchecked unsafe ushort using virtual void volatile while").Split(' '));
         private readonly FishCSharpWriter _writer;
         private readonly HashSet<string> _usedVariableNames = new HashSet<string>();
         private readonly Dictionary<Control, string> _controlVariableNames = new Dictionary<Control, string>();
@@ -35,10 +37,13 @@ namespace FishUI
         /// <returns>The generated C# code as a string.</returns>
         public string Generate(IEnumerable<Control> controls, string namespaceName, string className)
         {
+            if (controls == null) throw new ArgumentNullException(nameof(controls));
+            controls = controls.ToArray();
             _writer.Clear();
             _usedVariableNames.Clear();
             _controlVariableNames.Clear();
             _anonymousCounter = 0;
+            _usedVariableNames.UnionWith(new[] { className, "FUI", "Init", "LoadControls", "OnLoaded" });
 
             // First pass: assign variable names to all controls
             foreach (var control in controls)
@@ -203,7 +208,12 @@ namespace FishUI
             Type type = control.GetType();
 
             // Position
-            if (control.Position.X != 0 || control.Position.Y != 0)
+            if (control.Position.Mode != PositionMode.Relative)
+            {
+                FishUIPosition position = control.Position;
+                _writer.WriteLine($"{varName}.Position = new FishUIPosition {{ Mode = {FishCSharpWriter.EnumLiteral(position.Mode)}, Dock = {FishCSharpWriter.EnumLiteral(position.Dock)}, X = {FishCSharpWriter.FloatLiteral(position.X)}, Y = {FishCSharpWriter.FloatLiteral(position.Y)}, Left = {FishCSharpWriter.FloatLiteral(position.Left)}, Top = {FishCSharpWriter.FloatLiteral(position.Top)}, Right = {FishCSharpWriter.FloatLiteral(position.Right)}, Bottom = {FishCSharpWriter.FloatLiteral(position.Bottom)} }};");
+            }
+            else if (control.Position.X != 0 || control.Position.Y != 0)
             {
                 _writer.WriteLine($"{varName}.Position = {FishCSharpWriter.Vector2Literal(new Vector2(control.Position.X, control.Position.Y))};");
             }
@@ -239,6 +249,8 @@ namespace FishUI
             }
 
             // Type-specific properties
+            if (control is IFishUINumericRange range)
+                _writer.WriteLine($"{varName}.SetRange({FishCSharpWriter.FloatLiteral(range.MinValue)}, {FishCSharpWriter.FloatLiteral(range.MaxValue)});");
             GenerateTypeSpecificProperties(control, varName);
         }
 
@@ -312,10 +324,6 @@ namespace FishUI
                 case Slider slider:
                     if (slider.Value != 0)
                         _writer.WriteLine($"{varName}.Value = {FishCSharpWriter.FloatLiteral(slider.Value)};");
-                    if (slider.MinValue != 0)
-                        _writer.WriteLine($"{varName}.MinValue = {FishCSharpWriter.FloatLiteral(slider.MinValue)};");
-                    if (slider.MaxValue != 100)
-                        _writer.WriteLine($"{varName}.MaxValue = {FishCSharpWriter.FloatLiteral(slider.MaxValue)};");
                     break;
 
                 case ToggleSwitch ts:
@@ -326,10 +334,6 @@ namespace FishUI
                 case NumericUpDown nud:
                     if (nud.Value != 0)
                         _writer.WriteLine($"{varName}.Value = {FishCSharpWriter.FloatLiteral(nud.Value)};");
-                    if (nud.MinValue != 0)
-                        _writer.WriteLine($"{varName}.MinValue = {FishCSharpWriter.FloatLiteral(nud.MinValue)};");
-                    if (nud.MaxValue != 100)
-                        _writer.WriteLine($"{varName}.MaxValue = {FishCSharpWriter.FloatLiteral(nud.MaxValue)};");
                     if (nud.Step != 1)
                         _writer.WriteLine($"{varName}.Step = {FishCSharpWriter.FloatLiteral(nud.Step)};");
                     break;
@@ -516,7 +520,7 @@ namespace FishUI
             if (result.Length > 0 && char.IsDigit(result[0]))
                 result = "_" + result;
 
-            return result;
+            return Keywords.Contains(result) ? "@" + result : result;
         }
 
         private IEnumerable<Control> GetSerializableChildren(Control control)
@@ -534,7 +538,7 @@ namespace FishUI
         private bool IsInternalControl(Control control)
         {
             // Filter out internal controls that are auto-created
-            return control is Titlebar ||
+            return control.IsRuntimeChild || control is Titlebar ||
                    (control is Panel p && p.IsTransparent && control.GetParent() is Window);
         }
     }

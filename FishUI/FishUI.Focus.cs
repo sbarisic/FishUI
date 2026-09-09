@@ -11,17 +11,24 @@ namespace FishUI
 {
     public partial class FishUI
     {
+        private long _focusRevision;
+
         public void FocusControl(Control Ctrl)
         {
             EnsureInitialized();
             if (Ctrl != null && !IsControlEffectivelyInteractive(Ctrl))
                 throw new InvalidOperationException("The focused control must be attached, visible, enabled, and modal-eligible.");
             Control previousFocus = InputActiveControl;
+            if (ReferenceEquals(previousFocus, Ctrl)) return;
+            long revision = ++_focusRevision;
             if (previousFocus != null) Diagnostics.EnsureIdentity(previousFocus);
             if (Ctrl != null) Diagnostics.EnsureIdentity(Ctrl);
 
-            if (previousFocus != null && previousFocus != Ctrl)
-                previousFocus.HandleBlur();
+            InputActiveControl = null;
+            previousFocus?.HandleBlur();
+            // A blur handler may choose another focus target or detach the requested one.
+            if (_focusRevision != revision) return;
+            if (Ctrl != null && !IsControlEffectivelyInteractive(Ctrl)) Ctrl = null;
 
             InputActiveControl = Ctrl;
 
@@ -44,11 +51,12 @@ namespace FishUI
         public void ClearFocus()
         {
             Control previous = InputActiveControl;
+            ++_focusRevision;
             if (previous != null) Diagnostics.EnsureIdentity(previous);
             if (InputActiveControl != null)
             {
-                InputActiveControl.HandleBlur();
                 InputActiveControl = null;
+                previous.HandleBlur();
             }
             if (Diagnostics.IsEventRecordingEnabled)
                 Diagnostics.Record(FishUIDiagnosticEventCategory.Focus, FishUIDiagnosticEventType.FocusChanged, previous,

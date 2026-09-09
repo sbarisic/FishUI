@@ -110,8 +110,14 @@ namespace FishUI.Controls
             float totalHSpacing = (Columns - 1) * HorizontalSpacing;
             float totalVSpacing = (actualRows - 1) * VerticalSpacing;
 
-            float cellWidth = (availableWidth - totalHSpacing) / Columns;
-            float cellHeight = (availableHeight - totalVSpacing) / actualRows;
+            float cellWidth = Math.Max(0, (availableWidth - totalHSpacing) / Columns);
+            float cellHeight = Math.Max(0, (availableHeight - totalVSpacing) / actualRows);
+            GetContentTracks(actualRows, out float[] widths, out float[] heights);
+            if (UniformCells)
+            {
+                Array.Fill(widths, cellWidth);
+                Array.Fill(heights, cellHeight);
+            }
 
             // Position visible children
             int index = 0;
@@ -127,14 +133,16 @@ namespace FishUI.Controls
                 if (Rows > 0 && row >= Rows)
                     break;
 
-                float x = LayoutPadding + col * (cellWidth + HorizontalSpacing);
-                float y = LayoutPadding + row * (cellHeight + VerticalSpacing);
+                float x = LayoutPadding;
+                float y = LayoutPadding;
+                for (int c = 0; c < col; c++) x += widths[c] + HorizontalSpacing;
+                for (int r = 0; r < row; r++) y += heights[r] + VerticalSpacing;
 
                 child.Position = new FishUIPosition(PositionMode.Relative, new Vector2(x, y));
 
                 if (StretchCells)
                 {
-                    child.Size = new Vector2(cellWidth, cellHeight);
+                    child.Size = new Vector2(widths[col], heights[row]);
                 }
 
                 index++;
@@ -157,7 +165,7 @@ namespace FishUI.Controls
                     return new Vector2(LayoutPadding * 2, LayoutPadding * 2);
 
                 // Calculate based on uniform cells
-                if (UniformCells || StretchCells)
+                if (UniformCells)
                 {
                     Vector2 containerSize = Size;
                     float availableWidth = containerSize.X - LayoutPadding * 2;
@@ -175,21 +183,11 @@ namespace FishUI.Controls
                     return new Vector2(width, height);
                 }
 
-                // Calculate based on largest child per row/column
-                float maxWidth = 0;
-                float maxHeight = 0;
-
-                foreach (var child in Children)
-                {
-                    if (!child.Visible)
-                        continue;
-
-                    maxWidth = Math.Max(maxWidth, child.Size.X);
-                    maxHeight = Math.Max(maxHeight, child.Size.Y);
-                }
-
-                float totalWidth = Columns * maxWidth + (Columns - 1) * HorizontalSpacing + LayoutPadding * 2;
-                float totalHeight = actualRows * maxHeight + (actualRows - 1) * VerticalSpacing + LayoutPadding * 2;
+                GetContentTracks(actualRows, out float[] widths, out float[] heights);
+                float totalWidth = (Columns - 1) * HorizontalSpacing + LayoutPadding * 2;
+                float totalHeight = (actualRows - 1) * VerticalSpacing + LayoutPadding * 2;
+                foreach (float width in widths) totalWidth += width;
+                foreach (float height in heights) totalHeight += height;
 
                 return new Vector2(totalWidth, totalHeight);
             }
@@ -201,6 +199,23 @@ namespace FishUI.Controls
         public void SizeToContent()
         {
             Size = ContentSize;
+        }
+
+        private void GetContentTracks(int rows, out float[] widths, out float[] heights)
+        {
+            widths = new float[Columns];
+            heights = new float[rows];
+            int index = 0;
+            foreach (Control child in Children)
+            {
+                if (!child.Visible) continue;
+                int row = index / Columns;
+                int column = index % Columns;
+                if (row >= rows) break;
+                widths[column] = Math.Max(widths[column], child.Size.X);
+                heights[row] = Math.Max(heights[row], child.Size.Y);
+                index++;
+            }
         }
 
         /// <summary>

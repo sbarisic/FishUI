@@ -16,12 +16,14 @@ namespace FishUI
             IFishUIGfx originalGraphics = Graphics;
             Exception failure = null;
             string failureStage = "captureSetup";
+            bool drawingStarted = false;
             try
             {
                 RecordingFishUIGfx recordingGraphics = Diagnostics.BeginDraw(originalGraphics);
                 if (recordingGraphics != null) Graphics = recordingGraphics;
                 failureStage = "beginDrawing";
                 Graphics.BeginDrawing(Dt);
+                drawingStarted = true;
                 failureStage = "draw";
                 foreach (Control Ctl in Controls)
                 {
@@ -65,6 +67,7 @@ namespace FishUI
                 failureStage = "framebufferCapture";
                 Diagnostics.AfterAllDrawingBeforeGraphicsEnd(Graphics);
                 failureStage = "endDrawing";
+                drawingStarted = false;
                 Graphics.EndDrawing();
             }
             catch (Exception ex)
@@ -73,6 +76,11 @@ namespace FishUI
             }
             finally
             {
+                if (drawingStarted)
+                {
+                    try { Graphics.EndDrawing(); }
+                    catch (Exception ex) { failure = failure == null ? ex : new AggregateException(failure, ex); }
+                }
                 Graphics = originalGraphics;
                 Diagnostics.EndDraw(failure, failureStage);
             }
