@@ -18,7 +18,15 @@ public class DesignerExecutionTests
         tabs.AddTab("second").Enabled = false;
         tabs.SelectedIndex = 1;
         var image = new ImageBox { ID = "image", ImagePath = "asset.png" };
-        string code = new DesignerCodeGenerator().Generate(new Control[] { tabs, image }, "GeneratedBacklog", "RegressionForm");
+        var number = new NumericUpDown { ID = "amount", DecimalPlaces = 2, Value = 1.25f };
+        var text = new Textbox { ID = "readOnly", ReadOnly = true, MaxLength = 12, Text = "fixed" };
+        var stack = new StackLayout { ID = "stack", Orientation = StackOrientation.Horizontal, Spacing = 17 };
+        var list = new ListBox { ID = "list" }; list.AddItem("first"); list.AddItem("second"); list.SelectedIndex = 1;
+        var tree = new TreeView { ID = "tree" }; tree.AddNode("root").AddChild("child");
+        var roots = new List<Control> { tabs, image, number, text, stack, list, tree };
+        foreach (var type in FishUILayoutTypeRegistry.BuiltIn.Mappings.Values.Distinct().Where(t => typeof(Control).IsAssignableFrom(t)))
+            if (!roots.Any(c => c.GetType() == type)) roots.Add((Control)Activator.CreateInstance(type)!);
+        string code = new DesignerCodeGenerator().Generate(roots, "GeneratedBacklog", "RegressionForm");
         string directory = Path.Combine(Path.GetTempPath(), "fishui-designer-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(directory);
         try
@@ -45,6 +53,20 @@ public class DesignerExecutionTests
             Assert.True(saved.Disabled); Assert.False(saved.Focusable); Assert.Equal(.5f, saved.Opacity);
             Assert.Equal("saveHandler", saved.OnClickHandler); Assert.Equal(Vector2.Zero, saved.Size);
             Assert.NotNull(Assert.Single(f.UI.GetAllControls().OfType<ImageBox>()).Image);
+            var copiedNumber = Assert.Single(f.UI.GetAllControls().OfType<NumericUpDown>());
+            Assert.Equal(2, copiedNumber.DecimalPlaces); Assert.Equal("1.25", copiedNumber.InternalTextbox.Text);
+            var copiedText = Assert.Single(f.UI.GetAllControls().OfType<Textbox>());
+            Assert.True(copiedText.ReadOnly); Assert.Equal(12, copiedText.MaxLength);
+            var copiedStack = Assert.Single(f.UI.GetAllControls().OfType<StackLayout>());
+            Assert.Equal(StackOrientation.Horizontal, copiedStack.Orientation); Assert.Equal(17, copiedStack.Spacing);
+            Assert.Equal(1, Assert.Single(f.UI.GetAllControls().OfType<ListBox>()).SelectedIndex);
+            var copiedTree = Assert.Single(f.UI.GetAllControls().OfType<TreeView>());
+            Assert.Equal("child", Assert.Single(Assert.Single(copiedTree.Nodes).Children).Text);
+            Assert.Equal(roots.Count, f.UI.GetAllControls().Length);
+            // Compare every persisted member through the shared YAML contract, including nested collections.
+            using var reference = new FishUITestFixture();
+            LayoutFormat.Deserialize(reference.UI, LayoutFormat.SerializeControls(roots));
+            Assert.Equal(LayoutFormat.Serialize(reference.UI), LayoutFormat.Serialize(f.UI));
         }
         finally { Directory.Delete(directory, true); }
     }

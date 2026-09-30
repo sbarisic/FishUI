@@ -510,7 +510,7 @@ namespace FishUIEditor
         {
             // Selection only - drag to canvas to create, or double-click for quick add
             // Note: Dragging is handled by HandleToolboxDrag()
-            SetStatus($"Selected: {item.Text} - Drag to canvas to add");
+            SetStatus(item == null ? "No toolbox selection" : $"Selected: {item.Text} - Drag to canvas to add");
         }
 
         static void OnHierarchyNodeSelected(TreeView tree, TreeNode node)
@@ -785,6 +785,13 @@ namespace FishUIEditor
                 _propertyGrid.SelectedObject = null;
                 SetStatus($"Loaded layout: {path}");
                 RefreshHierarchyTree();
+            }
+            catch (FishUILayoutCleanupException ex)
+            {
+                _currentLayoutPath = path;
+                _propertyGrid.SelectedObject = null;
+                RefreshHierarchyTree();
+                SetStatus($"Loaded layout: {path}; cleanup errors: {ex.Message}");
             }
             catch (Exception ex)
             {

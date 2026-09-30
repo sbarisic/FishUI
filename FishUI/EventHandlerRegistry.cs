@@ -128,6 +128,11 @@ namespace FishUI
     public class EventHandlerRegistry
     {
         private readonly Dictionary<string, ControlEventHandler> _handlers = new Dictionary<string, ControlEventHandler>();
+        internal Action CaptureRestore()
+        {
+            var saved = new Dictionary<string, ControlEventHandler>(_handlers);
+            return () => { _handlers.Clear(); foreach (var entry in saved) _handlers.Add(entry.Key, entry.Value); };
+        }
 
         /// <summary>
         /// Registers an event handler with the specified name.

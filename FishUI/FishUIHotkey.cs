@@ -83,6 +83,8 @@ namespace FishUI
     public class FishUIHotkeyManager
     {
         private List<FishUIHotkey> _hotkeys = new List<FishUIHotkey>();
+        internal FishUIHotkey[] CaptureState() => _hotkeys.ToArray();
+        internal void RestoreState(FishUIHotkey[] state) => _hotkeys = new List<FishUIHotkey>(state);
 
         /// <summary>
         /// Registers a new hotkey.

@@ -179,36 +179,26 @@ namespace FishUI.Controls
                 return;
             var type = obj.GetType();
 
-            // Try Text property
-            var textProp = type.GetProperty("Text");
-            if (textProp != null && textProp.CanWrite)
+            foreach (string name in new[] { "Text", "Header" })
             {
-                textProp.SetValue(obj, value);
-                return;
+                var property = type.GetProperty(name);
+                if (property != null)
+                {
+                    if (!CanEdit(property)) throw new InvalidOperationException("The display member is read-only.");
+                    property.SetValue(obj, value);
+                    return;
+                }
+                var field = type.GetField(name);
+                if (field != null)
+                {
+                    if (field.IsInitOnly || field.IsLiteral || field.GetCustomAttribute<ReadOnlyAttribute>()?.IsReadOnly == true ||
+                        field.GetCustomAttribute<BrowsableAttribute>()?.Browsable == false || field.GetCustomAttribute<YamlIgnoreAttribute>() != null)
+                        throw new InvalidOperationException("The display member is read-only.");
+                    field.SetValue(obj, value);
+                    return;
+                }
             }
-
-            // Try Text field
-            var textField = type.GetField("Text");
-            if (textField != null)
-            {
-                textField.SetValue(obj, value);
-                return;
-            }
-
-            // Try Header property
-            var headerProp = type.GetProperty("Header");
-            if (headerProp != null && headerProp.CanWrite)
-            {
-                headerProp.SetValue(obj, value);
-                return;
-            }
-
-            // Try Header field
-            var headerField = type.GetField("Header");
-            if (headerField != null)
-            {
-                headerField.SetValue(obj, value);
-            }
+            throw new InvalidOperationException("No editable display member exists.");
         }
 
         /// <summary>
@@ -246,7 +236,7 @@ namespace FishUI.Controls
         /// </summary>
         public bool CanResetToDefault()
         {
-            if (!HasDefaultValue || IsReadOnly)
+            if (!HasDefaultValue || IsReadOnly || PropertyInfo == null || !CanEdit(PropertyInfo))
                 return false;
             var current = GetValue();
             return !Equals(current, DefaultValue);
@@ -285,7 +275,7 @@ namespace FishUI.Controls
         /// </summary>
         public bool SetValue(object value)
         {
-            if (PropertyInfo == null || Instance == null || IsReadOnly)
+            if (PropertyInfo == null || Instance == null || IsReadOnly || !CanEdit(PropertyInfo))
                 return false;
             try
             {
@@ -301,6 +291,15 @@ namespace FishUI.Controls
         public override string ToString()
         {
             return IsCategoryHeader ? $"[Category: {Name}]" : $"{Name} = {GetValue()}";
+        }
+
+        internal static bool CanEdit(PropertyInfo property)
+        {
+            if (!property.CanWrite || property.GetCustomAttribute<ReadOnlyAttribute>()?.IsReadOnly == true ||
+                property.GetCustomAttribute<BrowsableAttribute>()?.Browsable == false || property.GetCustomAttribute<YamlIgnoreAttribute>() != null)
+                return false;
+            var field = property.DeclaringType?.GetField(property.Name, BindingFlags.Public | BindingFlags.Instance);
+            return field != null ? !field.IsInitOnly && !field.IsLiteral : property.GetSetMethod(false) != null;
         }
     }
 
@@ -452,6 +451,7 @@ namespace FishUI.Controls
 
         [YamlIgnore]
         private FontRef _font;
+        private float RowPixels => Math.Max(Scale(RowHeight), (_font?.Size ?? 0) + Scale(6));
 
         [YamlIgnore]
         private ContextMenu _contextMenu;
@@ -540,7 +540,7 @@ namespace FishUI.Controls
                 Description = GetDescription(prop),
                 PropertyInfo = prop,
                 Instance = instance,
-                IsReadOnly = !prop.CanWrite,
+                IsReadOnly = !PropertyGridItem.CanEdit(prop),
                 Parent = parent,
                 Depth = depth
             };
@@ -649,6 +649,7 @@ namespace FishUI.Controls
 
         private void CreateEditorForItem(FishUI UI, PropertyGridItem item, float x, float y, float width, float height)
         {
+            x /= UIScale; y /= UIScale; width /= UIScale; height /= UIScale;
             DestroyActiveEditor();
 
             if (item == null || item.IsCategoryHeader || item.IsReadOnly)
@@ -952,8 +953,7 @@ namespace FishUI.Controls
             addBtn.Size = new Vector2(buttonWidth, buttonHeight);
             addBtn.OnButtonPressed += (sender, btn, pos) =>
             {
-                listBox.AddItem("New Item");
-                ApplyStringCollectionChanges(item, listBox.Items.Select(i => i.Text).ToList());
+                if (EditCollection(item, "add", -1, -1, "New Item")) listBox.AddItem("New Item");
             };
             panel.AddChild(addBtn);
             currentX += buttonWidth + buttonSpacing;
@@ -966,16 +966,17 @@ namespace FishUI.Controls
             {
                 if (listBox.SelectedIndex >= 0 && listBox.SelectedIndex < listBox.Items.Count)
                 {
-                    listBox.Items.RemoveAt(listBox.SelectedIndex);
-                    listBox.SelectedIndex = Math.Min(listBox.SelectedIndex, listBox.Items.Count - 1);
-                    ApplyStringCollectionChanges(item, listBox.Items.Select(i => i.Text).ToList());
+                    int index = listBox.SelectedIndex;
+                    if (!EditCollection(item, "remove", index, -1, null)) return;
+                    listBox.Items.RemoveAt(index);
+                    listBox.SelectedIndex = Math.Min(index, listBox.Items.Count - 1);
                 }
             };
             panel.AddChild(removeBtn);
             currentX += buttonWidth + buttonSpacing;
 
             // Move Up button
-            var upBtn = new Button { Text = "▲" };
+            var upBtn = new Button { Text = "Up" };
             upBtn.Position = new Vector2(currentX, buttonY);
             upBtn.Size = new Vector2(28, buttonHeight);
             upBtn.OnButtonPressed += (sender, btn, pos) =>
@@ -983,18 +984,18 @@ namespace FishUI.Controls
                 int idx = listBox.SelectedIndex;
                 if (idx > 0)
                 {
+                    if (!EditCollection(item, "move", idx, idx - 1, null)) return;
                     var temp = listBox.Items[idx];
                     listBox.Items[idx] = listBox.Items[idx - 1];
                     listBox.Items[idx - 1] = temp;
                     listBox.SelectedIndex = idx - 1;
-                    ApplyStringCollectionChanges(item, listBox.Items.Select(i => i.Text).ToList());
                 }
             };
             panel.AddChild(upBtn);
             currentX += 28 + buttonSpacing;
 
             // Move Down button
-            var downBtn = new Button { Text = "▼" };
+            var downBtn = new Button { Text = "Down" };
             downBtn.Position = new Vector2(currentX, buttonY);
             downBtn.Size = new Vector2(28, buttonHeight);
             downBtn.OnButtonPressed += (sender, btn, pos) =>
@@ -1002,11 +1003,11 @@ namespace FishUI.Controls
                 int idx = listBox.SelectedIndex;
                 if (idx >= 0 && idx < listBox.Items.Count - 1)
                 {
+                    if (!EditCollection(item, "move", idx, idx + 1, null)) return;
                     var temp = listBox.Items[idx];
                     listBox.Items[idx] = listBox.Items[idx + 1];
                     listBox.Items[idx + 1] = temp;
                     listBox.SelectedIndex = idx + 1;
-                    ApplyStringCollectionChanges(item, listBox.Items.Select(i => i.Text).ToList());
                 }
             };
             panel.AddChild(downBtn);
@@ -1019,82 +1020,96 @@ namespace FishUI.Controls
             editBox.Placeholder = "Select item to edit...";
             panel.AddChild(editBox);
 
+            bool populatingEditor = false;
             // Update editbox when selection changes
             listBox.OnItemSelected += (sender, idx, itm) =>
             {
-                if (itm != null)
-                    editBox.Text = itm.Text;
+                populatingEditor = true;
+                try { editBox.Text = itm?.Text ?? ""; }
+                finally { populatingEditor = false; }
             };
 
             // Apply edit when editbox text changes
             editBox.OnTextChanged += (sender, text) =>
             {
+                if (populatingEditor) return;
                 int idx = listBox.SelectedIndex;
-                if (idx >= 0 && idx < listBox.Items.Count)
-                {
+                if (idx >= 0 && idx < listBox.Items.Count && EditCollection(item, "rename", idx, -1, text))
                     listBox.Items[idx].Text = text;
-                    ApplyStringCollectionChanges(item, listBox.Items.Select(i => i.Text).ToList());
-                }
             };
+            ArrangeCollectionEditor(panel);
         }
 
-        private void ApplyStringCollectionChanges(PropertyGridItem item, List<string> newStrings)
+        private void ArrangeCollectionEditor(Panel panel)
         {
-            var oldValue = item.GetValue();
-            var propType = item.PropertyType;
-
-            object newValue = null;
-
-            // Check if the property is List<ListBoxItem> (like ListBox.Items)
-            if (propType.IsGenericType && propType.GetGenericTypeDefinition() == typeof(List<>))
+            const float padding = 4;
+            float rowHeight = Math.Max(22, RowPixels / UIScale);
+            float width = Math.Max(0, panel.Size.X - 2 * padding);
+            float listHeight = Math.Max(0, panel.Size.Y - 2 * rowHeight - 4 * padding);
+            var list = panel.Children.OfType<ListBox>().First();
+            list.Position = new Vector2(padding, padding);
+            list.Size = new Vector2(width, listHeight);
+            var edit = panel.Children.OfType<Textbox>().First();
+            edit.Position = new Vector2(padding, listHeight + 2 * padding);
+            edit.Size = new Vector2(width, rowHeight);
+            var buttons = panel.Children.OfType<Button>().ToArray();
+            float buttonWidth = Math.Max(0, (width - (buttons.Length - 1) * padding) / buttons.Length);
+            for (int i = 0; i < buttons.Length; i++)
             {
-                var elementType = propType.GetGenericArguments()[0];
-                if (elementType == typeof(string))
+                buttons[i].Position = new Vector2(padding + i * (buttonWidth + padding), listHeight + rowHeight + 3 * padding);
+                buttons[i].Size = new Vector2(buttonWidth, rowHeight);
+            }
+        }
+
+        private bool EditCollection(PropertyGridItem item, string operation, int index, int destination, string text)
+        {
+            if (item.IsReadOnly || !PropertyGridItem.CanEdit(item.PropertyInfo)) return false;
+            var list = item.GetValue() as System.Collections.IList;
+            if (list == null || list.IsReadOnly) return false;
+            var oldItems = new object[list.Count]; list.CopyTo(oldItems, 0);
+            var type = item.PropertyType.IsArray ? item.PropertyType.GetElementType() : item.PropertyType.GetGenericArguments()[0];
+            object added = null;
+            // Construct and validate additions before modifying the collection.
+            try
+            {
+                if (operation == "add")
                 {
-                    newValue = newStrings;
+                    if (type == typeof(string)) added = text;
+                    else
+                    {
+                        var constructor = type.GetConstructor(new[] { typeof(string) });
+                        added = constructor != null ? constructor.Invoke(new object[] { text }) : Activator.CreateInstance(type);
+                        PropertyGridItem.SetDisplayTextValue(added, text);
+                    }
+                }
+                if (operation != "add" && (index < 0 || index >= list.Count)) return false;
+                if (operation == "move" && (destination < 0 || destination >= list.Count)) return false;
+                if (operation == "rename" && PropertyGridItem.GetDisplayTextValue(list[index]) == text) return true;
+                if (item.PropertyType.IsArray)
+                {
+                    var values = oldItems.Cast<string>().ToList();
+                    if (operation == "add") values.Add(text);
+                    else if (operation == "remove") values.RemoveAt(index);
+                    else if (operation == "rename") values[index] = text;
+                    else { string moved = values[index]; values.RemoveAt(index); values.Insert(destination, moved); }
+                    if (!item.SetValue(values.ToArray())) return false;
                 }
                 else
                 {
-                    // For types like List<ListBoxItem>, update the existing list items
-                    var currentList = oldValue as System.Collections.IList;
-                    if (currentList != null)
+                    if (list.IsFixedSize) return false;
+                    if (operation == "add") list.Add(added);
+                    else if (operation == "remove") list.RemoveAt(index);
+                    else if (operation == "rename")
                     {
-                        // Clear and rebuild the list
-                        currentList.Clear();
-                        foreach (var s in newStrings)
-                        {
-                            // Try to create new instance with string constructor
-                            var ctor = elementType.GetConstructor(new[] { typeof(string) });
-                            if (ctor != null)
-                            {
-                                var newItem = ctor.Invoke(new object[] { s });
-                                currentList.Add(newItem);
-                            }
-                            else
-                            {
-                                // Try default constructor + Text property
-                                var defaultCtor = elementType.GetConstructor(Type.EmptyTypes);
-                                if (defaultCtor != null)
-                                {
-                                    var newItem = defaultCtor.Invoke(null);
-                                    var textProp = elementType.GetProperty("Text");
-                                    textProp?.SetValue(newItem, s);
-                                    currentList.Add(newItem);
-                                }
-                            }
-                        }
-                        OnPropertyValueChanged?.Invoke(this, item, oldValue, currentList);
-                        return;
+                        if (type == typeof(string)) list[index] = text;
+                        else PropertyGridItem.SetDisplayTextValue(list[index], text);
                     }
+                    else { object moved = list[index]; list.RemoveAt(index); list.Insert(destination, moved); }
                 }
             }
-            else if (propType == typeof(string[]))
-            {
-                newValue = newStrings.ToArray();
-            }
-
-            if (newValue != null && item.SetValue(newValue))
-                OnPropertyValueChanged?.Invoke(this, item, oldValue, newValue);
+            catch (Exception) { return false; }
+            OnPropertyValueChanged?.Invoke(this, item, oldItems, item.GetValue());
+            return true;
         }
 
         private void UpdateVisibleItems()
@@ -1121,14 +1136,13 @@ namespace FishUI.Controls
             Vector2 absSize = GetAbsoluteSize();
             IFishUIGfx gfx = UI.Graphics;
 
-            // Get font if not cached
-            if (_font == null)
-                _font = UI.Settings.FontDefault;
+            // Theme changes may replace the font while an editor remains open.
+            _font = UI.Settings.FontDefault;
 
             // Draw background
             gfx.DrawRectangle(absPos, absSize, ApplyOpacity(BackgroundColor));
 
-            float contentHeight = _visibleItems.Count * RowHeight;
+            float contentHeight = _visibleItems.Count * RowPixels;
             float visibleHeight = absSize.Y;
             float scrollBarWidth = contentHeight > visibleHeight ? 16 : 0;
             float contentWidth = absSize.X - scrollBarWidth;
@@ -1140,10 +1154,10 @@ namespace FishUI.Controls
 
             foreach (var item in _visibleItems)
             {
-                float itemY = y + visibleIndex * RowHeight;
+                float itemY = y + visibleIndex * RowPixels;
 
                 // Skip items outside visible area
-                if (itemY + RowHeight < absPos.Y || itemY > absPos.Y + absSize.Y)
+                if (itemY + RowPixels < absPos.Y || itemY > absPos.Y + absSize.Y)
                 {
                     visibleIndex++;
                     continue;
@@ -1152,7 +1166,7 @@ namespace FishUI.Controls
                 if (item.IsCategoryHeader)
                 {
                     // Draw category header
-                    gfx.DrawRectangle(new Vector2(absPos.X, itemY), new Vector2(contentWidth, RowHeight), ApplyOpacity(CategoryColor));
+                    gfx.DrawRectangle(new Vector2(absPos.X, itemY), new Vector2(contentWidth, RowPixels), ApplyOpacity(CategoryColor));
 
                     // Draw expand/collapse indicator and text
                     string indicator = item.IsExpanded ? "- " : "+ ";
@@ -1171,13 +1185,13 @@ namespace FishUI.Controls
                     float indent = item.Depth * IndentWidth;
 
                     // Name column background
-                    gfx.DrawRectangle(new Vector2(absPos.X, itemY), new Vector2(nameColumnWidth, RowHeight), ApplyOpacity(NameColumnColor));
+                    gfx.DrawRectangle(new Vector2(absPos.X, itemY), new Vector2(nameColumnWidth, RowPixels), ApplyOpacity(NameColumnColor));
 
                     // Value column background
-                    gfx.DrawRectangle(new Vector2(absPos.X + nameColumnWidth, itemY), new Vector2(contentWidth - nameColumnWidth, RowHeight), ApplyOpacity(rowColor));
+                    gfx.DrawRectangle(new Vector2(absPos.X + nameColumnWidth, itemY), new Vector2(contentWidth - nameColumnWidth, RowPixels), ApplyOpacity(rowColor));
 
                     // Separator line
-                    gfx.DrawRectangle(new Vector2(absPos.X + nameColumnWidth - 1, itemY), new Vector2(1, RowHeight), ApplyOpacity(SeparatorColor));
+                    gfx.DrawRectangle(new Vector2(absPos.X + nameColumnWidth - 1, itemY), new Vector2(1, RowPixels), ApplyOpacity(SeparatorColor));
 
                     // Draw name
                     gfx.DrawTextColor(_font, item.Name, new Vector2(absPos.X + 4 + indent, itemY + 3), ApplyOpacity(NameTextColor));
@@ -1191,7 +1205,7 @@ namespace FishUI.Controls
                 }
 
                 // Draw row separator
-                gfx.DrawRectangle(new Vector2(absPos.X, itemY + RowHeight - 1), new Vector2(contentWidth, 1), ApplyOpacity(SeparatorColor));
+                gfx.DrawRectangle(new Vector2(absPos.X, itemY + RowPixels - 1), new Vector2(contentWidth, 1), ApplyOpacity(SeparatorColor));
 
                 visibleIndex++;
             }
@@ -1202,9 +1216,34 @@ namespace FishUI.Controls
 
         protected override void PrepareLayout(FishUI UI)
         {
+            _font = UI.Settings.FontDefault;
             UpdateVisibleItems();
             Vector2 absSize = GetAbsoluteSize();
-            float contentHeight = _visibleItems.Count * RowHeight;
+            if (_activeEditor != null && _selectedItem != null)
+            {
+                int row = _visibleItems.IndexOf(_selectedItem);
+                float width = absSize.X - (_visibleItems.Count * RowPixels > absSize.Y ? 16 : 0);
+                _activeEditor.Position = new Vector2(width * NameColumnRatio / UIScale, (row * RowPixels - _scrollOffset) / UIScale);
+                _activeEditor.Size = new Vector2(Math.Max(0, width * (1 - NameColumnRatio) / UIScale), _selectedItem.IsCollection ? Math.Max(150, 4 * RowPixels / UIScale) : RowPixels / UIScale);
+                if (_activeEditor is Panel panel)
+                {
+                    if (_selectedItem.IsCollection) ArrangeCollectionEditor(panel);
+                    else
+                    {
+                        var components = panel.Children.OfType<NumericUpDown>().ToArray();
+                        var labels = panel.Children.OfType<Label>().ToArray();
+                        float slot = components.Length == 0 ? 0 : panel.Size.X / components.Length;
+                        for (int i = 0; i < components.Length; i++)
+                        {
+                            labels[i].Position = new Vector2(i * slot, 0);
+                            labels[i].Size = new Vector2(Math.Min(12, slot), panel.Size.Y);
+                            components[i].Position = new Vector2(i * slot + Math.Min(12, slot), 0);
+                            components[i].Size = new Vector2(Math.Max(0, slot - 14), panel.Size.Y);
+                        }
+                    }
+                }
+            }
+            float contentHeight = _visibleItems.Count * RowPixels;
             float visibleHeight = absSize.Y;
             // Draw scrollbar if needed
             if (contentHeight > visibleHeight)
@@ -1212,7 +1251,7 @@ namespace FishUI.Controls
                 if (_scrollBar == null)
                 {
                     _scrollBar = new ScrollBarV();
-                    _scrollBar.OnScrollChanged += (sender, scroll, dir) => _scrollOffset = scroll * Math.Max(0, _visibleItems.Count * RowHeight - GetAbsoluteSize().Y);
+                    _scrollBar.OnScrollChanged += (sender, scroll, dir) => _scrollOffset = scroll * Math.Max(0, _visibleItems.Count * RowPixels - GetAbsoluteSize().Y);
                     AddRuntimeChild(_scrollBar);
                 }
 
@@ -1254,7 +1293,7 @@ namespace FishUI.Controls
 
             Vector2 absPos = GetAbsolutePosition();
             float localY = Pos.Y - absPos.Y + _scrollOffset;
-            int index = (int)(localY / RowHeight);
+            int index = (int)(localY / RowPixels);
 
             if (Btn == FishMouseButton.Right)
             {
@@ -1300,9 +1339,9 @@ namespace FishUI.Controls
                     float contentWidth = GetAbsoluteSize().X - scrollBarWidth;
                     float nameColumnWidth = contentWidth * NameColumnRatio;
                     float valueWidth = contentWidth - nameColumnWidth;
-                    float itemY = index * RowHeight - _scrollOffset;
+                    float itemY = index * RowPixels - _scrollOffset;
 
-                    CreateEditorForItem(UI, item, nameColumnWidth, itemY, valueWidth, RowHeight);
+                    CreateEditorForItem(UI, item, nameColumnWidth, itemY, valueWidth, RowPixels);
                     RecordDiagnosticTransition("editorActive", hadEditor, _activeEditor != null);
                 }
             }
@@ -1314,7 +1353,7 @@ namespace FishUI.Controls
 
             Vector2 absPos = GetAbsolutePosition();
             float localY = Pos.Y - absPos.Y + _scrollOffset;
-            int index = (int)(localY / RowHeight);
+            int index = (int)(localY / RowPixels);
 
             if (index >= 0 && index < _visibleItems.Count)
                 _hoveredItem = _visibleItems[index];
@@ -1331,11 +1370,11 @@ namespace FishUI.Controls
         public override void HandleMouseWheel(FishUI UI, FishInputState InState, float WheelDelta)
         {
             float previousOffset = _scrollOffset;
-            float contentHeight = _visibleItems.Count * RowHeight;
+            float contentHeight = _visibleItems.Count * RowPixels;
             float visibleHeight = GetAbsoluteSize().Y;
             float maxScroll = Math.Max(0, contentHeight - visibleHeight);
 
-            _scrollOffset -= WheelDelta * RowHeight * 3;
+            _scrollOffset -= WheelDelta * RowPixels * 3;
             _scrollOffset = Math.Clamp(_scrollOffset, 0, maxScroll);
 
             if (_scrollBar != null && _scrollBar.Visible && maxScroll > 0)

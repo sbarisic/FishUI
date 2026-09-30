@@ -326,7 +326,9 @@ namespace FishUI.Controls
                     _contentPanel.Children.Clear();
                     foreach (var child in value)
                     {
+                        int depth = child.ZDepth;
                         _contentPanel.AddChild(child);
+                        child.ZDepth = depth;
                     }
                 }
             }

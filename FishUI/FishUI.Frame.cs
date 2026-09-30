@@ -34,6 +34,7 @@ namespace FishUI
         /// <param name="Time">The current time, in seconds, used for time-dependent calculations and animations.</param>
         public void TickUpdate(float Dt, float Time)
         {
+            if (_layoutReplacing) throw new InvalidOperationException("Cannot update during layout replacement.");
             if (!float.IsFinite(Dt) || !float.IsFinite(Time))
                 throw new ArgumentOutOfRangeException(nameof(Dt), "Frame values must be finite.");
             EnsureInitialized();
@@ -258,6 +259,7 @@ namespace FishUI
         /// <param name="Time">The current time, in seconds, used to determine the state of controls during the draw operation.</param>
         public void TickDraw(float Dt, float Time)
         {
+            if (_layoutReplacing) throw new InvalidOperationException("Cannot draw during layout replacement.");
             if (!float.IsFinite(Dt) || !float.IsFinite(Time))
                 throw new ArgumentOutOfRangeException(nameof(Dt), "Frame values must be finite.");
             EnsureInitialized();

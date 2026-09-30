@@ -110,10 +110,10 @@ namespace FishUI.Controls
         /// </summary>
         public void UpdateLayout()
         {
-            Vector2 containerSize = Size;
+            Vector2 containerSize = GetEffectiveLogicalSize();
             float availableMainAxis = IsHorizontalFlow
-                ? containerSize.X - LayoutPadding * 2
-                : containerSize.Y - LayoutPadding * 2;
+                ? Math.Max(0, containerSize.X - LayoutPadding * 2)
+                : Math.Max(0, containerSize.Y - LayoutPadding * 2);
 
             // Collect visible children
             var visibleChildren = new System.Collections.Generic.List<Control>();
@@ -233,10 +233,10 @@ namespace FishUI.Controls
         {
             get
             {
-                Vector2 containerSize = Size;
+                Vector2 containerSize = GetEffectiveLogicalSize();
                 float availableMainAxis = IsHorizontalFlow
-                    ? containerSize.X - LayoutPadding * 2
-                    : containerSize.Y - LayoutPadding * 2;
+                    ? Math.Max(0, containerSize.X - LayoutPadding * 2)
+                    : Math.Max(0, containerSize.Y - LayoutPadding * 2);
 
                 // Collect visible children
                 var visibleChildren = new System.Collections.Generic.List<Control>();

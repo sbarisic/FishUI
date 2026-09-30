@@ -35,34 +35,30 @@ namespace FishUI.Controls
             if (ui == null)
                 throw new ArgumentNullException(nameof(ui));
 
-            List<Control> completed = new List<Control>();
             List<Control> assigned = new List<Control>();
             try
             {
-                AttachSubtreeCore(ui, completed, assigned);
+                AttachSubtreeCore(ui, assigned);
             }
-            catch
+            catch (Exception failure)
             {
-                for (int i = completed.Count - 1; i >= 0; i--)
+                var errors = new List<Exception> { failure };
+                for (int i = assigned.Count - 1; i >= 0; i--)
                 {
-                    Control control = completed[i];
+                    Control control = assigned[i];
                     try { control.OnDetachedFromFishUI(ui); }
-                    catch { }
+                    catch (Exception ex) { errors.Add(ex); }
                     control.AttachedFishUI = null;
+                    control._initializedFishUI = null;
                     if (control.Parent == null)
                         control._FishUI = null;
                 }
-                for (int i = 0; i < assigned.Count; i++)
-                {
-                    assigned[i].AttachedFishUI = null;
-                    if (assigned[i].Parent == null)
-                        assigned[i]._FishUI = null;
-                }
+                if (errors.Count > 1) throw new AggregateException("Attachment failed; cleanup completed with errors.", errors);
                 throw;
             }
         }
 
-        private void AttachSubtreeCore(FishUI ui, List<Control> completed, List<Control> assigned)
+        private void AttachSubtreeCore(FishUI ui, List<Control> assigned)
         {
             if (RequiresRootAttachment && Parent != null)
                 throw new InvalidOperationException($"{GetType().Name} must be added as a FishUI root control.");
@@ -74,11 +70,10 @@ namespace FishUI.Controls
             if (Parent == null)
                 _FishUI = ui;
             OnAttachedToFishUI(ui);
-            completed.Add(this);
 
             Control[] children = GetAllChildren(false);
             for (int i = 0; i < children.Length; i++)
-                children[i].AttachSubtreeCore(ui, completed, assigned);
+                children[i].AttachSubtreeCore(ui, assigned);
         }
 
         internal void DetachSubtree(FishUI ui)

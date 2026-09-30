@@ -19,8 +19,16 @@ namespace FishUI
         public static void DeserializeFromFile(FishUI ui, string filePath, FishUILayoutSerializationOptions options = null)
         {
             if (ui == null) throw new ArgumentNullException(nameof(ui));
-            Deserialize(ui, ui.FileSystem.ReadAllText(filePath), options);
-            ui.Events?.OnLayoutLoaded(new FishUILayoutLoadedEventArgs(ui, filePath));
+            FishUILayoutCleanupException cleanup = null;
+            try { Deserialize(ui, ui.FileSystem.ReadAllText(filePath), options); }
+            catch (FishUILayoutCleanupException ex) { cleanup = ex; }
+            try { ui.Events?.OnLayoutLoaded(new FishUILayoutLoadedEventArgs(ui, filePath)); }
+            catch (Exception ex)
+            {
+                if (cleanup != null) throw new FishUILayoutCleanupException(new Exception[] { cleanup, ex });
+                throw;
+            }
+            if (cleanup != null) throw cleanup;
         }
 
         public static string Serialize(FishUI ui, FishUILayoutSerializationOptions options = null)
@@ -69,26 +77,7 @@ namespace FishUI
         public static void Deserialize(FishUI ui, string data, FishUILayoutSerializationOptions options = null)
         {
             if (ui == null) throw new ArgumentNullException(nameof(ui));
-            List<Control> incoming = DeserializeControls(data, options);
-            Control[] original = ui.GetAllControls();
-            List<Control> attached = new List<Control>(incoming.Count);
-            try
-            {
-                for (int i = 0; i < incoming.Count; i++)
-                {
-                    Control control = incoming[i];
-                    control.OnDeserialized(ui);
-                    ui.AddControl(control);
-                    attached.Add(control);
-                }
-            }
-            catch
-            {
-                for (int i = attached.Count - 1; i >= 0; i--) ui.RemoveControl(attached[i]);
-                throw;
-            }
-
-            for (int i = original.Length - 1; i >= 0; i--) ui.RemoveControl(original[i]);
+            ui.ReplaceLayout(() => DeserializeControls(data, options));
         }
 
         private static void ValidateRanges(Control control)
@@ -97,7 +86,7 @@ namespace FishUI
             foreach (Control child in control.Children) ValidateRanges(child);
         }
 
-        private static SerializerBuilder ConfigureSerializer(SerializerBuilder builder, FishUILayoutSerializationOptions options)
+        internal static SerializerBuilder ConfigureSerializer(SerializerBuilder builder, FishUILayoutSerializationOptions options)
         {
             builder = builder.WithNamingConvention(PascalCaseNamingConvention.Instance)
                 .IncludeNonPublicProperties()

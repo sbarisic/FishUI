@@ -137,7 +137,7 @@ namespace FishUIDemos
 
         private void OnRowSelected(DataGrid grid, int rowIndex, DataGridRow row)
         {
-            _statusLabel.Text = $"Selected: Row {rowIndex} - {row[1]} ({row[2]})";
+            _statusLabel.Text = row == null ? "Selection cleared" : $"Selected: Row {rowIndex} - {row[1]} ({row[2]})";
         }
 
         private void OnColumnSort(DataGrid grid, int columnIndex, SortDirection direction)

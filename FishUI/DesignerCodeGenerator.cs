@@ -153,7 +153,9 @@ namespace FishUI
             foreach (var control in controls)
             {
                 string varName = GetVariableName(control);
+                _writer.WriteLine($"{varName}.OnDeserialized(FUI);");
                 _writer.WriteLine($"FUI.AddControl({varName});");
+                _writer.WriteLine($"{varName}.ZDepth = {control.ZDepth};");
             }
 
             _writer.EndMethod();
@@ -206,222 +208,41 @@ namespace FishUI
 
             // Handle special cases
             GenerateSpecialCases(control, varName);
-            if (control is ImageBox image && !string.IsNullOrEmpty(image.ImagePath))
-                _writer.WriteLine($"{varName}.OnDeserialized(FUI);");
-            if (control is TabControl selectedTabs)
-                _writer.WriteLine($"{varName}.SelectedIndex = {selectedTabs.SelectedIndex};");
+
         }
+
+        private readonly PersistedState _persisted = new PersistedState();
 
         private void GeneratePropertyAssignments(Control control, string varName)
         {
-            Type type = control.GetType();
-
-            // Position
-            if (control.Position.Mode != PositionMode.Relative)
-            {
-                FishUIPosition position = control.Position;
-                _writer.WriteLine($"{varName}.Position = new FishUIPosition {{ Mode = {FishCSharpWriter.EnumLiteral(position.Mode)}, Dock = {FishCSharpWriter.EnumLiteral(position.Dock)}, X = {FishCSharpWriter.FloatLiteral(position.X)}, Y = {FishCSharpWriter.FloatLiteral(position.Y)}, Left = {FishCSharpWriter.FloatLiteral(position.Left)}, Top = {FishCSharpWriter.FloatLiteral(position.Top)}, Right = {FishCSharpWriter.FloatLiteral(position.Right)}, Bottom = {FishCSharpWriter.FloatLiteral(position.Bottom)} }};");
-            }
-            else if (control.Position.X != 0 || control.Position.Y != 0)
-            {
-                _writer.WriteLine($"{varName}.Position = {FishCSharpWriter.Vector2Literal(new Vector2(control.Position.X, control.Position.Y))};");
-            }
-
-            // Size
-            _writer.WriteLine($"{varName}.Size = {FishCSharpWriter.Vector2Literal(control.Size)};");
-
-            // ID
-            if (!string.IsNullOrEmpty(control.ID))
-            {
-                _writer.WriteLine($"{varName}.ID = {FishCSharpWriter.StringLiteral(control.ID)};");
-            }
-
-            // Anchor (if not default TopLeft)
-            if (control.Anchor != FishUIAnchor.TopLeft)
-            {
-                _writer.WriteLine($"{varName}.Anchor = {FishCSharpWriter.EnumLiteral(control.Anchor)};");
-            }
-
-            // AnchorParentSize (if set)
-            if (control.AnchorParentSize != Vector2.Zero)
-            {
-                _writer.WriteLine($"{varName}.AnchorParentSize = {FishCSharpWriter.Vector2Literal(control.AnchorParentSize)};");
-            }
-
-            // Visible (if false)
-            if (!control.Visible)
-            {
-                _writer.WriteLine($"{varName}.Visible = false;");
-            }
-
-            // Type-specific properties
-            _writer.WriteLine($"{varName}.Disabled = {(control.Disabled ? "true" : "false")};");
-            _writer.WriteLine($"{varName}.Focusable = {(control.Focusable ? "true" : "false")};");
-            _writer.WriteLine($"{varName}.Opacity = {FishCSharpWriter.FloatLiteral(control.Opacity)};");
-            _writer.WriteLine($"{varName}.ZDepth = {control.ZDepth};");
-            _writer.WriteLine($"{varName}.Color = {FishCSharpWriter.ColorLiteral(control.Color)};");
-            _writer.WriteLine($"{varName}.AlwaysOnTop = {FishCSharpWriter.BoolLiteral(control.AlwaysOnTop)};");
-            _writer.WriteLine($"{varName}.Draggable = {FishCSharpWriter.BoolLiteral(control.Draggable)};");
-            _writer.WriteLine($"{varName}.DisableChildScissor = {FishCSharpWriter.BoolLiteral(control.DisableChildScissor)};");
-            _writer.WriteLine($"{varName}.AutoSize = {FishCSharpWriter.EnumLiteral(control.AutoSize)};");
-            _writer.WriteLine($"{varName}.TooltipText = {FishCSharpWriter.StringLiteral(control.TooltipText)};");
-            foreach (var margin in new[] { (Name: "Margin", Value: control.Margin), (Name: "Padding", Value: control.Padding) })
-                _writer.WriteLine($"{varName}.{margin.Name} = new FishUIMargin({FishCSharpWriter.FloatLiteral(margin.Value.Top)}, {FishCSharpWriter.FloatLiteral(margin.Value.Right)}, {FishCSharpWriter.FloatLiteral(margin.Value.Bottom)}, {FishCSharpWriter.FloatLiteral(margin.Value.Left)});");
-            if (control.ColorOverrides != null)
-            {
-                _writer.WriteLine($"{varName}.ColorOverrides = new System.Collections.Generic.Dictionary<string, FishColor>();");
-                foreach (var color in control.ColorOverrides)
-                    _writer.WriteLine($"{varName}.ColorOverrides[{FishCSharpWriter.StringLiteral(color.Key)}] = {FishCSharpWriter.ColorLiteral(color.Value)};");
-            }
-            foreach (string name in new[] { nameof(Control.OnClickHandler), nameof(Control.OnValueChangedHandler), nameof(Control.OnSelectionChangedHandler), nameof(Control.OnTextChangedHandler), nameof(Control.OnCheckedChangedHandler) })
-            {
-                string handler = (string)typeof(Control).GetProperty(name).GetValue(control);
-                if (!string.IsNullOrEmpty(handler)) _writer.WriteLine($"{varName}.{name} = {FishCSharpWriter.StringLiteral(handler)};");
-            }
             if (control is IFishUINumericRange range)
                 _writer.WriteLine($"{varName}.SetRange({FishCSharpWriter.FloatLiteral(range.MinValue)}, {FishCSharpWriter.FloatLiteral(range.MaxValue)});");
-            GenerateTypeSpecificProperties(control, varName);
-        }
-
-        private void GenerateTypeSpecificProperties(Control control, string varName)
-        {
-            switch (control)
+            foreach (var member in _persisted.Members(control))
             {
-                case Button btn:
-                    if (!string.IsNullOrEmpty(btn.Text))
-                        _writer.WriteLine($"{varName}.Text = {FishCSharpWriter.StringLiteral(btn.Text)};");
-                    if (btn.IsToggleButton)
-                        _writer.WriteLine($"{varName}.IsToggleButton = true;");
-                    if (btn.IsRepeatButton)
-                        _writer.WriteLine($"{varName}.IsRepeatButton = true;");
-                    break;
-
-                case Label lbl:
-                    if (!string.IsNullOrEmpty(lbl.Text))
-                        _writer.WriteLine($"{varName}.Text = {FishCSharpWriter.StringLiteral(lbl.Text)};");
-                    if (lbl.Alignment != Align.Left)
-                        _writer.WriteLine($"{varName}.Alignment = {FishCSharpWriter.EnumLiteral(lbl.Alignment)};");
-                    break;
-
-                case Textbox txt:
-                    if (!string.IsNullOrEmpty(txt.Text))
-                        _writer.WriteLine($"{varName}.Text = {FishCSharpWriter.StringLiteral(txt.Text)};");
-                    if (!string.IsNullOrEmpty(txt.Placeholder))
-                        _writer.WriteLine($"{varName}.Placeholder = {FishCSharpWriter.StringLiteral(txt.Placeholder)};");
-                    break;
-
-                case CheckBox chk:
-                    if (chk.IsChecked)
-                        _writer.WriteLine($"{varName}.IsChecked = true;");
-                    break;
-
-                case RadioButton rb:
-                    if (rb.IsChecked)
-                        _writer.WriteLine($"{varName}.IsChecked = true;");
-                    break;
-
-                case Panel panel:
-                    if (panel.IsTransparent)
-                        _writer.WriteLine($"{varName}.IsTransparent = true;");
-                    if (panel.Variant != PanelVariant.Normal)
-                        _writer.WriteLine($"{varName}.Variant = {FishCSharpWriter.EnumLiteral(panel.Variant)};");
-                    if (panel.BorderStyle != BorderStyle.None)
-                        _writer.WriteLine($"{varName}.BorderStyle = {FishCSharpWriter.EnumLiteral(panel.BorderStyle)};");
-                    break;
-
-                case Window window:
-                    if (!string.IsNullOrEmpty(window.Title) && window.Title != "Window")
-                        _writer.WriteLine($"{varName}.Title = {FishCSharpWriter.StringLiteral(window.Title)};");
-                    if (!window.IsResizable)
-                        _writer.WriteLine($"{varName}.IsResizable = false;");
-                    if (!window.ShowCloseButton)
-                        _writer.WriteLine($"{varName}.ShowCloseButton = false;");
-                    if (!window.ShowShadow)
-                        _writer.WriteLine($"{varName}.ShowShadow = false;");
-                    break;
-
-                case GroupBox grp:
-                    if (!string.IsNullOrEmpty(grp.Text) && grp.Text != "Group")
-                        _writer.WriteLine($"{varName}.Text = {FishCSharpWriter.StringLiteral(grp.Text)};");
-                    break;
-
-                case ProgressBar pb:
-                    if (pb.Value != 0)
-                        _writer.WriteLine($"{varName}.Value = {FishCSharpWriter.FloatLiteral(pb.Value)};");
-                    break;
-
-                case Slider slider:
-                    if (slider.Value != 0)
-                        _writer.WriteLine($"{varName}.Value = {FishCSharpWriter.FloatLiteral(slider.Value)};");
-                    break;
-
-                case ToggleSwitch ts:
-                    if (ts.IsOn)
-                        _writer.WriteLine($"{varName}.IsOn = true;");
-                    break;
-
-                case NumericUpDown nud:
-                    if (nud.Value != 0)
-                        _writer.WriteLine($"{varName}.Value = {FishCSharpWriter.FloatLiteral(nud.Value)};");
-                    if (nud.Step != 1)
-                        _writer.WriteLine($"{varName}.Step = {FishCSharpWriter.FloatLiteral(nud.Step)};");
-                    break;
-
-                case ImageBox img:
-                    if (!string.IsNullOrEmpty(img.ImagePath))
-                        _writer.WriteLine($"{varName}.ImagePath = {FishCSharpWriter.StringLiteral(img.ImagePath)};");
-                    if (img.FilterMode == ImageFilterMode.Pixelated)
-                        _writer.WriteLine($"{varName}.FilterMode = ImageFilterMode.Pixelated;");
-                    break;
-
-                case StaticText st:
-                    if (!string.IsNullOrEmpty(st.Text))
-                        _writer.WriteLine($"{varName}.Text = {FishCSharpWriter.StringLiteral(st.Text)};");
-                    break;
-
-                case BarGauge bg:
-                    if (bg.Value != 0)
-                        _writer.WriteLine($"{varName}.Value = {FishCSharpWriter.FloatLiteral(bg.Value)};");
-                    break;
-
-                case RadialGauge rg:
-                    if (rg.Value != 0)
-                        _writer.WriteLine($"{varName}.Value = {FishCSharpWriter.FloatLiteral(rg.Value)};");
-                    break;
+                string name = member.Name;
+                if (name == "Children" || name == "UserChildren" || name == "ZDepth" || name == "SelectedIndex" ||
+                    (control is TabControl && (name == "TabNames" || name == "TabEnabled")) ||
+                    (control is IFishUINumericRange && (name == "MinValue" || name == "MaxValue"))) continue;
+                string publicName = PersistedState.MemberName(control.GetType(), name);
+                _writer.WriteLine($"{varName}.{publicName} = {_persisted.Literal(member.Read(control).Value, control.GetType().Name + "." + name)};");
             }
         }
 
         private void GenerateSpecialCases(Control control, string varName)
         {
-            switch (control)
+            if (control is TabControl tabs)
             {
-                case ListBox lb when lb.Items.Count > 0:
-                    _writer.WriteLine();
-                    _writer.WriteComment("Add ListBox items");
-                    foreach (var item in lb.Items)
-                    {
-                        _writer.WriteLine($"{varName}.AddItem({FishCSharpWriter.StringLiteral(item.Text)});");
-                    }
-                    break;
-
-                case DropDown dd when dd.Items.Count > 0:
-                    _writer.WriteLine();
-                    _writer.WriteComment("Add DropDown items");
-                    foreach (var item in dd.Items)
-                    {
-                        _writer.WriteLine($"{varName}.AddItem({FishCSharpWriter.StringLiteral(item.Text)});");
-                    }
-                    break;
-
-                case DataGrid dg when dg.Columns.Count > 0:
-                    _writer.WriteLine();
-                    _writer.WriteComment("Add DataGrid columns");
-                    foreach (var col in dg.Columns)
-                    {
-                        _writer.WriteLine($"{varName}.AddColumn({FishCSharpWriter.StringLiteral(col.Header)}, {FishCSharpWriter.FloatLiteral(col.Width)});");
-                    }
-                    break;
+                _writer.WriteLine($"{varName}.TabNames = {_persisted.Literal(tabs.TabNames, "TabNames")};");
+                _writer.WriteLine($"{varName}.TabEnabled = {_persisted.Literal(tabs.TabEnabled, "TabEnabled")};");
+                _writer.WriteLine($"{varName}.SelectedIndex = {tabs.SelectedIndex};");
             }
+            else if (control is ListBox list)
+                _writer.WriteLine($"{varName}.SerializedSelectedIndex = {list.SelectedIndex};");
+            else if (control is DropDown drop && drop.SelectedIndex >= 0)
+                _writer.WriteLine($"{varName}.SelectIndex({drop.SelectedIndex});");
+            // Children must be attached before restoring their explicit ordering.
+            foreach (var child in GetSerializableChildren(control))
+                _writer.WriteLine($"{GetVariableName(child)}.ZDepth = {child.ZDepth};");
         }
 
         private void GenerateOnLoadedMethod()

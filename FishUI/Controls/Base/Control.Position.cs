@@ -4,6 +4,7 @@ namespace FishUI.Controls
 {
     public abstract partial class Control
     {
+        internal Vector2 GetEffectiveLogicalSize() => Vector2.Max(Vector2.Zero, GetAbsoluteSize() / UIScale);
         /// <summary>
         /// Gets an additional position offset to apply to child controls.
         /// Override in container controls like ScrollablePane to implement scrolling.

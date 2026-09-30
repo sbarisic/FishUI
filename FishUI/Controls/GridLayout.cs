@@ -98,9 +98,9 @@ namespace FishUI.Controls
             if (Columns <= 0)
                 return;
 
-            Vector2 containerSize = Size;
-            float availableWidth = containerSize.X - LayoutPadding * 2;
-            float availableHeight = containerSize.Y - LayoutPadding * 2;
+            Vector2 containerSize = GetEffectiveLogicalSize();
+            float availableWidth = Math.Max(0, containerSize.X - LayoutPadding * 2);
+            float availableHeight = Math.Max(0, containerSize.Y - LayoutPadding * 2);
 
             int actualRows = ActualRows;
             if (actualRows <= 0)
@@ -167,9 +167,9 @@ namespace FishUI.Controls
                 // Calculate based on uniform cells
                 if (UniformCells)
                 {
-                    Vector2 containerSize = Size;
-                    float availableWidth = containerSize.X - LayoutPadding * 2;
-                    float availableHeight = containerSize.Y - LayoutPadding * 2;
+                    Vector2 containerSize = GetEffectiveLogicalSize();
+                    float availableWidth = Math.Max(0, containerSize.X - LayoutPadding * 2);
+                    float availableHeight = Math.Max(0, containerSize.Y - LayoutPadding * 2);
 
                     float totalHSpacing = (Columns - 1) * HorizontalSpacing;
                     float totalVSpacing = (actualRows - 1) * VerticalSpacing;

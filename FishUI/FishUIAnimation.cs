@@ -292,6 +292,11 @@ namespace FishUI
         private readonly List<FishUIAnimation> _floatAnimations = new List<FishUIAnimation>();
         private readonly List<FishUIAnimationVector2> _vector2Animations = new List<FishUIAnimationVector2>();
         private readonly List<FishUIAnimationColor> _colorAnimations = new List<FishUIAnimationColor>();
+        internal Action CaptureRestore()
+        {
+            var floats = _floatAnimations.ToArray(); var vectors = _vector2Animations.ToArray(); var colors = _colorAnimations.ToArray();
+            return () => { _floatAnimations.Clear(); _floatAnimations.AddRange(floats); _vector2Animations.Clear(); _vector2Animations.AddRange(vectors); _colorAnimations.Clear(); _colorAnimations.AddRange(colors); };
+        }
 
         /// <summary>
         /// Gets the count of active animations.

@@ -224,6 +224,8 @@ namespace FishUI
         /// </summary>
         internal int GetNextZDepth()
         {
+            foreach (var control in Controls)
+                if (control.ZDepth >= _nextZDepth) _nextZDepth = control.ZDepth == int.MaxValue ? int.MaxValue : control.ZDepth + 1;
             return _nextZDepth++;
         }
 
@@ -261,6 +263,7 @@ namespace FishUI
         /// </summary>
         public void SetModalControl(Control? control)
         {
+            if (_layoutPreparing) { _preparedModal = control; _hasPreparedModal = true; return; }
             EnsureInitialized();
             if (control != null && (control.AttachedFishUI != this || !control.IsHierarchyVisible() || !control.IsHierarchyEnabled()))
                 throw new InvalidOperationException("The modal control must be attached to this UI and effectively interactive.");
@@ -283,6 +286,7 @@ namespace FishUI
         public void AddControl(Control C)
         {
             if (C == null) throw new ArgumentNullException(nameof(C));
+            CheckHierarchyMutation(C);
             if (_disposed) throw new ObjectDisposedException(nameof(FishUI));
             if (C.AttachedFishUI == this && C.GetParent() == null && Controls.Contains(C)) return;
 
@@ -292,21 +296,10 @@ namespace FishUI
             int oldZDepth = C.ZDepth;
             int previousNextZDepth = _nextZDepth;
 
-            if (ReferenceEquals(oldUi, this))
-            {
-                if (oldParent != null) oldParent.Children.Remove(C); else Controls.Remove(C);
-                C.SetParentInternal(null);
-                C._FishUI = this;
-                C.ZDepth = GetNextZDepth();
-                Controls.Add(C);
-                Diagnostics.NotifyHierarchyChanged();
-                return;
-            }
-
             if (oldUi != null)
             {
-                oldUi.PrepareSubtreeDetach(C);
-                C.DetachSubtree(oldUi);
+                oldUi.CheckHierarchyMutation(C);
+                oldUi.DetachOwnedControl(C);
             }
             if (oldParent != null) oldParent.Children.Remove(C); else oldUi?.RemoveRootReference(C);
             C.SetParentInternal(null);
@@ -324,8 +317,7 @@ namespace FishUI
                 Exception cleanupFailure = null;
                 try
                 {
-                    PrepareSubtreeDetach(C);
-                    C.DetachSubtree(this);
+                    DetachOwnedControl(C);
                 }
                 catch (Exception ex) { cleanupFailure = ex; }
                 Controls.Remove(C);
@@ -367,11 +359,8 @@ namespace FishUI
         {
             if (C != null && Controls.Contains(C))
             {
-                PrepareSubtreeDetach(C);
-                Controls.Remove(C);
-                if (C.AttachedFishUI == this) C.DetachSubtree(this);
-                C._FishUI = null;
-                Diagnostics.NotifyHierarchyChanged();
+                CheckHierarchyMutation(C);
+                DetachOwnedControl(C);
                 return true;
             }
             return false;
@@ -383,9 +372,12 @@ namespace FishUI
         public void RemoveAllControls()
         {
             Control[] controls = Controls.ToArray();
-            for (int i = controls.Length - 1; i >= 0; i--) RemoveControl(controls[i]);
+            var errors = new List<Exception>();
+            for (int i = controls.Length - 1; i >= 0; i--)
+                try { RemoveControl(controls[i]); } catch (Exception ex) { errors.Add(ex); }
             ModalControl = null;
             Diagnostics.NotifyHierarchyChanged();
+            if (errors.Count > 0) throw new AggregateException("Control removal completed with errors.", errors);
         }
 
         internal int IndexOfRoot(Control control) => Controls.IndexOf(control);
@@ -397,6 +389,7 @@ namespace FishUI
         {
             if (owner == null) throw new ArgumentNullException(nameof(owner));
             if (_disposed) throw new ObjectDisposedException(nameof(FishUI));
+            if (owner is Control control && IsDetaching(control)) throw new InvalidOperationException("Cannot capture input during removal.");
             KeyboardCaptureLease lease = new KeyboardCaptureLease(this, owner);
             _keyboardCaptureLeases.Add(lease);
             return lease;
@@ -506,7 +499,7 @@ namespace FishUI
 
         internal bool IsControlEffectivelyInteractive(Control control)
         {
-            return control != null && control.AttachedFishUI == this && control.IsHierarchyVisible() &&
+            return control != null && !IsDetaching(control) && control.AttachedFishUI == this && control.IsHierarchyVisible() &&
                 control.IsHierarchyEnabled() && IsControlInputAllowed(control);
         }
 
@@ -519,21 +512,25 @@ namespace FishUI
         {
             if (root == null)
                 return;
-            for (int i = _openOverlays.Count - 1; i >= 0; i--)
+            var errors = new List<Exception>();
+            foreach (Control overlay in _openOverlays.ToArray())
             {
-                Control overlay = _openOverlays[i];
                 if (!IsWithinSubtree(overlay, root)) continue;
-                if (overlay is DropDown dropDown) dropDown.Close();
-                else if (overlay is DatePicker datePicker) datePicker.Close();
-                else _openOverlays.RemoveAt(i);
+                _openOverlays.Remove(overlay);
+                try
+                {
+                    if (overlay is DropDown dropDown) dropDown.Close();
+                    else if (overlay is DatePicker datePicker) datePicker.Close();
+                }
+                catch (Exception ex) { errors.Add(ex); }
             }
             if (IsWithinSubtree(InputActiveControl, root))
-                ClearFocus();
+                try { ClearFocus(); } catch (Exception ex) { errors.Add(ex); }
             if (IsWithinSubtree(HoveredControl, root))
             {
                 Control previousHover = HoveredControl;
                 HoveredControl = null;
-                previousHover.HandleMouseLeave(this, InLast);
+                try { previousHover.HandleMouseLeave(this, InLast); } catch (Exception ex) { errors.Add(ex); }
             }
             if (IsWithinSubtree(LeftClickedControl, root))
             {
@@ -556,13 +553,14 @@ namespace FishUI
                 _activeTooltip.Hide();
             }
 
-            StopSubtreeAnimations(root);
+            try { StopSubtreeAnimations(root); } catch (Exception ex) { errors.Add(ex); }
             KeyboardCaptureLease[] leases = _keyboardCaptureLeases.ToArray();
             for (int i = 0; i < leases.Length; i++)
             {
                 if (leases[i].Owner is Control owner && IsWithinSubtree(owner, root))
                     leases[i].Dispose();
             }
+            if (errors.Count > 0) throw new AggregateException("Input cleanup completed with errors.", errors);
         }
 
         private void StopSubtreeAnimations(Control root)

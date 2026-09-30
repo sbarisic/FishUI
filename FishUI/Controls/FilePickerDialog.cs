@@ -44,7 +44,9 @@ namespace FishUI.Controls
             get => _currentDirectory;
             set
             {
+                bool navigated = _currentDirectory != null && _currentDirectory != value;
                 _currentDirectory = value;
+                if (navigated) { FileName = ""; _diagnosticSelectedPath = null; }
                 RefreshFileList();
                 if (_pathTextbox != null)
                     _pathTextbox.Text = value;
@@ -225,7 +227,7 @@ namespace FishUI.Controls
             if (_fileListBox == null || _fileSystem == null)
                 return;
 
-            _fileListBox.Items.Clear();
+            _fileListBox.ResetItemsForNavigation();
             _diagnosticDirectoryCount = 0;
             _diagnosticFileCount = 0;
             _diagnosticCanNavigateUp = !string.IsNullOrEmpty(_currentDirectory) &&

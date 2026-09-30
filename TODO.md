@@ -1,5 +1,9 @@
 ﻿# FishUI - TODO
 
+## Follow-up review
+
+F01–F16 are verified and recorded in [DONE.md](DONE.md#2026-09-30-follow-up-fixes). Spreadsheet cell data remains application-owned. R32 (Undo/Redo) remains deferred; R34's remaining physical-DPI checks remain open below.
+
 ## Text and rendering follow-ups
 
 - [ ] Complex text shaping, bidirectional layout, and IME composition.

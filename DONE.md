@@ -1,5 +1,20 @@
 # FishUI - Completed Items
 
+## 2026-09-30 follow-up fixes
+
+Completed all 16 findings from the second review. The reopened R17/R21/R25 cases are included in this validation.
+
+- **F01, F10:** PropertyGrid collection rename/reorder/add/remove preserves existing objects and metadata, including duplicate labels and public text fields. Selecting an item does not write back. Failed construction preserves the collection. Read-only/accessibility/exclusion checks apply to edits and reset.
+- **F02–F03:** removal completes ownership/input/capture/animation cleanup before reporting callback errors, including reparenting. Layout preparation validates, initializes, and attaches before commit; failures preserve old roots, order, focus/modal state, and registrations. Committed cleanup removes all old roots and reports `FishUILayoutCleanupException`; file loading still notifies. Nested replacement and hierarchy changes during transaction cleanup are rejected.
+- **F04, F08–F09:** generated forms share YAML persisted-member rules, preserve explicit values, collections, hierarchy, selection, ranges, handlers, and resources, and fail on unsupported values. Root/child depths and equal-depth insertion order survive loading. Precision changes and deserialization refresh numeric text without value events.
+- **F05–F06, F11–F12:** unattached list selection and clearing work; callbacks use captured payloads. Directory navigation clears stale selection/filename state and permits index zero immediately. Multiline replacements notify once; DataGrid typed and named selection notifications share one path.
+- **F14–F15:** tab removal preserves the selected page or chooses an enabled fallback; tree subtree removal clears only affected selection/hover state and refreshes traversal. Clearing notifications accept null items/nodes.
+- **F07, F13, F16:** anchors and stack/grid/flow containers use effective logical dimensions. Font/theme changes refresh PropertyGrid layout and editor geometry while retaining the object and current edit. Collection reorder buttons use supported text labels.
+
+Validation: Debug and Release solution builds passed with zero warnings/errors. Each configuration passed **338 tests** (337 UnitTest + 1 FishUI_UnitTest), including 34 focused follow-up cases. Generated forms containing every registered built-in control were compiled, instantiated, and compared against the source through the persisted YAML contract. Checks cover public input, failure injection, collection identity, exact event counts, subtree removal, equal-depth ordering, and logical scales 1, 1.25, 1.5, and 2. Documentation links, Unity source links, and fresh package consumers with asset copying omitted/true/false passed.
+
+Native Windows smoke checks exercised the chooser, editor save/load and nested selection/removal, file navigation, collection rename/reorder, theme/font changes, resizing, and a newly compiled generated form with configured tabs, textbox, numeric, list, and tree controls. Full-frame captures were inspected at actual 125% display scale and retained locally under `artifacts/followup-native`. R32 remains deferred; R34 still needs the other physical scales and monitor transitions. Spreadsheet cell contents remain application-owned. See [contracts and limits](docs/HARDENING.md#2026-09-30-follow-up-fixes).
+
 ## 2026-09-30 backlog fixes
 
 Completed 32 findings; R32 is deferred and R34 retains its outstanding physical DPI checks in [TODO.md](TODO.md).

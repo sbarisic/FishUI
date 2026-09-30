@@ -143,7 +143,7 @@ namespace FishUI.Controls
             set
             {
                 if (NumericRange.ReadingLayout) { _selectedIndex = value; return; }
-                if (value >= 0 && value < TabPages.Count && value != _selectedIndex)
+                if (value >= -1 && value < TabPages.Count && value != _selectedIndex)
                 {
                     int oldIndex = _selectedIndex;
                     _selectedIndex = value;
@@ -266,18 +266,29 @@ namespace FishUI.Controls
             {
                 int previousCount = TabPages.Count;
                 int previousSelection = _selectedIndex;
+                var selected = SelectedTab;
                 var page = TabPages[index];
-                RemoveChild(page.Content);
+                Exception cleanup = null;
+                try { RemoveChild(page.Content); } catch (Exception ex) { cleanup = ex; }
                 TabPages.RemoveAt(index);
-
-                if (_selectedIndex >= TabPages.Count)
+                if (selected != page) _selectedIndex = selected == null ? -1 : TabPages.IndexOf(selected);
+                else
                 {
-                    _selectedIndex = Math.Max(0, TabPages.Count - 1);
+                    _selectedIndex = -1;
+                    for (int i = index; i < TabPages.Count; i++) if (TabPages[i].Enabled) { _selectedIndex = i; break; }
+                    if (_selectedIndex < 0)
+                        for (int i = Math.Min(index - 1, TabPages.Count - 1); i >= 0; i--) if (TabPages[i].Enabled) { _selectedIndex = i; break; }
                 }
-
                 UpdateContentVisibility();
                 RecordDiagnosticTransition("tabCount", previousCount, TabPages.Count);
                 RecordDiagnosticTransition("selectedIndex", previousSelection, _selectedIndex);
+                if (previousSelection != _selectedIndex || selected != SelectedTab)
+                {
+                    int next = _selectedIndex; var nextTab = SelectedTab; var ui = FishUI; var handler = OnSelectionChangedHandler;
+                    OnSelectedIndexChanged?.Invoke(this, previousSelection, next);
+                    ui?.EventHandlers.Invoke(handler, this, new SelectionChangedEventHandlerArgs(ui, next, nextTab));
+                }
+                if (cleanup != null) throw cleanup;
             }
         }
 

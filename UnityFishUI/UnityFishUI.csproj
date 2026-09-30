@@ -9,6 +9,8 @@
 
   <ItemGroup>
     <Compile Include="..\FishUI\NumericRange.cs" Link="NumericRange.cs" />
+    <Compile Include="..\FishUI\FishUI.LayoutLoading.cs" Link="FishUI.LayoutLoading.cs" />
+    <Compile Include="..\FishUI\PersistedState.cs" Link="PersistedState.cs" />
     <Compile Include="..\FishUI\TextElements.cs" Link="TextElements.cs" />
     <Compile Include="..\FishUI\Controls\AnimatedImageBox.cs" Link="Controls\AnimatedImageBox.cs" />
     <Compile Include="..\FishUI\Controls\BarGauge.cs" Link="Controls\BarGauge.cs" />

@@ -38,7 +38,7 @@ namespace FishUI.Controls
         /// </summary>
         private void UpdateChildAnchorOffsets(Control Child)
         {
-            Vector2 parentSize = GetAbsoluteSize();
+            Vector2 parentSize = GetEffectiveLogicalSize();
 
             // Only set AnchorParentSize if not already set (e.g., from deserialization)
             // This preserves the original parent size so anchor adjustments work correctly after reload
@@ -76,7 +76,7 @@ namespace FishUI.Controls
             if (parent == null)
                 return;
 
-            Vector2 parentSize = parent.GetAbsoluteSize();
+            Vector2 parentSize = parent.GetEffectiveLogicalSize();
             AnchorParentSize = parentSize;
 
             // Calculate distances from right and bottom edges
@@ -101,7 +101,7 @@ namespace FishUI.Controls
             Control parent = GetParent();
             if (parent != null && Anchor != FishUIAnchor.None && Anchor != FishUIAnchor.TopLeft && AnchorParentSize != Vector2.Zero)
             {
-                Vector2 currentParentSize = parent.Size;
+                Vector2 currentParentSize = parent.GetEffectiveLogicalSize();
                 Vector2 sizeDelta = currentParentSize - AnchorParentSize;
 
                 // Right anchor: adjust X position based on parent width change
@@ -134,7 +134,7 @@ namespace FishUI.Controls
             Control parent = GetParent();
             if (parent != null && Anchor != FishUIAnchor.None && Anchor != FishUIAnchor.TopLeft && AnchorParentSize != Vector2.Zero)
             {
-                Vector2 currentParentSize = parent.Size;
+                Vector2 currentParentSize = parent.GetEffectiveLogicalSize();
                 Vector2 sizeDelta = currentParentSize - AnchorParentSize;
 
                 // Horizontal stretching: anchored to both left and right

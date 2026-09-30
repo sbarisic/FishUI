@@ -15,6 +15,7 @@ namespace FishUI
 
         public void FocusControl(Control Ctrl)
         {
+            if (_layoutPreparing) { _preparedFocus = Ctrl; _hasPreparedFocus = true; return; }
             EnsureInitialized();
             if (Ctrl != null && !IsControlEffectivelyInteractive(Ctrl))
                 throw new InvalidOperationException("The focused control must be attached, visible, enabled, and modal-eligible.");
@@ -50,6 +51,7 @@ namespace FishUI
         /// </summary>
         public void ClearFocus()
         {
+            if (_layoutPreparing) { _preparedFocus = null; _hasPreparedFocus = true; return; }
             Control previous = InputActiveControl;
             ++_focusRevision;
             if (previous != null) Diagnostics.EnsureIdentity(previous);

@@ -70,7 +70,7 @@ namespace FishUI.Controls
         public void UpdateLayout()
         {
             float currentPos = LayoutPadding;
-            Vector2 containerSize = Size;
+            Vector2 containerSize = GetEffectiveLogicalSize();
 
             foreach (var child in Children)
             {
@@ -85,7 +85,7 @@ namespace FishUI.Controls
                     // Optionally stretch to fill width
                     if (StretchChildren)
                     {
-                        child.Size = new Vector2(containerSize.X - LayoutPadding * 2, child.Size.Y);
+                        child.Size = new Vector2(Math.Max(0, containerSize.X - LayoutPadding * 2), child.Size.Y);
                     }
 
                     currentPos += child.Size.Y + Spacing;
@@ -98,7 +98,7 @@ namespace FishUI.Controls
                     // Optionally stretch to fill height
                     if (StretchChildren)
                     {
-                        child.Size = new Vector2(child.Size.X, containerSize.Y - LayoutPadding * 2);
+                        child.Size = new Vector2(child.Size.X, Math.Max(0, containerSize.Y - LayoutPadding * 2));
                     }
 
                     currentPos += child.Size.X + Spacing;

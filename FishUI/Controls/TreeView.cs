@@ -127,11 +127,20 @@ namespace FishUI.Controls
         /// <summary>
         /// Removes a child node.
         /// </summary>
+        private TreeView GetOwner()
+        {
+            TreeNode root = this;
+            while (root.Parent != null) root = root.Parent;
+            return root.RootOwner;
+        }
+
         public bool RemoveChild(TreeNode node)
         {
             if (Children.Remove(node))
             {
+                var owner = GetOwner();
                 node.Parent = null;
+                owner?.OnNodesRemoved(new[] { node });
                 return true;
             }
             return false;
@@ -142,9 +151,11 @@ namespace FishUI.Controls
         /// </summary>
         public void ClearChildren()
         {
-            foreach (var child in Children)
-                child.Parent = null;
+            var owner = GetOwner();
+            var removed = Children.ToArray();
+            foreach (var child in removed) child.Parent = null;
             Children.Clear();
+            owner?.OnNodesRemoved(removed);
         }
 
         /// <summary>
@@ -302,6 +313,7 @@ namespace FishUI.Controls
         {
             if (!Nodes.Remove(node)) return false;
             node.RootOwner = null;
+            OnNodesRemoved(new[] { node });
             return true;
         }
 
@@ -310,15 +322,26 @@ namespace FishUI.Controls
         /// </summary>
         public void ClearNodes()
         {
-            foreach (var node in Nodes) node.RootOwner = null;
+            var removed = Nodes.ToArray();
+            foreach (var node in removed) node.RootOwner = null;
             Nodes.Clear();
-            SelectedNode = null;
-            _hoveredNode = null;
+            OnNodesRemoved(removed);
         }
 
         /// <summary>
         /// Selects a node.
         /// </summary>
+        internal void OnNodesRemoved(IEnumerable<TreeNode> roots)
+        {
+            var removed = new HashSet<TreeNode>();
+            void Visit(TreeNode node) { if (!removed.Add(node)) return; node.IsSelected = false; foreach (var child in node.Children) Visit(child); }
+            foreach (var root in roots) Visit(root);
+            bool clear = SelectedNode != null && removed.Contains(SelectedNode);
+            if (_hoveredNode != null && removed.Contains(_hoveredNode)) _hoveredNode = null;
+            UpdateVisibleNodes();
+            if (clear) SelectNode(null);
+        }
+
         public void SelectNode(TreeNode node)
         {
             if (SelectedNode == node) return;
@@ -329,19 +352,12 @@ namespace FishUI.Controls
             SelectedNode = node;
             RecordDiagnosticTransition("selectedNodeId", oldNodeId, DiagnosticNodeId(node));
 
-            if (node != null)
-            {
-                node.IsSelected = true;
-                OnNodeSelected?.Invoke(this, node);
-                InvokeHandler(OnSelectionChangedHandler, new SelectionChangedEventHandlerArgs(FishUI, -1, node));
-
-                // Legacy broadcast for backward compatibility
-                FishUI?.Events?.Broadcast(FishUI, this, "node_selected", new object[] { node });
-
-                // Fire new interface event
-                var eventArgs = new FishUISelectionChangedEventArgs(FishUI, this, -1, node);
-                FishUI?.Events?.OnControlSelectionChanged(eventArgs);
-            }
+            if (node != null) node.IsSelected = true;
+            var ui = FishUI; var handler = OnSelectionChangedHandler;
+            OnNodeSelected?.Invoke(this, node);
+            ui?.EventHandlers.Invoke(handler, this, new SelectionChangedEventHandlerArgs(ui, -1, node));
+            ui?.Events?.Broadcast(ui, this, "node_selected", new object[] { node });
+            ui?.Events?.OnControlSelectionChanged(new FishUISelectionChangedEventArgs(ui, this, -1, node));
         }
 
         /// <summary>

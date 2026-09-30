@@ -173,41 +173,30 @@ namespace FishUI.Controls
 
         public void SelectIndex(int Idx)
         {
-            // Can't select anything in an empty list
-            if (Items.Count == 0)
-            {
-                _selectedIndex = -1;
-                return;
-            }
+            int previous = _selectedIndex;
+            int index = Items.Count == 0 || Idx < 0 ? -1 : Math.Min(Idx, Items.Count - 1);
+            bool hadSelection = _selectedIndex >= 0 || SelectedIndices.Count > 0;
+            _selectedIndex = index;
+            if (index < 0) { SelectedIndices.Clear(); SelectionAnchor = -1; }
+            RecordDiagnosticTransition("selectedIndex", previous, index);
+            if (previous == index && !(index < 0 && hadSelection)) return;
+            var item = index < 0 ? null : Items[index];
+            var ui = FishUI;
+            var handler = OnSelectionChangedHandler;
+            ui?.Events?.Broadcast(ui, this, "item_selected", new object[] { index, item });
+            ui?.Events?.OnControlSelectionChanged(new FishUISelectionChangedEventArgs(ui, this, index, item));
+            OnItemSelected?.Invoke(this, index, item);
+            ui?.EventHandlers.Invoke(handler, this, new SelectionChangedEventHandlerArgs(ui, index, item));
+        }
 
-            int LastSelectedIndex = _selectedIndex;
-
-            if (Idx < 0)
-                Idx = 0;
-
-            if (Idx >= Items.Count)
-                Idx = Items.Count - 1;
-
-            _selectedIndex = Idx;
-            RecordDiagnosticTransition("selectedIndex", LastSelectedIndex, _selectedIndex);
-
-            if (LastSelectedIndex != _selectedIndex)
-            {
-                // Cache the item before invoking events (event handlers might modify the list)
-                var selectedItem = Items[_selectedIndex];
-
-                // Legacy broadcast for backward compatibility
-                FishUI.Events?.Broadcast(FishUI, this, "item_selected", new object[] { _selectedIndex, selectedItem });
-
-                // Fire new interface event
-                var eventArgs = new FishUISelectionChangedEventArgs(FishUI, this, _selectedIndex, selectedItem);
-                FishUI.Events?.OnControlSelectionChanged(eventArgs);
-
-                OnItemSelected?.Invoke(this, _selectedIndex, selectedItem);
-
-                // Invoke serialized selection changed handler
-                InvokeHandler(OnSelectionChangedHandler, new SelectionChangedEventHandlerArgs(FishUI, _selectedIndex, selectedItem));
-            }
+        internal void ResetItemsForNavigation()
+        {
+            // Clear the previous item identity before exposing a new directory's items.
+            Items.Clear();
+            HoveredIndex = -1;
+            ScrollOffset = Vector2.Zero;
+            if (ScrollBar != null) ScrollBar.ThumbPosition = 0;
+            SelectIndex(-1);
         }
 
         /// <summary>
@@ -234,16 +223,7 @@ namespace FishUI.Controls
         /// <summary>
         /// Clears all selections.
         /// </summary>
-        public void ClearSelection()
-        {
-            int previousIndex = _selectedIndex;
-            int previousCount = GetSelectedIndices().Length;
-            SelectedIndices.Clear();
-            _selectedIndex = -1;
-            SelectionAnchor = -1;
-            RecordDiagnosticTransition("selectedIndex", previousIndex, -1);
-            RecordDiagnosticTransition("selectedCount", previousCount, 0);
-        }
+        public void ClearSelection() => SelectIndex(-1);
 
         /// <summary>
         /// Selects all items (only works when MultiSelect is enabled).
@@ -337,11 +317,11 @@ namespace FishUI.Controls
                 }
 
                 // Legacy broadcast for backward compatibility
-                FishUI.Events?.Broadcast(FishUI, this, "selection_changed", new object[] { GetSelectedIndices() });
+                FishUI?.Events?.Broadcast(FishUI, this, "selection_changed", new object[] { GetSelectedIndices() });
 
                 // Fire new interface event
                 var eventArgs = new FishUISelectionChangedEventArgs(FishUI, this, GetSelectedIndices());
-                FishUI.Events?.OnControlSelectionChanged(eventArgs);
+                FishUI?.Events?.OnControlSelectionChanged(eventArgs);
             }
             else
             {
@@ -356,7 +336,7 @@ namespace FishUI.Controls
             if (SelectedIndex >= 0 && SelectedIndex < Items.Count)
             {
                 if (Key == FishKey.Up)
-                    SelectIndex(SelectedIndex - 1);
+                    SelectIndex(Math.Max(0, SelectedIndex - 1));
                 else if (Key == FishKey.Down)
                     SelectIndex(SelectedIndex + 1);
             }

@@ -863,7 +863,7 @@ namespace FishUI.Controls
 
             // Delete selection first if any
             if (HasSelection)
-                DeleteSelection();
+                DeleteSelection(false);
 
             // Insert the text (may contain newlines)
             string[] linesToInsert = text.Split('\n');
@@ -904,7 +904,7 @@ namespace FishUI.Controls
         /// <summary>
         /// Deletes the currently selected text.
         /// </summary>
-        private void DeleteSelection()
+        private void DeleteSelection(bool notify = true)
         {
             if (!HasSelection)
                 return;
@@ -937,7 +937,7 @@ namespace FishUI.Controls
             CursorRow = start.Row;
             CursorColumn = start.Col;
             ClearSelection();
-            NotifyTextChanged();
+            if (notify) NotifyTextChanged();
         }
 
         /// <summary>
@@ -1661,7 +1661,7 @@ namespace FishUI.Controls
 
             // Delete selection first if any
             if (HasSelection)
-                DeleteSelection();
+                DeleteSelection(false);
 
             InsertTextInternal(Chr.ToString());
             ResetCursorBlink();
@@ -1838,7 +1838,7 @@ namespace FishUI.Controls
 
             // Delete selection first if any
             if (HasSelection)
-                DeleteSelection();
+                DeleteSelection(false);
 
             InsertTextInternal(text);
         }
@@ -1847,7 +1847,7 @@ namespace FishUI.Controls
         {
             // Delete selection first if any
             if (HasSelection)
-                DeleteSelection();
+                DeleteSelection(false);
 
             string currentLine = _lines[CursorRow];
             string beforeCursor = currentLine.Substring(0, CursorColumn);

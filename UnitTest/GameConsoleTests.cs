@@ -357,7 +357,7 @@ namespace UnitTest
         }
 
         [Fact]
-        public void FailedSubtreeAttachment_RollsBackCompletedHooksAndOwnership()
+        public void FailedSubtreeAttachment_CleansAttemptedHooksAndOwnership()
         {
             using FishUITestFixture fixture = new FishUITestFixture();
             List<string> events = new List<string>();
@@ -367,7 +367,7 @@ namespace UnitTest
 
             Assert.Throws<InvalidOperationException>(() => fixture.UI.AddControl(parent));
             Assert.Empty(fixture.UI.GetAllControls());
-            Assert.Equal(new[] { "parent:attach", "child:attach", "parent:detach" }, events);
+            Assert.Equal(new[] { "parent:attach", "child:attach", "child:detach", "parent:detach" }, events);
         }
 
         [Fact]

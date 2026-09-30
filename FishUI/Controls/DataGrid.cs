@@ -243,8 +243,7 @@ namespace FishUI.Controls
             _rows.Clear();
             _selectionAnchor = -1;
             _hoveredRowIndex = -1;
-            _selectedIndex = -1;
-            _selectedIndices.Clear();
+            ClearSelection();
             _scrollOffset = Vector2.Zero;
             RecordDiagnosticTransition("rowCount", previous, 0);
         }
@@ -264,15 +263,16 @@ namespace FishUI.Controls
                 index = _rows.Count - 1;
 
             int lastIndex = _selectedIndex;
+            bool changed = lastIndex != index || _selectedIndices.Count != (index >= 0 ? 1 : 0) || (index >= 0 && !_selectedIndices.Contains(index));
             _selectedIndex = index;
             _selectedIndices.Clear();
             if (index >= 0) _selectedIndices.Add(index);
             _selectionAnchor = index;
             RecordDiagnosticTransition("selectedIndex", lastIndex, _selectedIndex);
 
-            if (lastIndex != _selectedIndex && _selectedIndex >= 0)
+            if (changed)
             {
-                OnRowSelected?.Invoke(this, _selectedIndex, _rows[_selectedIndex]);
+                NotifySelectionChanged();
             }
         }
 
@@ -293,6 +293,17 @@ namespace FishUI.Controls
             _selectedIndices.Clear();
             _selectionAnchor = -1;
             RecordDiagnosticTransition("selectedIndex", previous, -1);
+            if (previous >= 0) NotifySelectionChanged();
+        }
+
+        private void NotifySelectionChanged()
+        {
+            int index = _selectedIndex;
+            DataGridRow row = GetRow(index);
+            var ui = FishUI;
+            string handler = OnSelectionChangedHandler;
+            OnRowSelected?.Invoke(this, index, row);
+            ui?.EventHandlers.Invoke(handler, this, new SelectionChangedEventHandlerArgs(ui, index, row));
         }
 
         public bool IsIndexSelected(int index)
@@ -709,6 +720,7 @@ namespace FishUI.Controls
                 return;
 
             int previousIndex = _selectedIndex;
+            var previousSelection = new HashSet<int>(_selectedIndices);
             int previousCount = _selectedIndices.Count;
             if (MultiSelect)
             {
@@ -740,7 +752,8 @@ namespace FishUI.Controls
                     _selectionAnchor = _hoveredRowIndex;
                     _selectedIndex = _hoveredRowIndex;
                 }
-                OnRowSelected?.Invoke(this, _hoveredRowIndex, _rows[_hoveredRowIndex]);
+                if (_selectedIndices.Count == 0) _selectedIndex = -1;
+                if (previousIndex != _selectedIndex || !previousSelection.SetEquals(_selectedIndices)) NotifySelectionChanged();
                 RecordDiagnosticTransition("selectedIndex", previousIndex, _selectedIndex);
                 RecordDiagnosticTransition("selectedCount", previousCount, _selectedIndices.Count);
             }

@@ -188,7 +188,7 @@ namespace FishUIDemos
             pics.AddChild("Vacation");
             pics.AddChild("Screenshots");
 
-            treeView.OnNodeSelected += (tv, node) => Console.WriteLine($"Selected: {node.Text}");
+            treeView.OnNodeSelected += (tv, node) => Console.WriteLine($"Selected: {node?.Text ?? "none"}");
 
             // === Context Menu ===
             ContextMenu contextMenu = new ContextMenu();

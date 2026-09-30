@@ -67,7 +67,23 @@ namespace FishUI.Controls
         /// Number of decimal places to display.
         /// </summary>
         [YamlMember]
-        public int DecimalPlaces { get; set; } = 0;
+        public int DecimalPlaces
+        {
+            get => _decimalPlaces;
+            set
+            {
+                if (value < 0 || value > 99) throw new ArgumentOutOfRangeException(nameof(value), "Precision must be between 0 and 99.");
+                _decimalPlaces = value;
+                UpdateTextFromValue();
+            }
+        }
+        private int _decimalPlaces;
+
+        public override void OnDeserialized(FishUI ui)
+        {
+            base.OnDeserialized(ui);
+            UpdateTextFromValue();
+        }
 
         /// <summary>
         /// Width of the up/down button area.

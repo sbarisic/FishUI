@@ -76,6 +76,8 @@ namespace FishUI.Controls
         public void AddChild(Control Child)
         {
             if (Child == null) throw new ArgumentNullException(nameof(Child));
+            AttachedFishUI?.CheckHierarchyMutation(this);
+            Child.AttachedFishUI?.CheckHierarchyMutation(Child);
             if (ReferenceEquals(Child, this) || IsDescendantOf(Child))
                 throw new InvalidOperationException("A control cannot be parented to itself or one of its descendants.");
             if (Child.RequiresRootAttachment)
@@ -98,7 +100,7 @@ namespace FishUI.Controls
             int oldIndex = oldParent != null ? oldParent.Children.IndexOf(Child) : oldUi?.IndexOfRoot(Child) ?? -1;
             int oldZDepth = Child.ZDepth;
 
-            if (ReferenceEquals(oldUi, newUi))
+            if (oldUi == null && newUi == null)
             {
                 RemoveFromOldOwner(Child, oldParent, oldUi);
                 AttachChildReference(Child);
@@ -109,8 +111,7 @@ namespace FishUI.Controls
 
             if (oldUi != null)
             {
-                oldUi.PrepareSubtreeDetach(Child);
-                Child.DetachSubtree(oldUi);
+                oldUi.DetachOwnedControl(Child);
             }
             RemoveFromOldOwner(Child, oldParent, oldUi);
             AttachChildReference(Child);
@@ -130,8 +131,7 @@ namespace FishUI.Controls
                 {
                     if (newUi != null)
                     {
-                        newUi.PrepareSubtreeDetach(Child);
-                        Child.DetachSubtree(newUi);
+                        newUi.DetachOwnedControl(Child);
                     }
                 }
                 catch (Exception ex) { cleanupFailure = ex; }
@@ -159,7 +159,9 @@ namespace FishUI.Controls
             child.Parent = this;
             child._FishUI = null;
             UpdateChildAnchorOffsets(child);
-            child.ZDepth = Children.Count;
+            int depth = 0;
+            foreach (var sibling in Children) depth = Math.Max(depth, sibling.ZDepth + 1);
+            child.ZDepth = depth;
             Children.Add(child);
         }
 
@@ -286,8 +288,9 @@ namespace FishUI.Controls
             FishUI ui = Child.AttachedFishUI;
             if (ui != null)
             {
-                ui.PrepareSubtreeDetach(Child);
-                Child.DetachSubtree(ui);
+                ui.CheckHierarchyMutation(Child);
+                ui.DetachOwnedControl(Child);
+                return;
             }
             Children.Remove(Child);
             Child.Parent = null;
@@ -302,8 +305,10 @@ namespace FishUI.Controls
         {
             Control[] Ch = GetAllChildren(false);
 
+            var errors = new List<Exception>();
             for (int i = 0; i < Ch.Length; i++)
-                RemoveChild(Ch[i]);
+                try { RemoveChild(Ch[i]); } catch (Exception ex) { errors.Add(ex); }
+            if (errors.Count > 0) throw new AggregateException("Child removal completed with errors.", errors);
         }
     }
 }
