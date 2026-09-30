@@ -465,7 +465,7 @@ namespace FishUI.Controls
         {
             if (_isResizing && _resizeDirection != ResizeDirection.None)
             {
-                Vector2 delta = InState.MouseDelta;
+                Vector2 delta = InState.MouseDelta / UIScale;
                 Vector2 newSize = Size;
                 Vector2 newPos = new Vector2(Position.X, Position.Y);
 
@@ -531,7 +531,7 @@ namespace FishUI.Controls
             {
                 Vector2 shadowPos = absPos + ShadowOffset - new Vector2(ShadowSize, ShadowSize);
                 Vector2 shadowSize = absSize + new Vector2(ShadowSize * 2, ShadowSize * 2);
-                UI.Graphics.DrawNPatch(UI.Settings.ImgShadow, shadowPos, shadowSize, FishColor.White);
+                UI.Graphics.DrawNPatch(UI.Settings.ImgShadow, shadowPos, shadowSize, ApplyOpacity(FishColor.White));
             }
 
             // Draw window body (middle section)
@@ -544,12 +544,12 @@ namespace FishUI.Controls
 
             if (middleImg != null)
             {
-                UI.Graphics.DrawNPatch(middleImg, bodyPos, bodySize, Color);
+                UI.Graphics.DrawNPatch(middleImg, bodyPos, bodySize, ApplyOpacity(Color));
             }
             else
             {
                 // Fallback
-                UI.Graphics.DrawRectangle(bodyPos, bodySize, new FishColor(240, 240, 240));
+                UI.Graphics.DrawRectangle(bodyPos, bodySize, ApplyOpacity(new FishColor(240, 240, 240)));
             }
 
             // Draw bottom border
@@ -562,12 +562,12 @@ namespace FishUI.Controls
 
             if (bottomImg != null)
             {
-                UI.Graphics.DrawNPatch(bottomImg, bottomPos, bottomSize, Color);
+                UI.Graphics.DrawNPatch(bottomImg, bottomPos, bottomSize, ApplyOpacity(Color));
             }
             else
             {
                 // Fallback
-                UI.Graphics.DrawRectangle(bottomPos, bottomSize, new FishColor(100, 100, 100));
+                UI.Graphics.DrawRectangle(bottomPos, bottomSize, ApplyOpacity(new FishColor(100, 100, 100)));
             }
         }
 
@@ -653,7 +653,7 @@ namespace FishUI.Controls
             Vector2 contentPos = GetContentPosition();
             Vector2 contentSize = GetContentSize();
             FishColor containerColor = new FishColor(100, 150, 255, 150);
-            UI.Graphics.DrawRectangleOutline(contentPos, contentSize, containerColor);
+            UI.Graphics.DrawRectangleOutline(contentPos, contentSize, ApplyOpacity(containerColor));
 
             // Draw anchor visualization
             DrawAnchorVisualization(UI);

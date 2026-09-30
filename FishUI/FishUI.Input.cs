@@ -13,6 +13,18 @@ namespace FishUI
     public partial class FishUI
     {
         private static Rune Scalar(int value) => Rune.TryCreate(value, out Rune rune) ? rune : Rune.ReplacementChar;
+        internal bool IsPointerHeld(Control control) => LeftClickedControl == control && InLast.MouseLeft;
+        internal void CancelPointerPress(Control control)
+        {
+            control.IsMousePressed = false;
+            if (LeftClickedControl == control)
+            {
+                LeftClickedControl = null;
+                ActiveDragInteractionId = null;
+                ActiveDiagnosticDragStarted = false;
+            }
+            if (RightClickedControl == control) RightClickedControl = null;
+        }
         void UpdateSingleControl(Control Ctl, FishInputState InState, FishInputState InLast)
         {
             if (!Ctl.Visible)
@@ -318,16 +330,19 @@ namespace FishUI
                 {
                     if (recordDiagnostics)
                         Diagnostics.Record(FishUIDiagnosticEventCategory.Pointer, FishUIDiagnosticEventType.MouseLeft, HoveredControl);
-                    HoveredControl.HandleMouseLeave(this, InState);
+                    Control previousHover = HoveredControl;
+                    HoveredControl = null;
+                    previousHover.HandleMouseLeave(this, InState);
                 }
 
-                if (ControlUnderMouse != null)
+                if (HoveredControl == null && ControlUnderMouse != null &&
+                    ControlUnderMouse.AttachedFishUI == this && ControlUnderMouse.IsHierarchyVisible())
                 {
+                    HoveredControl = ControlUnderMouse;
                     if (recordDiagnostics)
                         Diagnostics.Record(FishUIDiagnosticEventCategory.Pointer, FishUIDiagnosticEventType.MouseEntered, ControlUnderMouse);
                     ControlUnderMouse.HandleMouseEnter(this, InState);
                 }
-                HoveredControl = ControlUnderMouse;
             }
 
 

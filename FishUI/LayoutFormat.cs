@@ -101,13 +101,14 @@ namespace FishUI
         {
             builder = builder.WithNamingConvention(PascalCaseNamingConvention.Instance)
                 .IncludeNonPublicProperties()
+                .EnsureRoundtrip()
                 .WithAttributeOverride(typeof(MultiLineEditbox), "Children", new YamlIgnoreAttribute())
                 .WithAttributeOverride(typeof(GameConsole), "Children", new YamlIgnoreAttribute())
                 .WithAttributeOverride(typeof(GameConsole), "Position", new YamlIgnoreAttribute())
                 .WithAttributeOverride(typeof(GameConsole), "Size", new YamlIgnoreAttribute())
                 .WithAttributeOverride(typeof(GameConsole), "Visible", new YamlIgnoreAttribute())
                 .WithAttributeOverride(typeof(GameConsole), "ZDepth", new YamlIgnoreAttribute())
-                .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults | DefaultValuesHandling.OmitNull | DefaultValuesHandling.OmitEmptyCollections);
+                .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitNull | DefaultValuesHandling.OmitEmptyCollections);
             foreach (KeyValuePair<string, Type> mapping in options.TypeRegistry.Mappings)
                 builder = builder.WithTagMapping(mapping.Key, mapping.Value);
             return builder;
@@ -145,7 +146,7 @@ namespace FishUI
             if (!visited.Add(control)) throw new InvalidOperationException("The layout contains a shared control reference.");
             if (++count > options.MaximumControls) throw new InvalidOperationException("The layout exceeds its maximum control count.");
 
-            Control[] children = control.GetAllChildren(false);
+            Control[] children = control is Window window ? new List<Control>(window.ContentChildren).ToArray() : control.GetAllChildren(false);
             for (int i = 0; i < children.Length; i++)
             {
                 Control child = children[i] ?? throw new InvalidOperationException("The layout contains a null child.");

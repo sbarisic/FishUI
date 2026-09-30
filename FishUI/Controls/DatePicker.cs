@@ -45,6 +45,7 @@ namespace FishUI.Controls
                     RecordDiagnosticState("selectedDate", FormatDate(oldValue), FormatDate(_value));
                     RecordDisplayedMonthChange(oldDisplayMonth);
                     OnValueChanged?.Invoke(this, _value);
+                    InvokeHandler(OnValueChangedHandler, new ValueChangedEventHandlerArgs(FishUI, oldValue, _value));
                 }
             }
         }
@@ -253,12 +254,12 @@ namespace FishUI.Controls
             Vector2 textboxSize = new Vector2(size.X - buttonWidth, size.Y);
             if (bg != null)
             {
-                UI.Graphics.DrawNPatch(bg, pos, textboxSize, Color);
+                UI.Graphics.DrawNPatch(bg, pos, textboxSize, ApplyOpacity(Color));
             }
             else
             {
-                UI.Graphics.DrawRectangle(pos, textboxSize, new FishColor(255, 255, 255, 255));
-                UI.Graphics.DrawRectangleOutline(pos, textboxSize, new FishColor(128, 128, 128, 255));
+                UI.Graphics.DrawRectangle(pos, textboxSize, ApplyOpacity(new FishColor(255, 255, 255, 255)));
+                UI.Graphics.DrawRectangleOutline(pos, textboxSize, ApplyOpacity(new FishColor(128, 128, 128, 255)));
             }
 
             // Draw date text
@@ -269,7 +270,7 @@ namespace FishUI.Controls
                 float textY = pos.Y + (size.Y - UI.Graphics.MeasureText(font, dateText).Y) / 2;
                 using FishUIScissorScope clip = UI.Graphics.PushScissorScope(
                     pos + new Vector2(4, 0), new Vector2(textboxSize.X - 8, size.Y));
-                UI.Graphics.DrawTextColor(font, dateText, new Vector2(pos.X + 4, textY), new FishColor(0, 0, 0, 255));
+                UI.Graphics.DrawTextColor(font, dateText, new Vector2(pos.X + 4, textY), ApplyOpacity(new FishColor(0, 0, 0, 255)));
             }
 
             // Draw dropdown button
@@ -279,14 +280,14 @@ namespace FishUI.Controls
                 : UI.Settings.ImgButtonNormal;
             if (buttonBg != null)
             {
-                UI.Graphics.DrawNPatch(buttonBg, buttonPos, new Vector2(buttonWidth, size.Y), Color);
+                UI.Graphics.DrawNPatch(buttonBg, buttonPos, new Vector2(buttonWidth, size.Y), ApplyOpacity(Color));
             }
             else
             {
                 FishColor btnColor = _dropdownButtonHovered
                     ? new FishColor(200, 200, 200, 255)
                     : new FishColor(230, 230, 230, 255);
-                UI.Graphics.DrawRectangle(buttonPos, new Vector2(buttonWidth, size.Y), btnColor);
+                UI.Graphics.DrawRectangle(buttonPos, new Vector2(buttonWidth, size.Y), ApplyOpacity(btnColor));
             }
 
             // Draw dropdown arrow
@@ -296,7 +297,7 @@ namespace FishUI.Controls
                 var arrowSize = UI.Graphics.MeasureText(font, arrow);
                 float arrowX = buttonPos.X + (buttonWidth - arrowSize.X) / 2;
                 float arrowY = buttonPos.Y + (size.Y - arrowSize.Y) / 2;
-                UI.Graphics.DrawTextColor(font, arrow, new Vector2(arrowX, arrowY), new FishColor(60, 60, 60, 255));
+                UI.Graphics.DrawTextColor(font, arrow, new Vector2(arrowX, arrowY), ApplyOpacity(new FishColor(60, 60, 60, 255)));
             }
 
         }
@@ -324,18 +325,18 @@ namespace FishUI.Controls
             Vector2 calPos = new Vector2(controlPos.X, controlPos.Y + controlSize.Y + 2);
 
             // Draw shadow
-            UI.Graphics.DrawRectangle(calPos + new Vector2(3, 3), calSize, new FishColor(0, 0, 0, 80));
+            UI.Graphics.DrawRectangle(calPos + new Vector2(3, 3), calSize, ApplyOpacity(new FishColor(0, 0, 0, 80)));
 
             // Draw background
             NPatch menuBg = UI.Settings.ImgMenuBackground;
             if (menuBg != null)
             {
-                UI.Graphics.DrawNPatch(menuBg, calPos, calSize, Color);
+                UI.Graphics.DrawNPatch(menuBg, calPos, calSize, ApplyOpacity(Color));
             }
             else
             {
-                UI.Graphics.DrawRectangle(calPos, calSize, CalendarBackgroundColor);
-                UI.Graphics.DrawRectangleOutline(calPos, calSize, new FishColor(128, 128, 128, 255));
+                UI.Graphics.DrawRectangle(calPos, calSize, ApplyOpacity(CalendarBackgroundColor));
+                UI.Graphics.DrawRectangleOutline(calPos, calSize, ApplyOpacity(new FishColor(128, 128, 128, 255)));
             }
 
             if (font == null)
@@ -385,7 +386,7 @@ namespace FishUI.Controls
             var textSize = UI.Graphics.MeasureText(font, monthYear);
             float textX = calPos.X + (calWidth - textSize.X) / 2;
             float textY = calPos.Y + (headerH - textSize.Y) / 2;
-            UI.Graphics.DrawTextColor(font, monthYear, new Vector2(textX, textY), new FishColor(0, 0, 0, 255));
+            UI.Graphics.DrawTextColor(font, monthYear, new Vector2(textX, textY), ApplyOpacity(new FishColor(0, 0, 0, 255)));
         }
 
         private void DrawNavButton(FishUI UI, Vector2 pos, Vector2 size, string text, bool hovered, FontRef font)
@@ -393,13 +394,13 @@ namespace FishUI.Controls
             FishColor bgColor = hovered
                 ? new FishColor(200, 200, 200, 255)
                 : new FishColor(240, 240, 240, 255);
-            UI.Graphics.DrawRectangle(pos, size, bgColor);
-            UI.Graphics.DrawRectangleOutline(pos, size, new FishColor(180, 180, 180, 255));
+            UI.Graphics.DrawRectangle(pos, size, ApplyOpacity(bgColor));
+            UI.Graphics.DrawRectangleOutline(pos, size, ApplyOpacity(new FishColor(180, 180, 180, 255)));
 
             var textSize = UI.Graphics.MeasureText(font, text);
             float textX = pos.X + (size.X - textSize.X) / 2;
             float textY = pos.Y + (size.Y - textSize.Y) / 2;
-            UI.Graphics.DrawTextColor(font, text, new Vector2(textX, textY), new FishColor(60, 60, 60, 255));
+            UI.Graphics.DrawTextColor(font, text, new Vector2(textX, textY), ApplyOpacity(new FishColor(60, 60, 60, 255)));
         }
 
         private void DrawDayOfWeekLabels(FishUI UI, float x, float y, float width, float height, FontRef font)
@@ -414,7 +415,7 @@ namespace FishUI.Controls
                 float textY = y + (height - textSize.Y) / 2;
 
                 FishColor color = (i == 0 || i == 6) ? WeekendColor : new FishColor(100, 100, 100, 255);
-                UI.Graphics.DrawTextColor(font, dayNames[i], new Vector2(textX, textY), color);
+                UI.Graphics.DrawTextColor(font, dayNames[i], new Vector2(textX, textY), ApplyOpacity(color));
             }
         }
 
@@ -444,15 +445,15 @@ namespace FishUI.Controls
 
                     if (isSelected)
                     {
-                        UI.Graphics.DrawRectangle(new Vector2(cellX, cellY), new Vector2(cellWidth, cellHeight), SelectedDayColor);
+                        UI.Graphics.DrawRectangle(new Vector2(cellX, cellY), new Vector2(cellWidth, cellHeight), ApplyOpacity(SelectedDayColor));
                     }
                     else if (isHovered && isCurrentMonth)
                     {
-                        UI.Graphics.DrawRectangle(new Vector2(cellX, cellY), new Vector2(cellWidth, cellHeight), HoveredDayColor);
+                        UI.Graphics.DrawRectangle(new Vector2(cellX, cellY), new Vector2(cellWidth, cellHeight), ApplyOpacity(HoveredDayColor));
                     }
                     else if (isToday)
                     {
-                        UI.Graphics.DrawRectangle(new Vector2(cellX, cellY), new Vector2(cellWidth, cellHeight), TodayColor);
+                        UI.Graphics.DrawRectangle(new Vector2(cellX, cellY), new Vector2(cellWidth, cellHeight), ApplyOpacity(TodayColor));
                     }
 
                     // Draw day number
@@ -471,7 +472,7 @@ namespace FishUI.Controls
                     else
                         textColor = new FishColor(0, 0, 0, 255);
 
-                    UI.Graphics.DrawTextColor(font, dayText, new Vector2(textX, textY), textColor);
+                    UI.Graphics.DrawTextColor(font, dayText, new Vector2(textX, textY), ApplyOpacity(textColor));
 
                     dayIndex++;
                 }

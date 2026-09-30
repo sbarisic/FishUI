@@ -160,6 +160,7 @@ namespace FishUI.Controls
 
         public ListBox()
         {
+            Focusable = true;
             Size = new Vector2(140, 120);
         }
 
@@ -297,6 +298,7 @@ namespace FishUI.Controls
 
         public override void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
         {
+            base.HandleMouseClick(UI, InState, Btn, Pos);
             HandleMouseMove(UI, InState, Pos);
             if (HoveredIndex == -1)
                 return;
@@ -422,7 +424,7 @@ namespace FishUI.Controls
             Vector2 absSize = GetAbsoluteSize();
 
             NPatch Cur = UI.Settings.ImgListBoxNormal;
-            UI.Graphics.DrawNPatch(Cur, absPos, absSize, Color);
+            UI.Graphics.DrawNPatch(Cur, absPos, absSize, ApplyOpacity(Color));
 
             // Calculate scrollbar width for row rendering (now stable)
             float ScrollBarW = (ScrollBar != null && ScrollBar.Visible) ? ScrollBar.GetAbsoluteSize().X : 0;
@@ -442,8 +444,7 @@ namespace FishUI.Controls
                         FishColor rowColor = (i % 2 == 0) ? EvenRowColor : OddRowColor;
                         UI.Graphics.DrawRectangle(
                             new Vector2(absPos.X + 2, Y) + ScrollOffset,
-                            new Vector2(absSize.X - 4 - ScrollBarW, ListItemHeight),
-                            rowColor);
+                            new Vector2(absSize.X - 4 - ScrollBarW, ListItemHeight), ApplyOpacity(rowColor));
                     }
 
                     Cur = null;
@@ -469,7 +470,7 @@ namespace FishUI.Controls
 
                     if (Cur != null)
                     {
-                        UI.Graphics.DrawNPatch(Cur, itemPos, itemSize, Color);
+                        UI.Graphics.DrawNPatch(Cur, itemPos, itemSize, ApplyOpacity(Color));
                     }
 
                     // Use custom renderer if set, otherwise default text rendering
@@ -479,7 +480,7 @@ namespace FishUI.Controls
                     }
                     else
                     {
-                        UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Items[i].Text, itemPos + new Vector2(2, 0) + StartOffset, TxtColor);
+                        UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Items[i].Text, itemPos + new Vector2(2, 0) + StartOffset, ApplyOpacity(TxtColor));
                     }
                 }
 

@@ -23,6 +23,7 @@ namespace FishUI.Controls
                     _isOn = value;
                     RecordDiagnosticTransition("isOn", oldValue, _isOn);
                     OnToggleChanged?.Invoke(this, _isOn);
+                    InvokeHandler(OnCheckedChangedHandler, new CheckedChangedEventHandlerArgs(FishUI, _isOn));
                 }
             }
         }
@@ -155,11 +156,11 @@ namespace FishUI.Controls
             // Draw background track using NPatch if available
             if (IsOn && UI.Settings.ImgToggleSwitchTrackOn != null)
             {
-                UI.Graphics.DrawNPatch(UI.Settings.ImgToggleSwitchTrackOn, pos, size, FishColor.White);
+                UI.Graphics.DrawNPatch(UI.Settings.ImgToggleSwitchTrackOn, pos, size, ApplyOpacity(FishColor.White));
             }
             else if (!IsOn && UI.Settings.ImgToggleSwitchTrackOff != null)
             {
-                UI.Graphics.DrawNPatch(UI.Settings.ImgToggleSwitchTrackOff, pos, size, FishColor.White);
+                UI.Graphics.DrawNPatch(UI.Settings.ImgToggleSwitchTrackOff, pos, size, ApplyOpacity(FishColor.White));
             }
             else
             {
@@ -177,8 +178,8 @@ namespace FishUI.Controls
                     );
                 }
 
-                UI.Graphics.DrawRectangle(pos, size, currentBgColor);
-                UI.Graphics.DrawRectangleOutline(pos, size, GetBorderColor(UI));
+                UI.Graphics.DrawRectangle(pos, size, ApplyOpacity(currentBgColor));
+                UI.Graphics.DrawRectangleOutline(pos, size, ApplyOpacity(GetBorderColor(UI)));
             }
 
             // Calculate thumb dimensions and position
@@ -194,7 +195,7 @@ namespace FishUI.Controls
             // Draw thumb using NPatch if available
             if (UI.Settings.ImgToggleSwitchThumb != null)
             {
-                UI.Graphics.DrawNPatch(UI.Settings.ImgToggleSwitchThumb, thumbPos, thumbDimensions, FishColor.White);
+                UI.Graphics.DrawNPatch(UI.Settings.ImgToggleSwitchThumb, thumbPos, thumbDimensions, ApplyOpacity(FishColor.White));
             }
             else
             {
@@ -210,7 +211,7 @@ namespace FishUI.Controls
                     );
                 }
 
-                UI.Graphics.DrawRectangle(thumbPos, thumbDimensions, currentThumbColor);
+                UI.Graphics.DrawRectangle(thumbPos, thumbDimensions, ApplyOpacity(currentThumbColor));
             }
 
             // Draw optional labels
@@ -233,7 +234,7 @@ namespace FishUI.Controls
                 }
 
                 float labelY = pos.Y + (size.Y - textSize.Y) / 2;
-                UI.Graphics.DrawTextColor(UI.Settings.FontDefault, label, new Vector2(labelX, labelY), GetLabelColor(UI));
+                UI.Graphics.DrawTextColor(UI.Settings.FontDefault, label, new Vector2(labelX, labelY), ApplyOpacity(GetLabelColor(UI)));
             }
         }
 

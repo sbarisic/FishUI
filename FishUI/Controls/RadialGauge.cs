@@ -39,7 +39,14 @@ namespace FishUI.Controls
         public float Value
         {
             get => _value;
-            set => _value = NumericRange.ReadingLayout ? NumericRange.Finite(value) : Math.Clamp(NumericRange.Finite(value), MinValue, MaxValue);
+            set
+            {
+                float next = NumericRange.ReadingLayout ? NumericRange.Finite(value) : Math.Clamp(NumericRange.Finite(value), MinValue, MaxValue);
+                if (_value == next) return;
+                float previous = _value;
+                _value = next;
+                InvokeHandler(OnValueChangedHandler, new ValueChangedEventHandlerArgs(FishUI, previous, next));
+            }
         }
         private float _value = 0f;
 
@@ -327,7 +334,7 @@ namespace FishUI.Controls
                 Vector2 p1 = center + new Vector2(MathF.Cos(angle1), MathF.Sin(angle1)) * arcRadius;
                 Vector2 p2 = center + new Vector2(MathF.Cos(angle2), MathF.Sin(angle2)) * arcRadius;
 
-                UI.Graphics.DrawLine(p1, p2, ArcThickness, BackgroundColor);
+                UI.Graphics.DrawLine(p1, p2, ArcThickness, ApplyOpacity(BackgroundColor));
             }
         }
 
@@ -349,7 +356,7 @@ namespace FishUI.Controls
                 Vector2 p1 = center + new Vector2(MathF.Cos(angle1), MathF.Sin(angle1)) * arcRadius;
                 Vector2 p2 = center + new Vector2(MathF.Cos(angle2), MathF.Sin(angle2)) * arcRadius;
 
-                UI.Graphics.DrawLine(p1, p2, ArcThickness, color);
+                UI.Graphics.DrawLine(p1, p2, ArcThickness, ApplyOpacity(color));
             }
         }
 
@@ -372,7 +379,7 @@ namespace FishUI.Controls
                 Vector2 inner = center + new Vector2(MathF.Cos(angle), MathF.Sin(angle)) * innerRadius;
                 Vector2 outer = center + new Vector2(MathF.Cos(angle), MathF.Sin(angle)) * outerRadius;
 
-                UI.Graphics.DrawLine(outer, inner, tickWidth, TickColor);
+                UI.Graphics.DrawLine(outer, inner, tickWidth, ApplyOpacity(TickColor));
             }
         }
 
@@ -393,7 +400,7 @@ namespace FishUI.Controls
                 // Center the label on the position
                 labelPos -= textSize / 2f;
 
-                UI.Graphics.DrawTextColor(UI.Settings.FontDefault, labelText, labelPos, LabelColor);
+                UI.Graphics.DrawTextColor(UI.Settings.FontDefault, labelText, labelPos, ApplyOpacity(LabelColor));
             }
         }
 
@@ -415,9 +422,9 @@ namespace FishUI.Controls
             Vector2 baseRight = center - perpDir * baseWidth;
 
             // Draw triangular needle using lines from base corners to tip
-            UI.Graphics.DrawLine(baseLeft, tip, 2f, NeedleColor);
-            UI.Graphics.DrawLine(baseRight, tip, 2f, NeedleColor);
-            UI.Graphics.DrawLine(baseLeft, baseRight, 2f, NeedleColor);
+            UI.Graphics.DrawLine(baseLeft, tip, 2f, ApplyOpacity(NeedleColor));
+            UI.Graphics.DrawLine(baseRight, tip, 2f, ApplyOpacity(NeedleColor));
+            UI.Graphics.DrawLine(baseLeft, baseRight, 2f, ApplyOpacity(NeedleColor));
 
             // Fill the triangle by drawing lines from base to tip
             int fillSegments = (int)(baseWidth * 2);
@@ -425,7 +432,7 @@ namespace FishUI.Controls
             {
                 float t = (float)i / fillSegments;
                 Vector2 basePoint = Vector2.Lerp(baseLeft, baseRight, t);
-                UI.Graphics.DrawLine(basePoint, tip, 1.5f, NeedleColor);
+                UI.Graphics.DrawLine(basePoint, tip, 1.5f, ApplyOpacity(NeedleColor));
             }
         }
 
@@ -447,8 +454,8 @@ namespace FishUI.Controls
                 Vector2 p1 = center + new Vector2(MathF.Cos(angle1), MathF.Sin(angle1)) * radius;
                 Vector2 p2 = center + new Vector2(MathF.Cos(angle2), MathF.Sin(angle2)) * radius;
 
-                UI.Graphics.DrawLine(center, p1, radius, color);
-                UI.Graphics.DrawLine(center, p2, radius, color);
+                UI.Graphics.DrawLine(center, p1, radius, ApplyOpacity(color));
+                UI.Graphics.DrawLine(center, p2, radius, ApplyOpacity(color));
             }
         }
 
@@ -459,14 +466,14 @@ namespace FishUI.Controls
 
             // Position value below center
             Vector2 valuePos = center + new Vector2(-textSize.X / 2f, radius * 0.25f);
-            UI.Graphics.DrawTextColor(UI.Settings.FontDefault, valueText, valuePos, LabelColor);
+            UI.Graphics.DrawTextColor(UI.Settings.FontDefault, valueText, valuePos, ApplyOpacity(LabelColor));
 
             // Draw unit suffix below value
             if (!string.IsNullOrEmpty(UnitSuffix))
             {
                 Vector2 unitSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, UnitSuffix);
                 Vector2 unitPos = center + new Vector2(-unitSize.X / 2f, radius * 0.25f + textSize.Y + 2f);
-                UI.Graphics.DrawTextColor(UI.Settings.FontDefault, UnitSuffix, unitPos, new FishColor(60, 60, 60, 255));
+                UI.Graphics.DrawTextColor(UI.Settings.FontDefault, UnitSuffix, unitPos, ApplyOpacity(new FishColor(60, 60, 60, 255)));
             }
         }
     }

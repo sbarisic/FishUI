@@ -27,6 +27,7 @@ namespace FishUI.Controls
         protected virtual void OnFishUIResized(FishUI ui, int width, int height) { }
         protected virtual void PrepareLayout(FishUI ui) { }
 
+        [YamlIgnore]
         protected internal virtual bool RequiresRootAttachment => false;
 
         internal void AttachSubtree(FishUI ui)
@@ -82,18 +83,20 @@ namespace FishUI.Controls
 
         internal void DetachSubtree(FishUI ui)
         {
+            List<Exception> errors = new List<Exception>();
             Control[] children = GetAllChildren(false);
             for (int i = children.Length - 1; i >= 0; i--)
-                children[i].DetachSubtree(ui);
+                try { children[i].DetachSubtree(ui); } catch (Exception ex) { errors.Add(ex); }
 
             if (AttachedFishUI == ui)
             {
-                OnDetachedFromFishUI(ui);
+                try { OnDetachedFromFishUI(ui); } catch (Exception ex) { errors.Add(ex); }
                 AttachedFishUI = null;
                 _initializedFishUI = null;
             }
             if (Parent == null)
                 _FishUI = null;
+            if (errors.Count > 0) throw new AggregateException("Control detach failed after cleanup.", errors);
         }
 
         internal void UpdateSubtree(FishUI ui, float deltaTime, float time)

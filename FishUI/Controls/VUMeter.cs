@@ -186,7 +186,7 @@ namespace FishUI.Controls
             Vector2 size = GetAbsoluteSize();
 
             // Draw background
-            UI.Graphics.DrawRectangle(pos, size, BackgroundColor);
+            UI.Graphics.DrawRectangle(pos, size, ApplyOpacity(BackgroundColor));
 
             // Draw level
             if (SegmentCount > 0)
@@ -207,7 +207,7 @@ namespace FishUI.Controls
             // Draw border
             if (ShowBorder)
             {
-                UI.Graphics.DrawRectangleOutline(pos, size, BorderColor);
+                UI.Graphics.DrawRectangleOutline(pos, size, ApplyOpacity(BorderColor));
             }
         }
 
@@ -260,8 +260,7 @@ namespace FishUI.Controls
 
             UI.Graphics.DrawRectangle(
                 new Vector2(startX, pos.Y),
-                new Vector2(endX - startX, size.Y),
-                color);
+                new Vector2(endX - startX, size.Y), ApplyOpacity(color));
         }
 
         private void DrawColorZoneVertical(FishUI UI, Vector2 pos, Vector2 size, float start, float end, FishColor color)
@@ -271,8 +270,7 @@ namespace FishUI.Controls
 
             UI.Graphics.DrawRectangle(
                 new Vector2(pos.X, startY),
-                new Vector2(size.X, endY - startY),
-                color);
+                new Vector2(size.X, endY - startY), ApplyOpacity(color));
         }
 
         private void DrawSegmented(FishUI UI, Vector2 pos, Vector2 size)
@@ -296,8 +294,7 @@ namespace FishUI.Controls
                         float x = pos.X + i * (segmentWidth + SegmentGap);
                         UI.Graphics.DrawRectangle(
                             new Vector2(x, pos.Y),
-                            new Vector2(segmentWidth, size.Y),
-                            color);
+                            new Vector2(segmentWidth, size.Y), ApplyOpacity(color));
                     }
                 }
             }
@@ -320,8 +317,7 @@ namespace FishUI.Controls
 
                     UI.Graphics.DrawRectangle(
                         new Vector2(pos.X, y),
-                        new Vector2(size.X, segmentHeight),
-                        color);
+                        new Vector2(size.X, segmentHeight), ApplyOpacity(color));
                 }
             }
         }
@@ -331,13 +327,13 @@ namespace FishUI.Controls
             if (Orientation == VUMeterOrientation.Horizontal)
             {
                 float peakX = pos.X + size.X * _peakValue;
-                UI.Graphics.DrawRectangle(new Vector2(peakX - PeakThickness / 2, pos.Y), new Vector2(PeakThickness, size.Y), PeakColor);
+                UI.Graphics.DrawRectangle(new Vector2(peakX - PeakThickness / 2, pos.Y), new Vector2(PeakThickness, size.Y), ApplyOpacity(PeakColor));
             }
             else
             {
                 float peakY = pos.Y + size.Y * (1f - _peakValue);
 
-                UI.Graphics.DrawRectangle(new Vector2(pos.X, peakY - PeakThickness / 2), new Vector2(size.X, PeakThickness), PeakColor);
+                UI.Graphics.DrawRectangle(new Vector2(pos.X, peakY - PeakThickness / 2), new Vector2(size.X, PeakThickness), ApplyOpacity(PeakColor));
             }
         }
     }

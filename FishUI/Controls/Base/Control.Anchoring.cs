@@ -174,28 +174,28 @@ namespace FishUI.Controls
             if (Anchor.HasFlag(FishUIAnchor.Left))
             {
                 float midY = pos.Y + size.Y / 2;
-                UI.Graphics.DrawLine(new Vector2(parentPos.X, midY), new Vector2(pos.X, midY), lineThickness, anchorColor);
+                UI.Graphics.DrawLine(new Vector2(parentPos.X, midY), new Vector2(pos.X, midY), lineThickness, ApplyOpacity(anchorColor));
             }
 
             // Draw line from control's right edge to parent's right edge
             if (Anchor.HasFlag(FishUIAnchor.Right))
             {
                 float midY = pos.Y + size.Y / 2;
-                UI.Graphics.DrawLine(new Vector2(pos.X + size.X, midY), new Vector2(parentPos.X + parentSize.X, midY), lineThickness, anchorColor);
+                UI.Graphics.DrawLine(new Vector2(pos.X + size.X, midY), new Vector2(parentPos.X + parentSize.X, midY), lineThickness, ApplyOpacity(anchorColor));
             }
 
             // Draw line from control's top edge to parent's top edge
             if (Anchor.HasFlag(FishUIAnchor.Top))
             {
                 float midX = pos.X + size.X / 2;
-                UI.Graphics.DrawLine(new Vector2(midX, parentPos.Y), new Vector2(midX, pos.Y), lineThickness, anchorColor);
+                UI.Graphics.DrawLine(new Vector2(midX, parentPos.Y), new Vector2(midX, pos.Y), lineThickness, ApplyOpacity(anchorColor));
             }
 
             // Draw line from control's bottom edge to parent's bottom edge
             if (Anchor.HasFlag(FishUIAnchor.Bottom))
             {
                 float midX = pos.X + size.X / 2;
-                UI.Graphics.DrawLine(new Vector2(midX, pos.Y + size.Y), new Vector2(midX, parentPos.Y + parentSize.Y), lineThickness, anchorColor);
+                UI.Graphics.DrawLine(new Vector2(midX, pos.Y + size.Y), new Vector2(midX, parentPos.Y + parentSize.Y), lineThickness, ApplyOpacity(anchorColor));
             }
         }
     }

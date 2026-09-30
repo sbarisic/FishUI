@@ -373,8 +373,11 @@ namespace FishUI.Controls
             _scrollBarV.ThumbPosition = maxY > 0 ? -_scrollOffset.Y / maxY : 0;
         }
 
+        [YamlIgnore]
+        internal long StorageValidationCount { get; private set; }
         private void EnsureDataSize()
         {
+            StorageValidationCount++;
             // Ensure we have enough rows
             while (_cellData.Count < _rowCount)
                 _cellData.Add(new List<string>());
@@ -463,11 +466,12 @@ namespace FishUI.Controls
             // If either min or max is not set, scan the data
             if (HeatMapMinValue == null || HeatMapMaxValue == null)
             {
+                EnsureDataSize();
                 for (int r = 0; r < _rowCount; r++)
                 {
                     for (int c = 0; c < _columnCount; c++)
                     {
-                        string cellValue = GetCell(r, c);
+                        string cellValue = _cellData[r][c];
                         if (float.TryParse(cellValue, out float numValue))
                         {
                             if (HeatMapMinValue == null && numValue < minVal)
@@ -657,17 +661,17 @@ namespace FishUI.Controls
             {
                 NPatch bgPatch = UI.Settings.ImgListBoxNormal;
                 if (bgPatch != null)
-                    UI.Graphics.DrawNPatch(bgPatch, pos, size, Color);
+                    UI.Graphics.DrawNPatch(bgPatch, pos, size, ApplyOpacity(Color));
                 else
                 {
-                    UI.Graphics.DrawRectangle(pos, size, new FishColor(255, 255, 255, 255));
-                    UI.Graphics.DrawRectangleOutline(pos, size, new FishColor(128, 128, 128, 255));
+                    UI.Graphics.DrawRectangle(pos, size, ApplyOpacity(new FishColor(255, 255, 255, 255)));
+                    UI.Graphics.DrawRectangleOutline(pos, size, ApplyOpacity(new FishColor(128, 128, 128, 255)));
                 }
             }
 
             // Draw corner header cell
-            UI.Graphics.DrawRectangle(pos, new Vector2(rowHeaderW, colHeaderH), HeaderColor);
-            UI.Graphics.DrawRectangleOutline(pos, new Vector2(rowHeaderW, colHeaderH), new FishColor(180, 180, 180, 255));
+            UI.Graphics.DrawRectangle(pos, new Vector2(rowHeaderW, colHeaderH), ApplyOpacity(HeaderColor));
+            UI.Graphics.DrawRectangleOutline(pos, new Vector2(rowHeaderW, colHeaderH), ApplyOpacity(new FishColor(180, 180, 180, 255)));
 
             // Draw column headers
             DrawColumnHeaders(UI, pos, size, cellW, colHeaderH, rowHeaderW, font);
@@ -715,8 +719,8 @@ namespace FishUI.Controls
 
                     // Header background
                     FishColor bgColor = (c == _selectedCol) ? new FishColor(200, 200, 200, 255) : HeaderColor;
-                    UI.Graphics.DrawRectangle(new Vector2(x, pos.Y), new Vector2(cellW, headerH), bgColor);
-                    UI.Graphics.DrawRectangleOutline(new Vector2(x, pos.Y), new Vector2(cellW, headerH), new FishColor(180, 180, 180, 255));
+                    UI.Graphics.DrawRectangle(new Vector2(x, pos.Y), new Vector2(cellW, headerH), ApplyOpacity(bgColor));
+                    UI.Graphics.DrawRectangleOutline(new Vector2(x, pos.Y), new Vector2(cellW, headerH), ApplyOpacity(new FishColor(180, 180, 180, 255)));
 
                     // Header text (A, B, C...)
                     if (font != null)
@@ -726,7 +730,7 @@ namespace FishUI.Controls
                         float textX = x + (cellW - textSize.X) / 2;
                         float textY = pos.Y + (headerH - textSize.Y) / 2;
                         using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Text))
-                            UI.Graphics.DrawTextColor(font, text, new Vector2(textX, textY), FishColor.Black);
+                            UI.Graphics.DrawTextColor(font, text, new Vector2(textX, textY), ApplyOpacity(FishColor.Black));
                     }
                 }
 
@@ -751,8 +755,8 @@ namespace FishUI.Controls
 
                     // Header background
                     FishColor bgColor = (r == _selectedRow) ? new FishColor(200, 200, 200, 255) : HeaderColor;
-                    UI.Graphics.DrawRectangle(new Vector2(pos.X, y), new Vector2(headerW, cellH), bgColor);
-                    UI.Graphics.DrawRectangleOutline(new Vector2(pos.X, y), new Vector2(headerW, cellH), new FishColor(180, 180, 180, 255));
+                    UI.Graphics.DrawRectangle(new Vector2(pos.X, y), new Vector2(headerW, cellH), ApplyOpacity(bgColor));
+                    UI.Graphics.DrawRectangleOutline(new Vector2(pos.X, y), new Vector2(headerW, cellH), ApplyOpacity(new FishColor(180, 180, 180, 255)));
 
                     // Header text (1, 2, 3...)
                     if (font != null)
@@ -762,7 +766,7 @@ namespace FishUI.Controls
                         float textX = pos.X + (headerW - textSize.X) / 2;
                         float textY = y + (cellH - textSize.Y) / 2;
                         using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Text))
-                            UI.Graphics.DrawTextColor(font, text, new Vector2(textX, textY), FishColor.Black);
+                            UI.Graphics.DrawTextColor(font, text, new Vector2(textX, textY), ApplyOpacity(FishColor.Black));
                     }
                 }
 
@@ -806,16 +810,16 @@ namespace FishUI.Controls
                     if (isEditing)
                     {
                         using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Selection))
-                            UI.Graphics.DrawRectangle(cellPos, cellSize, new FishColor(255, 255, 255, 255));
+                            UI.Graphics.DrawRectangle(cellPos, cellSize, ApplyOpacity(new FishColor(255, 255, 255, 255)));
                     }
                     else if (isSelected)
                     {
                         using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Selection))
-                            UI.Graphics.DrawRectangle(cellPos, cellSize, SelectedCellColor);
+                            UI.Graphics.DrawRectangle(cellPos, cellSize, ApplyOpacity(SelectedCellColor));
                     }
                     else if (isHovered)
                     {
-                        UI.Graphics.DrawRectangle(cellPos, cellSize, HoveredCellColor);
+                        UI.Graphics.DrawRectangle(cellPos, cellSize, ApplyOpacity(HoveredCellColor));
                     }
                     else if (HeatMapMode)
                     {
@@ -823,12 +827,12 @@ namespace FishUI.Controls
                         FishColor? heatColor = GetHeatMapColor(cellValue, heatMapMin, heatMapMax);
                         if (heatColor.HasValue)
                         {
-                            UI.Graphics.DrawRectangle(cellPos, cellSize, heatColor.Value);
+                            UI.Graphics.DrawRectangle(cellPos, cellSize, ApplyOpacity(heatColor.Value));
                         }
                     }
 
                     // Cell border
-                    UI.Graphics.DrawRectangleOutline(cellPos, cellSize, new FishColor(220, 220, 220, 255));
+                    UI.Graphics.DrawRectangleOutline(cellPos, cellSize, ApplyOpacity(new FishColor(220, 220, 220, 255)));
 
                     // Cell text
                     string text = isEditing ? _editValue : cellValue;
@@ -841,7 +845,7 @@ namespace FishUI.Controls
                         using (UI.Graphics.PushScissorScope(cellPos + new Vector2(2, 0), cellSize - new Vector2(4, 0)))
                         {
                             using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Text))
-                                UI.Graphics.DrawTextColor(font, text, new Vector2(textX, textY), FishColor.Black);
+                                UI.Graphics.DrawTextColor(font, text, new Vector2(textX, textY), ApplyOpacity(FishColor.Black));
                         }
                     }
 
@@ -854,7 +858,7 @@ namespace FishUI.Controls
                         if ((int)(time * 2) % 2 == 0)
                         {
                             using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Caret))
-                                UI.Graphics.DrawLine(new Vector2(cursorX, y + 3), new Vector2(cursorX, y + cellH - 3), 1f, FishColor.Black);
+                                UI.Graphics.DrawLine(new Vector2(cursorX, y + 3), new Vector2(cursorX, y + cellH - 3), 1f, ApplyOpacity(FishColor.Black));
                         }
                     }
 
@@ -863,8 +867,8 @@ namespace FishUI.Controls
                     {
                         using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Selection))
                         {
-                            UI.Graphics.DrawRectangleOutline(cellPos, cellSize, new FishColor(51, 153, 255, 255));
-                            UI.Graphics.DrawRectangleOutline(cellPos + new Vector2(1, 1), cellSize - new Vector2(2, 2), new FishColor(51, 153, 255, 255));
+                            UI.Graphics.DrawRectangleOutline(cellPos, cellSize, ApplyOpacity(new FishColor(51, 153, 255, 255)));
+                            UI.Graphics.DrawRectangleOutline(cellPos + new Vector2(1, 1), cellSize - new Vector2(2, 2), ApplyOpacity(new FishColor(51, 153, 255, 255)));
                         }
                     }
                 }
@@ -884,20 +888,20 @@ namespace FishUI.Controls
             UI.Graphics.DrawLine(
                 new Vector2(cursorPixelX, areaPos.Y),
                 new Vector2(cursorPixelX, areaPos.Y + areaSize.Y),
-                thickness, CursorColor);
+                thickness, ApplyOpacity(CursorColor));
 
             // Draw horizontal crosshair line
             UI.Graphics.DrawLine(
                 new Vector2(areaPos.X, cursorPixelY),
                 new Vector2(areaPos.X + areaSize.X, cursorPixelY),
-                thickness, CursorColor);
+                thickness, ApplyOpacity(CursorColor));
 
             // Draw circle at intersection
-            UI.Graphics.DrawCircleOutline(new Vector2(cursorPixelX, cursorPixelY), radius, CursorColor, thickness);
+            UI.Graphics.DrawCircleOutline(new Vector2(cursorPixelX, cursorPixelY), radius, ApplyOpacity(CursorColor), thickness);
 
             // Draw filled inner circle (smaller)
             float innerRadius = radius * 0.3f;
-            UI.Graphics.DrawCircle(new Vector2(cursorPixelX, cursorPixelY), innerRadius, CursorColor);
+            UI.Graphics.DrawCircle(new Vector2(cursorPixelX, cursorPixelY), innerRadius, ApplyOpacity(CursorColor));
         }
 
         #endregion
@@ -935,6 +939,7 @@ namespace FishUI.Controls
 
         public override void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
         {
+            base.HandleMouseClick(UI, InState, Btn, Pos);
             if (Btn != FishMouseButton.Left)
                 return;
 

@@ -320,13 +320,13 @@ namespace FishUI.Controls
             // Draw background using panel texture
             if (panelImage != null)
             {
-                UI.Graphics.DrawNPatch(panelImage, absPos, absSize, Color);
+                UI.Graphics.DrawNPatch(panelImage, absPos, absSize, ApplyOpacity(Color));
             }
 
             // Draw border
             if (ShowBorder)
             {
-                UI.Graphics.DrawRectangleOutline(absPos, absSize, BorderColor);
+                UI.Graphics.DrawRectangleOutline(absPos, absSize, ApplyOpacity(BorderColor));
             }
         }
 

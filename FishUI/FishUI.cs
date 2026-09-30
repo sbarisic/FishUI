@@ -531,8 +531,9 @@ namespace FishUI
                 ClearFocus();
             if (IsWithinSubtree(HoveredControl, root))
             {
-                HoveredControl.HandleMouseLeave(this, InLast);
+                Control previousHover = HoveredControl;
                 HoveredControl = null;
+                previousHover.HandleMouseLeave(this, InLast);
             }
             if (IsWithinSubtree(LeftClickedControl, root))
             {
@@ -849,7 +850,13 @@ namespace FishUI
             if (_disposed)
                 return;
             _disposed = true;
-            RemoveAllControls();
+            List<Exception> errors = new List<Exception>();
+            foreach (Control control in Controls.ToArray())
+            {
+                try { PrepareSubtreeDetach(control); } catch (Exception ex) { errors.Add(ex); }
+                Controls.Remove(control);
+                try { control.DetachSubtree(this); } catch (Exception ex) { errors.Add(ex); }
+            }
             KeyboardCaptureLease[] leases = _keyboardCaptureLeases.ToArray();
             _keyboardCaptureLeases.Clear();
             for (int i = 0; i < leases.Length; i++) leases[i].Invalidate();
@@ -861,8 +868,9 @@ namespace FishUI
             RightClickedControl = null;
             ModalControl = null;
             _openOverlays.Clear();
-            Diagnostics.Dispose();
+            try { Diagnostics.Dispose(); } catch (Exception ex) { errors.Add(ex); }
             _lifecycleState = FishUILifecycleState.Disposed;
+            if (errors.Count > 0) throw new AggregateException("FishUI disposal failed after cleanup.", errors);
         }
     }
 }

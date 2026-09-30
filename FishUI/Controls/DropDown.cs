@@ -422,18 +422,21 @@ namespace FishUI.Controls
 
             if (LastSelectedIndex != SelectedIndex)
             {
+                int selectedIndex = SelectedIndex;
+                DropDownItem selectedItem = selectedIndex >= 0 && selectedIndex < Items.Count ? Items[selectedIndex] : null;
                 RecordDiagnosticState("selectedIndex", FormatInt(LastSelectedIndex), FormatInt(SelectedIndex));
                 // Only broadcast event if control is connected to FishUI (has parent or _FishUI set)
                 if (FishUI != null)
                 {
                     // Legacy broadcast for backward compatibility
-                    FishUI.Events?.Broadcast(FishUI, this, "item_selected", new object[] { Items[SelectedIndex] });
+                    FishUI.Events?.Broadcast(FishUI, this, "item_selected", new object[] { selectedItem });
 
                     // Fire new interface event
-                    var eventArgs = new FishUISelectionChangedEventArgs(FishUI, this, SelectedIndex, Items[SelectedIndex]);
+                    var eventArgs = new FishUISelectionChangedEventArgs(FishUI, this, selectedIndex, selectedItem);
                     FishUI.Events?.OnControlSelectionChanged(eventArgs);
                 }
-                OnItemSelected?.Invoke(this, Items[SelectedIndex]);
+                OnItemSelected?.Invoke(this, selectedItem);
+                InvokeHandler(OnSelectionChangedHandler, new SelectionChangedEventHandlerArgs(FishUI, selectedIndex, selectedItem));
             }
 
             // Close the dropdown after selection
@@ -541,6 +544,7 @@ namespace FishUI.Controls
 
         public override void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
         {
+            base.HandleMouseClick(UI, InState, Btn, Pos);
             if (Btn != FishMouseButton.Left)
                 return;
 
@@ -751,7 +755,7 @@ namespace FishUI.Controls
 
             // Draw list background
             NPatch listBg = UI.Settings.ImgListBoxNormal;
-            UI.Graphics.DrawNPatch(listBg, listPos, listSize, Color);
+            UI.Graphics.DrawNPatch(listBg, listPos, listSize, ApplyOpacity(Color));
 
             float yOffset = 0;
 
@@ -762,12 +766,12 @@ namespace FishUI.Controls
                 NPatch searchBg = UI.Settings.ImgTextboxNormal;
                 Vector2 searchPos = listPos + new Vector2(2, 2);
                 Vector2 searchSize = new Vector2(listSize.X - 4, SearchBoxHeight - 4);
-                UI.Graphics.DrawNPatch(searchBg, searchPos, searchSize, Color);
+                UI.Graphics.DrawNPatch(searchBg, searchPos, searchSize, ApplyOpacity(Color));
 
                 // Draw search text or placeholder
                 string displayText = string.IsNullOrEmpty(SearchText) ? "Type to filter..." : SearchText;
                 FishColor textColor = string.IsNullOrEmpty(SearchText) ? new FishColor(128, 128, 128, 255) : FishColor.Black;
-                UI.Graphics.DrawTextColor(UI.Settings.FontDefault, displayText, searchPos + new Vector2(4, 2), textColor);
+                UI.Graphics.DrawTextColor(UI.Settings.FontDefault, displayText, searchPos + new Vector2(4, 2), ApplyOpacity(textColor));
 
                 yOffset = SearchBoxHeight;
             }
@@ -799,7 +803,7 @@ namespace FishUI.Controls
                         itemBg = UI.Settings.ImgListBoxItmSelected;
 
                     if (itemBg != null)
-                        UI.Graphics.DrawNPatch(itemBg, itemPos, itemSize, Color);
+                        UI.Graphics.DrawNPatch(itemBg, itemPos, itemSize, ApplyOpacity(Color));
 
                     // Calculate text offset (checkbox takes space in multi-select mode)
                     float textXOffset = MultiSelect ? 20 : 2;
@@ -814,13 +818,13 @@ namespace FishUI.Controls
                         // Draw checkbox background
                         NPatch checkBg = isSelected ? UI.Settings.ImgCheckboxChecked : UI.Settings.ImgCheckboxUnchecked;
                         if (checkBg != null)
-                            UI.Graphics.DrawNPatch(checkBg, checkPos, new Vector2(checkSize, checkSize), Color);
+                            UI.Graphics.DrawNPatch(checkBg, checkPos, new Vector2(checkSize, checkSize), ApplyOpacity(Color));
                         else
                         {
                             // Fallback: draw simple checkbox
-                            UI.Graphics.DrawRectangle(checkPos, new Vector2(checkSize, checkSize), new FishColor(200, 200, 200, 255));
+                            UI.Graphics.DrawRectangle(checkPos, new Vector2(checkSize, checkSize), ApplyOpacity(new FishColor(200, 200, 200, 255)));
                             if (isSelected)
-                                UI.Graphics.DrawRectangle(checkPos + new Vector2(3, 3), new Vector2(checkSize - 6, checkSize - 6), new FishColor(50, 120, 200, 255));
+                                UI.Graphics.DrawRectangle(checkPos + new Vector2(3, 3), new Vector2(checkSize - 6, checkSize - 6), ApplyOpacity(new FishColor(50, 120, 200, 255)));
                         }
                     }
 
@@ -832,7 +836,7 @@ namespace FishUI.Controls
                     else
                     {
                         FishColor txtColor = FishColor.Black;
-                        UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Items[actualIndex].Text, itemPos + new Vector2(textXOffset, 0) + StartOffset, txtColor);
+                        UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Items[actualIndex].Text, itemPos + new Vector2(textXOffset, 0) + StartOffset, ApplyOpacity(txtColor));
                     }
                 }
 
@@ -842,7 +846,7 @@ namespace FishUI.Controls
             if (Searchable && !string.IsNullOrEmpty(SearchText) && displayIndices.Count == 0)
             {
                 float y = listPos.Y + 2 + yOffset;
-                UI.Graphics.DrawTextColor(UI.Settings.FontDefault, "No matching items", new Vector2(listPos.X + 4, y) + StartOffset, new FishColor(128, 128, 128, 255));
+                UI.Graphics.DrawTextColor(UI.Settings.FontDefault, "No matching items", new Vector2(listPos.X + 4, y) + StartOffset, ApplyOpacity(new FishColor(128, 128, 128, 255)));
             }
         }
 

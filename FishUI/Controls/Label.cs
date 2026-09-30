@@ -103,7 +103,7 @@ namespace FishUI.Controls
 
                 // Use color override if set, otherwise use default black
                 FishColor textColor = GetColorOverride("Text", FishColor.Black);
-                UI.Graphics.DrawTextColor(UI.Settings.FontLabel, Txt, Pos, textColor);
+                UI.Graphics.DrawTextColor(UI.Settings.FontLabel, Txt, Pos, ApplyOpacity(textColor));
             }
 
             //DrawChildren(UI, Dt, Time);
@@ -113,8 +113,8 @@ namespace FishUI.Controls
         {
                 if (Parent is CheckBox || Parent is RadioButton)
                 {
-                    Position.X = Parent.GetAbsoluteSize().X + 4;
-                    Position.Y = Parent.GetAbsoluteSize().Y / 2 - UI.Settings.FontLabel.Size / 2;
+                    Position.X = Parent.GetAbsoluteSize().X / UIScale + 4;
+                    Position.Y = (Parent.GetAbsoluteSize().Y - UI.Settings.FontLabel.Size) / (2 * UIScale);
                 }
             UpdateAutoSize(UI);
         }

@@ -189,8 +189,7 @@ namespace FishUI.Controls
                 float lineY = pos.Y + size.Y / 2;
                 UI.Graphics.DrawRectangle(
                     new Vector2(pos.X + 4, lineY),
-                    new Vector2(size.X - 8, 1),
-                    new FishColor(128, 128, 128, 255));
+                    new Vector2(size.X - 8, 1), ApplyOpacity(new FishColor(128, 128, 128, 255)));
                 return;
             }
 
@@ -200,11 +199,11 @@ namespace FishUI.Controls
                 NPatch hoverBg = UI.Settings.ImgMenuHover ?? UI.Settings.ImgSelectionBoxNormal;
                 if (hoverBg != null)
                 {
-                    UI.Graphics.DrawNPatch(hoverBg, pos, size, Color);
+                    UI.Graphics.DrawNPatch(hoverBg, pos, size, ApplyOpacity(Color));
                 }
                 else
                 {
-                    UI.Graphics.DrawRectangle(pos, size, new FishColor(100, 100, 200, 128));
+                    UI.Graphics.DrawRectangle(pos, size, ApplyOpacity(new FishColor(100, 100, 200, 128)));
                 }
             }
 
@@ -215,21 +214,21 @@ namespace FishUI.Controls
                 {
                     // Draw checkmark - use theme image or fallback to text
                     Vector2 checkPos = new Vector2(pos.X + 4, pos.Y + (size.Y - 14) / 2);
-                    UI.Graphics.DrawText(UI.Settings.FontDefault, "X", checkPos);
+                    UI.Graphics.DrawTextColor(UI.Settings.FontDefault, "X", checkPos, ApplyOpacity(UI.Settings.FontDefault.Color));
                 }
             }
 
             // Draw text
             FishColor textColor = Disabled ? new FishColor(128, 128, 128, 255) : FishColor.Black;
             Vector2 textPos = new Vector2(pos.X + LeftPadding, pos.Y + (size.Y - UI.Settings.FontDefault.Size) / 2);
-            UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Text ?? "", textPos, textColor);
+            UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Text ?? "", textPos, ApplyOpacity(textColor));
 
             // Draw shortcut text on the right
             if (!string.IsNullOrEmpty(ShortcutText))
             {
                 Vector2 shortcutSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, ShortcutText);
                 Vector2 shortcutPos = new Vector2(pos.X + size.X - shortcutSize.X - RightPadding, textPos.Y);
-                UI.Graphics.DrawTextColor(UI.Settings.FontDefault, ShortcutText, shortcutPos, new FishColor(100, 100, 100, 255));
+                UI.Graphics.DrawTextColor(UI.Settings.FontDefault, ShortcutText, shortcutPos, ApplyOpacity(new FishColor(100, 100, 100, 255)));
             }
 
             // Draw submenu arrow if has children
@@ -240,13 +239,13 @@ namespace FishUI.Controls
                 {
                     Vector2 arrowSize = new Vector2(8, 8);
                     Vector2 arrowPos = new Vector2(pos.X + size.X - arrowSize.X - 4, pos.Y + (size.Y - arrowSize.Y) / 2);
-                    UI.Graphics.DrawNPatch(arrow, arrowPos, arrowSize, Color);
+                    UI.Graphics.DrawNPatch(arrow, arrowPos, arrowSize, ApplyOpacity(Color));
                 }
                 else
                 {
                     // Fallback: draw arrow character
                     Vector2 arrowPos = new Vector2(pos.X + size.X - 12, pos.Y + (size.Y - UI.Settings.FontDefault.Size) / 2);
-                    UI.Graphics.DrawText(UI.Settings.FontDefault, "►", arrowPos);
+                    UI.Graphics.DrawTextColor(UI.Settings.FontDefault, "►", arrowPos, ApplyOpacity(UI.Settings.FontDefault.Color));
                 }
             }
         }

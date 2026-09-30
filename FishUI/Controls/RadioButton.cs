@@ -12,7 +12,19 @@ namespace FishUI.Controls
         /// Whether the radio button is currently IsChecked.
         /// </summary>
         [YamlMember]
-        public bool IsChecked { get; set; }
+        public bool IsChecked
+        {
+            get => _isChecked;
+            set
+            {
+                if (_isChecked == value) return;
+                bool previous = _isChecked;
+                _isChecked = value;
+                RecordDiagnosticTransition("isChecked", previous, value);
+                InvokeHandler(OnCheckedChangedHandler, new CheckedChangedEventHandlerArgs(FishUI, value));
+            }
+        }
+        private bool _isChecked;
 
         /// <summary>
         /// RadioButton disables child scissor so labels can extend beyond the radio button icon bounds.
@@ -53,18 +65,17 @@ namespace FishUI.Controls
                     Cur = IsMouseInside ? UI.Settings.ImgRadioButtonUncheckedHover : UI.Settings.ImgRadioButtonUnchecked;
             }
 
-            UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), Color);
+            UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), ApplyOpacity(Color));
 
             //DrawChildren(UI, Dt, Time);
         }
 
         public override void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
         {
+            base.HandleMouseClick(UI, InState, Btn, Pos);
             if (Btn == FishMouseButton.Left)
             {
-                bool oldValue = IsChecked;
                 IsChecked = !IsChecked;
-                RecordDiagnosticTransition("isChecked", oldValue, IsChecked);
             }
         }
 

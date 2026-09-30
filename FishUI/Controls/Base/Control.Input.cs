@@ -17,8 +17,9 @@ namespace FishUI.Controls
         {
             if (Draggable)
             {
-                OnDragged?.Invoke(this, InState.MouseDelta);
-                Position += InState.MouseDelta;
+                Vector2 delta = InState.MouseDelta / UIScale;
+                OnDragged?.Invoke(this, delta);
+                Position += delta;
             }
         }
 
@@ -91,6 +92,8 @@ namespace FishUI.Controls
 
             // Fire interface event
             UI.Events?.OnControlClicked(eventArgs);
+            if (!(this is Button))
+                InvokeHandler(OnClickHandler, new ClickEventHandlerArgs(UI, Btn));
         }
 
         /// <summary>

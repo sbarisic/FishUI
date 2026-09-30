@@ -166,12 +166,12 @@ namespace FishUI.Controls
             // Draw menu bar background
             if (UI.Settings.ImgMenuStrip != null)
             {
-                UI.Graphics.DrawNPatch(UI.Settings.ImgMenuStrip, absPos, absSize, Color);
+                UI.Graphics.DrawNPatch(UI.Settings.ImgMenuStrip, absPos, absSize, ApplyOpacity(Color));
             }
             else
             {
                 // Fallback
-                UI.Graphics.DrawRectangle(absPos, absSize, new FishColor(60, 60, 60, 255));
+                UI.Graphics.DrawRectangle(absPos, absSize, ApplyOpacity(new FishColor(60, 60, 60, 255)));
             }
         }
 

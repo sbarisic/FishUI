@@ -139,20 +139,20 @@ namespace FishUI.Controls
             // Draw background
             if (ShowBackground)
             {
-                UI.Graphics.DrawRectangle(absPos, absSize, BackgroundColor);
+                UI.Graphics.DrawRectangle(absPos, absSize, ApplyOpacity(BackgroundColor));
             }
 
             // Draw border
             if (BorderThickness > 0)
             {
                 // Top
-                UI.Graphics.DrawRectangle(absPos, new Vector2(absSize.X, BorderThickness), BorderColor);
+                UI.Graphics.DrawRectangle(absPos, new Vector2(absSize.X, BorderThickness), ApplyOpacity(BorderColor));
                 // Bottom
-                UI.Graphics.DrawRectangle(absPos + new Vector2(0, absSize.Y - BorderThickness), new Vector2(absSize.X, BorderThickness), BorderColor);
+                UI.Graphics.DrawRectangle(absPos + new Vector2(0, absSize.Y - BorderThickness), new Vector2(absSize.X, BorderThickness), ApplyOpacity(BorderColor));
                 // Left
-                UI.Graphics.DrawRectangle(absPos, new Vector2(BorderThickness, absSize.Y), BorderColor);
+                UI.Graphics.DrawRectangle(absPos, new Vector2(BorderThickness, absSize.Y), ApplyOpacity(BorderColor));
                 // Right
-                UI.Graphics.DrawRectangle(absPos + new Vector2(absSize.X - BorderThickness, 0), new Vector2(BorderThickness, absSize.Y), BorderColor);
+                UI.Graphics.DrawRectangle(absPos + new Vector2(absSize.X - BorderThickness, 0), new Vector2(BorderThickness, absSize.Y), ApplyOpacity(BorderColor));
             }
 
             // Calculate available area for text
@@ -213,7 +213,7 @@ namespace FishUI.Controls
             float scale = fontSize / font.Size;
 
             // Draw the main digits
-            UI.Graphics.DrawTextColorScale(font, displayText, textPos, TextColor, scale);
+            UI.Graphics.DrawTextColorScale(font, displayText, textPos, ApplyOpacity(TextColor), scale);
 
             // Draw unit label if present
             if (!string.IsNullOrEmpty(UnitLabel))
@@ -223,7 +223,7 @@ namespace FishUI.Controls
                 float unitY = textY + fontSize - unitFontSize; // Align to baseline
 
                 FishColor unitColor = UnitLabelColor ?? new FishColor(TextColor.R, TextColor.G, TextColor.B, (byte)(TextColor.A * 0.7f));
-                UI.Graphics.DrawTextColorScale(font, UnitLabel, new Vector2(unitX, unitY), unitColor, unitScale);
+                UI.Graphics.DrawTextColorScale(font, UnitLabel, new Vector2(unitX, unitY), ApplyOpacity(unitColor), unitScale);
             }
         }
     }

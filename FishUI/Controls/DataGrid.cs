@@ -422,12 +422,12 @@ namespace FishUI.Controls
             NPatch bgPatch = UI.Settings.ImgListBoxNormal;
             if (bgPatch != null)
             {
-                UI.Graphics.DrawNPatch(bgPatch, pos, size, Color);
+                UI.Graphics.DrawNPatch(bgPatch, pos, size, ApplyOpacity(Color));
             }
             else
             {
-                UI.Graphics.DrawRectangle(pos, size, new FishColor(255, 255, 255, 255));
-                UI.Graphics.DrawRectangleOutline(pos, size, new FishColor(128, 128, 128, 255));
+                UI.Graphics.DrawRectangle(pos, size, ApplyOpacity(new FishColor(255, 255, 255, 255)));
+                UI.Graphics.DrawRectangleOutline(pos, size, ApplyOpacity(new FishColor(128, 128, 128, 255)));
             }
 
             // Draw header
@@ -450,11 +450,11 @@ namespace FishUI.Controls
             NPatch headerBg = UI.Settings.ImgButtonNormal;
             if (headerBg != null)
             {
-                UI.Graphics.DrawNPatch(headerBg, new Vector2(pos.X, pos.Y), new Vector2(width, height), Color);
+                UI.Graphics.DrawNPatch(headerBg, new Vector2(pos.X, pos.Y), new Vector2(width, height), ApplyOpacity(Color));
             }
             else
             {
-                UI.Graphics.DrawRectangle(new Vector2(pos.X, pos.Y), new Vector2(width, height), new FishColor(220, 220, 220, 255));
+                UI.Graphics.DrawRectangle(new Vector2(pos.X, pos.Y), new Vector2(width, height), ApplyOpacity(new FishColor(220, 220, 220, 255)));
             }
 
             for (int i = 0; i < Columns.Count; i++)
@@ -470,13 +470,13 @@ namespace FishUI.Controls
                 // Column separator
                 if (i > 0)
                 {
-                    UI.Graphics.DrawRectangle(new Vector2(x, pos.Y + 2), new Vector2(1, height - 4), new FishColor(180, 180, 180, 255));
+                    UI.Graphics.DrawRectangle(new Vector2(x, pos.Y + 2), new Vector2(1, height - 4), ApplyOpacity(new FishColor(180, 180, 180, 255)));
                 }
 
                 // Hover highlight
                 if (i == _hoveredColumnIndex && _resizingColumnIndex < 0)
                 {
-                    UI.Graphics.DrawRectangle(new Vector2(x, pos.Y), new Vector2(colW, height), new FishColor(0, 0, 0, 30));
+                    UI.Graphics.DrawRectangle(new Vector2(x, pos.Y), new Vector2(colW, height), ApplyOpacity(new FishColor(0, 0, 0, 30)));
                 }
 
                 // Header text with sort indicator
@@ -494,7 +494,7 @@ namespace FishUI.Controls
 
                     using (UI.Graphics.PushScissorScope(new Vector2(x + 2, pos.Y), new Vector2(colW - 4, height)))
                     {
-                        UI.Graphics.DrawTextColor(font, text, new Vector2(textX, textY), new FishColor(0, 0, 0, 255));
+                        UI.Graphics.DrawTextColor(font, text, new Vector2(textX, textY), ApplyOpacity(new FishColor(0, 0, 0, 255)));
                     }
                 }
 
@@ -502,7 +502,7 @@ namespace FishUI.Controls
             }
 
             // Bottom border
-            UI.Graphics.DrawRectangle(new Vector2(pos.X, pos.Y + height - 1), new Vector2(width, 1), new FishColor(160, 160, 160, 255));
+            UI.Graphics.DrawRectangle(new Vector2(pos.X, pos.Y + height - 1), new Vector2(width, 1), ApplyOpacity(new FishColor(160, 160, 160, 255)));
         }
 
         private void DrawRows(FishUI UI, Vector2 pos, float width, float height, FontRef font, float scrollBarW)
@@ -525,7 +525,7 @@ namespace FishUI.Controls
                 if (AlternatingRowColors && !isSelected && !isHovered)
                 {
                     FishColor rowColor = (i % 2 == 0) ? EvenRowColor : OddRowColor;
-                    UI.Graphics.DrawRectangle(new Vector2(pos.X, y), new Vector2(width, _rowHeight), rowColor);
+                    UI.Graphics.DrawRectangle(new Vector2(pos.X, y), new Vector2(width, _rowHeight), ApplyOpacity(rowColor));
                 }
 
                 // Draw selection/hover using theme (like ListBox)
@@ -549,7 +549,7 @@ namespace FishUI.Controls
 
                 if (itemPatch != null)
                 {
-                    UI.Graphics.DrawNPatch(itemPatch, new Vector2(pos.X, y), new Vector2(width, _rowHeight), Color);
+                    UI.Graphics.DrawNPatch(itemPatch, new Vector2(pos.X, y), new Vector2(width, _rowHeight), ApplyOpacity(Color));
                 }
 
                 // Draw cells
@@ -572,7 +572,7 @@ namespace FishUI.Controls
 
                         using (UI.Graphics.PushScissorScope(new Vector2(x + 2, y), new Vector2(colW - 4, _rowHeight)))
                         {
-                            UI.Graphics.DrawTextColor(font, cellText, new Vector2(textX, textY), textColor);
+                            UI.Graphics.DrawTextColor(font, cellText, new Vector2(textX, textY), ApplyOpacity(textColor));
                         }
                     }
 
@@ -821,16 +821,16 @@ namespace FishUI.Controls
             NPatch bgImg = UI.Settings.ImgListBoxNormal;
             if (bgImg != null)
             {
-                UI.Graphics.DrawNPatch(bgImg, pos, size, Color);
+                UI.Graphics.DrawNPatch(bgImg, pos, size, ApplyOpacity(Color));
             }
             else
             {
-                UI.Graphics.DrawRectangle(pos, size, new FishColor(255, 255, 255));
+                UI.Graphics.DrawRectangle(pos, size, ApplyOpacity(new FishColor(255, 255, 255)));
             }
 
             // Draw header area
             FishColor headerBgColor = new FishColor(230, 230, 230);
-            UI.Graphics.DrawRectangle(pos, new Vector2(size.X, headerH), headerBgColor);
+            UI.Graphics.DrawRectangle(pos, new Vector2(size.X, headerH), ApplyOpacity(headerBgColor));
 
             // Draw column headers
             FontRef font = UI.Settings.FontDefault;
@@ -846,7 +846,7 @@ namespace FishUI.Controls
                 // Draw column separator
                 if (i > 0)
                 {
-                    UI.Graphics.DrawLine(new Vector2(x, pos.Y), new Vector2(x, pos.Y + size.Y), 1f, gridLineColor);
+                    UI.Graphics.DrawLine(new Vector2(x, pos.Y), new Vector2(x, pos.Y + size.Y), 1f, ApplyOpacity(gridLineColor));
                 }
 
                 // Draw header text
@@ -855,14 +855,14 @@ namespace FishUI.Controls
                     Vector2 textSize = UI.Graphics.MeasureText(font, col.Header);
                     float textX = x + 4;
                     float textY = pos.Y + (headerH - textSize.Y) / 2;
-                    UI.Graphics.DrawTextColor(font, col.Header, new Vector2(textX, textY), headerTextColor);
+                    UI.Graphics.DrawTextColor(font, col.Header, new Vector2(textX, textY), ApplyOpacity(headerTextColor));
                 }
 
                 x += colW;
             }
 
             // Draw header separator line
-            UI.Graphics.DrawLine(new Vector2(pos.X, pos.Y + headerH), new Vector2(pos.X + size.X, pos.Y + headerH), 1f, gridLineColor);
+            UI.Graphics.DrawLine(new Vector2(pos.X, pos.Y + headerH), new Vector2(pos.X + size.X, pos.Y + headerH), 1f, ApplyOpacity(gridLineColor));
 
             // Draw placeholder rows to indicate data area
             float contentY = pos.Y + headerH;
@@ -877,11 +877,11 @@ namespace FishUI.Controls
                 if (AlternatingRowColors && row % 2 == 1)
                 {
                     FishColor altColor = new FishColor(245, 245, 250);
-                    UI.Graphics.DrawRectangle(new Vector2(pos.X, rowY), new Vector2(size.X, _rowHeight), altColor);
+                    UI.Graphics.DrawRectangle(new Vector2(pos.X, rowY), new Vector2(size.X, _rowHeight), ApplyOpacity(altColor));
                 }
 
                 // Draw row separator
-                UI.Graphics.DrawLine(new Vector2(pos.X, rowY + _rowHeight), new Vector2(pos.X + size.X, rowY + _rowHeight), 1f, new FishColor(220, 220, 220));
+                UI.Graphics.DrawLine(new Vector2(pos.X, rowY + _rowHeight), new Vector2(pos.X + size.X, rowY + _rowHeight), 1f, ApplyOpacity(new FishColor(220, 220, 220)));
             }
 
             // Draw "(Data Grid)" label in the center of content area
@@ -891,12 +891,12 @@ namespace FishUI.Controls
                 Vector2 labelSize = UI.Graphics.MeasureText(font, label);
                 float labelX = pos.X + (size.X - labelSize.X) / 2;
                 float labelY = contentY + (contentH - labelSize.Y) / 2;
-                UI.Graphics.DrawTextColor(font, label, new Vector2(labelX, labelY), new FishColor(150, 150, 150));
+                UI.Graphics.DrawTextColor(font, label, new Vector2(labelX, labelY), ApplyOpacity(new FishColor(150, 150, 150)));
             }
 
             // Draw container outline
             FishColor containerColor = new FishColor(100, 150, 255, 150);
-            UI.Graphics.DrawRectangleOutline(pos, size, containerColor);
+            UI.Graphics.DrawRectangleOutline(pos, size, ApplyOpacity(containerColor));
 
             // Draw anchor visualization
             DrawAnchorVisualization(UI);

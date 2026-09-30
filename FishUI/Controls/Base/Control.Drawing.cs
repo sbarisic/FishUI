@@ -69,15 +69,15 @@ namespace FishUI.Controls
         /// <param name="Time">Total elapsed time.</param>
         public virtual void DrawControl(FishUI UI, float Dt, float Time)
         {
-            UI.Graphics.DrawRectangle(GetAbsolutePosition(), GetAbsoluteSize(), Color);
+            UI.Graphics.DrawRectangle(GetAbsolutePosition(), GetAbsoluteSize(), ApplyOpacity(Color));
 
             if (IsMouseInside)
             {
-                UI.Graphics.DrawRectangleOutline(GetAbsolutePosition(), GetAbsoluteSize(), new FishColor(0, 255, 255));
+                UI.Graphics.DrawRectangleOutline(GetAbsolutePosition(), GetAbsoluteSize(), ApplyOpacity(new FishColor(0, 255, 255)));
             }
             else
             {
-                UI.Graphics.DrawRectangleOutline(GetAbsolutePosition(), GetAbsoluteSize(), new FishColor(100, 100, 100));
+                UI.Graphics.DrawRectangleOutline(GetAbsolutePosition(), GetAbsoluteSize(), ApplyOpacity(new FishColor(100, 100, 100)));
             }
         }
 
@@ -130,11 +130,11 @@ namespace FishUI.Controls
 
             // Draw debug outline if enabled
             if (FishUIDebug.DrawControlOutlines)
-                UI.Graphics.DrawRectangleOutline(GetAbsolutePosition(), GetAbsoluteSize(), FishUIDebug.OutlineColor);
+                UI.Graphics.DrawRectangleOutline(GetAbsolutePosition(), GetAbsoluteSize(), ApplyOpacity(FishUIDebug.OutlineColor));
 
             // Draw focus indicator if this control has focus
             if (FishUIDebug.DrawFocusIndicators && HasFocus && Focusable)
-                UI.Graphics.DrawRectangleOutline(GetAbsolutePosition() - new Vector2(2, 2), GetAbsoluteSize() + new Vector2(4, 4), FishUIDebug.FocusIndicatorColor);
+                UI.Graphics.DrawRectangleOutline(GetAbsolutePosition() - new Vector2(2, 2), GetAbsoluteSize() + new Vector2(4, 4), ApplyOpacity(FishUIDebug.FocusIndicatorColor));
 
             DrawChildren(UI, Dt, Time);
         }

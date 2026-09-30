@@ -52,6 +52,7 @@ namespace FishUI.Controls
                     RecordDiagnosticTransition("valueTicks", oldTicks, _value.Ticks);
                     UpdateSpinnersFromValue();
                     OnValueChanged?.Invoke(this, _value);
+                    InvokeHandler(OnValueChangedHandler, new ValueChangedEventHandlerArgs(FishUI, TimeSpan.FromTicks(oldTicks), _value));
                 }
             }
         }
@@ -207,6 +208,7 @@ namespace FishUI.Controls
                 _value = newValue;
                 RecordDiagnosticTransition("valueTicks", oldTicks, _value.Ticks);
                 OnValueChanged?.Invoke(this, _value);
+                    InvokeHandler(OnValueChangedHandler, new ValueChangedEventHandlerArgs(FishUI, TimeSpan.FromTicks(oldTicks), _value));
             }
         }
 
@@ -238,7 +240,7 @@ namespace FishUI.Controls
                 var sepSize = UI.Graphics.MeasureText(font, ":");
                 float sepX = pos.X + xOffset + (separatorW - sepSize.X) / 2;
                 float sepY = pos.Y + (size.Y - sepSize.Y) / 2;
-                UI.Graphics.DrawTextColor(font, ":", new Vector2(sepX, sepY), new FishColor(0, 0, 0, 255));
+                UI.Graphics.DrawTextColor(font, ":", new Vector2(sepX, sepY), ApplyOpacity(new FishColor(0, 0, 0, 255)));
             }
             xOffset += separatorW;
 
@@ -256,7 +258,7 @@ namespace FishUI.Controls
                     var sepSize = UI.Graphics.MeasureText(font, ":");
                     float sepX = pos.X + xOffset + (separatorW - sepSize.X) / 2;
                     float sepY = pos.Y + (size.Y - sepSize.Y) / 2;
-                    UI.Graphics.DrawTextColor(font, ":", new Vector2(sepX, sepY), new FishColor(0, 0, 0, 255));
+                    UI.Graphics.DrawTextColor(font, ":", new Vector2(sepX, sepY), ApplyOpacity(new FishColor(0, 0, 0, 255)));
                 }
                 xOffset += separatorW;
 
@@ -282,12 +284,12 @@ namespace FishUI.Controls
             NPatch bg = HasFocus ? UI.Settings.ImgTextboxActive : UI.Settings.ImgTextboxNormal;
             if (bg != null)
             {
-                UI.Graphics.DrawNPatch(bg, pos, new Vector2(textWidth, height), Color);
+                UI.Graphics.DrawNPatch(bg, pos, new Vector2(textWidth, height), ApplyOpacity(Color));
             }
             else
             {
-                UI.Graphics.DrawRectangle(pos, new Vector2(textWidth, height), new FishColor(255, 255, 255, 255));
-                UI.Graphics.DrawRectangleOutline(pos, new Vector2(textWidth, height), new FishColor(128, 128, 128, 255));
+                UI.Graphics.DrawRectangle(pos, new Vector2(textWidth, height), ApplyOpacity(new FishColor(255, 255, 255, 255)));
+                UI.Graphics.DrawRectangleOutline(pos, new Vector2(textWidth, height), ApplyOpacity(new FishColor(128, 128, 128, 255)));
             }
 
             // Draw text centered
@@ -296,7 +298,7 @@ namespace FishUI.Controls
                 var textSize = UI.Graphics.MeasureText(font, text);
                 float textX = pos.X + (textWidth - textSize.X) / 2;
                 float textY = pos.Y + (height - textSize.Y) / 2;
-                UI.Graphics.DrawTextColor(font, text, new Vector2(textX, textY), new FishColor(0, 0, 0, 255));
+                UI.Graphics.DrawTextColor(font, text, new Vector2(textX, textY), ApplyOpacity(new FishColor(0, 0, 0, 255)));
             }
 
             // Draw up/down buttons
@@ -312,26 +314,26 @@ namespace FishUI.Controls
             NPatch upBg = upHovered ? UI.Settings.ImgButtonHover : UI.Settings.ImgButtonNormal;
             if (upBg != null)
             {
-                UI.Graphics.DrawNPatch(upBg, upPos, btnSize, Color);
+                UI.Graphics.DrawNPatch(upBg, upPos, btnSize, ApplyOpacity(Color));
             }
             else
             {
                 FishColor btnColor = upHovered ? new FishColor(200, 200, 200, 255) : new FishColor(230, 230, 230, 255);
-                UI.Graphics.DrawRectangle(upPos, btnSize, btnColor);
-                UI.Graphics.DrawRectangleOutline(upPos, btnSize, new FishColor(160, 160, 160, 255));
+                UI.Graphics.DrawRectangle(upPos, btnSize, ApplyOpacity(btnColor));
+                UI.Graphics.DrawRectangleOutline(upPos, btnSize, ApplyOpacity(new FishColor(160, 160, 160, 255)));
             }
 
             // Down button
             NPatch downBg = downHovered ? UI.Settings.ImgButtonHover : UI.Settings.ImgButtonNormal;
             if (downBg != null)
             {
-                UI.Graphics.DrawNPatch(downBg, downPos, btnSize, Color);
+                UI.Graphics.DrawNPatch(downBg, downPos, btnSize, ApplyOpacity(Color));
             }
             else
             {
                 FishColor btnColor = downHovered ? new FishColor(200, 200, 200, 255) : new FishColor(230, 230, 230, 255);
-                UI.Graphics.DrawRectangle(downPos, btnSize, btnColor);
-                UI.Graphics.DrawRectangleOutline(downPos, btnSize, new FishColor(160, 160, 160, 255));
+                UI.Graphics.DrawRectangle(downPos, btnSize, ApplyOpacity(btnColor));
+                UI.Graphics.DrawRectangleOutline(downPos, btnSize, ApplyOpacity(new FishColor(160, 160, 160, 255)));
             }
 
             // Draw arrows using simple ASCII characters
@@ -344,11 +346,11 @@ namespace FishUI.Controls
 
                 float upX = upPos.X + (btnWidth - upSize.X) / 2;
                 float upY = upPos.Y + (halfHeight - upSize.Y) / 2;
-                UI.Graphics.DrawTextColor(font, upArrow, new Vector2(upX, upY), new FishColor(60, 60, 60, 255));
+                UI.Graphics.DrawTextColor(font, upArrow, new Vector2(upX, upY), ApplyOpacity(new FishColor(60, 60, 60, 255)));
 
                 float downX = downPos.X + (btnWidth - downSize.X) / 2;
                 float downY = downPos.Y + (halfHeight - downSize.Y) / 2;
-                UI.Graphics.DrawTextColor(font, downArrow, new Vector2(downX, downY), new FishColor(60, 60, 60, 255));
+                UI.Graphics.DrawTextColor(font, downArrow, new Vector2(downX, downY), ApplyOpacity(new FishColor(60, 60, 60, 255)));
             }
         }
 
@@ -359,13 +361,13 @@ namespace FishUI.Controls
             NPatch bg = hovered ? UI.Settings.ImgButtonHover : UI.Settings.ImgButtonNormal;
             if (bg != null)
             {
-                UI.Graphics.DrawNPatch(bg, pos, new Vector2(width, height), Color);
+                UI.Graphics.DrawNPatch(bg, pos, new Vector2(width, height), ApplyOpacity(Color));
             }
             else
             {
                 FishColor btnColor = hovered ? new FishColor(200, 200, 200, 255) : new FishColor(230, 230, 230, 255);
-                UI.Graphics.DrawRectangle(pos, new Vector2(width, height), btnColor);
-                UI.Graphics.DrawRectangleOutline(pos, new Vector2(width, height), new FishColor(160, 160, 160, 255));
+                UI.Graphics.DrawRectangle(pos, new Vector2(width, height), ApplyOpacity(btnColor));
+                UI.Graphics.DrawRectangleOutline(pos, new Vector2(width, height), ApplyOpacity(new FishColor(160, 160, 160, 255)));
             }
 
             if (font != null)
@@ -374,7 +376,7 @@ namespace FishUI.Controls
                 var textSize = UI.Graphics.MeasureText(font, text);
                 float textX = pos.X + (width - textSize.X) / 2;
                 float textY = pos.Y + (height - textSize.Y) / 2;
-                UI.Graphics.DrawTextColor(font, text, new Vector2(textX, textY), new FishColor(0, 0, 0, 255));
+                UI.Graphics.DrawTextColor(font, text, new Vector2(textX, textY), ApplyOpacity(new FishColor(0, 0, 0, 255)));
             }
         }
 

@@ -468,11 +468,17 @@ namespace FishUI.Controls
             _layoutDirty = true;
         }
 
+        private string _lastNotifiedText = "";
         private void NotifyTextChanged()
         {
             MarkLayoutDirty();
             _caretVisibilityPending = true;
-            OnTextChanged?.Invoke(this, Text);
+            string text = Text;
+            if (_lastNotifiedText == text) return;
+            string previous = _lastNotifiedText;
+            _lastNotifiedText = text;
+            OnTextChanged?.Invoke(this, text);
+            InvokeHandler(OnTextChangedHandler, new TextChangedEventHandlerArgs(FishUI, previous, text));
         }
 
         private void NormalizeCaret()
@@ -1140,12 +1146,12 @@ namespace FishUI.Controls
             {
                 if (bg != null)
                 {
-                    UI.Graphics.DrawNPatch(bg, pos, size, Color);
+                    UI.Graphics.DrawNPatch(bg, pos, size, ApplyOpacity(Color));
                 }
                 else
                 {
-                    UI.Graphics.DrawRectangle(pos, size, BackgroundColor);
-                    UI.Graphics.DrawRectangleOutline(pos, size, new FishColor(128, 128, 128, 255));
+                    UI.Graphics.DrawRectangle(pos, size, ApplyOpacity(BackgroundColor));
+                    UI.Graphics.DrawRectangleOutline(pos, size, ApplyOpacity(new FishColor(128, 128, 128, 255)));
                 }
             }
 
@@ -1153,11 +1159,11 @@ namespace FishUI.Controls
             if (ShowLineNumbers && layout.GutterRect.Size.X > 0)
             {
                 Vector2 gutterPos = pos + layout.GutterRect.Position;
-                UI.Graphics.DrawRectangle(gutterPos, layout.GutterRect.Size, new FishColor(240, 240, 240, 255));
+                UI.Graphics.DrawRectangle(gutterPos, layout.GutterRect.Size, ApplyOpacity(new FishColor(240, 240, 240, 255)));
                 UI.Graphics.DrawLine(
                     new Vector2(gutterPos.X + layout.GutterRect.Size.X, gutterPos.Y),
                     new Vector2(gutterPos.X + layout.GutterRect.Size.X, gutterPos.Y + layout.GutterRect.Size.Y),
-                    1f, new FishColor(200, 200, 200, 255));
+                    1f, ApplyOpacity(new FishColor(200, 200, 200, 255)));
             }
 
             Vector2 textAreaPos = pos + layout.TextRect.Position;
@@ -1208,8 +1214,7 @@ namespace FishUI.Controls
                                 using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Selection))
                                     UI.Graphics.DrawRectangle(
                                         new Vector2(selStartX, lineY),
-                                        new Vector2(selWidth, layout.LineHeight),
-                                        SelectionColor);
+                                        new Vector2(selWidth, layout.LineHeight), ApplyOpacity(SelectionColor));
                             }
                         }
                     }
@@ -1218,7 +1223,7 @@ namespace FishUI.Controls
                     if (font != null && !string.IsNullOrEmpty(line))
                     {
                         using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Text))
-                            UI.Graphics.DrawTextColor(font, line, new Vector2(lineX, lineY), TextColor);
+                            UI.Graphics.DrawTextColor(font, line, new Vector2(lineX, lineY), ApplyOpacity(TextColor));
                     }
 
                     // Draw cursor on this line
@@ -1237,7 +1242,7 @@ namespace FishUI.Controls
                             UI.Graphics.DrawLine(
                                 new Vector2(cursorX, lineY),
                                 new Vector2(cursorX, lineY + layout.LineHeight),
-                                Scale(1f), CursorColor);
+                                Scale(1f), ApplyOpacity(CursorColor));
                     }
                 }
 
@@ -1267,7 +1272,7 @@ namespace FishUI.Controls
                         string lineNum = (visual.LogicalRow + 1).ToString();
                         var numSize = UI.Graphics.MeasureText(font, lineNum);
                         float numX = gutterPos.X + gutterW - numSize.X - Scale(8);
-                        UI.Graphics.DrawTextColor(font, lineNum, new Vector2(numX, lineY), LineNumberColor);
+                        UI.Graphics.DrawTextColor(font, lineNum, new Vector2(numX, lineY), ApplyOpacity(LineNumberColor));
                     }
                 }
             }
@@ -1276,7 +1281,7 @@ namespace FishUI.Controls
             if (_lines.Count == 1 && string.IsNullOrEmpty(_lines[0]) && !string.IsNullOrEmpty(Placeholder) && font != null)
             {
                 using FishUIScissorScope clip = UI.Graphics.PushScissorScope(textAreaPos, textAreaSize);
-                UI.Graphics.DrawTextColor(font, Placeholder, textAreaPos, PlaceholderColor);
+                UI.Graphics.DrawTextColor(font, Placeholder, textAreaPos, ApplyOpacity(PlaceholderColor));
             }
         }
 

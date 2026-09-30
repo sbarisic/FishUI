@@ -222,8 +222,9 @@ namespace FishUI
             if (HoveredControl != null && !IsControlEffectivelyInteractive(HoveredControl))
             {
                 ReportDetachedInteractionTarget(HoveredControl);
-                HoveredControl.HandleMouseLeave(this, InLast);
+                Control previousHover = HoveredControl;
                 HoveredControl = null;
+                previousHover.HandleMouseLeave(this, InLast);
             }
             if (LeftClickedControl != null && !IsControlEffectivelyInteractive(LeftClickedControl))
             {

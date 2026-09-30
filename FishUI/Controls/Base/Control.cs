@@ -215,6 +215,10 @@ namespace FishUI.Controls
         [YamlMember]
         public virtual float Opacity { get; set; } = 1.0f;
 
+        /// <summary>Applies this control's opacity to a drawing color without inheriting parent opacity.</summary>
+        protected FishColor ApplyOpacity(FishColor color) => new FishColor(color.R, color.G, color.B,
+            (byte)(color.A * Math.Clamp(float.IsFinite(Opacity) ? Opacity : 0, 0f, 1f)));
+
         /// <summary>
         /// Gets the effective color for rendering, combining Color with Opacity.
         /// </summary>
@@ -430,7 +434,7 @@ namespace FishUI.Controls
         public virtual void BringToFront()
         {
             FishUI ui = FishUI;
-            if (FishUI != null)
+            if (Parent == null && FishUI != null)
             {
                 ZDepth = FishUI.GetHighestZDepth() + 1;
             }
@@ -454,7 +458,7 @@ namespace FishUI.Controls
         public virtual void SendToBack()
         {
             FishUI ui = FishUI;
-            if (FishUI != null)
+            if (Parent == null && FishUI != null)
             {
                 ZDepth = FishUI.GetLowestZDepth() - 1;
             }

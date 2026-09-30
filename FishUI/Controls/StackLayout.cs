@@ -167,7 +167,7 @@ namespace FishUI.Controls
                 if (Disabled)
                     Cur = UI.Settings.ImgPanelDisabled;
 
-                UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), Color);
+                UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), ApplyOpacity(Color));
             }
         }
 

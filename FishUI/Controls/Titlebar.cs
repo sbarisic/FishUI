@@ -117,12 +117,12 @@ namespace FishUI.Controls
                 return;
 
             // Instead of moving the titlebar itself, invoke the drag event
-            OnTitlebarDragged?.Invoke(this, InState.MouseDelta);
+            OnTitlebarDragged?.Invoke(this, InState.MouseDelta / UIScale);
 
             // If no handler is attached, use default draggable behavior
             if (OnTitlebarDragged == null && Draggable)
             {
-                Position += InState.MouseDelta;
+                Position += InState.MouseDelta / UIScale;
             }
         }
 
@@ -138,12 +138,12 @@ namespace FishUI.Controls
 
             if (titlebarImg != null)
             {
-                UI.Graphics.DrawNPatch(titlebarImg, absPos, absSize, Color);
+                UI.Graphics.DrawNPatch(titlebarImg, absPos, absSize, ApplyOpacity(Color));
             }
             else
             {
                 // Fallback: draw a simple rectangle
-                UI.Graphics.DrawRectangle(absPos, absSize, IsActive ? new FishColor(60, 60, 60) : new FishColor(80, 80, 80));
+                UI.Graphics.DrawRectangle(absPos, absSize, ApplyOpacity(IsActive ? new FishColor(60, 60, 60) : new FishColor(80, 80, 80)));
             }
 
             // Draw title text
@@ -152,7 +152,7 @@ namespace FishUI.Controls
                 Vector2 textSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, Title);
                 float textX = absPos.X + 8;
                 float textY = absPos.Y + (absSize.Y - textSize.Y) / 2;
-                UI.Graphics.DrawText(UI.Settings.FontDefault, Title, new Vector2(textX, textY));
+                UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Title, new Vector2(textX, textY), ApplyOpacity(UI.Settings.FontDefault.Color));
             }
 
             // Draw close button
@@ -172,13 +172,13 @@ namespace FishUI.Controls
 
                 if (closeImg != null)
                 {
-                    UI.Graphics.DrawNPatch(closeImg, closePos, new Vector2(CloseButtonSize, CloseButtonSize), Color);
+                    UI.Graphics.DrawNPatch(closeImg, closePos, new Vector2(CloseButtonSize, CloseButtonSize), ApplyOpacity(Color));
                 }
                 else
                 {
                     // Fallback: draw a simple X
                     FishColor xColor = !CloseButtonEnabled ? new FishColor(100, 100, 100) : (_closeButtonHovered ? new FishColor(255, 100, 100) : new FishColor(200, 200, 200));
-                    UI.Graphics.DrawRectangle(closePos, new Vector2(CloseButtonSize, CloseButtonSize), xColor);
+                    UI.Graphics.DrawRectangle(closePos, new Vector2(CloseButtonSize, CloseButtonSize), ApplyOpacity(xColor));
                 }
             }
         }

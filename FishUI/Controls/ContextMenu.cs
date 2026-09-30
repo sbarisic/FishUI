@@ -392,6 +392,7 @@ namespace FishUI.Controls
 
         public override void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
         {
+            base.HandleMouseClick(UI, InState, Btn, Pos);
             if (Btn != FishMouseButton.Left)
             {
                 if (Btn == FishMouseButton.Right)
@@ -569,19 +570,19 @@ namespace FishUI.Controls
             {
                 Vector2 shadowPos = pos + ShadowOffset - new Vector2(ShadowSize, ShadowSize);
                 Vector2 shadowSize = size + new Vector2(ShadowSize * 2, ShadowSize * 2);
-                UI.Graphics.DrawNPatch(UI.Settings.ImgShadow, shadowPos, shadowSize, FishColor.White);
+                UI.Graphics.DrawNPatch(UI.Settings.ImgShadow, shadowPos, shadowSize, ApplyOpacity(FishColor.White));
             }
 
             // Draw menu background
             NPatch bgPatch = UI.Settings.ImgMenuBackground ?? UI.Settings.ImgPanel;
             if (bgPatch != null)
             {
-                UI.Graphics.DrawNPatch(bgPatch, pos, size, Color);
+                UI.Graphics.DrawNPatch(bgPatch, pos, size, ApplyOpacity(Color));
             }
             else
             {
-                UI.Graphics.DrawRectangle(pos, size, new FishColor(240, 240, 240, 255));
-                UI.Graphics.DrawRectangleOutline(pos, size, new FishColor(160, 160, 160, 255));
+                UI.Graphics.DrawRectangle(pos, size, ApplyOpacity(new FishColor(240, 240, 240, 255)));
+                UI.Graphics.DrawRectangleOutline(pos, size, ApplyOpacity(new FishColor(160, 160, 160, 255)));
             }
         }
 

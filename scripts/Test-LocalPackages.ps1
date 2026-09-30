@@ -40,13 +40,24 @@ try {
   </packageSources>
 </configuration>
 "@ | Set-Content -LiteralPath $nugetConfig -Encoding utf8
-    dotnet restore (Join-Path $consumer "consumer.csproj") --configfile $nugetConfig
+    dotnet restore (Join-Path $consumer "consumer.csproj") --configfile $nugetConfig --packages (Join-Path $temporary "packages")
     if ($LASTEXITCODE -ne 0) { throw "Local package restore failed." }
-    dotnet build (Join-Path $consumer "consumer.csproj") -c $Configuration --no-restore
-    if ($LASTEXITCODE -ne 0) { throw "Local package consumer build failed." }
+    foreach ($copyMode in @("default", "true", "false")) {
+        $output = Join-Path $temporary "output-$copyMode"
+        $arguments = @("build", (Join-Path $consumer "consumer.csproj"), "-c", $Configuration, "--no-restore", "-o", $output)
+        if ($copyMode -ne "default") { $arguments += "-p:FishUICopyData=$copyMode" }
+        & dotnet @arguments
+        if ($LASTEXITCODE -ne 0) { throw "Local package consumer build failed ($copyMode)." }
+        $copied = Test-Path -LiteralPath (Join-Path $output "data/themes/gwen.yaml")
+        if ($copied -ne ($copyMode -ne "false")) { throw "Unexpected asset copying with FishUICopyData=$copyMode." }
+    }
 }
 finally {
     if (Test-Path -LiteralPath $temporary) {
+        $resolvedTemporary = [System.IO.Path]::GetFullPath($temporary)
+        $tempRoot = [System.IO.Path]::GetFullPath([System.IO.Path]::GetTempPath()).TrimEnd('\', '/') + [System.IO.Path]::DirectorySeparatorChar
+        if (-not $resolvedTemporary.StartsWith($tempRoot, [System.StringComparison]::OrdinalIgnoreCase) -or
+            (Split-Path -Leaf $resolvedTemporary) -notlike 'fishui-pack-smoke-*') { throw "Refusing cleanup outside the package test directory." }
         Remove-Item -LiteralPath $temporary -Recurse -Force
     }
 }

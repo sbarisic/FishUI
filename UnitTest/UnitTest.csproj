@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FishUI\FishUI.csproj" />
+    <ProjectReference Include="..\FishUIEditor\FishUIEditor.csproj" />
   </ItemGroup>
 
   <ItemGroup>

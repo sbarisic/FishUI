@@ -203,12 +203,12 @@ namespace FishUI.Controls
             {
                 if (UI.Settings.ImgMenuHover != null)
                 {
-                    UI.Graphics.DrawNPatch(UI.Settings.ImgMenuHover, absPos, absSize, Color);
+                    UI.Graphics.DrawNPatch(UI.Settings.ImgMenuHover, absPos, absSize, ApplyOpacity(Color));
                 }
                 else
                 {
                     // Fallback
-                    UI.Graphics.DrawRectangle(absPos, absSize, new FishColor(80, 80, 80, 255));
+                    UI.Graphics.DrawRectangle(absPos, absSize, ApplyOpacity(new FishColor(80, 80, 80, 255)));
                 }
             }
 
@@ -221,7 +221,7 @@ namespace FishUI.Controls
                     absPos.X + (absSize.X - textSize.X) / 2,
                     absPos.Y + (absSize.Y - textSize.Y) / 2
                 );
-                UI.Graphics.DrawText(font, Text, textPos);
+                UI.Graphics.DrawTextColor(font, Text, textPos, ApplyOpacity(font.Color));
             }
         }
 

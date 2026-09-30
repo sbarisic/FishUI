@@ -1,5 +1,36 @@
 # Unicode, layout, and update hardening
 
+## 2026-09-30 backlog fixes
+
+The follow-up implementation closes R01-R31 and R33 from the code review. R32 (Undo/Redo) is deferred. R34 has a font-rendering fix verified at actual 125% Windows display scale, but remains open for physical 100%, 150%, 200%, and live DPI/monitor-transition checks. Package-consumer validation used local packages; it does not establish NuGet publication.
+
+Compatibility and behavior changes:
+
+- TreeView and ListBox now default to keyboard focusable. Explicit `Focusable = false` remains supported and survives YAML round trips.
+- Layout serialization retains explicit zero/false values and excludes computed properties. YAML output is larger. Existing valid layouts remain readable; unknown properties and unregistered control types remain errors. `TabEnabled` is optional metadata; omitted enabled states default to true.
+- TreeNode additions reject self-links, ancestor cycles, and existing ownership. Remove a node from its parent/tree before moving it. Repeated addition to the same owner is idempotent.
+- Drag callbacks receive logical movement. Window resize and titlebar movement use the same conversion. Fonts loaded during theme changes respect the configured UI scale.
+- Disposal attempts cleanup before throwing an `AggregateException` for callback failures. A second disposal is a no-op. Injected graphics/input services remain caller-owned.
+- Built-in drawing applies each control's opacity once. Parent opacity is not inherited by child controls. Custom drawing code can use the protected `ApplyOpacity` helper.
+- The Raylib backend keeps logical font sizes and line heights while resolving physical font atlases for the current framebuffer scale. Cached font handles remain usable when the scale changes. Latin Extended A/B and General Punctuation are requested explicitly; unsupported font characters still use fallback glyphs. Complex shaping, bidi, and IME remain separate work.
+- Editor layout replacement prepares the new controls before changing the document; generated forms preserve common control state and named handlers. PropertyGrid supports public fields in addition to properties, respecting read-only and exclusion metadata.
+
+Validation commands (run builds/tests sequentially):
+
+```text
+dotnet build FishUI.sln -c Debug --no-restore -v minimal
+dotnet test FishUI.sln -c Debug --no-build --no-restore -v minimal
+dotnet build FishUI.sln -c Release --no-restore -v minimal
+dotnet test FishUI.sln -c Release --no-build --no-restore -v minimal
+pwsh -NoProfile -File scripts/Test-Documentation.ps1
+pwsh -NoProfile -File scripts/Test-UnitySourceLinks.ps1
+pwsh -NoProfile -File scripts/Test-LocalPackages.ps1 -Configuration Release
+```
+
+Debug and Release each passed 304 tests (303 in UnitTest and 1 in FishUI_UnitTest); solution builds reported zero warnings/errors. BacklogRegressionTests supplies 27 cases and DesignerExecutionTests compiles and instantiates an exported form. The package check uses an isolated package cache and fresh output directories to verify all asset-copy modes. The heatmap regression checks one storage validation per scan rather than relying on timing thresholds.
+
+Native Windows validation reproduced the rough chooser text with an 800 × 600 logical window and a 1000 × 750 framebuffer, then inspected the corrected rendering. Gwen/Gwen2 theme changes, editor rendering and save/load, Croatian glyph lookup, and a Basic Controls diagnostic screenshot/overlay completed. Local evidence is under the ignored `artifacts/render-validation` and sample diagnostic output directories. These checks do not establish other display scales, live DPI transitions, Unity player behavior, Linux, or macOS runtime correctness.
+
 The subsequent [codebase revision](REVISION_2026_09_09.md) records further fixes, validation, and the `DockMode` numeric compatibility change.
 
 This revision fixes the September 2026 audit findings. It retains the .NET 9 runtime, backend ownership, YAML control tags, and update/draw split. It does not restore the removed GitHub Actions workflow.

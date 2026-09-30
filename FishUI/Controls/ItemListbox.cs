@@ -255,8 +255,11 @@ namespace FishUI.Controls
 
             if (lastSelectedIndex != SelectedIndex && SelectedIndex >= 0)
             {
-                FishUI.Events.Broadcast(FishUI, this, "item_selected", new object[] { SelectedIndex, Items[SelectedIndex] });
-                OnItemSelected?.Invoke(this, SelectedIndex, Items[SelectedIndex]);
+                var item = Items[SelectedIndex];
+                int selected = SelectedIndex;
+                FishUI?.Events?.Broadcast(FishUI, this, "item_selected", new object[] { selected, item });
+                OnItemSelected?.Invoke(this, selected, item);
+                InvokeHandler(OnSelectionChangedHandler, new SelectionChangedEventHandlerArgs(FishUI, selected, item));
             }
         }
 
@@ -301,6 +304,7 @@ namespace FishUI.Controls
 
         public override void HandleMouseClick(FishUI UI, FishInputState InState, FishMouseButton Btn, Vector2 Pos)
         {
+            base.HandleMouseClick(UI, InState, Btn, Pos);
             HandleMouseMove(UI, InState, Pos);
             if (HoveredIndex != -1)
                 SelectIndex(HoveredIndex);
@@ -370,7 +374,7 @@ namespace FishUI.Controls
         {
             using FishUIDebugRenderScope semantic = UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Viewport);
             NPatch cur = UI.Settings.ImgListBoxNormal;
-            UI.Graphics.DrawNPatch(cur, GetAbsolutePosition(), GetAbsoluteSize(), Color);
+            UI.Graphics.DrawNPatch(cur, GetAbsolutePosition(), GetAbsoluteSize(), ApplyOpacity(Color));
             Vector2 position = GetAbsolutePosition();
             float scrollBarW = (ScrollBar?.Visible ?? false) ? ScrollBar.GetAbsoluteSize().X : 0;
 
@@ -393,8 +397,7 @@ namespace FishUI.Controls
                         FishColor rowColor = (i % 2 == 0) ? EvenRowColor : OddRowColor;
                         UI.Graphics.DrawRectangle(
                             new Vector2(position.X + 2, itemY),
-                            new Vector2(GetAbsoluteSize().X - 4 - scrollBarW, itemHeight),
-                            rowColor);
+                            new Vector2(GetAbsoluteSize().X - 4 - scrollBarW, itemHeight), ApplyOpacity(rowColor));
                     }
 
                     NPatch itemPatch = null;
@@ -419,8 +422,7 @@ namespace FishUI.Controls
                     {
                         UI.Graphics.DrawNPatch(itemPatch,
                             new Vector2(position.X + 2, itemY),
-                            new Vector2(GetAbsoluteSize().X - 4 - scrollBarW, itemHeight),
-                            Color);
+                            new Vector2(GetAbsoluteSize().X - 4 - scrollBarW, itemHeight), ApplyOpacity(Color));
                     }
 
                     // Draw item content
@@ -429,7 +431,7 @@ namespace FishUI.Controls
                         // Draw text
                         float textY = itemY + (itemHeight - UI.Settings.FontDefault.Size) / 2;
                         UI.Graphics.DrawTextColor(UI.Settings.FontDefault, item.Text ?? "",
-                            new Vector2(position.X + 4, textY), txtColor);
+                            new Vector2(position.X + 4, textY), ApplyOpacity(txtColor));
                     }
 
                     yOffset += itemHeight;

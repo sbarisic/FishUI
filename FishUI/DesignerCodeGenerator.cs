@@ -192,6 +192,11 @@ namespace FishUI
                     {
                         _writer.WriteLine($"((Window){varName}).AddChild({childVarName});");
                     }
+                    else if (control is TabControl tabs && child is Panel content)
+                    {
+                        var page = tabs.TabPages.FirstOrDefault(p => p.Content == content);
+                        _writer.WriteLine($"{varName}.AddTab(new TabPage({FishCSharpWriter.StringLiteral(page?.Text ?? "Tab")}, {childVarName}) {{ Enabled = {(page?.Enabled != false ? "true" : "false")} }});");
+                    }
                     else
                     {
                         _writer.WriteLine($"{varName}.AddChild({childVarName});");
@@ -201,6 +206,10 @@ namespace FishUI
 
             // Handle special cases
             GenerateSpecialCases(control, varName);
+            if (control is ImageBox image && !string.IsNullOrEmpty(image.ImagePath))
+                _writer.WriteLine($"{varName}.OnDeserialized(FUI);");
+            if (control is TabControl selectedTabs)
+                _writer.WriteLine($"{varName}.SelectedIndex = {selectedTabs.SelectedIndex};");
         }
 
         private void GeneratePropertyAssignments(Control control, string varName)
@@ -219,10 +228,7 @@ namespace FishUI
             }
 
             // Size
-            if (control.Size != Vector2.Zero)
-            {
-                _writer.WriteLine($"{varName}.Size = {FishCSharpWriter.Vector2Literal(control.Size)};");
-            }
+            _writer.WriteLine($"{varName}.Size = {FishCSharpWriter.Vector2Literal(control.Size)};");
 
             // ID
             if (!string.IsNullOrEmpty(control.ID))
@@ -249,6 +255,29 @@ namespace FishUI
             }
 
             // Type-specific properties
+            _writer.WriteLine($"{varName}.Disabled = {(control.Disabled ? "true" : "false")};");
+            _writer.WriteLine($"{varName}.Focusable = {(control.Focusable ? "true" : "false")};");
+            _writer.WriteLine($"{varName}.Opacity = {FishCSharpWriter.FloatLiteral(control.Opacity)};");
+            _writer.WriteLine($"{varName}.ZDepth = {control.ZDepth};");
+            _writer.WriteLine($"{varName}.Color = {FishCSharpWriter.ColorLiteral(control.Color)};");
+            _writer.WriteLine($"{varName}.AlwaysOnTop = {FishCSharpWriter.BoolLiteral(control.AlwaysOnTop)};");
+            _writer.WriteLine($"{varName}.Draggable = {FishCSharpWriter.BoolLiteral(control.Draggable)};");
+            _writer.WriteLine($"{varName}.DisableChildScissor = {FishCSharpWriter.BoolLiteral(control.DisableChildScissor)};");
+            _writer.WriteLine($"{varName}.AutoSize = {FishCSharpWriter.EnumLiteral(control.AutoSize)};");
+            _writer.WriteLine($"{varName}.TooltipText = {FishCSharpWriter.StringLiteral(control.TooltipText)};");
+            foreach (var margin in new[] { (Name: "Margin", Value: control.Margin), (Name: "Padding", Value: control.Padding) })
+                _writer.WriteLine($"{varName}.{margin.Name} = new FishUIMargin({FishCSharpWriter.FloatLiteral(margin.Value.Top)}, {FishCSharpWriter.FloatLiteral(margin.Value.Right)}, {FishCSharpWriter.FloatLiteral(margin.Value.Bottom)}, {FishCSharpWriter.FloatLiteral(margin.Value.Left)});");
+            if (control.ColorOverrides != null)
+            {
+                _writer.WriteLine($"{varName}.ColorOverrides = new System.Collections.Generic.Dictionary<string, FishColor>();");
+                foreach (var color in control.ColorOverrides)
+                    _writer.WriteLine($"{varName}.ColorOverrides[{FishCSharpWriter.StringLiteral(color.Key)}] = {FishCSharpWriter.ColorLiteral(color.Value)};");
+            }
+            foreach (string name in new[] { nameof(Control.OnClickHandler), nameof(Control.OnValueChangedHandler), nameof(Control.OnSelectionChangedHandler), nameof(Control.OnTextChangedHandler), nameof(Control.OnCheckedChangedHandler) })
+            {
+                string handler = (string)typeof(Control).GetProperty(name).GetValue(control);
+                if (!string.IsNullOrEmpty(handler)) _writer.WriteLine($"{varName}.{name} = {FishCSharpWriter.StringLiteral(handler)};");
+            }
             if (control is IFishUINumericRange range)
                 _writer.WriteLine($"{varName}.SetRange({FishCSharpWriter.FloatLiteral(range.MinValue)}, {FishCSharpWriter.FloatLiteral(range.MaxValue)});");
             GenerateTypeSpecificProperties(control, varName);
@@ -381,15 +410,6 @@ namespace FishUI
                     foreach (var item in dd.Items)
                     {
                         _writer.WriteLine($"{varName}.AddItem({FishCSharpWriter.StringLiteral(item.Text)});");
-                    }
-                    break;
-
-                case TabControl tc when tc.TabPages.Count > 0:
-                    _writer.WriteLine();
-                    _writer.WriteComment("Add TabControl tabs");
-                    foreach (var tab in tc.TabPages)
-                    {
-                        _writer.WriteLine($"{varName}.AddTab({FishCSharpWriter.StringLiteral(tab.Text)});");
                     }
                     break;
 

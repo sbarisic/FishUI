@@ -293,15 +293,15 @@ namespace FishUI.Controls
             NPatch bgImg = UI.Settings.ImgTooltipNormal;
             if (bgImg != null)
             {
-                UI.Graphics.DrawNPatch(bgImg, pos, size, bgColor);
+                UI.Graphics.DrawNPatch(bgImg, pos, size, ApplyOpacity(bgColor));
             }
             else
             {
-                UI.Graphics.DrawRectangle(pos, size, bgColor);
+                UI.Graphics.DrawRectangle(pos, size, ApplyOpacity(bgColor));
             }
 
             // Draw type indicator bar on the left
-            UI.Graphics.DrawRectangle(pos, new Vector2(4, size.Y), typeColor);
+            UI.Graphics.DrawRectangle(pos, new Vector2(4, size.Y), ApplyOpacity(typeColor));
 
             // Draw title if present
             FishColor textColor = new FishColor(TextColor.R, TextColor.G, TextColor.B, alpha);
@@ -311,12 +311,12 @@ namespace FishUI.Controls
             if (!string.IsNullOrEmpty(toast.Title))
             {
                 // Draw title in type color
-                UI.Graphics.DrawTextColor(UI.Settings.FontDefault, toast.Title, new Vector2(textX, textY), typeColor);
+                UI.Graphics.DrawTextColor(UI.Settings.FontDefault, toast.Title, new Vector2(textX, textY), ApplyOpacity(typeColor));
                 textY += UI.Settings.FontDefault.Size + 4;
             }
 
             // Draw message
-            UI.Graphics.DrawTextColor(UI.Settings.FontDefault, toast.Message, new Vector2(textX, textY), textColor);
+            UI.Graphics.DrawTextColor(UI.Settings.FontDefault, toast.Message, new Vector2(textX, textY), ApplyOpacity(textColor));
         }
     }
 }

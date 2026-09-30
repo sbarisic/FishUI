@@ -27,8 +27,10 @@ namespace FishUI.Controls
                 value = TextElements.Normalize(value);
                 if (_value != value)
                 {
+                    string previous = _value;
                     _value = value ?? "";
                     OnValueChanged?.Invoke(this, _value);
+                    InvokeHandler(OnValueChangedHandler, new ValueChangedEventHandlerArgs(FishUI, previous, _value));
                 }
             }
         }
@@ -138,18 +140,18 @@ namespace FishUI.Controls
                 // Editing background
                 NPatch textboxBg = UI.Settings.ImgTextboxActive;
                 if (textboxBg != null)
-                    UI.Graphics.DrawNPatch(textboxBg, pos, size, Color);
+                    UI.Graphics.DrawNPatch(textboxBg, pos, size, ApplyOpacity(Color));
                 else
-                    UI.Graphics.DrawRectangle(pos, size, EditingColor);
+                    UI.Graphics.DrawRectangle(pos, size, ApplyOpacity(EditingColor));
             }
             else if (IsSelected)
             {
                 // Selected background
-                UI.Graphics.DrawRectangle(pos, size, SelectedColor);
+                UI.Graphics.DrawRectangle(pos, size, ApplyOpacity(SelectedColor));
             }
 
             // Border
-            UI.Graphics.DrawRectangleOutline(pos, size, new FishColor(200, 200, 200, 255));
+            UI.Graphics.DrawRectangleOutline(pos, size, ApplyOpacity(new FishColor(200, 200, 200, 255)));
 
             // Text
             if (font != null)
@@ -163,7 +165,7 @@ namespace FishUI.Controls
 
                     using (UI.Graphics.PushScissorScope(pos + new Vector2(2, 0), size - new Vector2(4, 0)))
                     {
-                        UI.Graphics.DrawTextColor(font, displayText, new Vector2(textX, textY), FishColor.Black);
+                        UI.Graphics.DrawTextColor(font, displayText, new Vector2(textX, textY), ApplyOpacity(FishColor.Black));
                     }
                 }
 
@@ -178,7 +180,7 @@ namespace FishUI.Controls
                     // Blinking cursor
                     if ((int)(Time * 2) % 2 == 0)
                     {
-                        UI.Graphics.DrawLine(new Vector2(cursorX, cursorY1), new Vector2(cursorX, cursorY2), 1f, FishColor.Black);
+                        UI.Graphics.DrawLine(new Vector2(cursorX, cursorY1), new Vector2(cursorX, cursorY2), 1f, ApplyOpacity(FishColor.Black));
                     }
                 }
             }
@@ -186,8 +188,8 @@ namespace FishUI.Controls
             // Selection border (thicker)
             if (IsSelected && !_isEditing)
             {
-                UI.Graphics.DrawRectangleOutline(pos, size, new FishColor(51, 153, 255, 255));
-                UI.Graphics.DrawRectangleOutline(pos + new Vector2(1, 1), size - new Vector2(2, 2), new FishColor(51, 153, 255, 255));
+                UI.Graphics.DrawRectangleOutline(pos, size, ApplyOpacity(new FishColor(51, 153, 255, 255)));
+                UI.Graphics.DrawRectangleOutline(pos + new Vector2(1, 1), size - new Vector2(2, 2), ApplyOpacity(new FishColor(51, 153, 255, 255)));
             }
         }
 

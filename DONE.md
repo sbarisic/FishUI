@@ -1,5 +1,21 @@
 # FishUI - Completed Items
 
+## 2026-09-30 backlog fixes
+
+Completed 32 findings; R32 is deferred and R34 retains its outstanding physical DPI checks in [TODO.md](TODO.md).
+
+- **R01-R02:** cancel hidden/disabled/detached repeat gestures, stop callbacks after hierarchy changes, and clear hover state before reentrant leave callbacks.
+- **R03-R05, R24:** retain false/zero YAML state, exclude computed properties, round-trip registered controls, and prepare editor replacements with one initialization pass before changing the current document.
+- **R06:** attempt all detach/disposal cleanup and complete pending diagnostic requests even when callbacks throw; report failures after cleanup.
+- **R07-R14:** respect clipping during hit testing, order against siblings, convert drag movement once, align scaled labels, enable keyboard focus, reuse tree scrollbars, restore node parents, and reject invalid node ownership/cycles.
+- **R15-R19:** route numeric editing through its focused textbox, avoid formatting overflow/feedback, dispatch named change handlers, preserve tab selection/enabled state, and validate Window user descendants against graph limits.
+- **R20-R23, R25-R26:** compile generated forms with one tab-content instance, preserved common state/handlers, and initialized images; delete nested controls; expose editable fields and refresh property-grid scrolling before input.
+- **R27-R31:** preserve inherited font spacing, constrain timeline ranges, load extended Latin/punctuation glyphs, scan heatmap storage once, and apply per-control opacity across built-in drawing paths.
+- **R33:** honor the asset-copy opt-out, including fresh package consumers with the option omitted, true, and false.
+
+Validation: 304 tests passed in each of Debug and Release (303 + 1), including 28 new regression cases. Both solution builds completed with zero warnings/errors, including the Unity source target. Generated forms were compiled and instantiated. Native Windows checks covered the chooser, two themes, editor save/load, Croatian glyphs, and Basic Controls diagnostics at actual 125% display scale. The 4000 × 5 heatmap probe took approximately 0.9 ms in Release versus the prior approximately 92 ms; the regression test also checks one storage validation per scan. See [hardening notes](docs/HARDENING.md#2026-09-30-backlog-fixes) for compatibility and validation limits.
+
+
 ## September 2026 correctness fixes
 
 Rune input, grapheme-safe textbox/multiline editing, stable tab ties, prepared label positions, atomic numeric ranges, bounded animation/particle catch-up, and cached wrapping are covered by runtime regression tests. See [contracts and validation](docs/HARDENING.md).

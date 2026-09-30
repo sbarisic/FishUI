@@ -41,13 +41,15 @@ namespace FishUI.Controls
         /// Minimum time value of the entire timeline range.
         /// </summary>
         [YamlMember]
-        public float MinTime { get; set; } = 0f;
+        public float MinTime { get => _minTime; set { _minTime = NumericRange.Finite(value); if (_maxTime < _minTime) _maxTime = _minTime; NormalizeView(); } }
+        private float _minTime;
 
         /// <summary>
         /// Maximum time value of the entire timeline range.
         /// </summary>
         [YamlMember]
-        public float MaxTime { get; set; } = 100f;
+        public float MaxTime { get => _maxTime; set { _maxTime = NumericRange.Finite(value); if (_minTime > _maxTime) _minTime = _maxTime; NormalizeView(); } }
+        private float _maxTime = 100;
 
         /// <summary>
         /// Start time of the currently visible window.
@@ -58,7 +60,7 @@ namespace FishUI.Controls
             get => _viewStart;
             set
             {
-                float newValue = Math.Clamp(value, MinTime, MaxTime - MinViewWidth);
+                float newValue = Math.Clamp(NumericRange.Finite(value), MinTime, Math.Max(MinTime, _viewEnd - EffectiveMinWidth));
                 if (_viewStart != newValue)
                 {
                     _viewStart = newValue;
@@ -77,7 +79,7 @@ namespace FishUI.Controls
             get => _viewEnd;
             set
             {
-                float newValue = Math.Clamp(value, MinTime + MinViewWidth, MaxTime);
+                float newValue = Math.Clamp(NumericRange.Finite(value), Math.Min(MaxTime, _viewStart + EffectiveMinWidth), MaxTime);
                 if (_viewEnd != newValue)
                 {
                     _viewEnd = newValue;
@@ -91,7 +93,12 @@ namespace FishUI.Controls
         /// Minimum width of the view window.
         /// </summary>
         [YamlMember]
-        public float MinViewWidth { get; set; } = 1f;
+        public float MinViewWidth { get => _minViewWidth; set { _minViewWidth = NumericRange.NonNegative(value); NormalizeView(); } }
+        private float _minViewWidth = 1;
+        [YamlIgnore]
+        private float EffectiveMinWidth => Math.Min(MinViewWidth, MaxTime - MinTime);
+
+        private void NormalizeView() => SetView(_viewStart, _viewEnd);
 
         /// <summary>
         /// Background color of the timeline.
@@ -187,9 +194,9 @@ namespace FishUI.Controls
         {
             float oldStart = _viewStart;
             float oldEnd = _viewEnd;
-            _viewStart = Math.Clamp(start, MinTime, MaxTime - MinViewWidth);
-            _viewEnd = Math.Clamp(end, _viewStart + MinViewWidth, MaxTime);
-            FireViewChanged();
+            _viewStart = Math.Clamp(NumericRange.Finite(start), MinTime, MaxTime - EffectiveMinWidth);
+            _viewEnd = Math.Clamp(NumericRange.Finite(end), _viewStart + EffectiveMinWidth, MaxTime);
+            if (oldStart != _viewStart || oldEnd != _viewEnd) FireViewChanged();
             if (IsDiagnosticEventRecordingEnabled && (oldStart != _viewStart || oldEnd != _viewEnd))
                 RecordDiagnosticTransition("viewChange", "started", "completed");
         }
@@ -199,9 +206,7 @@ namespace FishUI.Controls
         /// </summary>
         public void SetViewToEnd(float windowWidth)
         {
-            _viewEnd = MaxTime;
-            _viewStart = Math.Max(MinTime, MaxTime - windowWidth);
-            FireViewChanged();
+            SetView(MaxTime - NumericRange.NonNegative(windowWidth), MaxTime);
         }
 
         /// <summary>
@@ -211,13 +216,11 @@ namespace FishUI.Controls
         {
             if (chart.AutoScroll)
             {
-                _viewEnd = chart.CurrentTime;
-                _viewStart = chart.CurrentTime - chart.TimeWindow;
+                SetView(chart.CurrentTime - chart.TimeWindow, chart.CurrentTime);
             }
             else
             {
-                _viewStart = chart.ViewStart;
-                _viewEnd = chart.ViewStart + chart.TimeWindow;
+                SetView(chart.ViewStart, chart.ViewStart + chart.TimeWindow);
             }
         }
 
@@ -247,10 +250,10 @@ namespace FishUI.Controls
             float labelOffset = ShowLabels ? Scale(LabelHeight) : 0;
 
             // Draw background
-            UI.Graphics.DrawRectangle(pos, size, BackgroundColor);
+            UI.Graphics.DrawRectangle(pos, size, ApplyOpacity(BackgroundColor));
 
             // Draw track
-            UI.Graphics.DrawRectangle(_trackPos, _trackSize, TrackColor);
+            UI.Graphics.DrawRectangle(_trackPos, _trackSize, ApplyOpacity(TrackColor));
 
             // Draw tick marks
             DrawTicks(UI);
@@ -263,7 +266,7 @@ namespace FishUI.Controls
                 DrawLabels(UI, pos, size, labelOffset);
 
             // Draw border
-            UI.Graphics.DrawRectangleOutline(pos, size, new FishColor(80, 80, 80, 255));
+            UI.Graphics.DrawRectangleOutline(pos, size, ApplyOpacity(new FishColor(80, 80, 80, 255)));
         }
 
         private void DrawTicks(FishUI UI)
@@ -283,7 +286,7 @@ namespace FishUI.Controls
                 UI.Graphics.DrawLine(
                     new Vector2(x, _trackPos.Y),
                     new Vector2(x, _trackPos.Y + _trackSize.Y * 0.3f),
-                    1f, TickColor);
+                    1f, ApplyOpacity(TickColor));
             }
         }
 
@@ -304,18 +307,16 @@ namespace FishUI.Controls
             Vector2 windowSize = new Vector2(windowWidth, _trackSize.Y);
 
             // Draw fill
-            UI.Graphics.DrawRectangle(windowPos, windowSize, ViewWindowFillColor);
+            UI.Graphics.DrawRectangle(windowPos, windowSize, ApplyOpacity(ViewWindowFillColor));
 
             // Draw outline
-            UI.Graphics.DrawRectangleOutline(windowPos, windowSize, ViewWindowColor);
+            UI.Graphics.DrawRectangleOutline(windowPos, windowSize, ApplyOpacity(ViewWindowColor));
 
             // Draw resize handles (thicker lines on edges)
             float handleW = Scale(HandleWidth);
-            UI.Graphics.DrawRectangle(windowPos, new Vector2(Math.Min(handleW, windowWidth / 3), windowSize.Y),
-                new FishColor(ViewWindowColor.R, ViewWindowColor.G, ViewWindowColor.B, 100));
+            UI.Graphics.DrawRectangle(windowPos, new Vector2(Math.Min(handleW, windowWidth / 3), windowSize.Y), ApplyOpacity(new FishColor(ViewWindowColor.R, ViewWindowColor.G, ViewWindowColor.B, 100)));
             UI.Graphics.DrawRectangle(new Vector2(windowPos.X + windowWidth - Math.Min(handleW, windowWidth / 3), windowPos.Y),
-                new Vector2(Math.Min(handleW, windowWidth / 3), windowSize.Y),
-                new FishColor(ViewWindowColor.R, ViewWindowColor.G, ViewWindowColor.B, 100));
+                new Vector2(Math.Min(handleW, windowWidth / 3), windowSize.Y), ApplyOpacity(new FishColor(ViewWindowColor.R, ViewWindowColor.G, ViewWindowColor.B, 100)));
         }
 
         private void DrawLabels(FishUI UI, Vector2 pos, Vector2 size, float labelHeight)
@@ -342,7 +343,7 @@ namespace FishUI.Controls
                 if (i == MajorTickCount)
                     labelX = Math.Min(pos.X + size.X - textSize.X, labelX);
 
-                UI.Graphics.DrawTextColor(font, label, new Vector2(labelX, labelY), LabelColor);
+                UI.Graphics.DrawTextColor(font, label, new Vector2(labelX, labelY), ApplyOpacity(LabelColor));
             }
         }
 
@@ -416,13 +417,14 @@ namespace FishUI.Controls
                 return;
 
             float deltaX = Pos.X - _dragStartMouseX;
+            if (_trackSize.X <= 0) return;
             float timeRange = MaxTime - MinTime;
             float deltaTime = (deltaX / _trackSize.X) * timeRange;
 
             switch (_dragMode)
             {
                 case DragMode.PanWindow:
-                    float windowWidth = _dragStartViewEnd - _dragStartViewStart;
+                    float windowWidth = Math.Min(_dragStartViewEnd - _dragStartViewStart, MaxTime - MinTime);
                     float newStart = _dragStartViewStart + deltaTime;
                     newStart = Math.Clamp(newStart, MinTime, MaxTime - windowWidth);
                     _viewStart = newStart;
@@ -432,14 +434,14 @@ namespace FishUI.Controls
 
                 case DragMode.ResizeLeft:
                     float newLeft = _dragStartViewStart + deltaTime;
-                    newLeft = Math.Clamp(newLeft, MinTime, _viewEnd - MinViewWidth);
+                    newLeft = Math.Clamp(newLeft, MinTime, Math.Max(MinTime, _viewEnd - EffectiveMinWidth));
                     _viewStart = newLeft;
                     FireViewChanged();
                     break;
 
                 case DragMode.ResizeRight:
                     float newRight = _dragStartViewEnd + deltaTime;
-                    newRight = Math.Clamp(newRight, _viewStart + MinViewWidth, MaxTime);
+                    newRight = Math.Clamp(newRight, Math.Min(MaxTime, _viewStart + EffectiveMinWidth), MaxTime);
                     _viewEnd = newRight;
                     FireViewChanged();
                     break;

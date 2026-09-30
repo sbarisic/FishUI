@@ -101,6 +101,7 @@ namespace FishUI.Controls
         /// <summary>
         /// Determines if the flow is horizontal (LeftToRight or RightToLeft).
         /// </summary>
+        [YamlIgnore]
         private bool IsHorizontalFlow => Direction == FlowDirection.LeftToRight || Direction == FlowDirection.RightToLeft;
 
         /// <summary>
@@ -308,7 +309,7 @@ namespace FishUI.Controls
                 if (Disabled)
                     Cur = UI.Settings.ImgPanelDisabled;
 
-                UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), Color);
+                UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), ApplyOpacity(Color));
             }
         }
 

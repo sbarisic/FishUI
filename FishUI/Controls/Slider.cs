@@ -350,11 +350,11 @@ namespace FishUI.Controls
             // Draw track background
             if (UI.Settings.ImgSliderTrack != null)
             {
-                UI.Graphics.DrawNPatch(UI.Settings.ImgSliderTrack, trackPos, trackSize, FishColor.White);
+                UI.Graphics.DrawNPatch(UI.Settings.ImgSliderTrack, trackPos, trackSize, ApplyOpacity(FishColor.White));
             }
             else
             {
-                UI.Graphics.DrawRectangle(trackPos, trackSize, GetTrackColor(UI));
+                UI.Graphics.DrawRectangle(trackPos, trackSize, ApplyOpacity(GetTrackColor(UI)));
             }
 
             // Draw fill (portion before thumb)
@@ -363,18 +363,18 @@ namespace FishUI.Controls
             {
                 if (UI.Settings.ImgSliderFill != null)
                 {
-                    UI.Graphics.DrawNPatch(UI.Settings.ImgSliderFill, trackPos, new Vector2(fillWidth, trackHeight), FishColor.White);
+                    UI.Graphics.DrawNPatch(UI.Settings.ImgSliderFill, trackPos, new Vector2(fillWidth, trackHeight), ApplyOpacity(FishColor.White));
                 }
                 else
                 {
-                    UI.Graphics.DrawRectangle(trackPos, new Vector2(fillWidth, trackHeight), GetFillColor(UI));
+                    UI.Graphics.DrawRectangle(trackPos, new Vector2(fillWidth, trackHeight), ApplyOpacity(GetFillColor(UI)));
                 }
             }
 
             // Draw track border if no NPatch used
             if (ShowBorder && UI.Settings.ImgSliderTrack == null)
             {
-                UI.Graphics.DrawRectangleOutline(trackPos, trackSize, GetBorderColor(UI));
+                UI.Graphics.DrawRectangleOutline(trackPos, trackSize, ApplyOpacity(GetBorderColor(UI)));
             }
 
             // Draw thumb
@@ -395,7 +395,7 @@ namespace FishUI.Controls
 
             if (thumbNPatch != null)
             {
-                UI.Graphics.DrawNPatch(thumbNPatch, thumbPos, thumbDimensions, FishColor.White);
+                UI.Graphics.DrawNPatch(thumbNPatch, thumbPos, thumbDimensions, ApplyOpacity(FishColor.White));
             }
             else
             {
@@ -422,8 +422,8 @@ namespace FishUI.Controls
                     );
                 }
 
-                UI.Graphics.DrawRectangle(thumbPos, thumbDimensions, currentThumbColor);
-                UI.Graphics.DrawRectangleOutline(thumbPos, thumbDimensions, GetBorderColor(UI));
+                UI.Graphics.DrawRectangle(thumbPos, thumbDimensions, ApplyOpacity(currentThumbColor));
+                UI.Graphics.DrawRectangleOutline(thumbPos, thumbDimensions, ApplyOpacity(GetBorderColor(UI)));
             }
         }
 
@@ -437,11 +437,11 @@ namespace FishUI.Controls
             // Draw track background
             if (UI.Settings.ImgSliderTrack != null)
             {
-                UI.Graphics.DrawNPatch(UI.Settings.ImgSliderTrack, trackPos, trackSize, FishColor.White);
+                UI.Graphics.DrawNPatch(UI.Settings.ImgSliderTrack, trackPos, trackSize, ApplyOpacity(FishColor.White));
             }
             else
             {
-                UI.Graphics.DrawRectangle(trackPos, trackSize, GetTrackColor(UI));
+                UI.Graphics.DrawRectangle(trackPos, trackSize, ApplyOpacity(GetTrackColor(UI)));
             }
 
             // Draw fill (from bottom up for vertical)
@@ -451,18 +451,18 @@ namespace FishUI.Controls
                 Vector2 fillPos = new Vector2(trackX, pos.Y + size.Y - fillHeight);
                 if (UI.Settings.ImgSliderFill != null)
                 {
-                    UI.Graphics.DrawNPatch(UI.Settings.ImgSliderFill, fillPos, new Vector2(trackWidth, fillHeight), FishColor.White);
+                    UI.Graphics.DrawNPatch(UI.Settings.ImgSliderFill, fillPos, new Vector2(trackWidth, fillHeight), ApplyOpacity(FishColor.White));
                 }
                 else
                 {
-                    UI.Graphics.DrawRectangle(fillPos, new Vector2(trackWidth, fillHeight), GetFillColor(UI));
+                    UI.Graphics.DrawRectangle(fillPos, new Vector2(trackWidth, fillHeight), ApplyOpacity(GetFillColor(UI)));
                 }
             }
 
             // Draw track border if no NPatch used
             if (ShowBorder && UI.Settings.ImgSliderTrack == null)
             {
-                UI.Graphics.DrawRectangleOutline(trackPos, trackSize, GetBorderColor(UI));
+                UI.Graphics.DrawRectangleOutline(trackPos, trackSize, ApplyOpacity(GetBorderColor(UI)));
             }
 
             // Draw thumb
@@ -485,7 +485,7 @@ namespace FishUI.Controls
             if (thumbNPatch != null)
             {
                 // Rotate thumb by 90 degrees for vertical slider
-                UI.Graphics.DrawNPatch(thumbNPatch, thumbPos, thumbDimensions, FishColor.White, 90f);
+                UI.Graphics.DrawNPatch(thumbNPatch, thumbPos, thumbDimensions, ApplyOpacity(FishColor.White), 90f);
             }
             else
             {
@@ -512,8 +512,8 @@ namespace FishUI.Controls
                     );
                 }
 
-                UI.Graphics.DrawRectangle(thumbPos, thumbDimensions, currentThumbColor);
-                UI.Graphics.DrawRectangleOutline(thumbPos, thumbDimensions, GetBorderColor(UI));
+                UI.Graphics.DrawRectangle(thumbPos, thumbDimensions, ApplyOpacity(currentThumbColor));
+                UI.Graphics.DrawRectangleOutline(thumbPos, thumbDimensions, ApplyOpacity(GetBorderColor(UI)));
             }
         }
 
@@ -537,7 +537,7 @@ namespace FishUI.Controls
                 labelY = pos.Y + size.Y + 4;
             }
 
-            UI.Graphics.DrawTextColor(UI.Settings.FontDefault, label, new Vector2(labelX, labelY), GetLabelColor(UI));
+            UI.Graphics.DrawTextColor(UI.Settings.FontDefault, label, new Vector2(labelX, labelY), ApplyOpacity(GetLabelColor(UI)));
         }
     }
 }

@@ -779,14 +779,7 @@ namespace FishUIEditor
                     return;
 
                 string yaml = FUI.FileSystem.ReadAllText(path);
-                var ctrls = LayoutFormat.DeserializeControls(yaml);
-
-                _canvas.ClearEditedControls();
-                foreach (var c in ctrls)
-                {
-                    OnDeserializedRecursive(c, FUI);
-                    _canvas.AddEditedControl(c);
-                }
+                _canvas.LoadLayout(FUI, yaml);
 
                 _currentLayoutPath = path;
                 _propertyGrid.SelectedObject = null;
@@ -804,27 +797,6 @@ namespace FishUIEditor
                 catch { }
 
                 SetStatus($"Load failed: {ex.Message}");
-            }
-        }
-
-        static void OnDeserializedRecursive(Control control, FishUI.FishUI ui)
-        {
-            control.OnDeserialized(ui);
-
-            // For Window, iterate content children
-            if (control is Window window)
-            {
-                foreach (var child in window.ContentChildren)
-                {
-                    OnDeserializedRecursive(child, ui);
-                }
-            }
-            else
-            {
-                foreach (var child in control.Children)
-                {
-                    OnDeserializedRecursive(child, ui);
-                }
             }
         }
 

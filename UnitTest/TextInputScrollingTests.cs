@@ -253,7 +253,7 @@ namespace UnitTest
 
             Assert.Null(textbox.FindChildByType<ScrollBarH>());
             int scissor = fixture.Graphics.DrawCalls.FindIndex(call => call.StartsWith("PushScissor"));
-            int text = fixture.Graphics.DrawCalls.FindIndex(call => call.StartsWith("DrawText("));
+            int text = fixture.Graphics.DrawCalls.FindIndex(call => call.StartsWith("DrawTextColor("));
             int caret = fixture.Graphics.DrawCalls.FindIndex(call => call.StartsWith("DrawLine("));
             int pop = fixture.Graphics.DrawCalls.FindIndex(call => call == "PopScissor");
             Assert.True(scissor >= 0 && text > scissor && caret > text && pop > caret);
@@ -269,14 +269,14 @@ namespace UnitTest
             fixture.Update();
 
             Assert.Contains(fixture.Graphics.DrawCalls,
-                call => call.StartsWith("DrawText(\"0123456789") && call.Contains("<-"));
+                call => call.StartsWith("DrawTextColor(\"0123456789") && call.Contains("<-"));
 
             textbox.CursorPosition = 0;
             fixture.Graphics.Reset();
             fixture.Update();
 
             Assert.DoesNotContain(fixture.Graphics.DrawCalls,
-                call => call.StartsWith("DrawText(\"0123456789") && call.Contains("<-"));
+                call => call.StartsWith("DrawTextColor(\"0123456789") && call.Contains("<-"));
         }
 
         [Fact]

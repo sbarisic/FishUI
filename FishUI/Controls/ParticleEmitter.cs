@@ -451,7 +451,7 @@ namespace FishUI.Controls
                 Vector2 scaledSize = imgSize * p.Scale;
                 Vector2 centeredPos = position - scaledSize / 2;
 
-                UI.Graphics.DrawImage(ParticleImage, centeredPos, scaledSize, p.Rotation, 1f, p.Color);
+                UI.Graphics.DrawImage(ParticleImage, centeredPos, scaledSize, p.Rotation, 1f, ApplyOpacity(p.Color));
             }
             else
             {
@@ -460,7 +460,7 @@ namespace FishUI.Controls
                 Vector2 centeredPos = position - scaledSize / 2;
 
                 // For simplicity, draw as rectangle (rotation not applied for rectangles)
-                UI.Graphics.DrawRectangle(centeredPos, scaledSize, p.Color);
+                UI.Graphics.DrawRectangle(centeredPos, scaledSize, ApplyOpacity(p.Color));
             }
         }
 

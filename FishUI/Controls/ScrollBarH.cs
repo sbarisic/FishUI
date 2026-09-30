@@ -207,7 +207,7 @@ namespace FishUI.Controls
             }
 
             // Draw background
-            UI.Graphics.DrawNPatch(UI.Settings.ImgSBHBarBackground, GlobalPos, size, Color);
+            UI.Graphics.DrawNPatch(UI.Settings.ImgSBHBarBackground, GlobalPos, size, ApplyOpacity(Color));
 
             CalculateThumb(out Vector2 thumbSize, out Vector2 thumbPos);
             if (BtnThumb != null)

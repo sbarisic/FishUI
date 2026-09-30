@@ -126,22 +126,45 @@ namespace RaylibFishGfx
         {
             ThrowIfDisposed();
             string path = NormalizePath(FileName);
-            string key = string.Join("|", path, Size.ToString("R", CultureInfo.InvariantCulture),
-                Spacing.ToString("R", CultureInfo.InvariantCulture), ((int)Style).ToString(CultureInfo.InvariantCulture));
+            Font font = ResolveFont(path, Size, Style);
+
+            Vector2 wWidth = Raylib.MeasureTextEx(font, "W", Size, Spacing);
+            Vector2 iWidth = Raylib.MeasureTextEx(font, "i", Size, Spacing);
+            return new FontRef(path, font, Size, Spacing, Color, Style,
+                Math.Abs(wWidth.X - iWidth.X) < 0.5f, Size);
+        }
+
+        private static readonly int[] FontCodepoints = CreateFontCodepoints();
+        private static int[] CreateFontCodepoints()
+        {
+            var codepoints = new List<int>();
+            for (int c = 32; c <= 0x024f; c++) codepoints.Add(c);
+            for (int c = 0x2000; c <= 0x206f; c++) codepoints.Add(c);
+            return codepoints.ToArray();
+        }
+
+        private static float FontRasterScale => Math.Max(1f, Math.Max(
+            (float)Raylib.GetRenderWidth() / Math.Max(1, Raylib.GetScreenWidth()),
+            (float)Raylib.GetRenderHeight() / Math.Max(1, Raylib.GetScreenHeight())));
+
+        public override long GetTextMetricsVersion(FontRef font) => (long)Math.Ceiling(font.Size * FontRasterScale);
+
+        private Font ResolveFont(FontRef font, float scale = 1) => ResolveFont(font.Path, font.Size * scale, font.Style);
+
+        private unsafe Font ResolveFont(string path, float logicalSize, FontStyle style)
+        {
+            ThrowIfDisposed();
+            int rasterSize = Math.Max(1, (int)Math.Ceiling(logicalSize * FontRasterScale));
+            string key = string.Join("|", path, rasterSize.ToString(CultureInfo.InvariantCulture), ((int)style).ToString(CultureInfo.InvariantCulture));
             if (!_fontCache.TryGetValue(key, out Font font))
             {
-                font = Raylib.LoadFontEx(FileName, (int)Size, null, 250);
+                font = Raylib.LoadFontEx(path, rasterSize, FontCodepoints, FontCodepoints.Length);
                 if (font.Texture.Id == 0) throw new InvalidOperationException("Raylib failed to load a font.");
+                Raylib.SetTextureFilter(font.Texture, TextureFilter.Bilinear);
                 _fontCache.Add(key, font);
                 _ownedFonts.Add(font);
             }
-
-            // Check if monospaced
-            Vector2 wWidth = Raylib.MeasureTextEx(font, "W", Size, Spacing);
-            Vector2 iWidth = Raylib.MeasureTextEx(font, "i", Size, Spacing);
-
-            return new FontRef(path, font, Size, Spacing, Color, Style,
-                Math.Abs(wWidth.X - iWidth.X) < 0.5f, font.BaseSize);
+            return font;
         }
 
         private unsafe ImageRef LoadImageCore(string fileName, Rectangle? crop)
@@ -196,8 +219,8 @@ namespace RaylibFishGfx
         /// <inheritdoc/>
         public override FishUIFontMetrics GetFontMetrics(FontRef Fn)
         {
-            Font font = (Font)Fn.Userdata;
-            float lineHeight = font.BaseSize;
+            Font font = ResolveFont(Fn);
+            float lineHeight = Fn.Size;
             float ascent = lineHeight * 0.8f;
             float descent = lineHeight * 0.2f;
             float baseline = ascent;
@@ -340,14 +363,14 @@ namespace RaylibFishGfx
         /// <inheritdoc/>
         public override Vector2 MeasureText(FontRef Fn, string Text)
         {
-            Font font = (Font)Fn.Userdata;
+            Font font = ResolveFont(Fn);
             return Raylib.MeasureTextEx(font, Text, Fn.Size, Fn.Spacing);
         }
 
         /// <inheritdoc/>
         public override void DrawText(FontRef Fn, string Text, Vector2 Pos)
         {
-            Font font = (Font)Fn.Userdata;
+            Font font = ResolveFont(Fn);
             Raylib.DrawTextEx(font, Text, Round(Pos), Fn.Size, Fn.Spacing,
                 new Color(Fn.Color.R, Fn.Color.G, Fn.Color.B, Fn.Color.A));
         }
@@ -355,7 +378,7 @@ namespace RaylibFishGfx
         /// <inheritdoc/>
         public override void DrawTextColor(FontRef Fn, string Text, Vector2 Pos, FishColor Color)
         {
-            Font font = (Font)Fn.Userdata;
+            Font font = ResolveFont(Fn);
             Raylib.DrawTextEx(font, Text, Round(Pos), Fn.Size, Fn.Spacing,
                 new Color(Color.R, Color.G, Color.B, Color.A));
         }
@@ -363,7 +386,7 @@ namespace RaylibFishGfx
         /// <inheritdoc/>
         public override void DrawTextColorScale(FontRef Fn, string Text, Vector2 Pos, FishColor Color, float Scale)
         {
-            Font font = (Font)Fn.Userdata;
+            Font font = ResolveFont(Fn, Scale);
             float fontSize = Fn.Size * Scale;
             float spacing = Fn.Spacing * Scale;
             Raylib.DrawTextEx(font, Text, Round(Pos), fontSize, spacing,

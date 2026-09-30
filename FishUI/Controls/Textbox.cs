@@ -69,12 +69,22 @@ namespace FishUI.Controls
                     CursorPosition = Math.Clamp(CursorPosition, 0, _text.Length);
                     _caretVisibilityPending = true;
                     ClearSelection();
-                    OnTextChanged?.Invoke(this, _text);
+                    NotifyTextChanged();
 
-                    // Invoke serialized text changed handler
-                    InvokeHandler(OnTextChangedHandler, new TextChangedEventHandlerArgs(FishUI, oldValue, _text));
+
                 }
             }
+        }
+
+        private string _notifiedText = "";
+        private void NotifyTextChanged()
+        {
+            string current = Text;
+            if (_notifiedText == current) return;
+            string previous = _notifiedText;
+            _notifiedText = current;
+            OnTextChanged?.Invoke(this, current);
+            InvokeHandler(OnTextChangedHandler, new TextChangedEventHandlerArgs(FishUI, previous, current));
         }
 
         /// <summary>
@@ -265,7 +275,7 @@ namespace FishUI.Controls
 
             // Delete selection first if any
             if (HasSelection)
-                DeleteSelection();
+                DeleteSelection(false);
 
             // Apply max length constraint
             if (MaxLength > 0)
@@ -281,13 +291,13 @@ namespace FishUI.Controls
             _text = Text.Insert(CursorPosition, text);
             CursorPosition += text.Length;
             ClearSelection();
-            OnTextChanged?.Invoke(this, _text);
+            NotifyTextChanged();
         }
 
         /// <summary>
         /// Deletes the currently selected text.
         /// </summary>
-        private void DeleteSelection()
+        private void DeleteSelection(bool notify = true)
         {
             if (!HasSelection)
                 return;
@@ -296,7 +306,7 @@ namespace FishUI.Controls
             _text = Text.Remove(start, end - start);
             CursorPosition = start;
             ClearSelection();
-            OnTextChanged?.Invoke(this, _text);
+            if (notify) NotifyTextChanged();
         }
 
         /// <summary>
@@ -425,7 +435,7 @@ namespace FishUI.Controls
         {
             TextboxViewport viewport = CalculateViewport(UI, true);
             using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.ControlBounds))
-                UI.Graphics.DrawNPatch(viewport.Patch, GetAbsolutePosition(), GetAbsoluteSize(), Color);
+                UI.Graphics.DrawNPatch(viewport.Patch, GetAbsolutePosition(), GetAbsoluteSize(), ApplyOpacity(Color));
             using (UI.Graphics.PushScissorScope(viewport.Position, viewport.Size))
             {
 
@@ -442,20 +452,18 @@ namespace FishUI.Controls
                     using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Selection))
                         UI.Graphics.DrawRectangle(
                             new Vector2(selStartX, viewport.TextPosition.Y),
-                            new Vector2(selWidth, viewport.TextSize.Y),
-                            SelectionColor
-                        );
+                            new Vector2(selWidth, viewport.TextSize.Y), ApplyOpacity(SelectionColor));
                 }
 
                 // Draw text
                 using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Text))
                 {
                     if (viewport.ShowPlaceholder)
-                        UI.Graphics.DrawTextColor(viewport.Font, viewport.TextToDraw, viewport.TextPosition, PlaceholderColor);
+                        UI.Graphics.DrawTextColor(viewport.Font, viewport.TextToDraw, viewport.TextPosition, ApplyOpacity(PlaceholderColor));
                     else if (TextColorOverride.HasValue)
-                        UI.Graphics.DrawTextColor(viewport.Font, viewport.TextToDraw, viewport.TextPosition, TextColorOverride.Value);
+                        UI.Graphics.DrawTextColor(viewport.Font, viewport.TextToDraw, viewport.TextPosition, ApplyOpacity(TextColorOverride.Value));
                     else
-                        UI.Graphics.DrawText(viewport.Font, viewport.TextToDraw, viewport.TextPosition);
+                        UI.Graphics.DrawTextColor(viewport.Font, viewport.TextToDraw, viewport.TextPosition, ApplyOpacity(viewport.Font.Color));
                 }
 
                 // Draw cursor
@@ -474,7 +482,7 @@ namespace FishUI.Controls
 
                     if (drawCursor || viewport.ShowPlaceholder)
                         using (UI.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.Caret))
-                            UI.Graphics.DrawLine(cursorStart, cursorEnd, 1, CursorColorOverride ?? FishColor.Black);
+                            UI.Graphics.DrawLine(cursorStart, cursorEnd, 1, ApplyOpacity(CursorColorOverride ?? FishColor.Black));
                 }
 
             }
@@ -578,7 +586,7 @@ namespace FishUI.Controls
                     int previous = TextElements.Previous(Text, CursorPosition);
                     _text = Text.Remove(previous, CursorPosition - previous);
                     CursorPosition = previous;
-                    OnTextChanged?.Invoke(this, _text);
+                    NotifyTextChanged();
                 }
             }
             else if (Chr.Value == 127) // Delete key (sometimes sent as 127)
@@ -590,23 +598,12 @@ namespace FishUI.Controls
                 else if (CursorPosition < Text.Length)
                 {
                     _text = Text.Remove(CursorPosition, TextElements.Next(Text, CursorPosition) - CursorPosition);
-                    OnTextChanged?.Invoke(this, _text);
+                    NotifyTextChanged();
                 }
             }
             else if (!Rune.IsControl(Chr) || Chr.Value == '\t')
             {
-                // Delete selection first if any
-                if (HasSelection)
-                    DeleteSelection();
-
-                // Check max length
-                if (MaxLength > 0 && Text.Length + Chr.Utf16SequenceLength > MaxLength)
-                    return;
-
-                // Insert character at cursor position
-                _text = Text.Insert(CursorPosition, Chr.ToString());
-                CursorPosition += Chr.Utf16SequenceLength;
-                OnTextChanged?.Invoke(this, _text);
+                Paste(Chr.ToString());
             }
         }
 
@@ -755,7 +752,7 @@ namespace FishUI.Controls
                         else if (CursorPosition < Text.Length)
                         {
                             _text = Text.Remove(CursorPosition, TextElements.Next(Text, CursorPosition) - CursorPosition);
-                            OnTextChanged?.Invoke(this, _text);
+                            NotifyTextChanged();
                         }
                     }
                     break;

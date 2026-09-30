@@ -46,6 +46,8 @@ namespace FishUI.Controls
         /// </summary>
         [YamlIgnore]
         public TreeNode Parent { get; internal set; }
+        [YamlIgnore]
+        internal TreeView RootOwner { get; set; }
 
         /// <summary>
         /// If true, this node can be expanded to load children lazily.
@@ -111,6 +113,13 @@ namespace FishUI.Controls
         /// </summary>
         public void AddChild(TreeNode node)
         {
+            if (node == null) throw new ArgumentNullException(nameof(node));
+            if (node.RootOwner != null) throw new InvalidOperationException("Remove the node from its tree first.");
+            for (TreeNode ancestor = this; ancestor != null; ancestor = ancestor.Parent)
+                if (ReferenceEquals(ancestor, node)) throw new InvalidOperationException("A tree node cannot contain itself or an ancestor.");
+            if (node.Parent != null && node.Parent != this)
+                throw new InvalidOperationException("Remove the node from its existing parent first.");
+            if (Children.Contains(node)) return;
             node.Parent = this;
             Children.Add(node);
         }
@@ -259,6 +268,7 @@ namespace FishUI.Controls
 
         public TreeView()
         {
+            Focusable = true;
             Size = new Vector2(200, 300);
         }
 
@@ -268,7 +278,7 @@ namespace FishUI.Controls
         public TreeNode AddNode(string text, object userData = null)
         {
             var node = new TreeNode(text, userData);
-            Nodes.Add(node);
+            AddNode(node);
             return node;
         }
 
@@ -277,7 +287,11 @@ namespace FishUI.Controls
         /// </summary>
         public void AddNode(TreeNode node)
         {
-            node.Parent = null;
+            if (node == null) throw new ArgumentNullException(nameof(node));
+            if (node.RootOwner != null && node.RootOwner != this) throw new InvalidOperationException("Remove the node from its tree first.");
+            if (node.Parent != null) throw new InvalidOperationException("Remove the node from its existing parent first.");
+            if (Nodes.Contains(node)) return;
+            node.RootOwner = this;
             Nodes.Add(node);
         }
 
@@ -286,7 +300,9 @@ namespace FishUI.Controls
         /// </summary>
         public bool RemoveNode(TreeNode node)
         {
-            return Nodes.Remove(node);
+            if (!Nodes.Remove(node)) return false;
+            node.RootOwner = null;
+            return true;
         }
 
         /// <summary>
@@ -294,6 +310,7 @@ namespace FishUI.Controls
         /// </summary>
         public void ClearNodes()
         {
+            foreach (var node in Nodes) node.RootOwner = null;
             Nodes.Clear();
             SelectedNode = null;
             _hoveredNode = null;
@@ -304,6 +321,7 @@ namespace FishUI.Controls
         /// </summary>
         public void SelectNode(TreeNode node)
         {
+            if (SelectedNode == node) return;
             long oldNodeId = DiagnosticNodeId(SelectedNode);
             if (SelectedNode != null)
                 SelectedNode.IsSelected = false;
@@ -315,6 +333,7 @@ namespace FishUI.Controls
             {
                 node.IsSelected = true;
                 OnNodeSelected?.Invoke(this, node);
+                InvokeHandler(OnSelectionChangedHandler, new SelectionChangedEventHandlerArgs(FishUI, -1, node));
 
                 // Legacy broadcast for backward compatibility
                 FishUI?.Events?.Broadcast(FishUI, this, "node_selected", new object[] { node });
@@ -423,6 +442,7 @@ namespace FishUI.Controls
         public override void Init(FishUI UI)
         {
             base.Init(UI);
+            if (_scrollBar != null) return;
 
             // Create scrollbar with relative positioning on the right side
             _scrollBar = new ScrollBarV();
@@ -433,6 +453,24 @@ namespace FishUI.Controls
                 _scrollOffset = position * Math.Max(0, _totalContentHeight - Size.Y);
             };
             AddRuntimeChild(_scrollBar);
+        }
+
+        public override void OnDeserialized(FishUI ui)
+        {
+            var seen = new HashSet<TreeNode>();
+            foreach (TreeNode node in Nodes)
+            {
+                RestoreParents(node, null, seen);
+                node.RootOwner = this;
+            }
+            base.OnDeserialized(ui);
+        }
+
+        private static void RestoreParents(TreeNode node, TreeNode parent, HashSet<TreeNode> seen)
+        {
+            if (node == null || !seen.Add(node)) throw new InvalidOperationException("A tree cannot contain null, shared, or cyclic nodes.");
+            node.Parent = parent;
+            foreach (TreeNode child in node.Children) RestoreParents(child, node, seen);
         }
 
         private void UpdateVisibleNodes()
@@ -618,12 +656,12 @@ namespace FishUI.Controls
             // Draw background
             if (UI.Settings.ImgTreeBackground != null)
             {
-                UI.Graphics.DrawNPatch(UI.Settings.ImgTreeBackground, pos, size, FishColor.White);
+                UI.Graphics.DrawNPatch(UI.Settings.ImgTreeBackground, pos, size, ApplyOpacity(FishColor.White));
             }
             else
             {
-                UI.Graphics.DrawRectangle(pos, size, UI.Settings.GetColorPalette().Background);
-                UI.Graphics.DrawRectangleOutline(pos, size, UI.Settings.GetColorPalette().Border);
+                UI.Graphics.DrawRectangle(pos, size, ApplyOpacity(UI.Settings.GetColorPalette().Background));
+                UI.Graphics.DrawRectangleOutline(pos, size, ApplyOpacity(UI.Settings.GetColorPalette().Border));
             }
 
             float contentWidth = size.X - (_scrollBar?.Size.X ?? 0) - 4;
@@ -688,17 +726,13 @@ namespace FishUI.Controls
             {
                 UI.Graphics.DrawRectangle(
                     new Vector2(x, y),
-                    new Vector2(width, NodeHeight),
-                    GetSelectionColor(UI)
-                );
+                    new Vector2(width, NodeHeight), ApplyOpacity(GetSelectionColor(UI)));
             }
             else if (node == _hoveredNode)
             {
                 UI.Graphics.DrawRectangle(
                     new Vector2(x, y),
-                    new Vector2(width, NodeHeight),
-                    GetHoverColor(UI)
-                );
+                    new Vector2(width, NodeHeight), ApplyOpacity(GetHoverColor(UI)));
             }
 
             // Draw expand/collapse icon
@@ -709,13 +743,13 @@ namespace FishUI.Controls
 
                 if (iconPatch != null)
                 {
-                    UI.Graphics.DrawNPatch(iconPatch, new Vector2(indentX, iconY), new Vector2(IconSize, IconSize), FishColor.White);
+                    UI.Graphics.DrawNPatch(iconPatch, new Vector2(indentX, iconY), new Vector2(IconSize, IconSize), ApplyOpacity(FishColor.White));
                 }
                 else
                 {
                     // Fallback: draw simple +/- symbols
                     var iconColor = UI.Settings.GetColorPalette().Foreground;
-                    UI.Graphics.DrawRectangleOutline(new Vector2(indentX, iconY), new Vector2(IconSize, IconSize), iconColor);
+                    UI.Graphics.DrawRectangleOutline(new Vector2(indentX, iconY), new Vector2(IconSize, IconSize), ApplyOpacity(iconColor));
 
                     float centerX = indentX + IconSize / 2;
                     float centerY = iconY + IconSize / 2;
@@ -725,8 +759,7 @@ namespace FishUI.Controls
                     UI.Graphics.DrawLine(
                         new Vector2(centerX - lineHalf, centerY),
                         new Vector2(centerX + lineHalf, centerY),
-                        1, iconColor
-                    );
+                        1, ApplyOpacity(iconColor));
 
                     // Vertical line (only if collapsed)
                     if (!node.IsExpanded)
@@ -734,8 +767,7 @@ namespace FishUI.Controls
                         UI.Graphics.DrawLine(
                             new Vector2(centerX, centerY - lineHalf),
                             new Vector2(centerX, centerY + lineHalf),
-                            1, iconColor
-                        );
+                            1, ApplyOpacity(iconColor));
                     }
                 }
             }
@@ -749,7 +781,7 @@ namespace FishUI.Controls
                 ? FishColor.White
                 : UI.Settings.GetColorPalette().Foreground;
 
-            UI.Graphics.DrawTextColor(UI.Settings.FontLabel, text, new Vector2(textX, textY), textColor);
+            UI.Graphics.DrawTextColor(UI.Settings.FontLabel, text, new Vector2(textX, textY), ApplyOpacity(textColor));
         }
 
         public override void DrawChildren(FishUI UI, float Dt, float Time, bool UseScissors = true)

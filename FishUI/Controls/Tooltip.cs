@@ -205,17 +205,17 @@ namespace FishUI.Controls
             NPatch bgImg = UI.Settings.ImgTooltipNormal;
             if (bgImg != null)
             {
-                UI.Graphics.DrawNPatch(bgImg, absPos, absSize, Color);
+                UI.Graphics.DrawNPatch(bgImg, absPos, absSize, ApplyOpacity(Color));
             }
             else
             {
                 // Fallback: draw a simple rectangle
-                UI.Graphics.DrawRectangle(absPos, absSize, new FishColor(40, 40, 40, 230));
+                UI.Graphics.DrawRectangle(absPos, absSize, ApplyOpacity(new FishColor(40, 40, 40, 230)));
             }
 
             // Draw text
             Vector2 textPos = absPos + new Vector2(TextPadding, TextPadding);
-            UI.Graphics.DrawText(UI.Settings.FontDefault, Text, textPos);
+            UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Text, textPos, ApplyOpacity(UI.Settings.FontDefault.Color));
         }
     }
 }

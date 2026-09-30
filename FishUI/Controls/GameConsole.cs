@@ -107,7 +107,7 @@ namespace FishUI.Controls
 
             public override void DrawControl(FishUI ui, float deltaTime, float time)
             {
-                ui.Graphics.DrawRectangle(GetAbsolutePosition(), GetAbsoluteSize(), _owner.ResizeBarColor);
+                ui.Graphics.DrawRectangle(GetAbsolutePosition(), GetAbsoluteSize(), ApplyOpacity(_owner.ResizeBarColor));
             }
 
             public override void HandleDrag(FishUI ui, Vector2 start, Vector2 end, FishInputState input)
@@ -275,6 +275,7 @@ namespace FishUI.Controls
 
         public event EventHandler<GameConsoleUnknownCommandEventArgs> UnknownCommand;
 
+        [YamlIgnore]
         protected internal override bool RequiresRootAttachment => true;
 
         public GameConsole()
@@ -405,7 +406,7 @@ namespace FishUI.Controls
         public override void DrawControl(FishUI ui, float deltaTime, float time)
         {
             using FishUIDebugRenderScope semantic = ui.Diagnostics.EnterRenderSemantic(FishUIRenderSemantic.ControlBounds);
-            ui.Graphics.DrawRectangle(GetAbsolutePosition(), GetAbsoluteSize(), BackgroundColor);
+            ui.Graphics.DrawRectangle(GetAbsolutePosition(), GetAbsoluteSize(), ApplyOpacity(BackgroundColor));
         }
 
         public void Open()

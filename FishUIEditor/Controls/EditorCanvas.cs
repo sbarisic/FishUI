@@ -104,9 +104,13 @@ namespace FishUIEditor.Controls
         /// </summary>
         public void RemoveEditedControl(Control control)
         {
-            _editedControls.Remove(control);
-            if (SelectedControl == control)
-                SelectedControl = null;
+            if (control == null) return;
+            bool clearSelection = false;
+            for (Control selected = SelectedControl; selected != null; selected = selected.GetParent())
+                if (selected == control) { clearSelection = true; break; }
+            if (control.GetParent() is Control parent) parent.RemoveChild(control);
+            else _editedControls.Remove(control);
+            if (clearSelection) SelectControl(null);
         }
 
         /// <summary>
@@ -122,6 +126,16 @@ namespace FishUIEditor.Controls
         /// Gets all controls on the design surface.
         /// </summary>
         public IReadOnlyList<Control> GetEditedControls() => _editedControls;
+
+        /// <summary>Prepares a complete replacement before changing the current document.</summary>
+        public void LoadLayout(FishUI.FishUI ui, string yaml)
+        {
+            var incoming = LayoutFormat.DeserializeControls(yaml);
+            foreach (var root in incoming)
+                root.OnDeserialized(ui);
+            _editedControls = incoming;
+            SelectedControl = null;
+        }
 
         /// <summary>
         /// Selects a control.

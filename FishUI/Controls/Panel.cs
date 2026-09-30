@@ -137,13 +137,13 @@ namespace FishUI.Controls
             }
 
             // Draw top border
-            UI.Graphics.DrawLine(pos, new Vector2(pos.X + size.X, pos.Y), BorderThickness, topLeft);
+            UI.Graphics.DrawLine(pos, new Vector2(pos.X + size.X, pos.Y), BorderThickness, ApplyOpacity(topLeft));
             // Draw left border
-            UI.Graphics.DrawLine(pos, new Vector2(pos.X, pos.Y + size.Y), BorderThickness, topLeft);
+            UI.Graphics.DrawLine(pos, new Vector2(pos.X, pos.Y + size.Y), BorderThickness, ApplyOpacity(topLeft));
             // Draw bottom border
-            UI.Graphics.DrawLine(new Vector2(pos.X, pos.Y + size.Y), new Vector2(pos.X + size.X, pos.Y + size.Y), BorderThickness, bottomRight);
+            UI.Graphics.DrawLine(new Vector2(pos.X, pos.Y + size.Y), new Vector2(pos.X + size.X, pos.Y + size.Y), BorderThickness, ApplyOpacity(bottomRight));
             // Draw right border
-            UI.Graphics.DrawLine(new Vector2(pos.X + size.X, pos.Y), new Vector2(pos.X + size.X, pos.Y + size.Y), BorderThickness, bottomRight);
+            UI.Graphics.DrawLine(new Vector2(pos.X + size.X, pos.Y), new Vector2(pos.X + size.X, pos.Y + size.Y), BorderThickness, ApplyOpacity(bottomRight));
         }
 
         /// <summary>
@@ -158,7 +158,7 @@ namespace FishUI.Controls
             Vector2 pos = GetAbsolutePosition();
             Vector2 size = GetAbsoluteSize();
             FishColor containerColor = new FishColor(100, 150, 255, 150);
-            UI.Graphics.DrawRectangleOutline(pos, size, containerColor);
+            UI.Graphics.DrawRectangleOutline(pos, size, ApplyOpacity(containerColor));
 
             // Draw anchor visualization
             DrawAnchorVisualization(UI);

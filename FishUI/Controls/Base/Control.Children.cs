@@ -221,7 +221,11 @@ namespace FishUI.Controls
         /// <returns>True if the child should receive input at this point.</returns>
         public virtual bool ShouldChildReceiveInput(Control child, System.Numerics.Vector2 globalPoint)
         {
-            return true; // By default, all children can receive input
+            if (DisableChildScissor) return true;
+            var pos = GetAbsolutePosition();
+            var size = GetAbsoluteSize();
+            return globalPoint.X >= pos.X && globalPoint.Y >= pos.Y &&
+                globalPoint.X < pos.X + size.X && globalPoint.Y < pos.Y + size.Y;
         }
 
         /// <summary>

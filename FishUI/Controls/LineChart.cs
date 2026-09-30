@@ -443,7 +443,7 @@ namespace FishUI.Controls
             _chartSize = chartSize;
 
             // Draw background
-            UI.Graphics.DrawRectangle(chartPos, chartSize, BackgroundColor);
+            UI.Graphics.DrawRectangle(chartPos, chartSize, ApplyOpacity(BackgroundColor));
 
             // Draw grid
             DrawGrid(UI, chartPos, chartSize);
@@ -456,7 +456,7 @@ namespace FishUI.Controls
                 DrawCursor(UI, chartPos, chartSize);
 
             // Draw border
-            UI.Graphics.DrawRectangleOutline(chartPos, chartSize, BorderColor);
+            UI.Graphics.DrawRectangleOutline(chartPos, chartSize, ApplyOpacity(BorderColor));
 
             // Draw labels
             if (ShowYAxisLabels)
@@ -481,7 +481,7 @@ namespace FishUI.Controls
                     UI.Graphics.DrawLine(
                         new Vector2(chartPos.X, y),
                         new Vector2(chartPos.X + chartSize.X, y),
-                        1f, GridColor);
+                        1f, ApplyOpacity(GridColor));
                 }
             }
 
@@ -494,7 +494,7 @@ namespace FishUI.Controls
                     UI.Graphics.DrawLine(
                         new Vector2(x, chartPos.Y),
                         new Vector2(x, chartPos.Y + chartSize.Y),
-                        1f, GridColor);
+                        1f, ApplyOpacity(GridColor));
                 }
             }
         }
@@ -534,7 +534,7 @@ namespace FishUI.Controls
                     // Draw line segment
                     if (lastScreenPoint.HasValue)
                     {
-                        UI.Graphics.DrawLine(lastScreenPoint.Value, screenPoint, Scale(series.LineThickness), series.Color);
+                        UI.Graphics.DrawLine(lastScreenPoint.Value, screenPoint, Scale(series.LineThickness), ApplyOpacity(series.Color));
                     }
 
                     lastScreenPoint = screenPoint;
@@ -561,7 +561,7 @@ namespace FishUI.Controls
                 float x = pos.X + labelWidth - textSize.X - Scale(4);
 
 
-                UI.Graphics.DrawTextColor(font, label, new Vector2(x, y - textSize.Y / 2), LabelColor);
+                UI.Graphics.DrawTextColor(font, label, new Vector2(x, y - textSize.Y / 2), ApplyOpacity(LabelColor));
             }
         }
 
@@ -587,7 +587,7 @@ namespace FishUI.Controls
 
                 // Center the label
                 var textSize = UI.Graphics.MeasureText(font, label);
-                UI.Graphics.DrawTextColor(font, label, new Vector2(x - textSize.X / 2, y), LabelColor);
+                UI.Graphics.DrawTextColor(font, label, new Vector2(x - textSize.X / 2, y), ApplyOpacity(LabelColor));
             }
         }
 
@@ -608,7 +608,7 @@ namespace FishUI.Controls
             UI.Graphics.DrawLine(
                 new Vector2(cursorX, chartPos.Y),
                 new Vector2(cursorX, chartPos.Y + chartSize.Y),
-                Scale(2f), CursorColor);
+                Scale(2f), ApplyOpacity(CursorColor));
 
             // Draw data point markers for each series
             float markerSize = Scale(CursorMarkerSize);
@@ -625,7 +625,7 @@ namespace FishUI.Controls
                         chartPos.Y + normalizedY * chartSize.Y - markerSize / 2);
 
                     // Draw filled circle as marker (using rectangle for simplicity)
-                    UI.Graphics.DrawRectangle(markerPos, new Vector2(markerSize, markerSize), series.Color);
+                    UI.Graphics.DrawRectangle(markerPos, new Vector2(markerSize, markerSize), ApplyOpacity(series.Color));
                 }
             }
         }

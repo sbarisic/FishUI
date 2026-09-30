@@ -238,7 +238,7 @@ namespace FishUI.Controls
                 _repeatTimer = 0f;
                 _repeatStarted = false;
                 // Fire immediately on first press
-                OnButtonPressed?.Invoke(this, Btn, Pos);
+                FireRepeat(UI, Pos);
             }
         }
 
@@ -272,7 +272,7 @@ namespace FishUI.Controls
                 Vector2 iconSize = new Vector2(Icon.Width, Icon.Height);
                 Vector2 imgBtnCenter = GetAbsolutePosition() + GetAbsoluteSize() / 2;
                 Vector2 iconPos = imgBtnCenter - iconSize / 2;
-                UI.Graphics.DrawImage(Icon, iconPos, 0f, 1f, iconTint);
+                UI.Graphics.DrawImage(Icon, iconPos, 0f, 1f, ApplyOpacity(iconTint));
                 return;
             }
 
@@ -281,9 +281,17 @@ namespace FishUI.Controls
 
         protected override void PrepareLayout(FishUI UI) => UpdateAutoSize(UI);
 
-        protected override void OnFishUIUpdate(FishUI UI, float Dt, float Time)
+        protected override void OnFishUIPostInputUpdate(FishUI UI, float Dt, float Time)
         {
-            if (IsRepeatButton && IsMousePressed && !Disabled)
+            if (!IsRepeatButton) return;
+            if (!CanRepeat(UI))
+            {
+                if (!IsHierarchyVisible() || !IsHierarchyEnabled() || AttachedFishUI != UI)
+                    UI.CancelPointerPress(this);
+                ResetRepeat();
+                return;
+            }
+            if (IsRepeatButton)
             {
                 _repeatTimer += Math.Max(0, Dt);
 
@@ -293,16 +301,38 @@ namespace FishUI.Controls
                     {
                         _repeatStarted = true;
                         _repeatTimer -= Math.Max(0, RepeatDelay);
-                        OnButtonPressed?.Invoke(this, FishMouseButton.Left, GetAbsolutePosition() + GetAbsoluteSize() / 2);
+                        FireRepeat(UI, GetAbsolutePosition() + GetAbsoluteSize() / 2);
                     }
                 }
                 float interval = Math.Max(0.001f, RepeatInterval);
-                while (_repeatStarted && _repeatTimer >= interval)
+                while (CanRepeat(UI) && _repeatStarted && _repeatTimer >= interval)
                 {
                     _repeatTimer -= interval;
-                    OnButtonPressed?.Invoke(this, FishMouseButton.Left, GetAbsolutePosition() + GetAbsoluteSize() / 2);
+                    FireRepeat(UI, GetAbsolutePosition() + GetAbsoluteSize() / 2);
                 }
             }
+        }
+
+        private void FireRepeat(FishUI ui, Vector2 position)
+        {
+            OnButtonPressed?.Invoke(this, FishMouseButton.Left, position);
+            InvokeHandler(OnClickHandler, new ClickEventHandlerArgs(ui, FishMouseButton.Left));
+        }
+
+        private bool CanRepeat(FishUI ui) => AttachedFishUI == ui && IsMousePressed &&
+            IsHierarchyVisible() && IsHierarchyEnabled() && ui.IsPointerHeld(this);
+
+        private void ResetRepeat()
+        {
+            IsMousePressed = false;
+            _repeatTimer = 0;
+            _repeatStarted = false;
+        }
+
+        protected override void OnDetachedFromFishUI(FishUI ui)
+        {
+            ResetRepeat();
+            base.OnDetachedFromFishUI(ui);
         }
 
         private void DrawStandardButton(FishUI UI)
@@ -366,23 +396,23 @@ namespace FishUI.Controls
                         break;
                 }
 
-                UI.Graphics.DrawImage(Icon, iconPos, 0f, 1f, FishColor.White);
+                UI.Graphics.DrawImage(Icon, iconPos, 0f, 1f, ApplyOpacity(FishColor.White));
                 FishColor textColor = GetColorOverride("Text", FishColor.Black);
-                UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Txt, textPos, textColor);
+                UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Txt, textPos, ApplyOpacity(textColor));
             }
             else if (hasIcon)
             {
                 // Icon-only mode - center the icon
                 Vector2 iconSize = new Vector2(Icon.Width, Icon.Height);
                 Vector2 iconPos = center - iconSize / 2;
-                UI.Graphics.DrawImage(Icon, iconPos, 0f, 1f, FishColor.White);
+                UI.Graphics.DrawImage(Icon, iconPos, 0f, 1f, ApplyOpacity(FishColor.White));
             }
             else if (hasText)
             {
                 // Text-only mode (original behavior)
                 Vector2 TxtSz = UI.Graphics.MeasureText(UI.Settings.FontDefault, Txt);
                 FishColor textColor = GetColorOverride("Text", FishColor.Black);
-                UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Txt, center - TxtSz / 2, textColor);
+                UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Txt, center - TxtSz / 2, ApplyOpacity(textColor));
             }
 
             //DrawChildren(UI, Dt, Time);

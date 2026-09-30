@@ -3,7 +3,7 @@
 ## Text and rendering follow-ups
 
 - [ ] Complex text shaping, bidirectional layout, and IME composition.
-- [ ] Validate physical high-DPI behavior at 125% and 200%, and run the runtime suites on Linux.
+- [ ] Complete the physical DPI matrix in R34 and run the runtime suites on Linux. Actual 125% Windows rendering has been checked.
 
 A list of planned features, improvements, and new controls for FishUI.
 
@@ -106,7 +106,10 @@ The original 78-test milestone is historical. Current regression commands and sc
 
 ### Active Bugs
 
-*No active bugs*
+The 2026-09-30 implementation completed R01-R31 and R33. See [DONE.md](DONE.md) and the [validation notes](docs/HARDENING.md#2026-09-30-backlog-fixes).
+
+- [ ] **R34 — Finish physical DPI validation for rough text** (P2, CPX 3). Font atlases now use framebuffer resolution, bilinear sampling, and DPI-aware cache lookup while keeping logical metrics. The chooser was reproduced and visually checked before/after at actual 125% Windows scale (800 × 600 logical, 1000 × 750 framebuffer). Gwen/Gwen2, native editor rendering, and a Basic Controls diagnostic capture were checked. Physical 100%, 150%, 200%, and live monitor/DPI transitions remain unverified; keep this finding open until those checks pass. Local captures are in the ignored `artifacts/render-validation` directory.
+- [ ] **R32 — Editor Undo and Redo are no-ops** (P3, CPX 4; deferred by request). Leave the commands and implementation unchanged for this revision.
 
 ### Uncategorized (Analyze and create TODO entries in above appropriate sections with priority. Do not fix or implement them just yet. Assign complexity points where applicable. Do not delete this section when you are done, just empty it)
 

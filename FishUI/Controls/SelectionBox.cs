@@ -17,7 +17,7 @@ namespace FishUI.Controls
             //base.Draw(UI, Dt, Time);
 
             NPatch Cur = UI.Settings.ImgSelectionBoxNormal;
-            UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), Color);
+            UI.Graphics.DrawNPatch(Cur, GetAbsolutePosition(), GetAbsoluteSize(), ApplyOpacity(Color));
 
             //DrawChildren(UI, Dt, Time);
         }

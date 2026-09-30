@@ -29,6 +29,7 @@ namespace FishUI.Controls
                     RecordDiagnosticTransition("value", oldValue, _value);
                     UpdateTextFromValue();
                     OnValueChanged?.Invoke(this, _value);
+                    InvokeHandler(OnValueChangedHandler, new ValueChangedEventHandlerArgs(FishUI, oldValue, _value));
                 }
             }
         }
@@ -86,6 +87,23 @@ namespace FishUI.Controls
         public Textbox InternalTextbox => _textbox;
 
         private Textbox _textbox;
+        private bool _formattingText;
+        private sealed class NumericTextbox : Textbox
+        {
+            private readonly NumericUpDown _owner;
+            internal NumericTextbox(NumericUpDown owner) { _owner = owner; }
+            public override void HandleBlur() { _owner.UpdateTextFromValue(); base.HandleBlur(); }
+            public override void HandleKeyDown(FishUI ui, FishInputState input, int key)
+            {
+                if ((FishKey)key == FishKey.Up) _owner.Increment();
+                else if ((FishKey)key == FishKey.Down) _owner.Decrement();
+                else
+                {
+                    if ((FishKey)key == FishKey.Enter) _owner.UpdateTextFromValue();
+                    base.HandleKeyDown(ui, input, key);
+                }
+            }
+        }
         private bool _upButtonHovered = false;
         private bool _upButtonPressed = false;
         private bool _downButtonHovered = false;
@@ -108,7 +126,7 @@ namespace FishUI.Controls
 
         private void CreateInternalControls()
         {
-            _textbox = new Textbox()
+            _textbox = new NumericTextbox(this)
             {
                 Position = Vector2.Zero,
                 Size = new Vector2(Size.X - ButtonWidth, Size.Y),
@@ -121,6 +139,7 @@ namespace FishUI.Controls
 
         private void OnTextboxTextChanged(Textbox sender, string text)
         {
+            if (_formattingText) return;
             bool valid = float.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out float parsed) && float.IsFinite(parsed);
             RecordDiagnosticTransition("parseValid", _diagnosticParseValid, valid);
             _diagnosticParseValid = valid;
@@ -133,6 +152,7 @@ namespace FishUI.Controls
                     _value = clamped;
                     RecordDiagnosticTransition("value", oldValue, _value);
                     OnValueChanged?.Invoke(this, _value);
+                    InvokeHandler(OnValueChangedHandler, new ValueChangedEventHandlerArgs(FishUI, oldValue, _value));
                 }
             }
         }
@@ -141,7 +161,9 @@ namespace FishUI.Controls
         {
             if (_textbox != null)
             {
-                _textbox.Text = FormatValue(_value);
+                _formattingText = true;
+                try { _textbox.Text = FormatValue(_value); }
+                finally { _formattingText = false; }
             }
         }
 
@@ -149,7 +171,7 @@ namespace FishUI.Controls
         {
             return DecimalPlaces > 0
                 ? value.ToString($"F{DecimalPlaces}", CultureInfo.InvariantCulture)
-                : ((int)value).ToString(CultureInfo.InvariantCulture);
+                : value.ToString("F0", CultureInfo.InvariantCulture);
         }
 
         private void UpdateInternalSizes()
@@ -327,14 +349,14 @@ namespace FishUI.Controls
 
             if (upImg != null)
             {
-                UI.Graphics.DrawNPatch(upImg, upPos, btnSize, Color);
+                UI.Graphics.DrawNPatch(upImg, upPos, btnSize, ApplyOpacity(Color));
             }
             else
             {
                 // Fallback
                 FishColor btnColor = _upButtonHovered ? new FishColor(80, 80, 80) : new FishColor(60, 60, 60);
-                UI.Graphics.DrawRectangle(upPos, btnSize, btnColor);
-                UI.Graphics.DrawText(UI.Settings.FontDefault, "?", upPos + new Vector2(btnSize.X / 2 - 4, 1));
+                UI.Graphics.DrawRectangle(upPos, btnSize, ApplyOpacity(btnColor));
+                UI.Graphics.DrawTextColor(UI.Settings.FontDefault, "?", upPos + new Vector2(btnSize.X / 2 - 4, 1), ApplyOpacity(UI.Settings.FontDefault.Color));
             }
 
             // Draw down button
@@ -350,14 +372,14 @@ namespace FishUI.Controls
 
             if (downImg != null)
             {
-                UI.Graphics.DrawNPatch(downImg, downPos, btnSize, Color);
+                UI.Graphics.DrawNPatch(downImg, downPos, btnSize, ApplyOpacity(Color));
             }
             else
             {
                 // Fallback
                 FishColor btnColor = _downButtonHovered ? new FishColor(80, 80, 80) : new FishColor(60, 60, 60);
-                UI.Graphics.DrawRectangle(downPos, btnSize, btnColor);
-                UI.Graphics.DrawText(UI.Settings.FontDefault, "?", downPos + new Vector2(btnSize.X / 2 - 4, 1));
+                UI.Graphics.DrawRectangle(downPos, btnSize, ApplyOpacity(btnColor));
+                UI.Graphics.DrawTextColor(UI.Settings.FontDefault, "?", downPos + new Vector2(btnSize.X / 2 - 4, 1), ApplyOpacity(UI.Settings.FontDefault.Color));
             }
         }
 

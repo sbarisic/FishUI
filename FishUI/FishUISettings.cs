@@ -462,13 +462,13 @@ namespace FishUI
                 // Reload fonts if paths are specified
                 if (!string.IsNullOrEmpty(theme.Fonts.DefaultFontPath))
                 {
-                    FontDefault = UI.Graphics.LoadFont(theme.Fonts.DefaultFontPath, FontSize, FontSpacing, theme.Colors.Foreground);
-                    FontTextboxDefault = UI.Graphics.LoadFont(theme.Fonts.DefaultFontPath, FontSize, FontSpacing, theme.Colors.Foreground);
-                    FontLabel = UI.Graphics.LoadFont(theme.Fonts.DefaultFontPath, FontSizeLabel, FontSpacing, theme.Colors.Foreground);
+                    FontDefault = UI.Graphics.LoadFont(theme.Fonts.DefaultFontPath, ScaledFontSize, FontSpacing, theme.Colors.Foreground);
+                    FontTextboxDefault = UI.Graphics.LoadFont(theme.Fonts.DefaultFontPath, ScaledFontSize, FontSpacing, theme.Colors.Foreground);
+                    FontLabel = UI.Graphics.LoadFont(theme.Fonts.DefaultFontPath, ScaledFontSizeLabel, FontSpacing, theme.Colors.Foreground);
                 }
                 if (!string.IsNullOrEmpty(theme.Fonts.BoldFontPath))
                 {
-                    FontDefaultBold = UI.Graphics.LoadFont(theme.Fonts.BoldFontPath, FontSize, FontSpacing, theme.Colors.Foreground);
+                    FontDefaultBold = UI.Graphics.LoadFont(theme.Fonts.BoldFontPath, ScaledFontSize, FontSpacing, theme.Colors.Foreground);
                 }
             }
 

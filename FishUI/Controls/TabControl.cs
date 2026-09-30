@@ -121,6 +121,19 @@ namespace FishUI.Controls
         // Temporary storage for tab names during deserialization
         private List<string> _tabNamesForDeserialization;
 
+        private List<bool> _tabEnabledForDeserialization;
+        /// <summary>Serialized enabled state for each tab; omitted states default to enabled.</summary>
+        public List<bool> TabEnabled
+        {
+            get => TabPages.Select(page => page.Enabled).ToList();
+            set
+            {
+                _tabEnabledForDeserialization = value;
+                for (int i = 0; value != null && i < Math.Min(value.Count, TabPages.Count); i++)
+                    TabPages[i].Enabled = value[i];
+            }
+        }
+
         /// <summary>
         /// The index of the currently selected tab.
         /// </summary>
@@ -129,6 +142,7 @@ namespace FishUI.Controls
             get => _selectedIndex;
             set
             {
+                if (NumericRange.ReadingLayout) { _selectedIndex = value; return; }
                 if (value >= 0 && value < TabPages.Count && value != _selectedIndex)
                 {
                     int oldIndex = _selectedIndex;
@@ -136,6 +150,7 @@ namespace FishUI.Controls
                     RecordDiagnosticTransition("selectedIndex", oldIndex, _selectedIndex);
                     UpdateContentVisibility();
                     OnSelectedIndexChanged?.Invoke(this, oldIndex, _selectedIndex);
+                    InvokeHandler(OnSelectionChangedHandler, new SelectionChangedEventHandlerArgs(FishUI, _selectedIndex, SelectedTab));
                 }
             }
         }
@@ -402,13 +417,13 @@ namespace FishUI.Controls
 
             if (bgImg != null)
             {
-                UI.Graphics.DrawNPatch(bgImg, contentPos, bgSize, Color);
+                UI.Graphics.DrawNPatch(bgImg, contentPos, bgSize, ApplyOpacity(Color));
             }
             else
             {
                 // Fallback
-                UI.Graphics.DrawRectangle(contentPos, bgSize, new FishColor(240, 240, 240));
-                UI.Graphics.DrawRectangleOutline(contentPos, bgSize, new FishColor(180, 180, 180));
+                UI.Graphics.DrawRectangle(contentPos, bgSize, ApplyOpacity(new FishColor(240, 240, 240)));
+                UI.Graphics.DrawRectangleOutline(contentPos, bgSize, ApplyOpacity(new FishColor(180, 180, 180)));
             }
 
             // Draw the complete tab strip first. Tabs are inset from the left edge and paint over this strip.
@@ -419,11 +434,11 @@ namespace FishUI.Controls
             NPatch headerImg = UI.Settings.ImgTabTopInactive ?? UI.Settings.ImgTabHeaderBar;
             if (headerImg != null)
             {
-                UI.Graphics.DrawNPatch(headerImg, headerPos, headerSize, Color);
+                UI.Graphics.DrawNPatch(headerImg, headerPos, headerSize, ApplyOpacity(Color));
             }
             else
             {
-                UI.Graphics.DrawRectangle(headerPos, headerSize, new FishColor(200, 200, 200));
+                UI.Graphics.DrawRectangle(headerPos, headerSize, ApplyOpacity(new FishColor(200, 200, 200)));
             }
 
             // Draw tabs
@@ -488,15 +503,15 @@ namespace FishUI.Controls
             if (tabImg != null)
             {
                 FishColor tabColor = page.Enabled ? Color : new FishColor(180, 180, 180);
-                UI.Graphics.DrawNPatch(tabImg, tabPos, tabSize, tabColor);
+                UI.Graphics.DrawNPatch(tabImg, tabPos, tabSize, ApplyOpacity(tabColor));
             }
             else
             {
                 FishColor bgColor = isSelected
                     ? new FishColor(240, 240, 240)
                     : (isHovered ? new FishColor(220, 220, 220) : new FishColor(200, 200, 200));
-                UI.Graphics.DrawRectangle(tabPos, tabSize, bgColor);
-                UI.Graphics.DrawRectangleOutline(tabPos, tabSize, new FishColor(150, 150, 150));
+                UI.Graphics.DrawRectangle(tabPos, tabSize, ApplyOpacity(bgColor));
+                UI.Graphics.DrawRectangleOutline(tabPos, tabSize, ApplyOpacity(new FishColor(150, 150, 150)));
             }
 
             if (string.IsNullOrEmpty(page.Text))
@@ -505,7 +520,7 @@ namespace FishUI.Controls
             Vector2 textSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, page.Text);
             float textX = x + (tabWidth - textSize.X) / 2;
             float textY = tabPos.Y + (headerHeight - textSize.Y) / 2;
-            UI.Graphics.DrawText(UI.Settings.FontDefault, page.Text, new Vector2(textX, textY));
+            UI.Graphics.DrawTextColor(UI.Settings.FontDefault, page.Text, new Vector2(textX, textY), ApplyOpacity(UI.Settings.FontDefault.Color));
         }
 
         /// <summary>
@@ -528,6 +543,7 @@ namespace FishUI.Controls
                         : $"Tab {tabIndex + 1}";
 
                     var page = new TabPage(tabName, panel);
+                    page.Enabled = _tabEnabledForDeserialization == null || tabIndex >= _tabEnabledForDeserialization.Count || _tabEnabledForDeserialization[tabIndex];
                     TabPages.Add(page);
                     tabIndex++;
                 }
@@ -535,6 +551,7 @@ namespace FishUI.Controls
 
             // Clear the temporary storage
             _tabNamesForDeserialization = null;
+            _tabEnabledForDeserialization = null;
 
             // Reset selected index if needed
             if (_selectedIndex >= TabPages.Count)
@@ -567,12 +584,12 @@ namespace FishUI.Controls
 
             if (bgImg != null)
             {
-                UI.Graphics.DrawNPatch(bgImg, contentPos, bgSize, Color);
+                UI.Graphics.DrawNPatch(bgImg, contentPos, bgSize, ApplyOpacity(Color));
             }
             else
             {
-                UI.Graphics.DrawRectangle(contentPos, bgSize, new FishColor(240, 240, 240));
-                UI.Graphics.DrawRectangleOutline(contentPos, bgSize, new FishColor(180, 180, 180));
+                UI.Graphics.DrawRectangle(contentPos, bgSize, ApplyOpacity(new FishColor(240, 240, 240)));
+                UI.Graphics.DrawRectangleOutline(contentPos, bgSize, ApplyOpacity(new FishColor(180, 180, 180)));
             }
 
             // Draw tab header background
@@ -582,11 +599,11 @@ namespace FishUI.Controls
 
             if (headerImg != null)
             {
-                UI.Graphics.DrawNPatch(headerImg, headerPos, headerSize, Color);
+                UI.Graphics.DrawNPatch(headerImg, headerPos, headerSize, ApplyOpacity(Color));
             }
             else
             {
-                UI.Graphics.DrawRectangle(headerPos, headerSize, new FishColor(200, 200, 200));
+                UI.Graphics.DrawRectangle(headerPos, headerSize, ApplyOpacity(new FishColor(200, 200, 200)));
             }
 
             // Draw tab labels in header
@@ -616,8 +633,8 @@ namespace FishUI.Controls
                     tabColor = new FishColor(tabColor.R, tabColor.G, tabColor.B, 255);
                 }
 
-                UI.Graphics.DrawRectangle(tabPos, tabSize, tabColor);
-                UI.Graphics.DrawRectangleOutline(tabPos, tabSize, new FishColor(60, 60, 60));
+                UI.Graphics.DrawRectangle(tabPos, tabSize, ApplyOpacity(tabColor));
+                UI.Graphics.DrawRectangleOutline(tabPos, tabSize, ApplyOpacity(new FishColor(60, 60, 60)));
 
                 // Draw tab text
                 if (!string.IsNullOrEmpty(page.Text) && UI.Settings.FontDefault != null)
@@ -625,7 +642,7 @@ namespace FishUI.Controls
                     Vector2 textSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, page.Text);
                     float textX = x + (tabWidth - textSize.X) / 2;
                     float textY = absPos.Y + (headerHeight - textSize.Y) / 2;
-                    UI.Graphics.DrawText(UI.Settings.FontDefault, page.Text, new Vector2(textX, textY));
+                    UI.Graphics.DrawTextColor(UI.Settings.FontDefault, page.Text, new Vector2(textX, textY), ApplyOpacity(UI.Settings.FontDefault.Color));
                 }
 
                 // Draw content panel outline with matching color
@@ -634,13 +651,13 @@ namespace FishUI.Controls
                     Vector2 panelPos = page.Content.GetAbsolutePosition();
                     Vector2 panelSize = page.Content.GetAbsoluteSize();
                     FishColor outlineColor = new FishColor(tabColor.R, tabColor.G, tabColor.B, (byte)(isSelected ? 200 : 100));
-                    UI.Graphics.DrawRectangleOutline(panelPos, panelSize, outlineColor);
+                    UI.Graphics.DrawRectangleOutline(panelPos, panelSize, ApplyOpacity(outlineColor));
 
                     // Draw tab index label in the content area corner
                     if (UI.Settings.FontDefault != null)
                     {
                         string label = $"Tab {i + 1}";
-                        UI.Graphics.DrawTextColor(UI.Settings.FontDefault, label, new Vector2(panelPos.X + 4, panelPos.Y + 2), outlineColor);
+                        UI.Graphics.DrawTextColor(UI.Settings.FontDefault, label, new Vector2(panelPos.X + 4, panelPos.Y + 2), ApplyOpacity(outlineColor));
                     }
                 }
 
@@ -649,7 +666,7 @@ namespace FishUI.Controls
 
             // Draw container outline for the whole control
             FishColor containerColor = new FishColor(100, 150, 255, 150);
-            UI.Graphics.DrawRectangleOutline(absPos, absSize, containerColor);
+            UI.Graphics.DrawRectangleOutline(absPos, absSize, ApplyOpacity(containerColor));
 
             // Draw anchor visualization
             DrawAnchorVisualization(UI);

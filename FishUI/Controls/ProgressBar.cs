@@ -26,7 +26,14 @@ namespace FishUI.Controls
         public float Value
         {
             get => _value;
-            set => _value = Math.Clamp(value, 0f, 1f);
+            set
+            {
+                float next = Math.Clamp(value, 0f, 1f);
+                if (_value == next) return;
+                float previous = _value;
+                _value = next;
+                InvokeHandler(OnValueChangedHandler, new ValueChangedEventHandlerArgs(FishUI, previous, next));
+            }
         }
         private float _value = 0f;
 
@@ -126,11 +133,11 @@ namespace FishUI.Controls
             // Draw background using NPatch if available, otherwise use color
             if (UI.Settings.ImgProgressBarTrack != null)
             {
-                UI.Graphics.DrawNPatch(UI.Settings.ImgProgressBarTrack, pos, size, FishColor.White);
+                UI.Graphics.DrawNPatch(UI.Settings.ImgProgressBarTrack, pos, size, ApplyOpacity(FishColor.White));
             }
             else
             {
-                UI.Graphics.DrawRectangle(pos, size, GetBackgroundColor(UI));
+                UI.Graphics.DrawRectangle(pos, size, ApplyOpacity(GetBackgroundColor(UI)));
             }
 
             if (IsIndeterminate)
@@ -145,7 +152,7 @@ namespace FishUI.Controls
             // Draw border if no NPatch is used
             if (ShowBorder && UI.Settings.ImgProgressBarTrack == null)
             {
-                UI.Graphics.DrawRectangleOutline(pos, size, GetBorderColor(UI));
+                UI.Graphics.DrawRectangleOutline(pos, size, ApplyOpacity(GetBorderColor(UI)));
             }
         }
 
@@ -172,11 +179,11 @@ namespace FishUI.Controls
             // Draw fill using NPatch if available, otherwise use color
             if (UI.Settings.ImgProgressBarFill != null)
             {
-                UI.Graphics.DrawNPatch(UI.Settings.ImgProgressBarFill, fillPos, fillSize, FishColor.White);
+                UI.Graphics.DrawNPatch(UI.Settings.ImgProgressBarFill, fillPos, fillSize, ApplyOpacity(FishColor.White));
             }
             else
             {
-                UI.Graphics.DrawRectangle(fillPos, fillSize, GetFillColor(UI));
+                UI.Graphics.DrawRectangle(fillPos, fillSize, ApplyOpacity(GetFillColor(UI)));
             }
         }
 
@@ -214,11 +221,11 @@ namespace FishUI.Controls
             // Draw fill using NPatch if available, otherwise use color
             if (UI.Settings.ImgProgressBarFill != null)
             {
-                UI.Graphics.DrawNPatch(UI.Settings.ImgProgressBarFill, fillPos, fillSize, FishColor.White);
+                UI.Graphics.DrawNPatch(UI.Settings.ImgProgressBarFill, fillPos, fillSize, ApplyOpacity(FishColor.White));
             }
             else
             {
-                UI.Graphics.DrawRectangle(fillPos, fillSize, GetFillColor(UI));
+                UI.Graphics.DrawRectangle(fillPos, fillSize, ApplyOpacity(GetFillColor(UI)));
             }
         }
     }

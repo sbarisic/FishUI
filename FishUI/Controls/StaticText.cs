@@ -77,7 +77,7 @@ namespace FishUI.Controls
             // Draw background if enabled
             if (ShowBackground)
             {
-                UI.Graphics.DrawRectangle(pos, size, BackgroundColor);
+                UI.Graphics.DrawRectangle(pos, size, ApplyOpacity(BackgroundColor));
             }
 
             // Draw text
@@ -127,11 +127,11 @@ namespace FishUI.Controls
                 // Draw with custom color or default
                 if (TextColor.HasValue)
                 {
-                    UI.Graphics.DrawTextColor(UI.Settings.FontLabel, Text, textPos, TextColor.Value);
+                    UI.Graphics.DrawTextColor(UI.Settings.FontLabel, Text, textPos, ApplyOpacity(TextColor.Value));
                 }
                 else
                 {
-                    UI.Graphics.DrawText(UI.Settings.FontLabel, Text, textPos);
+                    UI.Graphics.DrawTextColor(UI.Settings.FontLabel, Text, textPos, ApplyOpacity(UI.Settings.FontLabel.Color));
                 }
             }
         }

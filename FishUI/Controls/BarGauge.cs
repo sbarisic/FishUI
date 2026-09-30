@@ -78,7 +78,14 @@ namespace FishUI.Controls
         public float Value
         {
             get => _value;
-            set => _value = NumericRange.ReadingLayout ? NumericRange.Finite(value) : Math.Clamp(NumericRange.Finite(value), MinValue, MaxValue);
+            set
+            {
+                float next = NumericRange.ReadingLayout ? NumericRange.Finite(value) : Math.Clamp(NumericRange.Finite(value), MinValue, MaxValue);
+                if (_value == next) return;
+                float previous = _value;
+                _value = next;
+                InvokeHandler(OnValueChangedHandler, new ValueChangedEventHandlerArgs(FishUI, previous, next));
+            }
         }
         private float _value = 0f;
 
@@ -288,7 +295,7 @@ namespace FishUI.Controls
             }
 
             // Draw background (gray unfilled area)
-            UI.Graphics.DrawRectangle(gaugePos, gaugeSize, BackgroundColor);
+            UI.Graphics.DrawRectangle(gaugePos, gaugeSize, ApplyOpacity(BackgroundColor));
 
             // Draw filled portion with color zones (only up to current value)
             if (ColorZones.Count > 0)
@@ -307,7 +314,7 @@ namespace FishUI.Controls
             // Draw border
             if (ShowBorder)
             {
-                UI.Graphics.DrawRectangleOutline(gaugePos, gaugeSize, BorderColor);
+                UI.Graphics.DrawRectangleOutline(gaugePos, gaugeSize, ApplyOpacity(BorderColor));
             }
 
             // Draw ticks
@@ -343,15 +350,14 @@ namespace FishUI.Controls
             if (Orientation == BarGaugeOrientation.Horizontal)
             {
                 float fillWidth = size.X * normalized;
-                UI.Graphics.DrawRectangle(pos, new Vector2(fillWidth, size.Y), color);
+                UI.Graphics.DrawRectangle(pos, new Vector2(fillWidth, size.Y), ApplyOpacity(color));
             }
             else
             {
                 float fillHeight = size.Y * normalized;
                 UI.Graphics.DrawRectangle(
                     new Vector2(pos.X, pos.Y + size.Y - fillHeight),
-                    new Vector2(size.X, fillHeight),
-                    color);
+                    new Vector2(size.X, fillHeight), ApplyOpacity(color));
             }
         }
 
@@ -370,8 +376,7 @@ namespace FishUI.Controls
                 float endX = pos.X + size.X * clampedEnd;
                 UI.Graphics.DrawRectangle(
                     new Vector2(startX, pos.Y),
-                    new Vector2(endX - startX, size.Y),
-                    zone.Color);
+                    new Vector2(endX - startX, size.Y), ApplyOpacity(zone.Color));
             }
             else
             {
@@ -379,8 +384,7 @@ namespace FishUI.Controls
                 float endY = pos.Y + size.Y * (1f - clampedStart);
                 UI.Graphics.DrawRectangle(
                     new Vector2(pos.X, startY),
-                    new Vector2(size.X, endY - startY),
-                    zone.Color);
+                    new Vector2(size.X, endY - startY), ApplyOpacity(zone.Color));
             }
         }
 
@@ -396,7 +400,7 @@ namespace FishUI.Controls
                     UI.Graphics.DrawLine(
                         new Vector2(x, pos.Y + size.Y),
                         new Vector2(x, pos.Y + size.Y + TickLength),
-                        1f, TickColor);
+                        1f, ApplyOpacity(TickColor));
                 }
                 else
                 {
@@ -404,7 +408,7 @@ namespace FishUI.Controls
                     UI.Graphics.DrawLine(
                         new Vector2(pos.X + size.X, y),
                         new Vector2(pos.X + size.X + TickLength, y),
-                        1f, TickColor);
+                        1f, ApplyOpacity(TickColor));
                 }
             }
         }
@@ -421,15 +425,15 @@ namespace FishUI.Controls
                 {
                     float x = pos.X + size.X * t;
                     Vector2 textSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, labelText);
-                    UI.Graphics.DrawText(UI.Settings.FontDefault, labelText,
-                        new Vector2(x - textSize.X / 2, pos.Y + size.Y + TickLength + 2));
+                    UI.Graphics.DrawTextColor(UI.Settings.FontDefault, labelText,
+                        new Vector2(x - textSize.X / 2, pos.Y + size.Y + TickLength + 2), ApplyOpacity(UI.Settings.FontDefault.Color));
                 }
                 else
                 {
                     float y = pos.Y + size.Y * (1f - t);
                     Vector2 textSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, labelText);
-                    UI.Graphics.DrawText(UI.Settings.FontDefault, labelText,
-                        new Vector2(pos.X + size.X + TickLength + 2, y - textSize.Y / 2));
+                    UI.Graphics.DrawTextColor(UI.Settings.FontDefault, labelText,
+                        new Vector2(pos.X + size.X + TickLength + 2, y - textSize.Y / 2), ApplyOpacity(UI.Settings.FontDefault.Color));
                 }
             }
         }
@@ -441,7 +445,7 @@ namespace FishUI.Controls
 
             // Center the value text on the gauge
             Vector2 textPos = pos + size / 2 - textSize / 2;
-            UI.Graphics.DrawTextColor(UI.Settings.FontDefault, valueText, textPos, FishColor.White);
+            UI.Graphics.DrawTextColor(UI.Settings.FontDefault, valueText, textPos, ApplyOpacity(FishColor.White));
         }
 
         private void DrawRangeLabels(FishUI UI, Vector2 pos, Vector2 size)
@@ -457,7 +461,7 @@ namespace FishUI.Controls
                     Vector2 minTextSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, MinLabel);
                     float minX = pos.X - minTextSize.X - 4;
                     float minY = pos.Y + (size.Y - minTextSize.Y) / 2;
-                    UI.Graphics.DrawTextColor(UI.Settings.FontDefault, MinLabel, new Vector2(minX, minY), RangeLabelColor);
+                    UI.Graphics.DrawTextColor(UI.Settings.FontDefault, MinLabel, new Vector2(minX, minY), ApplyOpacity(RangeLabelColor));
                 }
 
                 // Max label on the right
@@ -466,7 +470,7 @@ namespace FishUI.Controls
                     Vector2 maxTextSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, MaxLabel);
                     float maxX = pos.X + size.X + 4;
                     float maxY = pos.Y + (size.Y - maxTextSize.Y) / 2;
-                    UI.Graphics.DrawTextColor(UI.Settings.FontDefault, MaxLabel, new Vector2(maxX, maxY), RangeLabelColor);
+                    UI.Graphics.DrawTextColor(UI.Settings.FontDefault, MaxLabel, new Vector2(maxX, maxY), ApplyOpacity(RangeLabelColor));
                 }
             }
             else
@@ -477,7 +481,7 @@ namespace FishUI.Controls
                     Vector2 minTextSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, MinLabel);
                     float minX = pos.X + (size.X - minTextSize.X) / 2;
                     float minY = pos.Y + size.Y + 4;
-                    UI.Graphics.DrawTextColor(UI.Settings.FontDefault, MinLabel, new Vector2(minX, minY), RangeLabelColor);
+                    UI.Graphics.DrawTextColor(UI.Settings.FontDefault, MinLabel, new Vector2(minX, minY), ApplyOpacity(RangeLabelColor));
                 }
 
                 // Max label at the top
@@ -486,7 +490,7 @@ namespace FishUI.Controls
                     Vector2 maxTextSize = UI.Graphics.MeasureText(UI.Settings.FontDefault, MaxLabel);
                     float maxX = pos.X + (size.X - maxTextSize.X) / 2;
                     float maxY = pos.Y - maxTextSize.Y - 4;
-                    UI.Graphics.DrawTextColor(UI.Settings.FontDefault, MaxLabel, new Vector2(maxX, maxY), RangeLabelColor);
+                    UI.Graphics.DrawTextColor(UI.Settings.FontDefault, MaxLabel, new Vector2(maxX, maxY), ApplyOpacity(RangeLabelColor));
                 }
             }
         }

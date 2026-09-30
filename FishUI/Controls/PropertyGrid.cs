@@ -482,7 +482,9 @@ namespace FishUI.Controls
 
             var properties = _selectedObject.GetType()
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(p => p.CanRead && IsSupportedType(p.PropertyType))
+                .Concat(_selectedObject.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance).Select(f => (PropertyInfo)new FieldProperty(f)))
+                .Where(p => p.CanRead && p.GetIndexParameters().Length == 0 && IsSupportedType(p.PropertyType) &&
+                    p.GetCustomAttribute<BrowsableAttribute>()?.Browsable != false && p.GetCustomAttribute<YamlIgnoreAttribute>() == null)
                 .ToList();
 
             if (GroupByCategory)
@@ -557,12 +559,35 @@ namespace FishUI.Controls
                 return true;
             if (type.IsEnum)
                 return true;
-            if (type == typeof(Vector2) || type == typeof(Vector3) || type == typeof(Vector4))
+            if (type == typeof(Vector2) || type == typeof(Vector3) || type == typeof(Vector4) || type == typeof(FishUIPosition))
                 return true;
             // Support List<string> for collection editing (e.g., ListBox.Items text values)
             if (IsStringCollection(type))
                 return true;
             return false;
+        }
+
+        // Adapt fields to the existing editor/reflection path, including reset and metadata support.
+        private sealed class FieldProperty : PropertyInfo
+        {
+            private readonly FieldInfo _field;
+            internal FieldProperty(FieldInfo field) { _field = field; }
+            public override string Name => _field.Name;
+            public override Type PropertyType => _field.FieldType;
+            public override Type DeclaringType => _field.DeclaringType;
+            public override Type ReflectedType => _field.ReflectedType;
+            public override PropertyAttributes Attributes => PropertyAttributes.None;
+            public override bool CanRead => true;
+            public override bool CanWrite => !_field.IsInitOnly && !_field.IsLiteral;
+            public override MethodInfo[] GetAccessors(bool nonPublic) => Array.Empty<MethodInfo>();
+            public override MethodInfo GetGetMethod(bool nonPublic) => null;
+            public override MethodInfo GetSetMethod(bool nonPublic) => null;
+            public override ParameterInfo[] GetIndexParameters() => Array.Empty<ParameterInfo>();
+            public override object[] GetCustomAttributes(bool inherit) => _field.GetCustomAttributes(inherit);
+            public override object[] GetCustomAttributes(Type type, bool inherit) => _field.GetCustomAttributes(type, inherit);
+            public override bool IsDefined(Type type, bool inherit) => _field.IsDefined(type, inherit);
+            public override object GetValue(object obj, BindingFlags flags, Binder binder, object[] index, System.Globalization.CultureInfo culture) => _field.GetValue(obj);
+            public override void SetValue(object obj, object value, BindingFlags flags, Binder binder, object[] index, System.Globalization.CultureInfo culture) => _field.SetValue(obj, value);
         }
 
         /// <summary>
@@ -727,7 +752,7 @@ namespace FishUI.Controls
                 // Focus the internal textbox so user can type immediately
                 UI.FocusControl(numericUpDown.InternalTextbox);
             }
-            else if (propType == typeof(Vector2))
+            else if (propType == typeof(Vector2) || propType == typeof(FishUIPosition))
             {
                 CreateVectorEditor(UI, item, x, y, width, height, 2, currentValue);
             }
@@ -788,6 +813,11 @@ namespace FishUI.Controls
                 values[0] = v2.X;
                 values[1] = v2.Y;
             }
+            else if (currentValue is FishUIPosition position)
+            {
+                values[0] = position.X;
+                values[1] = position.Y;
+            }
             else if (currentValue is Vector3 v3)
             {
                 values[0] = v3.X;
@@ -846,6 +876,12 @@ namespace FishUI.Controls
                         newValue = new Vector3(currentVals[0], currentVals[1], currentVals[2]);
                     else if (componentCount == 4)
                         newValue = new Vector4(currentVals[0], currentVals[1], currentVals[2], currentVals[3]);
+
+                    if (oldValue is FishUIPosition position)
+                    {
+                        position.X = currentVals[0]; position.Y = currentVals[1];
+                        newValue = position;
+                    }
 
                     if (newValue != null && item.SetValue(newValue))
                         OnPropertyValueChanged?.Invoke(this, item, oldValue, newValue);
@@ -1090,7 +1126,7 @@ namespace FishUI.Controls
                 _font = UI.Settings.FontDefault;
 
             // Draw background
-            gfx.DrawRectangle(absPos, absSize, BackgroundColor);
+            gfx.DrawRectangle(absPos, absSize, ApplyOpacity(BackgroundColor));
 
             float contentHeight = _visibleItems.Count * RowHeight;
             float visibleHeight = absSize.Y;
@@ -1116,11 +1152,11 @@ namespace FishUI.Controls
                 if (item.IsCategoryHeader)
                 {
                     // Draw category header
-                    gfx.DrawRectangle(new Vector2(absPos.X, itemY), new Vector2(contentWidth, RowHeight), CategoryColor);
+                    gfx.DrawRectangle(new Vector2(absPos.X, itemY), new Vector2(contentWidth, RowHeight), ApplyOpacity(CategoryColor));
 
                     // Draw expand/collapse indicator and text
                     string indicator = item.IsExpanded ? "- " : "+ ";
-                    gfx.DrawTextColor(_font, indicator + item.Name, new Vector2(absPos.X + 4, itemY + 3), CategoryTextColor);
+                    gfx.DrawTextColor(_font, indicator + item.Name, new Vector2(absPos.X + 4, itemY + 3), ApplyOpacity(CategoryTextColor));
                 }
                 else
                 {
@@ -1135,45 +1171,57 @@ namespace FishUI.Controls
                     float indent = item.Depth * IndentWidth;
 
                     // Name column background
-                    gfx.DrawRectangle(new Vector2(absPos.X, itemY), new Vector2(nameColumnWidth, RowHeight), NameColumnColor);
+                    gfx.DrawRectangle(new Vector2(absPos.X, itemY), new Vector2(nameColumnWidth, RowHeight), ApplyOpacity(NameColumnColor));
 
                     // Value column background
-                    gfx.DrawRectangle(new Vector2(absPos.X + nameColumnWidth, itemY), new Vector2(contentWidth - nameColumnWidth, RowHeight), rowColor);
+                    gfx.DrawRectangle(new Vector2(absPos.X + nameColumnWidth, itemY), new Vector2(contentWidth - nameColumnWidth, RowHeight), ApplyOpacity(rowColor));
 
                     // Separator line
-                    gfx.DrawRectangle(new Vector2(absPos.X + nameColumnWidth - 1, itemY), new Vector2(1, RowHeight), SeparatorColor);
+                    gfx.DrawRectangle(new Vector2(absPos.X + nameColumnWidth - 1, itemY), new Vector2(1, RowHeight), ApplyOpacity(SeparatorColor));
 
                     // Draw name
-                    gfx.DrawTextColor(_font, item.Name, new Vector2(absPos.X + 4 + indent, itemY + 3), NameTextColor);
+                    gfx.DrawTextColor(_font, item.Name, new Vector2(absPos.X + 4 + indent, itemY + 3), ApplyOpacity(NameTextColor));
 
                     // Draw value (if no active editor for this item)
                     if (_activeEditor == null || _selectedItem != item)
                     {
                         string valueText = FormatValue(item.GetValue());
-                        gfx.DrawTextColor(_font, valueText, new Vector2(absPos.X + nameColumnWidth + 4, itemY + 3), ValueTextColor);
+                        gfx.DrawTextColor(_font, valueText, new Vector2(absPos.X + nameColumnWidth + 4, itemY + 3), ApplyOpacity(ValueTextColor));
                     }
                 }
 
                 // Draw row separator
-                gfx.DrawRectangle(new Vector2(absPos.X, itemY + RowHeight - 1), new Vector2(contentWidth, 1), SeparatorColor);
+                gfx.DrawRectangle(new Vector2(absPos.X, itemY + RowHeight - 1), new Vector2(contentWidth, 1), ApplyOpacity(SeparatorColor));
 
                 visibleIndex++;
             }
 
+            // Draw border
+            gfx.DrawRectangleOutline(absPos, absSize, ApplyOpacity(SeparatorColor));
+        }
+
+        protected override void PrepareLayout(FishUI UI)
+        {
+            UpdateVisibleItems();
+            Vector2 absSize = GetAbsoluteSize();
+            float contentHeight = _visibleItems.Count * RowHeight;
+            float visibleHeight = absSize.Y;
             // Draw scrollbar if needed
             if (contentHeight > visibleHeight)
             {
                 if (_scrollBar == null)
                 {
                     _scrollBar = new ScrollBarV();
-                    _scrollBar.Position = new Vector2(absSize.X - 16, 0);
-                    _scrollBar.Size = new Vector2(16, absSize.Y);
-                    _scrollBar.OnScrollChanged += (sender, scroll, dir) => _scrollOffset = scroll * (contentHeight - visibleHeight);
+                    _scrollBar.OnScrollChanged += (sender, scroll, dir) => _scrollOffset = scroll * Math.Max(0, _visibleItems.Count * RowHeight - GetAbsoluteSize().Y);
                     AddRuntimeChild(_scrollBar);
                 }
 
                 _scrollBar.Visible = true;
-                _scrollBar.Size = new Vector2(16, absSize.Y);
+                _scrollBar.Position = new Vector2((absSize.X - 16) / UIScale, 0);
+                _scrollBar.Size = new Vector2(16 / UIScale, absSize.Y / UIScale);
+                _scrollOffset = Math.Clamp(_scrollOffset, 0, contentHeight - visibleHeight);
+                _scrollBar.ThumbHeight = Math.Clamp(visibleHeight / contentHeight, .05f, 1f);
+                _scrollBar.ThumbPosition = _scrollOffset / (contentHeight - visibleHeight);
             }
             else if (_scrollBar != null)
             {
@@ -1181,13 +1229,6 @@ namespace FishUI.Controls
                 _scrollOffset = 0;
             }
 
-            // Draw border
-            gfx.DrawRectangleOutline(absPos, absSize, SeparatorColor);
-        }
-
-        protected override void PrepareLayout(FishUI UI)
-        {
-            UpdateVisibleItems();
         }
 
         private string FormatValue(object value)

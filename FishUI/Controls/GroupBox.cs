@@ -83,13 +83,13 @@ namespace FishUI.Controls
 
             if (borderImg != null)
             {
-                UI.Graphics.DrawNPatch(borderImg, borderPos, borderSize, Color);
+                UI.Graphics.DrawNPatch(borderImg, borderPos, borderSize, ApplyOpacity(Color));
             }
             else
             {
                 // Fallback: draw a simple border rectangle
                 // Draw bottom, left, right borders
-                UI.Graphics.DrawRectangleOutline(borderPos, borderSize, BorderColor);
+                UI.Graphics.DrawRectangleOutline(borderPos, borderSize, ApplyOpacity(BorderColor));
             }
 
             // Draw the title text with a background to "cut" the border
@@ -105,10 +105,10 @@ namespace FishUI.Controls
 
                 // Use parent or control background color
                 FishColor bgColor = new FishColor(240, 240, 240); // Default light gray
-                UI.Graphics.DrawRectangle(bgPos, bgSize, bgColor);
+                UI.Graphics.DrawRectangle(bgPos, bgSize, ApplyOpacity(bgColor));
 
                 // Draw the text
-                UI.Graphics.DrawText(UI.Settings.FontDefault, Text, new Vector2(textX, textY));
+                UI.Graphics.DrawTextColor(UI.Settings.FontDefault, Text, new Vector2(textX, textY), ApplyOpacity(UI.Settings.FontDefault.Color));
             }
         }
 
@@ -124,7 +124,7 @@ namespace FishUI.Controls
             Vector2 contentPos = GetContentPosition();
             Vector2 contentSize = GetContentSize();
             FishColor containerColor = new FishColor(100, 150, 255, 150);
-            UI.Graphics.DrawRectangleOutline(contentPos, contentSize, containerColor);
+            UI.Graphics.DrawRectangleOutline(contentPos, contentSize, ApplyOpacity(containerColor));
 
             // Draw anchor visualization
             DrawAnchorVisualization(UI);

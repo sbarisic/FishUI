@@ -92,7 +92,7 @@ namespace FishUI.Controls
             Vector2 Sz = GetAbsoluteSize();
 
             //FindChildByType<Label>().Position = new Vector2(Sz.X + 5, 0);
-            UI.Graphics.DrawNPatch(Cur, Pos, Sz, Color);
+            UI.Graphics.DrawNPatch(Cur, Pos, Sz, ApplyOpacity(Color));
 
             //DrawChildren(UI, Dt, Time, false);
         }

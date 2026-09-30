@@ -56,7 +56,7 @@ namespace FishUI
         public string BoldPath { get; set; }
         public int DefaultSize { get; set; }
         public int LabelSize { get; set; }
-        public int Spacing { get; set; }
+        public int? Spacing { get; set; }
     }
 
     internal class RegionDto
@@ -221,7 +221,8 @@ namespace FishUI
                 if (dto.Fonts.LabelSize > 0)
                     theme.Fonts.LabelSize = dto.Fonts.LabelSize;
 
-                theme.Fonts.Spacing = dto.Fonts.Spacing;
+                if (dto.Fonts.Spacing.HasValue)
+                    theme.Fonts.Spacing = dto.Fonts.Spacing.Value;
             }
 
             // Map regions
